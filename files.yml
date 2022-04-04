@@ -1,0 +1,46 @@
+- name: create directory
+  file:
+    state: directory
+    path: ~/{{ item }}
+    mode: 0700
+  loop:
+    - .ssh
+    - git
+
+- name: link files
+  copy:
+    src: file/{{ item.src }}
+    dest: ~/{{ item.dest }}
+    force: yes
+    follow: no
+  loop:
+    - src: czrc
+      dest: .czrc
+    - src: bashrc
+      dest: .bashrc
+    - src: zshrc
+      dest: .zshrc
+    - src: profile.zsh
+      dest: .zprofile
+    - src: npmrc
+      dest: .npmrc
+    - src: tmux.conf
+      dest: .tmux.conf
+    - src: prettierrc.yml
+      dest: .prettierrc.yml
+    - src: gitconfig
+      dest: .gitconfig
+    - src: gitignore_global
+      dest: .gitignore_global
+    - src: ssh.config
+      dest: .ssh/config
+    - src: ssh.control
+      dest: .gnupg/sshcontrol
+    - src: gpg-agent.conf
+      dest: .gnupg/gpg-agent.conf
+    - src: config.fish
+      dest: .config/fish/config.fish
+    - src: database
+      dest: .database
+    - src: functions
+      dest: .config/fish/functions

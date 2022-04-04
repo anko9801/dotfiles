@@ -1,0 +1,10 @@
+- name: clone asdf
+  git:
+    repo: https://github.com/asdf-vm/asdf.git
+    dest: ~/.asdf
+    version: v0.9.0
+
+- name: reload bashrc
+  shell: source ~/.bashrc
+  args:
+    executable: /bin/bash
