@@ -1,0 +1,29 @@
+- import_tasks: file.yml
+  tags:
+    - file
+
+- import_tasks: brew.yml
+
+- import_tasks: mas.yml
+  tags:
+    - mas
+
+- import_tasks: pip.yml
+  tags:
+    - pip
+
+- import_tasks: npm.yml
+  tags:
+    - npm
+
+- import_tasks: go.yml
+  tags:
+    - go
+
+- import_tasks: launchd.yml
+  tags:
+    - launchd
+
+- import_tasks: sudoers.yml
+  tags:
+    - sudoers

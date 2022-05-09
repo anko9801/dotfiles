@@ -2,9 +2,15 @@
   git:
     repo: https://github.com/asdf-vm/asdf.git
     dest: ~/.asdf
-    version: v0.9.0
+    version: v0.10.0
 
 - name: reload bashrc
   shell: source ~/.bashrc
   args:
     executable: /bin/bash
+
+- name: install node
+  import_task: node.yml
+
+- name: install pip
+  import_task: pip.yml

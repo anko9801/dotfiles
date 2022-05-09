@@ -1,3 +1,29 @@
+[alias]
+  lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
+  br-prune = !git branch --merged | egrep -v '\\*|master|main' | xargs git branch -d
+  st = status
+  co = checkout
+  ps = push
+  pl = pull
+  c = commit -S
+  cm = commit -S -m
+  a = add --all
+  f = fetch --prune
+  b = branch
+  r = reset
+  sw = switch
+  re = restore
 [user]
-	email = daiusa3@icloud.com
-	name = Daiki Usami
+  email = daiusa3@icloud.com
+  name = anko9801
+  signingKey = 0FE7C5464D835A47F647C5CFCE7EDF802CD44475
+[core]
+  editor = vim
+[push]
+  default = simple
+[commit]
+  gpgSign = false
+[gpg]
+  program = gpg2
+[credential]
+  helper = store

@@ -1,9 +1,0 @@
-- name: install apt packages
-  become: yes
-  apt:
-    name:
-      - git
-      - fd-find
-      - ripgrep
-      - fzf
-      - tldr
