@@ -1,10 +1,10 @@
 - import_tasks: apt.yml
   tags:
-    - apt
+    - base
 
-- import_tasks: neovim.yml
+- import_tasks: dein.yml
   tags:
-    neovim
+    - dein
 
 #- import_tasks: file.yml
 #  tags:

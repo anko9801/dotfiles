@@ -30,7 +30,7 @@ done
 # update and install ansible
 # apt install -y python3-pip
 # pip install ansible
-if type "ansible" > /dev/null 2>&1; then
+if !(type "ansible" > /dev/null 2>&1); then
 	echo "install ansible"
 
 	if type "pacman" > /dev/null 2>&1; then
@@ -69,6 +69,7 @@ fi
 # ansible
 cd ansible
 
+# Future: divide roles but use shell script
 # base
 read -p "install base-tools? [y/n] " yn
 case $yn in
@@ -78,6 +79,12 @@ case $yn in
 esac
 
 # vim
+read -p "install vim plugins through dein? [y/n] " yn
+case $yn in
+	y ) ansible-playbook playbook.yml -K -t dein;;
+	n ) ;;
+	* ) echo "invalid"; exit 1;;
+esac
 
 
 # golang
