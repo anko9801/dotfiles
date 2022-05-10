@@ -1,0 +1,16 @@
+# rustup
+- name: Fetch rustup
+  uri:
+    url: https://sh.rustup.rs
+    return_content: yes
+  register: rustup_installer
+  tags: rust
+
+- name: Run rustup installer
+  shell:
+    cmd: sh -s -- -y
+    stdin: "{{ rustup_installer.content }}"
+  tags: rust
+
+# modern commands
+

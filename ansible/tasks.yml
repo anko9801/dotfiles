@@ -1,6 +1,11 @@
 - import_tasks: apt.yml
+
 - import_tasks: vim.yml
+
+- import_tasks: rust.yml
+
 - import_tasks: asdf.yml
+
 
 #- import_tasks: file.yml
 #  tags:

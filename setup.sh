@@ -82,7 +82,7 @@ esac
 read -p "install asdf? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t asdf;;
+	y* | * ) ansible-playbook playbook.yml -t asdf;;
 esac
 
 # You should set bashrc for not interactive
@@ -96,77 +96,77 @@ fi
 read -p "install nodejs which depends on asdf? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t nodejs;;
+	y* | * ) ansible-playbook playbook.yml -t nodejs;;
 esac
 
 # deno
 read -p "install deno which depends on asdf? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t deno;;
+	y* | * ) ansible-playbook playbook.yml -t deno;;
 esac
 
 # python
 read -p "install python which depends on asdf? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t python;;
+	y* | * ) ansible-playbook playbook.yml -t python;;
 esac
 
 # golang
-read -p "install golang? [Y/n] " yn
+read -p "install golang which depends on asdf? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t golang;;
+	y* | * ) ansible-playbook playbook.yml -t golang;;
 esac
 
 # rust
 read -p "install rust? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t rust;;
+	y* | * ) ansible-playbook playbook.yml -t rust;;
 esac
 
 # modern command
 read -p "install modern commands which depends on rust? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t commands;;
+	y* | * ) ansible-playbook playbook.yml -t commands;;
 esac
 
 # ruby
 read -p "install ruby which depends on asdf? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t ruby;;
+	y* | * ) ansible-playbook playbook.yml -t ruby;;
 esac
 
 # perl
 read -p "install perl? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t perl;;
+	y* | * ) ansible-playbook playbook.yml -t perl;;
 esac
 
 # chisel
 read -p "install chisel? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t chisel;;
+	y* | * ) ansible-playbook playbook.yml -t chisel;;
 esac
 
 # vim
 read -p "install vim plugins through dein? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t dein;;
+	y* | * ) ansible-playbook playbook.yml -t dein;;
 esac
 
 # neovim
 read -p "install neovim? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t neovim;;
+	y* | * ) ansible-playbook playbook.yml -t neovim;;
 esac
 
 
