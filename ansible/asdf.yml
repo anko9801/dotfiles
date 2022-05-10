@@ -29,61 +29,6 @@
   tags: asdf
 
 ##########
-# python #
-##########
-- name: Add python
-  shell: asdf plugin add python
-  args:
-    executable: /bin/bash
-  ignore_errors: True
-  tags: python
-
-- name: Install python3 latest
-  shell: asdf install python latest
-  args:
-    executable: /bin/bash
-  ignore_errors: True
-  tags: python
-
-- name: Install python2 latest
-  shell: asdf install python 2.7.18
-  args:
-    executable: /bin/bash
-  ignore_errors: True
-  tags: python
-
-- name: Global python3
-  shell: asdf global python latest
-  args:
-    executable: /bin/bash
-  ignore_errors: True
-  tags: python
-
-##########
-# golang #
-##########
-- name: Add golang
-  shell: asdf plugin add golang https://github.com/kennyp/asdf-golang.git
-  args:
-    executable: /bin/bash
-  ignore_errors: True
-  tags: golang
-
-- name: Install golang latest
-  shell: asdf install golang latest
-  args:
-    executable: /bin/bash
-  ignore_errors: True
-  tags: golang
-
-- name: Global golang
-  shell: asdf global golang latest
-  args:
-    executable: /bin/bash
-  ignore_errors: True
-  tags: golang
-
-##########
 # deno   #
 ##########
 - name: Add deno
@@ -140,4 +85,60 @@
     - commitizen
     - cz-emoji
   tags: nodejs
+
+
+##########
+# python #
+##########
+- name: Add python
+  shell: asdf plugin add python
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
+
+- name: Install python3 latest
+  shell: asdf install python latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
+
+- name: Install python2 latest
+  shell: asdf install python 2.7.18
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
+
+- name: Global python3 and python2
+  shell: asdf global python latest 2.7.18
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
+
+##########
+# golang #
+##########
+- name: Add golang
+  shell: asdf plugin add golang https://github.com/kennyp/asdf-golang.git
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: golang
+
+- name: Install golang latest
+  shell: asdf install golang latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: golang
+
+- name: Global golang
+  shell: asdf global golang latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: golang
 
