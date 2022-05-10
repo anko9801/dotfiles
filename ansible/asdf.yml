@@ -1,18 +1,80 @@
-- name: clone asdf
+##########
+# asdf   #
+##########
+- name: Clone asdf
   git:
     repo: https://github.com/asdf-vm/asdf.git
     dest: ~/.asdf
     version: v0.10.0
+  tags: asdf
 
-- name: reload bashrc
+- name: Reload bashrc
   shell: source ~/.bashrc
   args:
     executable: /bin/bash
+  tags: asdf
 
-# nodejs
-- name: install node
-  import_task: node.yml
+##########
+# pip    #
+##########
+- name: Install pip
+  tags: pip
 
-# pip
-- name: install pip
-  import_task: pip.yml
+##########
+# deno   #
+##########
+- name: Add deno
+  shell: asdf plugin add deno https://github.com/asdf-community/asdf-deno.git
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: deno
+
+- name: Install deno latest
+  shell: asdf install deno latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: deno
+
+- name: Global deno
+  shell: asdf global deno latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: deno
+
+##########
+# nodejs #
+##########
+- name: Add nodejs
+  shell: asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: nodejs
+
+- name: Install nodejs latest
+  shell: asdf install nodejs latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: nodejs
+
+- name: Global nodejs
+  shell: asdf global nodejs latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: nodejs
+
+- name: Install npm packages
+  npm:
+    state: latest
+    global: yes
+    name: "{{ item }}"
+  loop:
+    - commitizen
+    - cz-emoji
+  tags: nodejs
+

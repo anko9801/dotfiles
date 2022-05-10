@@ -2,9 +2,7 @@
   tags:
     - base
 
-- import_tasks: dein.yml
-  tags:
-    - dein
+- import_tasks: vim.yml
 
 #- import_tasks: file.yml
 #  tags:
