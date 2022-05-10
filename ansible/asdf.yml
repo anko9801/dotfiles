@@ -9,8 +9,10 @@
   args:
     executable: /bin/bash
 
+# nodejs
 - name: install node
   import_task: node.yml
 
+# pip
 - name: install pip
   import_task: pip.yml

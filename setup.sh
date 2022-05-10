@@ -1,5 +1,11 @@
 #!/bin/bash
 
+SCRIPT_DIR=$(cd $(dirname $0); pwd)
+	# if [ -d "${f}" ]; then
+	# 	ln -sf $SCRIPT_DIR/$f/ ~/$f
+	# else
+	# 	ln -sf $SCRIPT_DIR/$f ~/$f
+	# fi
 # 隠しファイルは展開する
 for f in .??*; do
 	[[ "$f" == ".git" ]] && continue
@@ -10,7 +16,7 @@ for f in .??*; do
 		echo "$f already exists."
 		read -p "Do you want to replace it? [y/n] " yn
 		case $yn in
-			y ) ln -snfv "$(pwd)/$f" "$HOME/$f";;
+			y ) mv "$HOME/$f" "$HOME/${f}_old"; ln -snfv "$(pwd)/$f" "$HOME/$f";;
 			n ) ;;
 			* ) echo "invalid"; exit 1;;
 		esac

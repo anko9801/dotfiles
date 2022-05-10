@@ -1,0 +1,27 @@
+# dein
+- name: Fetch dein
+  ansible.builtin.uri:
+    url: https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh
+    return_content: yes
+  register: dein_installer
+  tags: dein
+
+- name: Run dein installer
+  ansible.builtin.shell:
+    cmd: sh -s -- ~/.cache/dein
+    stdin: "{{ dein_installer.content }}"
+  tags: dein
+
+# neovim
+- name: apt update
+  become: yes
+  apt:
+    update_cache: yes
+
+
+      # curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+      # chmod u+x nvim.appimage
+      # ./nvim.appimage --appimage-extract
+      # ./squashfs-root/AppRun --version
+      # sudo mv squashfs-root /
+      # sudo ln -s /squashfs-root/AppRun /usr/bin/nvim
