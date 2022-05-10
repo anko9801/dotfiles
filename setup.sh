@@ -1,4 +1,4 @@
-echo #!/bin/bash
+#!/bin/bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 cd $SCRIPT_DIR
@@ -111,13 +111,6 @@ read -p "install python which depends on asdf? [Y/n] " yn
 case $yn in
 	n* ) ;;
 	y* | * ) ansible-playbook playbook.yml -K -t python;;
-esac
-
-# python3
-read -p "install python3 which depends on asdf? [Y/n] " yn
-case $yn in
-	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -K -t python3;;
 esac
 
 # golang
