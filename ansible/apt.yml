@@ -8,6 +8,7 @@
       - unzip
       - curl
       - pkg-config
+  tags: base
 
         # - name:
         #apt_repository:

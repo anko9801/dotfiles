@@ -17,6 +17,7 @@
   become: yes
   apt:
     update_cache: yes
+  tags: neovim
 
 
       # curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
