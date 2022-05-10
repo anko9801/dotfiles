@@ -8,17 +8,56 @@
     version: v0.10.0
   tags: asdf
 
+# How about blockinfile in ansible galaxy
+- name: Write bashrc to load asdf
+  lineinfile:
+    path: $HOME/.bashrc
+    line: ". $HOME/.asdf/asdf.sh"
+  tags: asdf
+
+- name: Write bashrc for completions
+  lineinfile:
+    path: $HOME/.bashrc
+    line: ". $HOME/.asdf/completions/asdf.bash"
+  tags: asdf
+
+# ログインシェルをロードしなければsourceコマンドは無効
 - name: Reload bashrc
-  shell: source ~/.bashrc
+  shell: . $HOME/.bashrc
   args:
     executable: /bin/bash
   tags: asdf
 
 ##########
-# pip    #
+# python #
 ##########
-- name: Install pip
-  tags: pip
+- name: Add python
+  shell: asdf plugin add python
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
+
+- name: Install python3 latest
+  shell: asdf install python latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
+
+- name: Install python2 latest
+  shell: asdf install python 2.7.18
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
+
+- name: Global python3
+  shell: asdf global python latest
+  args:
+    executable: /bin/bash
+  ignore_errors: True
+  tags: python
 
 ##########
 # deno   #

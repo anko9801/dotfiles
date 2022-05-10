@@ -1,12 +1,9 @@
-#!/bin/bash
+echo #!/bin/bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-	# if [ -d "${f}" ]; then
-	# 	ln -sf $SCRIPT_DIR/$f/ ~/$f
-	# else
-	# 	ln -sf $SCRIPT_DIR/$f ~/$f
-	# fi
-# 隠しファイルは展開する
+cd $SCRIPT_DIR
+
+# expand dotfiles
 for f in .??*; do
 	[[ "$f" == ".git" ]] && continue
 	[[ "$f" == ".gitignore" ]] && continue
@@ -14,22 +11,20 @@ for f in .??*; do
 
 	if [ -d "$HOME/$f" ]; then
 		echo "$f already exists."
-		read -p "Do you want to replace it? [y/n] " yn
+		read -p "Do you want to replace it? [y/N] " yn
 		case $yn in
-			y ) mv "$HOME/$f" "$HOME/${f}_old"; ln -snfv "$(pwd)/$f" "$HOME/$f";;
-			n ) ;;
-			* ) echo "invalid"; exit 1;;
+			y* ) mv "$HOME/$f" "$HOME/${f}_old"; ln -snfv "$SCRIPT_DIR/$f" "$HOME/$f";;
+			n* | * ) ;;
 		esac
 	elif [ -e "$HOME/$f" ]; then
 		echo "$f already exists."
-		read -p "Do you want to replace it? [y/n] " yn
+		read -p "Do you want to replace it? [y/N] " yn
 		case $yn in
-			y ) ln -snfv "$(pwd)/$f" "$HOME/$f";;
-			n ) ;;
-			* ) echo "invalid"; exit 1;;
+			y* ) ln -snfv "$SCRIPT_DIR/$f" "$HOME/$f";;
+			n* | * ) ;;
 		esac
 	else
-		ln -snfv "$(pwd)/$f" "$HOME/$f"
+		ln -snfv "$SCRIPT_DIR/$f" "$HOME/$f"
 	fi
 done
 
@@ -77,108 +72,108 @@ cd ansible
 
 # Future: divide roles but use shell script
 # base
-read -p "install base-tools? [y/n] " yn
+read -p "install base-tools? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t base;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
-esac
-
-# vim
-read -p "install vim plugins through dein? [y/n] " yn
-case $yn in
-	y ) ansible-playbook playbook.yml -K -t dein;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
-esac
-
-
-# golang
-read -p "install golang? [y/n] " yn
-case $yn in
-	y ) ansible-playbook playbook.yml -K -t golang;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t base;;
 esac
 
 # asdf
-read -p "install asdf? [y/n] " yn
+read -p "install asdf? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t asdf;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t asdf;;
 esac
 
+# You should set bashrc for not interactive
+if !(type "asdf" > /dev/null 2>&1); then
+	echo "Reload .bashrc"
+	echo "Please type . ~/.bashrc and run it one more time"
+	exit 0
+fi
+
 # nodejs
-read -p "install nodejs which depends on asdf? [y/n] " yn
+read -p "install nodejs which depends on asdf? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t nodejs;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t nodejs;;
+esac
+
+# deno
+read -p "install deno which depends on asdf? [Y/n] " yn
+case $yn in
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t deno;;
 esac
 
 # python
-read -p "install python which depends on asdf? [y/n] " yn
+read -p "install python which depends on asdf? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t python;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t python;;
 esac
 
 # python3
-read -p "install python3 which depends on asdf? [y/n] " yn
+read -p "install python3 which depends on asdf? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t python3;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t python3;;
+esac
+
+# golang
+read -p "install golang? [Y/n] " yn
+case $yn in
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t golang;;
 esac
 
 # rust
-read -p "install rust? [y/n] " yn
+read -p "install rust? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t rust;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t rust;;
 esac
 
 # modern command
-read -p "install modern commands which depends on rust? [y/n] " yn
+read -p "install modern commands which depends on rust? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t commands;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t commands;;
 esac
 
 # ruby
-read -p "install ruby which depends on asdf? [y/n] " yn
+read -p "install ruby which depends on asdf? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t ruby;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t ruby;;
 esac
 
 # perl
-read -p "install perl? [y/n] " yn
+read -p "install perl? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t perl;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
-esac
-
-# neovim
-read -p "install neovim? [y/n] " yn
-case $yn in
-	y ) ansible-playbook playbook.yml -K -t neovim;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t perl;;
 esac
 
 # chisel
-read -p "install chisel? [y/n] " yn
+read -p "install chisel? [Y/n] " yn
 case $yn in
-	y ) ansible-playbook playbook.yml -K -t chisel;;
-	n ) ;;
-	* ) echo "invalid"; exit 1;;
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t chisel;;
+esac
+
+# vim
+read -p "install vim plugins through dein? [Y/n] " yn
+case $yn in
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t dein;;
+esac
+
+# neovim
+read -p "install neovim? [Y/n] " yn
+case $yn in
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t neovim;;
 esac
 
 

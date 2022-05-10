@@ -482,15 +482,15 @@ repo = 'kqito/vim-easy-replace'
 [[plugins]]
 repo = 'tyru/open-browser.vim'
 hook_add = '''
-nmap @ <Nop>
-nmap @g <Plug>(openbrowser-search)
-nmap <C-@> <Plug>(openbrowser-smart-search)
-nnoremap @a :<C-u>execute 'OpenBrowserSearch -alc' expand('<cWORD>')<CR>
-nnoremap @d :<C-u>execute 'OpenBrowserSearch -dev' expand('<cWORD>')<CR>
-let g:openbrowser_search_engines = {
-    \ 'alc': 'http://eow.alc.co.jp/{query}/UTF-8/',
-    \ 'dev': 'https://dev.classmethod.jp/?s={query}',
-    \ }
+" nmap @ <Nop>
+" nmap @g <Plug>(openbrowser-search)
+" nmap <C-@> <Plug>(openbrowser-smart-search)
+" nnoremap @o :<C-u>execute 'OpenBrowserSearch -alc' expand('<cWORD>')<CR>
+" nnoremap @d :<C-u>execute 'OpenBrowserSearch -dev' expand('<cWORD>')<CR>
+" let g:openbrowser_search_engines = {
+"     \ 'alc': 'http://eow.alc.co.jp/{query}/UTF-8/',
+"     \ 'dev': 'https://dev.classmethod.jp/?s={query}',
+"     \ }
 '''
 # <Space>m
 [[plugins]]
@@ -527,14 +527,14 @@ repo = 'kana/vim-fakeclip'
 [[plugins]]
 repo = 'kana/vim-submode'
 hook_add = '''
-call submode#enter_with('winsize', 'n', '', '<C-w>>', '<C-w>>')
-call submode#enter_with('winsize', 'n', '', '<C-w><', '<C-w><')
-call submode#enter_with('winsize', 'n', '', '<C-w>+', '<C-w>+')
-call submode#enter_with('winsize', 'n', '', '<C-w>-', '<C-w>-')
-call submode#map('winsize', 'n', '', '>', '<C-w>>')
-call submode#map('winsize', 'n', '', '<', '<C-w><')
-call submode#map('winsize', 'n', '', '+', '<C-w>+')
-call submode#map('winsize', 'n', '', '-', '<C-w>-')
+" call submode#enter_with('winsize', 'n', '', '<C-w>>', '<C-w>>')
+" call submode#enter_with('winsize', 'n', '', '<C-w><', '<C-w><')
+" call submode#enter_with('winsize', 'n', '', '<C-w>+', '<C-w>+')
+" call submode#enter_with('winsize', 'n', '', '<C-w>-', '<C-w>-')
+" call submode#map('winsize', 'n', '', '>', '<C-w>>')
+" call submode#map('winsize', 'n', '', '<', '<C-w><')
+" call submode#map('winsize', 'n', '', '+', '<C-w>+')
+" call submode#map('winsize', 'n', '', '-', '<C-w>-')
 '''
 
 ##############
@@ -578,13 +578,13 @@ vmap <Leader>x <Plug>(operator-openbrowser)
 [[plugins]]
 repo = 'kana/vim-textobj-user'
 hook_add = '''
-call textobj#user#plugin('braces', {
-\ 'da': {
-\   'pattern': '|',
-\   'select-a': 'aA',
-\   'select-i': 'iA',
-\ },
-\ })
+" call textobj#user#plugin('braces', {
+" \   'da': {
+" \     'pattern': '|',
+" \     'select-a': 'aA',
+" \     'select-i': 'iA',
+" \   },
+" \ })
 '''
 # ae ie
 [[plugins]]
