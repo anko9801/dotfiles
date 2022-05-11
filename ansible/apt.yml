@@ -1,4 +1,4 @@
-- name: install apt base packages
+- name: Install apt base packages
   become: yes
   apt:
     name:
@@ -10,6 +10,13 @@
       - pkg-config
   tags: base
 
+- name: Install modern commands by apt
+  become: yes
+  apt:
+    name:
+      - tldr
+      - htop
+  tags: commands
         # - name:
         #apt_repository:
         #repo: ppa:fish-shell/release-3

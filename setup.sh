@@ -131,7 +131,7 @@ esac
 read -p "install modern commands which depends on rust? [Y/n] " yn
 case $yn in
 	n* ) ;;
-	y* | * ) ansible-playbook playbook.yml -t commands;;
+	y* | * ) ansible-playbook playbook.yml -K -t commands;;
 esac
 
 # ruby
