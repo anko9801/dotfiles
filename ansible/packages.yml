@@ -20,3 +20,11 @@
       - fzf
   tags: commands
 
+- name: Install zsh and fish
+  become: yes
+  apt:
+    name:
+      - zsh
+      - fish
+  tags: shell
+

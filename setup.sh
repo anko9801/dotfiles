@@ -70,12 +70,20 @@ fi
 # ansible
 cd ansible
 
-# Future: divide roles but use shell script
+# Future work:
+# abstraction for redundancy and dependency
+# divide roles but use shell script
 # base
 read -p "install base-tools? [Y/n] " yn
 case $yn in
 	n* ) ;;
 	y* | * ) ansible-playbook playbook.yml -K -t base;;
+esac
+
+read -p "install shells? [Y/n] " yn
+case $yn in
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -K -t shell;;
 esac
 
 # asdf
@@ -85,7 +93,7 @@ case $yn in
 	y* | * ) ansible-playbook playbook.yml -t asdf;;
 esac
 
-# You should set bashrc for not interactive
+# You should set bashrc in interactive
 if !(type "asdf" > /dev/null 2>&1); then
 	echo "Reload .bashrc"
 	echo "Please type . ~/.bashrc and run it one more time"
