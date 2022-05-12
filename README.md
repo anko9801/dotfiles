@@ -22,7 +22,7 @@ bash's Bad point :thumbsdown:
 のでdotfilesを環境に応じて展開したり、ロジックを書きたいときに使います。冪等性を保持できないので、セマンティクスでまとめてansibleに任せて冪等性を保持しています。セマンティクスに依頼する条件は依存関係を包括するような独立のものと見なせる構成とします(それ以外は自由です)。sourceコマンドもここで行います。
 
 ```
-curl "https://raw.githubusercontent.com/jiro4989/dotfiles/master/setup.sh" | bash
+curl "https://raw.githubusercontent.com/anko9801/dotfiles/master/setup.sh" | bash
 ```
 
 ## Makefile
