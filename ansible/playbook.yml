@@ -1,7 +1,7 @@
 - hosts: localhost
   connection: local
   tasks:
-    - import_tasks: apt.yml
+    - import_tasks: packages.yml
     - import_tasks: vim.yml
     - import_tasks: asdf.yml
     - import_tasks: rust.yml

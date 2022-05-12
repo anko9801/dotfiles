@@ -1,0 +1,22 @@
+- name: Install apt base packages
+  become: yes
+  package:
+    name:
+      - git
+      - build-essential
+      - m4
+      - unzip
+      - curl
+      - pkg-config
+  tags: base
+
+- name: Install modern commands by apt
+  become: yes
+  package:
+    name:
+      - tldr
+      - htop
+      - gh
+      - fzf
+  tags: commands
+
