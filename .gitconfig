@@ -20,7 +20,7 @@
 [core]
   editor = vim
 [push]
-  default = simple
+	default = current
 [commit]
   gpgSign = false
 [gpg]

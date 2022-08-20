@@ -30,6 +30,7 @@ fi
 
 export GPG_TTY=$(tty)
 export PATH=$PATH:/usr/local/texlive/2019/bin/x86_64-linux
+export PATH=$PATH:/home/anko/.asdf/installs/python/3.10.4/bin
 export PATH=$PATH:$HOME/.cargo/bin
 
 # 補完機能
@@ -116,6 +117,7 @@ add-zsh-hook precmd _update_vcs_info_msg
 # asdf
 
 . $HOME/.asdf/asdf.sh
+. $HOME/.asdf/completions/asdf.bash
 
 # history
 

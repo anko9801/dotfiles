@@ -13,10 +13,11 @@
   tags: dein
 
 # neovim
-- name: apt update
+- name: install neovim
   become: yes
-  apt:
-    update_cache: yes
+  package:
+    name:
+      - neovim
   tags: neovim
 
 

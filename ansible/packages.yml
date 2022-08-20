@@ -8,6 +8,7 @@
       - unzip
       - curl
       - pkg-config
+      - emacs
   tags: base
 
 - name: Install modern commands by apt
@@ -28,3 +29,35 @@
       - fish
   tags: shell
 
+# TODO: pwndbg
+- name: Install CTF tools
+  become: yes
+  apt:
+    name:
+      - foremost
+      - binwalk
+      - steghide
+      - stepic
+      - exiftool
+      - john
+  tags: ctf
+
+- name: Download pwndbg
+  git:
+    repo: https://github.com/pwndbg/pwndbg
+    dest: ./pwndbg
+    clone: yes
+    update: yes
+  tags: ctf
+
+- name: Install pwndbg
+  shell:
+    cmd: cd pwndbg; ./setup.sh
+  tags: ctf
+
+# ROPgadget
+- name: Install pwn
+  become: yes
+  shell:
+    cmd: pip install pwntools patchelf; cargo install pwninit; gem install one_gadget
+  tags: ctf

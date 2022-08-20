@@ -177,4 +177,10 @@ case $yn in
 	y* | * ) ansible-playbook playbook.yml -t neovim;;
 esac
 
+# ctf tools
+read -p "install ctf tools? [Y/n] " yn
+case $yn in
+	n* ) ;;
+	y* | * ) ansible-playbook playbook.yml -t ctf -K;;
+esac
 
