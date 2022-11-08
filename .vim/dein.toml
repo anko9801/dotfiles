@@ -2,92 +2,29 @@
 repo = 'Shougo/vimproc.vim'
 build = 'make'
 
-[[plugins]]
-repo = 'Shougo/context_filetype.vim'
-[[plugins]]
-repo = 'osyo-manga/vim-precious'
-depends = ['context_filetype.vim']
-
-[[plugins]]
-repo = 'vim-denops/denops.vim'
-
-[[plugins]]
-repo = 'w0rp/ale'
-hook_add = '''
-    " キャッシュを用いて高速化
-    let g:ale_cache_executable_check_failures = 1
-    let g:airline#extensions#lsp#enabled = 0
-    " シンボルカラムを表示したままにする
-    let g:ale_sign_column_always = 1
-    " 保存時に整形してくれる
-    let g:ale_fix_on_save = 1
-    " 補完してくれる
-    let g:ale_completion_enabled = 1
-    " エラー行に表示するマーク
-    let g:ale_sign_error = '⨉'
-    let g:ale_sign_warning = '⚠'
-    " エラー行にカーソルをあわせた際に表示されるメッセージフォーマット
-    let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-    let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-    let g:ale_linters = {
-        \   'c' : ['clangd'],
-        \   'cpp' : ['clangd']
-    \}
-'''
-
-
-[[plugins]]
-repo = 'Shougo/pum.vim'
-hook_add = '''
-inoremap <Tab>   <Cmd>call pum#map#insert_relative(+1)<CR>
-inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
-inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
-inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
-inoremap <C-y>   <Cmd>call pum#map#confirm()<CR>
-inoremap <C-e>   <Cmd>call pum#map#cancel()<CR>
-'''
-
 # [[plugins]]
-# repo = 'Shougo/denite.nvim'
+# repo = 'w0rp/ale'
 # hook_add = '''
-#     nmap <Space> [denite]
-#     nmap <Space>p [deniteProject]
-#     nmap <silent> [denite]b :<C-u>Denite buffer<CR>
-#     nmap <silent> [denite]g :<C-u>Denite grep<CR>
-#     nmap <silent> [denite]m :<C-u>Denite file_mru<CR> <silent> <C-u><C-y> :<C-u>Denite neoyank<CR>
-#     nmap <silent> [denite]f :<C-u>Denite file/rec<CR>
-#     nmap <silent> [denite]d :<C-u>Denite directory_rec<CR>
-
-#     nmap <silent> [deniteProject]b :<C-u>DeniteProject buffer<CR>
-#     nmap <silent> [deniteProject]g :<C-u>DeniteProject grep<CR>
-#     nmap <silent> [deniteProject]m :<C-u>DeniteProject file_mru<CR> <silent> <C-u><C-y> :<C-u>Denite neoyank<CR>
-#     nmap <silent> [deniteProject]f :<C-u>DeniteProject file/rec<CR>
-#     nmap <silent> [deniteProject]d :<C-u>DeniteProject directory_rec<CR>
+#     " キャッシュを用いて高速化
+#     let g:ale_cache_executable_check_failures = 1
+#     let g:airline#extensions#lsp#enabled = 0
+#     " シンボルカラムを表示したままにする
+#     let g:ale_sign_column_always = 1
+#     " 保存時に整形してくれる
+#     let g:ale_fix_on_save = 1
+#     " 補完してくれる
+#     let g:ale_completion_enabled = 1
+#     " エラー行に表示するマーク
+#     let g:ale_sign_error = '⨉'
+#     let g:ale_sign_warning = '⚠'
+#     " エラー行にカーソルをあわせた際に表示されるメッセージフォーマット
+#     let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+#     let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
+#     let g:ale_linters = {
+#         \   'c' : ['clangd'],
+#         \   'cpp' : ['clangd']
+#     \}
 # '''
-# hook_source = '''
-#     if executable('rg')
-#         call denite#custom#var('file/rec', 'command', ['rg', '--files', '--glob', '!.git'])
-#         call denite#custom#var('file_rec', 'command', ['rg', '--files', '--glob', '!.git'])
-#         call denite#custom#var('grep', 'command', ['rg', '--threads', '1'])
-#         call denite#custom#var('grep', 'recursive_opts', [])
-#         call denite#custom#var('grep', 'final_opts', [])
-#         call denite#custom#var('grep', 'separator', ['--'])
-#         call denite#custom#var('grep', 'default_opts', ['--vimgrep', '--no-heading'])
-#     endif
-
-#     call denite#custom#map('insert', "<C-n>", '<denite:move_to_next_line>')
-#     call denite#custom#map('insert', "<C-p>", '<denite:move_to_previous_line>')
-#     call denite#custom#map('insert', "<C-t>", '<denite:do_action:tabopen>')
-#     call denite#custom#map('insert', "<C-v>", '<denite:do_action:vsplit>')
-#     call denite#custom#map('insert', "<C-h>", '<denite:do_action:split>')
-
-#     call denite#custom#filter('matcher_ignore_globs', 'ignore_globs', [
-#                 \ '.git/', 'build/', '__pycache__/',
-#                 \ 'images/', '*.o', '*.make', '*.min.*',
-#                 \ 'img/', 'fonts/', '*~', '*.exe', '*.bak',
-#                 \ '.DS_Store', '*.pyc', '*.class', 'tags'
-#                 \ ])
-#     '''
 
 [[plugins]]
 repo = 'mattn/vim-sonictemplate'
@@ -273,38 +210,49 @@ let g:rbpt_loadcmd_toggle = 0
 repo = 'itchyny/lightline.vim'
 
 ###############
-# Lanugage    #
+# Language    #
 ###############
 
-[[plugins]]
-repo = 'sheerun/vim-polyglot'
-hook_add = '''
-    " 補完時に自動でrustfmt
-    let g:rustfmt_autosave = 1
-'''
+# [[plugins]]
+# repo = 'sheerun/vim-polyglot'
+# hook_add = '''
+#     " 補完時に自動でrustfmt
+#     let g:rustfmt_autosave = 1
+# '''
 
-# Haskell
-[[plugins]]
-repo = 'eagletmt/ghcmod-vim'
-[[plugins]]
-repo = 'kana/vim-filetype-haskell'
+# # Haskell
+# [[plugins]]
+# repo = 'eagletmt/ghcmod-vim'
+# [[plugins]]
+# repo = 'kana/vim-filetype-haskell'
 
-# TypeScript
-[[plugins]]
-repo = 'leafgarland/typescript-vim'
-[[plugins]]
-repo = 'Quramy/tsuquyomi'
-[[plugins]]
-repo = 'prettier/vim-prettier'
-build = 'npm install'
-hook_add = '''
-let g:prettier#autoformat = 1
-let g:prettier#autoformat_require_pragma = 0
-'''
+# # TypeScript
+# [[plugins]]
+# repo = 'leafgarland/typescript-vim'
+# [[plugins]]
+# repo = 'Quramy/tsuquyomi'
+# [[plugins]]
+# repo = 'prettier/vim-prettier'
+# build = 'npm install'
+# hook_add = '''
+# let g:prettier#autoformat = 1
+# let g:prettier#autoformat_require_pragma = 0
+# '''
 
-# SPIR-V
+# # SPIR-V
+# [[plugins]]
+# repo = 'kbenzie/vim-spirv'
+
+# # SATySFi
+# [[plugins]]
+# repo = 'qnighy/satysfi.vim'
+
+# ctags
 [[plugins]]
-repo = 'kbenzie/vim-spirv'
+repo = 'szw/vim-tags'
+
+[[plugins]]
+repo = 'vim-scripts/taglist.vim'
 
 ##############
 # 拡張画面   #
@@ -321,7 +269,7 @@ hook_add = '''
     " パワーラインフォントの使用
     let g:airline_powerline_fonts = 1
     " aleの表示
-    let g:airline#extensions#ale#enabled = 1
+    " let g:airline#extensions#ale#enabled = 1
     " Do not collapse the status line while having multiple windows
     let g:airline_inactive_collapse = 0
     " tagbarの表示
@@ -333,31 +281,31 @@ hook_add = '''
 [[plugins]]
 repo = 'vim-airline/vim-airline-themes'
 
-[[plugins]]
-repo = 'scrooloose/nerdtree'
-hook_add = '''
-	" 隠しファイルを設定する
-	let NERDTreeShowHidden = 1
-	" オブジェクトファイルなどを除外する
-	let NERDTreeIgnore = ['.[oa]$', '.(so)$', '.(tgz|gz|zip)$' ]
-'''
+# [[plugins]]
+# repo = 'scrooloose/nerdtree'
+# hook_add = '''
+# 	" 隠しファイルを設定する
+# 	let NERDTreeShowHidden = 1
+# 	" オブジェクトファイルなどを除外する
+# 	let NERDTreeIgnore = ['.[oa]$', '.(so)$', '.(tgz|gz|zip)$' ]
+# '''
 
-[[plugins]]
-repo = 'jistr/vim-nerdtree-tabs'
-hook_add = '''
-    " トグル設定
-    map <C-e> <plug>NERDTreeTabsToggle<CR>
-    " 起動時有効
-    let g:nerdtree_tabs_open_on_console_startup=1
-    " 自動でタブを開く
-    let g:nerdtree_tabs_autofind=1
-    " 起動時にファイルにカーソルを合わせる
-    function! s:MoveCursorAtStart()
-        call feedkeys("\<C-w>l")
-    endfunction
-    autocmd VimEnter * NERDTree | call s:MoveCursorAtStart()
-'''
-depends = ['nerdtree']
+# [[plugins]]
+# repo = 'jistr/vim-nerdtree-tabs'
+# hook_add = '''
+#     " トグル設定
+#     map <C-e> <plug>NERDTreeTabsToggle<CR>
+#     " 起動時有効
+#     let g:nerdtree_tabs_open_on_console_startup=1
+#     " 自動でタブを開く
+#     let g:nerdtree_tabs_autofind=1
+#     " 起動時にファイルにカーソルを合わせる
+#     function! s:MoveCursorAtStart()
+#         call feedkeys("\<C-w>l")
+#     endfunction
+#     autocmd VimEnter * NERDTree | call s:MoveCursorAtStart()
+# '''
+# depends = ['nerdtree']
 
 [[plugins]]
 repo = 'Xuyuanp/nerdtree-git-plugin'
@@ -448,6 +396,9 @@ nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :TmuxNavigateRight<cr>
 nnoremap <silent> <C-;> :TmuxNavigatePrevious<cr>
 '''
+
+[[plugins]]
+repo = 'myusuf3/numbers.vim'
 
 #################
 # キー拡張機能  #

@@ -135,7 +135,7 @@ set matchpairs& matchpairs+=<:> " < >のペアを追加する
 " コマンド
 set wildmenu " コマンドモードの補完
 set history=5000 " 保存するコマンド履歴の数
-set tags=./tags;
+set tags=./tags;,tags;
 set rtp+=~/.fzf
 
 if system('uname -a | grep icrosoft') != ''
@@ -208,7 +208,7 @@ let s:opam_available_tools = split(system(join(s:opam_check_cmdline)))
 for tool in s:opam_packages
   " Respect package order (merlin should be after ocp-index)
   if count(s:opam_available_tools, tool) > 0
-    call s:opam_configuration[tool]()
+	call s:opam_configuration[tool]()
   endif
 endfor
 " ## end of OPAM user-setup addition for vim / base ## keep this line

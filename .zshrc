@@ -32,6 +32,7 @@ export GPG_TTY=$(tty)
 export PATH=$PATH:/usr/local/texlive/2019/bin/x86_64-linux
 export PATH=$PATH:/home/anko/.asdf/installs/python/3.10.4/bin
 export PATH=$PATH:$HOME/.cargo/bin
+export PATH=$PATH:$HOME/downloads
 
 # 補完機能
 
@@ -172,3 +173,4 @@ zinit lucid for \
 #   zprof | less
 # fi
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export PATH=$PATH:$HOME/downloads

@@ -27,3 +27,7 @@
   program = gpg2
 [credential]
   helper = store
+[color]
+	ui = auto
+[pull]
+	ff = only
