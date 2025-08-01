@@ -1,0 +1,7 @@
+# Files to encrypt
+# Add sensitive files here, one per line
+# Example:
+# .ssh/id_*
+# .gnupg/*
+# .aws/credentials
+# .config/hub

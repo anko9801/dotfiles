@@ -1,0 +1,11 @@
+# yadm configuration
+
+# Set user info for templates
+yadm.user = "Your Name"
+yadm.email = "your.email@example.com"
+
+# Auto-update submodules
+yadm.auto-submodules = true
+
+# Enable git-crypt if available
+yadm.git-crypt = true

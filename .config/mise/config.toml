@@ -1,0 +1,21 @@
+# mise configuration
+
+[tools]
+# Core languages
+node = "lts"
+python = "latest"
+ruby = "latest"
+go = "latest"
+rust = "latest"
+deno = "latest"
+
+# Additional tools via aqua
+"aqua:jesseduffield/lazygit" = "latest"
+"aqua:junegunn/fzf" = "latest"
+"aqua:sharkdp/fd" = "latest"
+
+[settings]
+# Automatically install missing tools
+experimental = true
+# Use .node-version, .python-version etc
+legacy_version_file = true
