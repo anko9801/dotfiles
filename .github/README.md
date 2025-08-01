@@ -10,6 +10,7 @@ XDG Base Directory仕様に準拠したモダンなdotfiles管理。
 - 📁 **XDG準拠**: 設定ファイルは`.config/`に整理
 - 🎯 **OS自動判定**: yadm alternateでOS別の設定を自動適用
 - 🔐 **暗号化対応**: 機密ファイルの安全な管理
+- 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
 - 🌍 **マルチプラットフォーム**: macOS, Linux (Ubuntu, Debian, Arch)
 
 ## インストール
@@ -92,6 +93,14 @@ cat ~/.ssh/id_ed25519.pub
 - Arch: `.config/yadm/bootstrap##distro.Arch`
 
 Git設定のカスタマイズは `.config/git/config` を編集。
+
+## セキュリティ
+
+**ホワイトリスト方式**を採用し、必要なファイルのみを厳選管理：
+- 個人データ (Desktop/, Documents/, etc.) は自動除外
+- 認証情報 (.ssh/id_*, .gitconfig, etc.) は自動除外  
+- 開発ディレクトリ (workspace/, projects/, etc.) は自動除外
+- 新しい設定ファイルは明示的に追加が必要
 
 ---
 
