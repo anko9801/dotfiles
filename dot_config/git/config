@@ -8,6 +8,7 @@
   autocrlf = false
   safecrlf = true
   filemode = false
+  pager = delta
 
 [color]
   ui = auto
@@ -18,6 +19,7 @@
 
 [diff]
   renames = true
+  colorMoved = default
 
 [pull]
   ff = only
@@ -68,6 +70,17 @@
 [credential]
   helper = store
 
+# Delta - better diffs
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true    # use n and N to move between diff sections
+  light = false      # set to true if you're in a terminal w/ a light background
+  side-by-side = true
+  line-numbers = true
+  syntax-theme = Dracula
+
 # Aliases
 [alias]
   # Status and basic operations
@@ -82,7 +95,6 @@
   cm = commit -m
   a = add --all
   amend = commit --amend --no-edit
-  commend = commit --amend --no-edit
   undo = reset HEAD~1 --mixed
   
   # Push/Pull operations
@@ -96,6 +108,12 @@
   la = log --oneline --graph --decorate --all
   last = log -1 HEAD
   contributors = shortlog -sn
+  # Enhanced log views
+  lgp = log --graph --pretty=format:'%C(yellow)%h%C(reset) %C(blue)%ad%C(reset) %s %C(green)%an%C(reset) %C(auto)%d%C(reset)' --date=short
+  lga = log --graph --all --pretty=format:'%C(yellow)%h%C(reset) %C(blue)%ad%C(reset) %s %C(green)%an%C(reset) %C(auto)%d%C(reset)' --date=short
+  week = log --author="$(git config user.name)" --since="1 week ago" --oneline
+  today = log --since="midnight" --oneline
+  recent = for-each-ref --sort=committerdate refs/heads/ --format='%(committerdate:short) %(refname:short)'
   
   # Diff operations
   df = diff --color-words
@@ -104,16 +122,13 @@
   
   # Branch management
   cleanup = !git branch --merged | grep -v "\\*\\|main\\|master\\|develop" | xargs -n 1 git branch -d
-  br-prune = !git branch --merged | egrep -v '\\*|master|main' | xargs git branch -d
   
   # Utilities
   visual = !gitk
   it = !git init && git commit -m 'Initial commit' --allow-empty
   r = reset
   
-  # Advanced workflows (from git.md recommendations)
-  contributors = shortlog -sn
-  delete-merged-branches = !git branch --merged | grep -v "\\*\\|main\\|master\\|develop" | xargs -n 1 git branch -d
+  # GitHub integration
   open = !gh browse
   
   # AI-powered tools

@@ -10,10 +10,22 @@ rust = "latest"
 deno = "latest"
 bun = "latest"
 
+# Package managers
+pnpm = "latest"
+
 # Additional tools
-lazygit = "latest"
 fzf = "latest"
 fd = "latest"
+
+# Development workflow tools
+direnv = "latest"      # Environment variable management
+just = "latest"        # Modern make alternative
+watchexec = "latest"   # File watcher
+
+# Code quality tools
+ruff = "latest"        # Fast Python linter
+poetry = "latest"      # Python dependency management
+pre-commit = "latest"  # Git hooks framework
 
 # GitHub CLI extensions are installed separately via gh
 "npm:@antfu/ni" = "latest"

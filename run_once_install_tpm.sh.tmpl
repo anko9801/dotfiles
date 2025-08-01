@@ -1,0 +1,17 @@
+#!/bin/bash
+# Install Tmux Plugin Manager (TPM)
+
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+
+if [ ! -d "$TPM_DIR" ]; then
+    echo "Installing Tmux Plugin Manager..."
+    git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+    echo "TPM installed successfully!"
+    echo ""
+    echo "To install tmux plugins:"
+    echo "1. Start tmux"
+    echo "2. Press prefix + I (capital i) to install plugins"
+    echo "   Default prefix is Ctrl-q, so: Ctrl-q then Shift-i"
+else
+    echo "TPM is already installed at $TPM_DIR"
+fi

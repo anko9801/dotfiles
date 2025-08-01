@@ -49,6 +49,20 @@ abbr -S nt="npm test"
 abbr -S nb="npm run build"
 abbr -S nd="npm run dev"
 
+# pnpm abbreviations
+abbr -S pn="pnpm"
+abbr -S pni="pnpm install"
+abbr -S pna="pnpm add"
+abbr -S pnad="pnpm add -D"
+abbr -S pnr="pnpm run"
+abbr -S pnx="pnpm exec"
+abbr -S pnu="pnpm update"
+abbr -S pnrm="pnpm remove"
+abbr -S pnb="pnpm run build"
+abbr -S pnd="pnpm run dev"
+abbr -S pnt="pnpm test"
+abbr -S pns="pnpm start"
+
 # System abbreviations
 abbr -S ll="ls -la"
 abbr -S la="ls -A"

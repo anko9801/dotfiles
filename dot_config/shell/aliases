@@ -64,7 +64,88 @@ if command -v ghq >/dev/null 2>&1; then
     alias gqf='cd $(ghq list -p | fzf)'
 fi
 
-# lazygit shortcut
-if command -v lazygit >/dev/null 2>&1; then
-    alias lg='lazygit'
+# gitui shortcut
+if command -v gitui >/dev/null 2>&1; then
+    alias gu='gitui'
+fi
+
+# dust (better du)
+if command -v dust >/dev/null 2>&1; then
+    alias du='dust'
+fi
+
+# zellij shortcuts
+if command -v zellij >/dev/null 2>&1; then
+    alias zj='zellij'
+    alias zja='zellij attach'
+    alias zjl='zellij list-sessions'
+    alias zjk='zellij kill-session'
+fi
+
+# Modern CLI replacements
+# Better alternatives to traditional commands
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza'
+    alias ll='eza -l'
+    alias la='eza -la'
+    alias lt='eza --tree'
+    alias lta='eza --tree -a'
+fi
+
+if command -v bat >/dev/null 2>&1; then
+    alias cat='bat --style=plain'
+    alias catp='bat -p'  # plain output
+    alias catl='bat'     # with line numbers
+fi
+
+if command -v fd >/dev/null 2>&1; then
+    alias find='fd'
+fi
+
+if command -v rg >/dev/null 2>&1; then
+    alias grep='rg'
+fi
+
+if command -v sd >/dev/null 2>&1; then
+    alias sed='sd'
+fi
+
+if command -v procs >/dev/null 2>&1; then
+    alias ps='procs'
+fi
+
+if command -v bottom >/dev/null 2>&1; then
+    alias top='btm'
+    alias htop='btm'
+fi
+
+# HTTP tools
+if command -v httpie >/dev/null 2>&1; then
+    alias http='httpie'
+fi
+
+# Markdown viewer
+if command -v glow >/dev/null 2>&1; then
+    alias mdview='glow'
+    alias mdp='glow -p'  # pager mode
+fi
+
+# JSON/YAML processors
+if command -v yq >/dev/null 2>&1; then
+    alias yaml='yq'
+fi
+
+# pnpm shortcuts
+if command -v pnpm >/dev/null 2>&1; then
+    alias pn='pnpm'
+    alias pni='pnpm install'
+    alias pna='pnpm add'
+    alias pnad='pnpm add -D'
+    alias pnr='pnpm run'
+    alias pnx='pnpm exec'
+    alias pnu='pnpm update'
+    alias pnrm='pnpm remove'
+    alias pnls='pnpm list'
+    alias pnout='pnpm outdated'
+    alias pnaudit='pnpm audit'
 fi

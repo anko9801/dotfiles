@@ -27,15 +27,25 @@ brew install vim neovim mise
 # Note: node, python, ruby, go, rust are all managed by mise
 
 # macOS specific tools
-brew install yabai skhd
-brew install --cask raycast warp
+# brew install yabai skhd  # Window manager (optional)
+# Install only if not already installed
+if [ ! -d "/Applications/Raycast.app" ]; then
+    brew install --cask raycast
+fi
+if [ ! -d "/Applications/Warp.app" ]; then
+    brew install --cask warp
+fi
 
 # Security tools
 brew install git-secrets
 
 # 1Password and CLI
-brew install --cask 1password
-brew install 1password-cli
+if [ ! -d "/Applications/1Password.app" ] && [ ! -d "/Applications/1Password 7.app" ] && [ ! -d "/Applications/1Password 8.app" ]; then
+    brew install --cask 1password
+fi
+if ! command -v op >/dev/null 2>&1; then
+    brew install 1password-cli
+fi
 
 # AI development tools
 # npm packages will be installed after mise sets up node
@@ -78,10 +88,12 @@ fi
 {{- end }}
 
 # Setup git-secrets
-mkdir -p ~/.git-templates/git-secrets
-git secrets --install ~/.git-templates/git-secrets
-git config --global init.templateDir ~/.git-templates/git-secrets
-git secrets --register-aws
+if [ ! -d ~/.git-templates/git-secrets/hooks ]; then
+    mkdir -p ~/.git-templates/git-secrets
+    git secrets --install ~/.git-templates/git-secrets
+    git config --global init.templateDir ~/.git-templates/git-secrets
+    git secrets --register-aws
+fi
 
 echo "Package installation completed!"
 echo ""
