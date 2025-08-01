@@ -11,7 +11,7 @@ XDG Base Directory仕様に準拠したモダンなdotfiles管理。
 - 🎯 **OS自動判定**: yadm alternateでOS別の設定を自動適用
 - 🔐 **暗号化対応**: 機密ファイルの安全な管理
 - 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
-- 🐚 **マルチシェル対応**: bash, zsh, fish など POSIX準拠シェル
+- 🐚 **マルチシェル対応**: bash, zsh, dash など POSIX準拠シェル
 - 🌍 **マルチプラットフォーム**: macOS, Linux (Ubuntu, Debian, Arch)
 
 ## インストール
@@ -48,7 +48,7 @@ $HOME/
 
 - **Base**: git, curl, wget, tmux, tree, jq
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, atuin, zoxide, starship, gomi
-- **Shell**: POSIX-compliant (.profile), zsh (zinit), bash, fish
+- **Shell**: POSIX-compliant (.profile), zsh (zinit), bash
 - **Editor**: vim (dein.vim), neovim
 - **Version Manager**: mise (faster asdf alternative)
 - **Languages**: Node.js, Python, Ruby, Go, Rust
