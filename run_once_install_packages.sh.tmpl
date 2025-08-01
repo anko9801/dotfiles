@@ -14,22 +14,17 @@ if ! command -v brew >/dev/null 2>&1; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Essential tools
-brew install git curl wget tmux tree jq gnupg
+# Install packages in batches for efficiency
+brew install git curl wget tmux tree jq gnupg \
+             ripgrep bat gh eza zoxide starship gomi uv
 
-# Modern CLI tools
-brew install ripgrep bat gh
-brew install eza zoxide starship gomi
-# Note: fd and fzf are managed by mise
-
-# Python tools
-brew install uv  # Fast Python package installer
-
-# Install Python development tools via uv
+# Install Python development tools via uv (parallel installation)
 if command -v uv >/dev/null 2>&1; then
-    uv tool install poetry --quiet 2>/dev/null || echo "poetry already installed"
-    uv tool install ruff --quiet 2>/dev/null || echo "ruff already installed"
-    uv tool install pre-commit --quiet 2>/dev/null || echo "pre-commit already installed"
+    echo "Installing Python tools..."
+    uv tool install poetry --quiet &
+    uv tool install ruff --quiet &
+    uv tool install pre-commit --quiet &
+    wait  # Wait for all background jobs to complete
 fi
 
 # Development tools

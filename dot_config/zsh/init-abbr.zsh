@@ -1,17 +1,9 @@
 #!/usr/bin/env zsh
-# Initialize zsh-abbr abbreviations
-# This file should be run once to set up abbreviations
+# Initialize zsh-abbr abbreviations efficiently
 
-# Only run if zsh-abbr is available
-if ! command -v abbr &> /dev/null; then
-    return
-fi
-
-# Check if abbreviations are already initialized
-if abbr list | grep -q "^g="; then
-    # Abbreviations already exist, skip initialization
-    return
-fi
+# Early exit if abbr not available or already initialized
+command -v abbr &>/dev/null || return
+abbr list 2>/dev/null | grep -q "^g=" && return
 
 # Modern CLI tool abbreviations (conditional on availability)
 if command -v gomi &> /dev/null; then

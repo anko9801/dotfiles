@@ -25,13 +25,9 @@ watchexec = "latest"   # File watcher
 # Code quality tools
 # Python tools are now managed by uv
 
-# GitHub CLI extensions are installed separately via gh
-"npm:@antfu/ni" = "latest"
-"npm:@anthropic-ai/claude-code" = "latest"
-# npm-check-updates
-# figma-developer-mcp
-# ccusage
-# @google/gemini-cli
+# Global npm packages
+"npm:@antfu/ni" = "latest"               # Package manager agnostic commands
+"npm:@anthropic-ai/claude-code" = "latest" # Claude Code CLI
 
 [settings]
 # Automatically install missing tools

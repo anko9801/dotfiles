@@ -5,10 +5,11 @@ export XDG_CACHE_HOME="$HOME/.cache"
 
 # Environment
 export GPG_TTY=$(tty)
-export PATH="$HOME/downloads:$HOME/.cargo/bin:$PATH"
-if [ -e $HOME/path ]; then
-  export PATH="$PATH:$HOME/path"
-fi
+
+# Build PATH efficiently
+path_components=("$HOME/downloads" "$HOME/.cargo/bin")
+[[ -e $HOME/path ]] && path_components+=("$HOME/path")
+export PATH="${(j.:.)path_components}:$PATH"
 
 # History configuration
 export HISTFILE=${HOME}/.zhistory
@@ -20,44 +21,38 @@ setopt share_history
 setopt hist_ignore_all_dups
 setopt hist_ignore_space
 
-# Completion configuration
-setopt auto_param_slash
-setopt mark_dirs
-setopt list_types
-setopt auto_menu
-setopt auto_param_keys
-setopt interactive_comments
-setopt magic_equal_subst
-setopt complete_in_word
-setopt always_last_prompt
-setopt print_eight_bit
-setopt extended_glob
-setopt globdots
-setopt list_packed
+# Shell options (grouped for efficiency)
+setopt auto_param_slash mark_dirs list_types auto_menu auto_param_keys \
+       interactive_comments magic_equal_subst complete_in_word \
+       always_last_prompt print_eight_bit extended_glob globdots \
+       list_packed correct
 
-autoload -U compinit
-compinit
+# Smart completion initialization
+autoload -Uz compinit
+if [[ -n $HOME/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 
 zstyle ':completion:*:default' menu select=2
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' completer _expand _complete _match _prefix _approximate _list _history
-zstyle ':completion:*:messages' format $YELLOW'%d'$DEFAULT
-zstyle ':completion:*:warnings' format $RED'No matches for:'$YELLOW' %d'$DEFAULT
-zstyle ':completion:*:descriptions' format $YELLOW'completing %B%d%b'$DEFAULT
-zstyle ':completion:*:corrections' format $YELLOW'%B%d '$RED'(errors: %e)%b'$DEFAULT
+zstyle ':completion:*:messages' format '%F{yellow}%d%f'
+zstyle ':completion:*:warnings' format '%F{red}No matches for:%f %F{yellow}%d%f'
+zstyle ':completion:*:descriptions' format '%F{yellow}completing %B%d%b%f'
+zstyle ':completion:*:corrections' format '%F{yellow}%B%d %f%F{red}(errors: %e)%b%f'
 zstyle ':completion:*:options' description 'yes'
 zstyle ':completion:*' group-name ''
 
 export LS_COLORS='di=94:ln=35:so=32:pi=33:ex=31:bd=46;94:cd=43;94:su=41;30:sg=46;30:tw=42;30:ow=43;30'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
-# Prompt and VCS
-setopt correct
+# Prompt correction
 SPROMPT="correct: %F{red}%R%f -> %F{green}%r%f ? [No/Yes/Abort/Edit]"
 
-autoload -Uz add-zsh-hook
-autoload -Uz vcs_info
-autoload -Uz is-at-least
+# Load VCS functions efficiently
+autoload -Uz add-zsh-hook vcs_info is-at-least
 
 zstyle ":vcs_info:*" enable git svn hg bzr
 zstyle ":vcs_info:*" formats "(%s)-[%b]"
@@ -83,71 +78,44 @@ function _update_vcs_info_msg() {
 RPROMPT="[%F{blue}%~%f%1(v|%F{green}%1v%f|)]"
 add-zsh-hook precmd _update_vcs_info_msg
 
-# Tool integrations
-if command -v mise &> /dev/null; then
-    eval "$(mise activate zsh)"
-    export PATH="$HOME/.local/share/mise/shims:$PATH"
+# Zinit plugin manager (optimized)
+ZINIT_HOME="$HOME/.zinit"
+if [[ ! -f $ZINIT_HOME/bin/zinit.zsh ]]; then
+    print -P "%F{33}Installing Zinit...%f"
+    command mkdir -p "$ZINIT_HOME" && command chmod g-rwX "$ZINIT_HOME"
+    command git clone https://github.com/zdharma/zinit "$ZINIT_HOME/bin" && \
+        print -P "%F{34}Zinit installed successfully%f" || \
+        print -P "%F{160}Zinit installation failed%f"
 fi
 
-
-
-### Added by Zinit's installer
-if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
-fi
-
-source "$HOME/.zinit/bin/zinit.zsh"
+source "$ZINIT_HOME/bin/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
-# Load a few important annexes, without Turbo
-# (this is currently required for annexes)
+# Load annexes
 zinit light-mode for \
     zinit-zsh/z-a-rust \
     zinit-zsh/z-a-as-monitor \
     zinit-zsh/z-a-patch-dl \
     zinit-zsh/z-a-bin-gem-node
-### End of Zinit's installer chunk
 
+# Load plugins with turbo mode for better performance
 zinit wait lucid for \
-    sbin b4b4r07/enhancd \
-    sbin supercrabtree/k \
-    sbin zsh-users/zsh-syntax-highlighting \
+    atload"_zsh_highlight_set_highlighters" \
+        zsh-users/zsh-syntax-highlighting \
+    blockf atpull'zinit creinstall -q .' \
+        zsh-users/zsh-completions
 
-zinit lucid for \
-    sbin danihodovic/steeef \
+# External tool integrations (lazy loaded)
+command -v mise &> /dev/null && eval "$(mise activate zsh)"
+command -v starship &> /dev/null && eval "$(starship init zsh)"
+command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 
-# FZF integration
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Starship prompt (overrides default prompt if available)
-if command -v starship &> /dev/null; then
-    eval "$(starship init zsh)"
-fi
-
-# Zoxide - smarter cd
-if command -v zoxide &> /dev/null; then
-    eval "$(zoxide init --cmd cd --hook pwd zsh)"
-fi
-
-# Modern CLI abbreviations will be loaded via init-abbr.zsh
-
-# zsh-abbr - abbreviation expansion
-if [[ -f /usr/local/share/zsh-abbr/zsh-abbr.zsh ]]; then
+# Source configurations
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+[[ -f /usr/local/share/zsh-abbr/zsh-abbr.zsh ]] && {
     source /usr/local/share/zsh-abbr/zsh-abbr.zsh
     FPATH=/usr/local/share/zsh-abbr:$FPATH
-fi
-
-# Load abbreviations
-if [[ -f $XDG_CONFIG_HOME/zsh/init-abbr.zsh ]]; then
-    source $XDG_CONFIG_HOME/zsh/init-abbr.zsh
-fi
-
-# GitHub Copilot CLI integration
-if [[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]]; then
-    source $XDG_CONFIG_HOME/zsh/copilot.zsh
-fi
+}
+[[ -f $XDG_CONFIG_HOME/zsh/init-abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/init-abbr.zsh
+[[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]] && source $XDG_CONFIG_HOME/zsh/copilot.zsh
