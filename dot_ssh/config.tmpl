@@ -1,0 +1,39 @@
+# SSH Configuration with 1Password SSH Agent integration
+
+{{- if eq .chezmoi.os "darwin" }}
+# 1Password SSH Agent (macOS)
+Host *
+    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    
+{{- else if eq .chezmoi.os "linux" }}
+# 1Password SSH Agent (Linux)
+Host *
+    IdentityAgent ~/.1password/agent.sock
+    
+{{- end }}
+
+# GitHub
+Host github.com
+    HostName github.com
+    User git
+    Port 22
+    # Use 1Password SSH key if available, fallback to default
+    IdentitiesOnly yes
+    
+# Default settings
+Host *
+    # Security settings
+    Protocol 2
+    Compression yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    
+    # Key management
+    AddKeysToAgent yes
+    UseKeychain yes
+    
+    # Connection settings
+    TCPKeepAlive yes
+    ControlMaster auto
+    ControlPath ~/.ssh/master-%r@%h:%p
+    ControlPersist 10m

@@ -1,0 +1,90 @@
+#!/bin/bash
+# Bootstrap script for installing packages
+# This runs once when chezmoi is first applied
+
+set -e
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS package installation
+echo "Installing packages for macOS..."
+
+# Install Homebrew if not already installed
+if ! command -v brew >/dev/null 2>&1; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Essential tools
+brew install git curl wget tmux tree jq gnupg
+
+# Modern CLI tools
+brew install ripgrep fd bat fzf gh
+brew install eza zoxide starship gomi atuin
+
+# Development tools
+brew install vim neovim mise
+brew install node python ruby go rust
+
+# macOS specific tools
+brew install yabai skhd
+brew install --cask raycast warp
+
+# Security tools
+brew install git-secrets
+
+# 1Password and CLI
+brew install --cask 1password
+brew install 1password-cli
+
+# AI development tools
+npm install -g aicommits
+gh extension install github/gh-copilot 2>/dev/null || echo "GitHub Copilot CLI may require authentication"
+
+{{- else if eq .chezmoi.os "linux" }}
+# Linux package installation
+echo "Installing packages for Linux..."
+
+# Update package lists
+sudo apt update -y || sudo pacman -Syu --noconfirm || echo "Could not update packages"
+
+# Essential tools
+if command -v apt >/dev/null 2>&1; then
+    # Debian/Ubuntu
+    sudo apt install -y git curl wget tmux tree jq gnupg
+    sudo apt install -y ripgrep fd-find bat fzf
+    # Install 1Password
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
+    echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main' | sudo tee /etc/apt/sources.list.d/1password.list
+    sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/
+    curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
+    sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+    sudo apt update && sudo apt install -y 1password 1password-cli
+elif command -v pacman >/dev/null 2>&1; then
+    # Arch Linux
+    sudo pacman -S --noconfirm git curl wget tmux tree jq gnupg
+    sudo pacman -S --noconfirm ripgrep fd bat fzf
+    # Install 1Password via AUR
+    if command -v yay >/dev/null 2>&1; then
+        yay -S --noconfirm 1password 1password-cli
+    fi
+fi
+
+# Install mise
+curl https://mise.run | sh
+
+{{- end }}
+
+# Setup git-secrets
+mkdir -p ~/.git-templates/git-secrets
+git secrets --install ~/.git-templates/git-secrets
+git config --global init.templateDir ~/.git-templates/git-secrets
+git secrets --register-aws
+
+echo "Package installation completed!"
+echo ""
+echo "Next steps:"
+echo "1. Sign in to 1Password and enable SSH Agent in settings"
+echo "2. Configure 1Password CLI: op account add"
+echo "3. Set up aicommits: aicommits config set OPENAI_KEY"
+echo "4. Authenticate GitHub Copilot: gh auth login"

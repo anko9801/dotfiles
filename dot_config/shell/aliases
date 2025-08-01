@@ -30,12 +30,27 @@ command -v exa >/dev/null 2>&1 && alias ls='exa'
 command -v rg >/dev/null 2>&1 && alias grep='rg'
 command -v fd >/dev/null 2>&1 && alias find='fd'
 
-# YADM aliases
-alias ys='yadm status'
-alias ya='yadm add'
-alias yc='yadm commit'
-alias yp='yadm push'
-alias yd='yadm diff'
+# chezmoi aliases (replacing yadm)
+alias cs='chezmoi status'
+alias ca='chezmoi add'
+alias ce='chezmoi edit'
+alias cd='chezmoi diff'
+alias cup='chezmoi update'
+
+# 1Password CLI shortcuts
+if command -v op >/dev/null 2>&1; then
+    alias opl='op item list'
+    alias opg='op item get'
+    alias ops='op item get --fields password'
+    alias opv='op vault list'
+    alias opa='op account list'
+    # Get password and copy to clipboard (macOS)
+    alias opc='op item get --fields password | pbcopy'
+    # Generate password
+    alias opgen='op item create --generate-password'
+    # Sign in
+    alias signin='eval $(op signin)'
+fi
 
 # Reload shell config
 alias reload='source $ZDOTDIR/.zshrc'
