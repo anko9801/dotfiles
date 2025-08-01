@@ -1,5 +1,7 @@
-# 起動速度を測定
+# Source common profile (POSIX-compliant)
+[ -f "$HOME/.profile" ] && emulate sh -c '. "$HOME/.profile"'
 
+# 起動速度を測定
 # zmodload zsh/zprof && zprof
 
 # alias
@@ -115,10 +117,7 @@ function _update_vcs_info_msg() {
 RPROMPT="[$BLUE%~%f$DEFAULT%1(v|%F{green}%1v%f|)]"
 add-zsh-hook precmd _update_vcs_info_msg
 
-# mise (replaces asdf)
-if command -v mise &> /dev/null; then
-    eval "$(mise activate zsh)"
-fi
+# mise is now loaded from common .profile
 
 # history
 
