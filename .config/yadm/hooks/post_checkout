@@ -14,11 +14,5 @@ if [[ -d "$HOME/.local/share/vim/undo" ]]; then
     find "$HOME/.local/share/vim/undo" -type f -mtime +30 -delete
 fi
 
-# Link pre-commit config from .github to root for pre-commit to find
-if [[ -f "$HOME/.github/pre-commit-config.yaml" && ! -f "$HOME/.pre-commit-config.yaml" ]]; then
-    ln -sf "$HOME/.github/pre-commit-config.yaml" "$HOME/.pre-commit-config.yaml"
-    echo "Linked pre-commit config from .github/"
-fi
-
 # Reminder to run bootstrap if needed
 echo "Remember to run 'yadm bootstrap' if you need to update packages"

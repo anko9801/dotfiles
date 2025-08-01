@@ -95,9 +95,9 @@ Git設定のカスタマイズは `.config/git/config` を編集。
 
 ## ファイル構成
 
-開発関連ファイルは`.github/`ディレクトリに整理：
-- `README.md` - プロジェクトドキュメント
-- `pre-commit-config.yaml` - コード品質・セキュリティチェック設定
+プロジェクト関連ファイル：
+- `.github/README.md` - プロジェクトドキュメント（ホーム汚染回避）
+- `.pre-commit-config.yaml` - コード品質・セキュリティチェック設定
 
 ## セキュリティ
 
