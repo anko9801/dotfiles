@@ -20,7 +20,6 @@
 !.config/tmux/
 !.config/vim/
 !.config/yabai/
-!.config/yadm/
 !.config/zsh/
 
 # Blacklist patterns within whitelisted areas

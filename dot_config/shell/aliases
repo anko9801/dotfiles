@@ -30,7 +30,7 @@ command -v exa >/dev/null 2>&1 && alias ls='exa'
 command -v rg >/dev/null 2>&1 && alias grep='rg'
 command -v fd >/dev/null 2>&1 && alias find='fd'
 
-# chezmoi aliases (replacing yadm)
+# chezmoi aliases
 alias cs='chezmoi status'
 alias ca='chezmoi add'
 alias ce='chezmoi edit'
