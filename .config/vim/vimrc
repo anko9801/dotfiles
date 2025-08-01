@@ -176,8 +176,13 @@ retab!
 filetype plugin on
 
 if has('persistent_undo')
-	set undodir=~/.vim/undo
+	" Use XDG-compliant cache directory for undo files
+	set undodir=~/.cache/vim/undo
 	set undofile
+	" Create directory if it doesn't exist
+	if !isdirectory(expand('~/.cache/vim/undo'))
+		call mkdir(expand('~/.cache/vim/undo'), 'p')
+	endif
 endif
 
 " ## added by OPAM user-setup for vim / base ## 93ee63e278bdfc07d1139a748ed3fff2 ## you can edit, but keep this line

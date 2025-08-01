@@ -30,6 +30,7 @@ node_modules/
 # Application data
 Library/
 .local/share/Trash/
+.local/share/vim/
 .Trash/
 
 # Other dotfiles repos
