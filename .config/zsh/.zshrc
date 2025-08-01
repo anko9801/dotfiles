@@ -1,6 +1,3 @@
-# Source common profile (POSIX-compliant)
-[ -f "$HOME/.profile" ] && emulate sh -c '. "$HOME/.profile"'
-
 # 起動速度を測定
 # zmodload zsh/zprof && zprof
 
