@@ -5,7 +5,9 @@
 # Then whitelist specific dotfiles and directories
 !.config/
 !.github/
-!.zshenv
+!.profile
+!.bash_profile
+!.bashrc
 !.gitignore
 !git.md
 
