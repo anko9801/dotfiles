@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# YADM Bootstrap Script
+# yadm alternateで適切なOS別スクリプトが実行されない場合のフォールバック
+
+set -e
+
+echo "================================"
+echo " YADM Bootstrap"
+echo " パパッと楽に理想の環境を手に入れるやつ"
+echo "================================"
+echo
+
+# yadmがalternateを処理しているか確認
+if [[ -n "${YADM_BOOTSTRAP_FILE:-}" ]]; then
+    echo "Running alternate bootstrap: $YADM_BOOTSTRAP_FILE"
+    exit 0
+fi
+
+# OS検出
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Detected macOS"
+    exec "$HOME/.config/yadm/bootstrap##os.Darwin"
+elif [[ -f /etc/arch-release ]]; then
+    echo "Detected Arch Linux"
+    exec "$HOME/.config/yadm/bootstrap##distro.Arch"
+elif [[ -f /etc/debian_version ]]; then
+    echo "Detected Debian/Ubuntu"
+    exec "$HOME/.config/yadm/bootstrap##distro.Ubuntu"
+else
+    echo "ERROR: Unsupported OS"
+    echo "Please create a bootstrap file for your OS"
+    exit 1
+fi

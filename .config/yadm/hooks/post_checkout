@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# yadm post-checkout hook
+# This runs after switching branches or checking out files
+
+# Update submodules if any
+if [[ -f .gitmodules ]]; then
+    echo "Updating submodules..."
+    yadm submodule update --init --recursive
+fi
+
+# Clear vim undo files if switching branches
+if [[ -d "$HOME/.local/share/vim/undo" ]]; then
+    find "$HOME/.local/share/vim/undo" -type f -mtime +30 -delete
+fi
+
+# Reminder to run bootstrap if needed
+echo "Remember to run 'yadm bootstrap' if you need to update packages"

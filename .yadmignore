@@ -1,0 +1,40 @@
+# Files to ignore when using yadm
+
+# Large directories
+Downloads/
+Documents/
+Pictures/
+Movies/
+Music/
+Desktop/
+Public/
+
+# Development directories (manage separately)
+work/
+projects/
+repos/
+go/
+node_modules/
+
+# Cache and temporary files
+.cache/
+.npm/
+.cargo/registry/
+.rustup/
+
+# Private files
+.ssh/id_*
+.gnupg/
+.aws/credentials
+
+# Application data
+Library/
+.local/share/Trash/
+.Trash/
+
+# Other dotfiles repos
+.cfg/
+.dotfiles/
+
+# Kiro
+.kiro/

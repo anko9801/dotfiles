@@ -30,7 +30,7 @@ fi
 
 export GPG_TTY=$(tty)
 export PATH=$PATH:/usr/local/texlive/2019/bin/x86_64-linux
-export PATH=$PATH:/home/anko/.asdf/installs/python/3.10.4/bin
+# Removed: asdf python path (now using mise)
 export PATH=$PATH:$HOME/.cargo/bin
 export PATH=$PATH:$HOME/downloads
 
@@ -115,10 +115,10 @@ function _update_vcs_info_msg() {
 RPROMPT="[$BLUE%~%f$DEFAULT%1(v|%F{green}%1v%f|)]"
 add-zsh-hook precmd _update_vcs_info_msg
 
-# asdf
-
-. $HOME/.asdf/asdf.sh
-. $HOME/.asdf/completions/asdf.bash
+# mise (replaces asdf)
+if command -v mise &> /dev/null; then
+    eval "$(mise activate zsh)"
+fi
 
 # history
 
@@ -173,4 +173,33 @@ zinit lucid for \
 #   zprof | less
 # fi
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Atuin - Better shell history
+if command -v atuin &> /dev/null; then
+    eval "$(atuin init zsh)"
+fi
+
+# Starship prompt
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+fi
+
+# Zoxide - smarter cd
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init --cmd cd --hook pwd zsh)"
+fi
+
+# Gomi - trash instead of rm
+if command -v gomi &> /dev/null; then
+    alias rm='gomi'
+fi
+
+# Eza - better ls
+if command -v eza &> /dev/null; then
+    alias ls='eza'
+    alias ll='eza -l'
+    alias la='eza -la'
+    alias lt='eza --tree'
+fi
+
 export PATH=$PATH:$HOME/downloads

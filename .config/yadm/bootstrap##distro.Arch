@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# Bootstrap for Arch Linux
+set -e
+
+# Source common functions
+source "$HOME/.config/yadm/bootstrap-common"
+
+info "Starting bootstrap for Arch Linux..."
+
+# Update system
+info "Updating system..."
+sudo pacman -Syu --noconfirm
+
+# Install packages
+info "Installing packages..."
+
+# Base tools
+sudo pacman -S --noconfirm \
+    base-devel \
+    git curl wget \
+    tmux tree jq \
+    gnupg pass
+
+# Development tools
+sudo pacman -S --noconfirm \
+    vim neovim \
+    python python-pip \
+    nodejs npm \
+    go \
+    ruby \
+    rust
+
+# Modern CLI tools
+sudo pacman -S --noconfirm \
+    ripgrep fd bat fzf \
+    github-cli starship zoxide
+
+# From AUR
+if command_exists yay; then
+    yay -S --noconfirm atuin eza gomi
+fi
+
+# Shell
+sudo pacman -S --noconfirm zsh fish
+
+# Optional tools
+sudo pacman -S --noconfirm \
+    htop ncdu tldr \
+    ffmpeg imagemagick \
+    pandoc
+
+# AUR helper (yay)
+if ! command_exists yay; then
+    info "Installing yay (AUR helper)..."
+    git clone https://aur.archlinux.org/yay.git /tmp/yay
+    cd /tmp/yay
+    makepkg -si --noconfirm
+    cd -
+    rm -rf /tmp/yay
+    success "yay installed"
+fi
+
+success "Packages installed"
+
+# Setup XDG and tools
+create_xdg_dirs
+setup_vim
+setup_zsh
+install_mise
+setup_mise_tools
+
+post_install

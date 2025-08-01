@@ -1,0 +1,41 @@
+# Common shell aliases
+
+# ls aliases
+alias ls='ls --color=auto'
+alias ll='ls -lah'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Safety nets
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Git aliases
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph'
+
+# Modern replacements (if available)
+command -v bat >/dev/null 2>&1 && alias cat='bat'
+command -v exa >/dev/null 2>&1 && alias ls='exa'
+command -v rg >/dev/null 2>&1 && alias grep='rg'
+command -v fd >/dev/null 2>&1 && alias find='fd'
+
+# YADM aliases
+alias ys='yadm status'
+alias ya='yadm add'
+alias yc='yadm commit'
+alias yp='yadm push'
+alias yd='yadm diff'
+
+# Reload shell config
+alias reload='source $ZDOTDIR/.zshrc'
