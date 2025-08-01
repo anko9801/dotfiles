@@ -1,34 +1,30 @@
+# Personal Git Configuration Template
+# This file is processed by yadm and creates ~/.gitconfig
+
+[include]
+    path = ~/.config/git/config
+
 [user]
-    name = {{ yadm.user }}
-    email = {{ yadm.email }}
+    name = {{ yadm.user | default("Your Name") }}
+    email = {{ yadm.email | default("your.email@example.com") }}
+{% if yadm.os == "Darwin" %}
+    signingkey = ~/.ssh/id_ed25519.pub
+{% elif yadm.os == "Linux" %}  
+    signingkey = ~/.ssh/id_ed25519.pub
+{% endif %}
 
-[core]
-    editor = vim
-    pager = less
+[gpg]
+{% if yadm.os == "Darwin" %}
+    ssh.allowedSignersFile = ~/.config/git/allowed_signers
+{% elif yadm.os == "Linux" %}
+    ssh.allowedSignersFile = ~/.config/git/allowed_signers
+{% endif %}
 
-[color]
-    ui = auto
-
-[alias]
-    st = status
-    co = checkout
-    br = branch
-    ci = commit
-    di = diff
-    lg = log --oneline --graph --decorate
-
-[pull]
-    rebase = true
-
-[init]
-    defaultBranch = main
-
+# OS-specific configurations
 {% if yadm.os == "Darwin" %}
 [credential]
     helper = osxkeychain
-{% endif %}
-
-{% if yadm.os == "Linux" %}
+{% elif yadm.os == "Linux" %}
 [credential]
-    helper = cache --timeout=3600
+    helper = store
 {% endif %}

@@ -67,12 +67,31 @@ yadm commit -m "Add newapp config"
 yadm push
 ```
 
+## 初回セットアップ
+
+クローン後に個人設定を行う：
+
+```bash
+# ユーザー情報を設定（重要！）
+yadm config yadm.user "Your Name"
+yadm config yadm.email "your.email@example.com"
+
+# テンプレートを生成して~/.gitconfigを作成
+yadm alt
+
+# SSH署名キーをGitHubに登録
+cat ~/.ssh/id_ed25519.pub
+# ↑をGitHub Settings > SSH and GPG keys > "Signing Key"として追加
+```
+
 ## カスタマイズ
 
 新しいパッケージを追加する場合は、OS別のbootstrapファイルを編集：
 - macOS: `.config/yadm/bootstrap##os.Darwin`
 - Ubuntu: `.config/yadm/bootstrap##distro.Ubuntu`
 - Arch: `.config/yadm/bootstrap##distro.Arch`
+
+Git設定のカスタマイズは `.config/git/config` を編集。
 
 ---
 

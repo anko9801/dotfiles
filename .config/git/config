@@ -1,33 +1,111 @@
-[alias]
-  lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
-  br-prune = !git branch --merged | egrep -v '\\*|master|main' | xargs git branch -d
-  st = status
-  co = checkout
-  ps = push
-  pl = pull
-  c = commit -S
-  cm = commit -S -m
-  a = add --all
-  f = fetch --prune
-  b = branch
-  r = reset
-  sw = switch
-  re = restore
-[user]
-  email = daiusa3@icloud.com
-  name = anko9801
-  signingKey = 0FE7C5464D835A47F647C5CFCE7EDF802CD44475
+# Git Configuration
+# This file contains dotfiles Git configuration
+# Personal settings (user.name, user.email, user.signingkey) should be set locally
+
 [core]
   editor = vim
+  autocrlf = false
+  safecrlf = true
+  filemode = false
+
+[color]
+  ui = auto
+
+[merge]
+  tool = vimdiff
+  conflictstyle = diff3
+
+[diff]
+  renames = true
+
+[pull]
+  ff = only
+
 [push]
-	default = current
+  autoSetupRemote = true
+  default = current
+
+[fetch]
+  prune = true
+  fsckobjects = true
+
+[rebase]
+  autostash = true
+
+[init]
+  defaultBranch = main
+
 [commit]
-  gpgSign = false
+  verbose = true
+  gpgsign = true
+
+[tag]
+  gpgsign = true
+
 [gpg]
-  program = gpg2
+  format = ssh
+
+[help]
+  autocorrect = prompt
+
+[rerere]
+  enabled = true
+
+[branch]
+  autosetupmerge = always
+  autosetuprebase = always
+
+[status]
+  showUntrackedFiles = all
+
+[transfer]
+  fsckobjects = true
+
+[receive]
+  fsckObjects = true
+
 [credential]
   helper = store
-[color]
-	ui = auto
-[pull]
-	ff = only
+
+# Aliases
+[alias]
+  # Status and basic operations
+  st = status -sb
+  co = checkout
+  br = branch
+  sw = switch
+  re = restore
+  
+  # Commit operations
+  c = commit -S
+  cm = commit -m
+  a = add --all
+  amend = commit --amend --no-edit
+  commend = commit --amend --no-edit
+  undo = reset HEAD~1 --mixed
+  
+  # Push/Pull operations
+  ps = push
+  pl = pull
+  f = fetch --prune
+  please = push --force-with-lease
+  
+  # Log and history
+  lg = log --oneline --graph --decorate
+  la = log --oneline --graph --decorate --all
+  last = log -1 HEAD
+  contributors = shortlog -sn
+  
+  # Diff operations
+  df = diff --color-words
+  staged = diff --staged
+  unstage = reset HEAD --
+  
+  # Branch management
+  cleanup = !git branch --merged | grep -v "\\*\\|main\\|master\\|develop" | xargs -n 1 git branch -d
+  br-prune = !git branch --merged | egrep -v '\\*|master|main' | xargs git branch -d
+  
+  # Utilities
+  visual = !gitk
+  it = !git init && git commit -m 'Initial commit' --allow-empty
+  r = reset
