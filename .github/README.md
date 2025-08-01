@@ -11,7 +11,7 @@ XDG Base Directory仕様に準拠したモダンなdotfiles管理。
 - 🎯 **OS自動判定**: yadm alternateでOS別の設定を自動適用
 - 🔐 **暗号化対応**: 機密ファイルの安全な管理
 - 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
-- 🐚 **マルチシェル対応**: bash, zsh, dash など POSIX準拠シェル
+- 🐚 **Zsh最適化**: zsh環境に特化した高速で直接的な設定
 - 🌍 **マルチプラットフォーム**: macOS, Linux (Ubuntu, Debian, Arch)
 
 ## インストール
@@ -39,16 +39,14 @@ $HOME/
 │   ├── shell/        # 共通シェル設定とエイリアス
 │   └── yadm/         # yadm bootstrap と hooks
 ├── .local/           # アプリケーションデータ (XDG_DATA_HOME)
-├── .profile          # POSIX準拠のシェル共通設定
-├── .bash_profile     # Bash設定エントリーポイント
-└── .bashrc           # Bash対話シェル設定
+└── .zshenv           # XDG環境変数の設定（最小限）
 ```
 
 ## 含まれるツール
 
 - **Base**: git, curl, wget, tmux, tree, jq
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, atuin, zoxide, starship, gomi
-- **Shell**: POSIX-compliant (.profile), zsh (zinit), bash
+- **Shell**: zsh (zinit), .zshenv
 - **Editor**: vim (dein.vim), neovim
 - **Version Manager**: mise (faster asdf alternative)
 - **Languages**: Node.js, Python, Ruby, Go, Rust
