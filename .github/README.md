@@ -97,11 +97,23 @@ Git設定のカスタマイズは `.config/git/config` を編集。
 
 ## セキュリティ
 
-**ホワイトリスト方式**を採用し、必要なファイルのみを厳選管理：
-- 個人データ (Desktop/, Documents/, etc.) は自動除外
-- 認証情報 (.ssh/id_*, .gitconfig, etc.) は自動除外  
-- 開発ディレクトリ (workspace/, projects/, etc.) は自動除外
-- 新しい設定ファイルは明示的に追加が必要
+**多層防御**でセキュリティを強化：
+- 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
+- 🔐 **SSH署名**: コミットの真正性を暗号学的に保証
+- 🚫 **git-secrets**: シークレット情報の誤コミットを防止
+- 🔍 **pre-commit hooks**: コミット前の自動セキュリティチェック
+- 🎯 **Fine-grained PAT**: 最小権限の原則でAPIアクセス制御
+
+除外される機密データ：
+- 個人データ (Desktop/, Documents/, etc.)
+- 認証情報 (.ssh/id_*, .gitconfig, etc.)  
+- 開発ディレクトリ (workspace/, projects/, etc.)
+
+## AI統合
+
+**モダンなAI開発ツール**を活用：
+- 🤖 **aicommits**: AIによる自動コミットメッセージ生成
+- 🚀 **GitHub Copilot CLI**: ターミナルでのAI支援
 
 ---
 

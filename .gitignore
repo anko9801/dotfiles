@@ -10,6 +10,7 @@
 !.bashrc
 !.gitignore
 !git.md
+!.pre-commit-config.yaml
 
 # Whitelist specific .config subdirectories
 .config/*

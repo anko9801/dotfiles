@@ -63,6 +63,29 @@ fi
 
 success "Packages installed"
 
+# Security tools
+info "Installing security tools..."
+if ! command_exists git-secrets; then
+    git clone https://github.com/awslabs/git-secrets.git /tmp/git-secrets
+    cd /tmp/git-secrets
+    make install PREFIX=/usr/local
+    cd -
+    rm -rf /tmp/git-secrets
+fi
+
+# Setup git-secrets globally
+mkdir -p ~/.git-templates/git-secrets
+git secrets --install ~/.git-templates/git-secrets
+git config --global init.templateDir ~/.git-templates/git-secrets
+git secrets --register-aws
+success "Git-secrets configured"
+
+# AI development tools
+info "Installing AI development tools..."
+npm install -g aicommits
+gh extension install github/gh-copilot 2>/dev/null || info "GitHub Copilot CLI may require authentication"
+success "AI tools installed"
+
 # Setup XDG and tools
 create_xdg_dirs
 setup_vim

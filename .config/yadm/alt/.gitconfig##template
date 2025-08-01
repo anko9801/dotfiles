@@ -20,6 +20,10 @@
     ssh.allowedSignersFile = ~/.config/git/allowed_signers
 {% endif %}
 
+# Security tools
+[init]
+    templateDir = ~/.git-templates/git-secrets
+
 # OS-specific configurations
 {% if yadm.os == "Darwin" %}
 [credential]
