@@ -23,9 +23,7 @@ just = "latest"        # Modern make alternative
 watchexec = "latest"   # File watcher
 
 # Code quality tools
-ruff = "latest"        # Fast Python linter
-poetry = "latest"      # Python dependency management
-pre-commit = "latest"  # Git hooks framework
+# Python tools are now managed by uv
 
 # GitHub CLI extensions are installed separately via gh
 "npm:@antfu/ni" = "latest"

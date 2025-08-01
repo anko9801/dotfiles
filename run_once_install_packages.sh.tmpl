@@ -19,8 +19,18 @@ brew install git curl wget tmux tree jq gnupg
 
 # Modern CLI tools
 brew install ripgrep bat gh
-brew install eza zoxide starship gomi atuin
-# Note: fd and fzf are managed by mise via aqua
+brew install eza zoxide starship gomi
+# Note: fd and fzf are managed by mise
+
+# Python tools
+brew install uv  # Fast Python package installer
+
+# Install Python development tools via uv
+if command -v uv >/dev/null 2>&1; then
+    uv tool install poetry --quiet 2>/dev/null || echo "poetry already installed"
+    uv tool install ruff --quiet 2>/dev/null || echo "ruff already installed"
+    uv tool install pre-commit --quiet 2>/dev/null || echo "pre-commit already installed"
+fi
 
 # Development tools
 brew install vim neovim mise
