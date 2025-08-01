@@ -1,0 +1,34 @@
+# Atuin configuration
+
+# How often to sync with the server
+auto_sync = true
+sync_frequency = "10m"
+
+# Search mode
+search_mode = "fuzzy"
+
+# Style
+style = "compact"
+
+# Use vim keybindings
+vim = true
+
+# Filter settings
+filter_mode = "host"
+filter_mode_shell_up_key_binding = "session"
+
+# UI settings
+show_preview = true
+inline_height = 20
+
+# History settings
+history_filter = [
+    "^ls",
+    "^cd",
+    "^pwd",
+    "^exit",
+    "^clear",
+]
+
+# Key bindings - Use Ctrl+R for search
+key_path = ""

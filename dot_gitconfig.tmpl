@@ -1,0 +1,30 @@
+# Personal Git Configuration
+# Includes shared configuration from dotfiles
+
+[include]
+  path = ~/.config/git/config
+
+[user]
+  name = {{ .name | default "Your Name" }}
+  email = {{ .email | default "your.email@example.com" }}
+  signingkey = ~/.ssh/id_ed25519.pub
+
+[gpg "ssh"]
+  allowedSignersFile = ~/.config/git/allowed_signers
+
+# Security tools
+[init]
+  templateDir = ~/.git-templates/git-secrets
+
+# OS-specific configurations
+{{- if eq .chezmoi.os "darwin" }}
+[credential]
+  helper = osxkeychain
+{{- else if eq .chezmoi.os "linux" }}
+[credential]
+  helper = store
+{{- end }}
+
+# Host-specific URL rewrites (keep private)
+[url "git@github.com:"]
+  insteadOf = https://github.com/
