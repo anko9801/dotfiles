@@ -8,11 +8,20 @@ ruby = "latest"
 go = "latest"
 rust = "latest"
 deno = "latest"
+bun = "latest"
 
-# Additional tools via aqua
-"aqua:jesseduffield/lazygit" = "latest"
-"aqua:junegunn/fzf" = "latest"
-"aqua:sharkdp/fd" = "latest"
+# Additional tools
+lazygit = "latest"
+fzf = "latest"
+fd = "latest"
+
+# GitHub CLI extensions are installed separately via gh
+"npm:@antfu/ni" = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
+# npm-check-updates
+# figma-developer-mcp
+# ccusage
+# @google/gemini-cli
 
 [settings]
 # Automatically install missing tools

@@ -18,12 +18,13 @@ fi
 brew install git curl wget tmux tree jq gnupg
 
 # Modern CLI tools
-brew install ripgrep fd bat fzf gh
+brew install ripgrep bat gh
 brew install eza zoxide starship gomi atuin
+# Note: fd and fzf are managed by mise via aqua
 
 # Development tools
 brew install vim neovim mise
-brew install node python ruby go rust
+# Note: node, python, ruby, go, rust are all managed by mise
 
 # macOS specific tools
 brew install yabai skhd
@@ -37,7 +38,8 @@ brew install --cask 1password
 brew install 1password-cli
 
 # AI development tools
-npm install -g aicommits
+# npm packages will be installed after mise sets up node
+mise exec -- npm install -g aicommits
 gh extension install github/gh-copilot 2>/dev/null || echo "GitHub Copilot CLI may require authentication"
 
 {{- else if eq .chezmoi.os "linux" }}
@@ -70,8 +72,8 @@ elif command -v pacman >/dev/null 2>&1; then
     fi
 fi
 
-# Install mise
-curl https://mise.run | sh
+# Install mise (already installed via brew above)
+# curl https://mise.run | sh
 
 {{- end }}
 

@@ -33,6 +33,22 @@ export PATH=$PATH:/usr/local/texlive/2019/bin/x86_64-linux
 export PATH=$PATH:$HOME/.cargo/bin
 export PATH=$PATH:$HOME/downloads
 
+# zsh-abbr - abbreviation expansion
+if [[ -f /usr/local/share/zsh-abbr/zsh-abbr.zsh ]]; then
+    source /usr/local/share/zsh-abbr/zsh-abbr.zsh
+    FPATH=/usr/local/share/zsh-abbr:$FPATH
+    
+    # Load user abbreviations
+    if [[ -f $XDG_CONFIG_HOME/zsh-abbr/user-abbreviations ]]; then
+        source $XDG_CONFIG_HOME/zsh-abbr/user-abbreviations
+    fi
+fi
+
+# GitHub Copilot CLI integration
+if [[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]]; then
+    source $XDG_CONFIG_HOME/zsh/copilot.zsh
+fi
+
 # 補完機能
 
 # 補完機能の強化
@@ -114,7 +130,12 @@ function _update_vcs_info_msg() {
 RPROMPT="[$BLUE%~%f$DEFAULT%1(v|%F{green}%1v%f|)]"
 add-zsh-hook precmd _update_vcs_info_msg
 
-# mise is now loaded from common .profile
+# mise - dev tools version manager
+if command -v mise &> /dev/null; then
+    eval "$(mise activate zsh)"
+    # Enable mise shims
+    export PATH="$HOME/.local/share/mise/shims:$PATH"
+fi
 
 # history
 
@@ -199,3 +220,19 @@ if command -v eza &> /dev/null; then
 fi
 
 export PATH=$PATH:$HOME/downloads
+
+# zsh-abbr - abbreviation expansion
+if [[ -f /usr/local/share/zsh-abbr/zsh-abbr.zsh ]]; then
+    source /usr/local/share/zsh-abbr/zsh-abbr.zsh
+    FPATH=/usr/local/share/zsh-abbr:$FPATH
+    
+    # Load user abbreviations
+    if [[ -f $XDG_CONFIG_HOME/zsh-abbr/user-abbreviations ]]; then
+        source $XDG_CONFIG_HOME/zsh-abbr/user-abbreviations
+    fi
+fi
+
+# GitHub Copilot CLI integration
+if [[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]]; then
+    source $XDG_CONFIG_HOME/zsh/copilot.zsh
+fi

@@ -32,8 +32,7 @@ chezmoi apply
 - **Shell**: zsh, starship プロンプト
 - **Editor**: vim
 - **Git**: SSH署名、エイリアス設定
-- **Tools**: tmux, mise (バージョン管理)
-- **1Password**: SSH Agent連携、CLI設定
+- **Tools**: tmux, mise (バージョン管理), GitHub Copilot CLI
 
 ## 使い方
 
@@ -51,12 +50,16 @@ chezmoi apply
 chezmoi update
 ```
 
-## 1Password設定
+## GitHub Copilot CLI
 
-初回セットアップ後：
+コマンドラインでGitHub Copilotを使用できます：
 
-1. 1Password アプリでSSH Agentを有効化
-2. `op account add` でアカウントを追加
-3. `op signin` でサインイン
+```bash
+# コマンドの提案
+ghcs "find large files in current directory"
+ghcs -t git "undo last commit"
 
-SSH鍵は1Passwordで管理され、自動的に使用されます。
+# コマンドの説明
+ghce "git log --oneline --graph --all"
+```
+

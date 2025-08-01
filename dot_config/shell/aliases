@@ -54,3 +54,17 @@ fi
 
 # Reload shell config
 alias reload='source $ZDOTDIR/.zshrc'
+
+# ghq shortcuts
+if command -v ghq >/dev/null 2>&1; then
+    alias gq='ghq get'
+    alias gql='ghq list'
+    alias gqr='ghq root'
+    # ghq + fzf integration
+    alias gqf='cd $(ghq list -p | fzf)'
+fi
+
+# lazygit shortcut
+if command -v lazygit >/dev/null 2>&1; then
+    alias lg='lazygit'
+fi

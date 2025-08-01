@@ -1,0 +1,78 @@
+# zsh-abbr user abbreviations
+# This file contains user-defined abbreviations
+
+# Git abbreviations
+abbr -S g="git"
+abbr -S ga="git add"
+abbr -S gb="git branch"
+abbr -S gc="git commit"
+abbr -S gca="git commit --amend"
+abbr -S gcm="git commit -m"
+abbr -S gco="git checkout"
+abbr -S gcp="git cherry-pick"
+abbr -S gd="git diff"
+abbr -S gf="git fetch"
+abbr -S gl="git log"
+abbr -S gm="git merge"
+abbr -S gp="git push"
+abbr -S gpl="git pull"
+abbr -S gr="git rebase"
+abbr -S gri="git rebase -i"
+abbr -S gs="git status"
+abbr -S gst="git stash"
+
+# Docker abbreviations
+abbr -S d="docker"
+abbr -S dc="docker-compose"
+abbr -S dps="docker ps"
+abbr -S dpsa="docker ps -a"
+abbr -S di="docker images"
+abbr -S drm="docker rm"
+abbr -S drmi="docker rmi"
+
+# Kubernetes abbreviations
+abbr -S k="kubectl"
+abbr -S kgp="kubectl get pods"
+abbr -S kgs="kubectl get services"
+abbr -S kgd="kubectl get deployments"
+abbr -S kaf="kubectl apply -f"
+abbr -S kdel="kubectl delete"
+abbr -S klog="kubectl logs"
+abbr -S kexec="kubectl exec -it"
+
+# npm/yarn abbreviations
+abbr -S ni="npm install"
+abbr -S nid="npm install --save-dev"
+abbr -S nr="npm run"
+abbr -S ns="npm start"
+abbr -S nt="npm test"
+abbr -S nb="npm run build"
+abbr -S nd="npm run dev"
+
+# System abbreviations
+abbr -S ll="ls -la"
+abbr -S la="ls -A"
+abbr -S l="ls -CF"
+abbr -S ..="cd .."
+abbr -S ...="cd ../.."
+abbr -S ....="cd ../../.."
+abbr -S mkdir="mkdir -p"
+
+# Editors
+abbr -S v="vim"
+abbr -S nv="nvim"
+abbr -S c="code"
+
+# Package managers
+abbr -S bi="brew install"
+abbr -S bu="brew update"
+abbr -S bug="brew upgrade"
+abbr -S bs="brew search"
+
+# Misc
+abbr -S h="history"
+abbr -S j="jobs"
+abbr -S t="tmux"
+abbr -S ta="tmux attach"
+abbr -S tn="tmux new"
+abbr -S tl="tmux list-sessions"
