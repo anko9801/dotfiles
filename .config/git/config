@@ -1,6 +1,7 @@
 # Git Configuration
-# This file contains dotfiles Git configuration
+# This file contains shared dotfiles Git configuration
 # Personal settings (user.name, user.email, user.signingkey) should be set locally
+# URL rewrites with tokens should be configured per-host
 
 [core]
   editor = vim

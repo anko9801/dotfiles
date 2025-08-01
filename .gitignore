@@ -24,3 +24,7 @@ temp/
 
 # Kiro
 .kiro/
+
+# Personal Git configuration (contains tokens/credentials)
+.gitconfig
+*/.gitconfig
