@@ -126,12 +126,11 @@ macOSではBrewfileテンプレートを使用：
 
 ```
 .config/yadm/
+├── setup                  # Initial configuration & bootstrap
 ├── bootstrap              # Main entry point
 ├── bootstrap##os.Darwin   # macOS bootstrap
 ├── bootstrap##os.Linux    # Linux bootstrap  
-├── bootstrap-check        # Pre-bootstrap configuration
-├── bootstrap-common       # Shared functions
-└── config                 # yadm configuration template
+└── bootstrap-common       # Shared functions
 
 .config/homebrew/
 └── Brewfile##template     # macOS packages (template)
@@ -170,13 +169,20 @@ macOSではBrewfileテンプレートを使用：
 
 ## Usage
 
-### Running Bootstrap
+### Initial Setup
 
 ```bash
-# 1. まず設定を確認
-~/.config/yadm/bootstrap-check
+# すべての設定とbootstrapを一度に
+~/.config/yadm/setup
+```
 
-# 2. Bootstrapを実行
+または個別に：
+
+```bash
+# 設定のみ
+~/.config/yadm/setup  # 最後のbootstrap実行をスキップ
+
+# Bootstrapのみ
 yadm bootstrap
 ```
 
