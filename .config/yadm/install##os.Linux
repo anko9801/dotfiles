@@ -18,6 +18,11 @@ warning() { echo -e "${YELLOW}!${NC} $1"; }
 
 info "Running Linux bootstrap..."
 
+# Debug: Show environment
+echo "DEBUG: Current directory: $(pwd)"
+echo "DEBUG: HOME: $HOME"
+echo "DEBUG: Script: $0"
+
 # 1. Create necessary directories first
 info "Creating directories..."
 mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
@@ -36,14 +41,18 @@ info "Detected distribution: $DISTRO"
 case "$DISTRO" in
     ubuntu|debian)
         info "Updating apt repositories..."
-        sudo apt update
+        sudo apt-get update || {
+            warning "Failed to update apt repositories"
+        }
         
         info "Installing base packages..."
-        sudo apt install -y \
+        sudo apt-get install -y \
             curl wget git \
             build-essential software-properties-common \
             zsh tmux neovim \
-            tree jq
+            tree jq || {
+            warning "Some packages failed to install"
+        }
         
         # Add repositories for modern tools
         info "Adding PPAs for modern tools..."
@@ -58,14 +67,14 @@ case "$DISTRO" in
         
         # Install tools available in apt
         info "Installing available tools from apt..."
-        local apt_tools=(fzf git-secrets)
+        apt_tools=(fzf git-secrets)
         for tool in "${apt_tools[@]}"; do
             sudo apt install -y "$tool" || warning "Failed to install $tool"
         done
         
         # Install modern CLI tools via .deb files
         info "Installing modern CLI tools..."
-        local tmp_dir=$(mktemp -d)
+        tmp_dir=$(mktemp -d)
         cd "$tmp_dir"
         
         # ripgrep

@@ -5,10 +5,9 @@
 experimental = true
 legacy_version_file = true
 jobs = 4
-missing_runtime_behavior = "auto_install"
-shims_dir = "~/.local/bin"
+# not_found_auto_install = true
+# shims_dir = "~/.local/bin"
 task_output = "prefix"
-not_found_auto_install = true
 
 [env]
 PYTHONUNBUFFERED = "1"
