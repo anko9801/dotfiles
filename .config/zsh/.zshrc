@@ -43,6 +43,9 @@ export PATH="${(j.:.)path_components}:$PATH"
 # OS固有の環境変数を読み込み
 [[ -f $XDG_CONFIG_HOME/zsh/env.zsh ]] && source $XDG_CONFIG_HOME/zsh/env.zsh
 
+# 略語定義
+[[ -f $XDG_CONFIG_HOME/zsh/abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/abbr.zsh
+
 # ------------------------------------------------------------------------------
 # 履歴設定
 # ------------------------------------------------------------------------------
@@ -159,9 +162,7 @@ command -v starship &> /dev/null && eval "$(starship init zsh)"
 command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 
 # fzf（ファジー検索）
-if command -v fzf &>/dev/null; then
-    eval "$(fzf --zsh)" 2>/dev/null || true
-fi
+command -v fzf &> /dev/null && eval "$(fzf --zsh)"
 
 # ------------------------------------------------------------------------------
 # プラグイン設定
@@ -172,8 +173,3 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 zstyle ':fzf-tab:*' switch-group ',' '.'
 
-# ------------------------------------------------------------------------------
-# 追加設定の読み込み
-# ------------------------------------------------------------------------------
-# 略語定義
-[[ -f $XDG_CONFIG_HOME/zsh/abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/abbr.zsh
