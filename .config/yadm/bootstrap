@@ -86,19 +86,21 @@ configure_yadm() {
     echo "------------------------"
     cipher=$(yadm config yadm.cipher 2>/dev/null || echo "")
     if [[ -z "$cipher" ]]; then
-        echo "1) gpg (recommended)"
-        echo "2) openssl"
+        echo "1) openssl (default)"
+        echo "2) gpg"
         echo "3) skip"
         read -p "Select encryption method [1-3]: " -n 1 -r
         echo
         case "$REPLY" in
-            1) 
+            1|"") 
+                set_config yadm.cipher openssl
+                echo "Openssl encryption will use your SSH key for encryption"
+                echo "Make sure your SSH key is available when encrypting/decrypting"
+                ;;
+            2) 
                 set_config yadm.cipher gpg
                 read -p "GPG key ID (or email): " gpg_key
                 [[ -n "$gpg_key" ]] && set_config yadm.gpg-recipient "$gpg_key"
-                ;;
-            2) 
-                set_config yadm.cipher openssl
                 ;;
             3) 
                 echo "Skipping encryption setup"
