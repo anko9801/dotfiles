@@ -165,7 +165,14 @@ fi
 # 5. Setup mise tools and language runtimes
 if command -v mise &>/dev/null; then
     info "Setting up mise..."
-    eval "$(mise activate bash)"
+    # Detect current shell and activate accordingly
+    if [[ -n "$ZSH_VERSION" ]]; then
+        eval "$(mise activate zsh)"
+    elif [[ -n "$BASH_VERSION" ]]; then
+        eval "$(mise activate bash)"
+    else
+        eval "$(mise activate sh)"
+    fi
     
     # Install and set global versions
     mise install node@lts python@latest || true
