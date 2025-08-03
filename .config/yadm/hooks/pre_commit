@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# yadm pre_commit hook
+# This runs automatically when using 'yadm commit'
+
+set -e
+
+# Run the git pre-commit hook we created
+if [[ -x "$HOME/.config/git/hooks/pre-commit" ]]; then
+    "$HOME/.config/git/hooks/pre-commit"
+fi
