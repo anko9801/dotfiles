@@ -63,6 +63,19 @@ setup_npm_packages() {
     info "npm packages are managed by mise - see .config/mise/config.toml"
 }
 
+# Setup Zsh without .zshenv
+setup_zsh_no_zshenv() {
+    info "Setting up zsh configuration without .zshenv..."
+    
+    # Remove .zshenv if it exists
+    [[ -f "$HOME/.zshenv" ]] && rm -f "$HOME/.zshenv"
+    
+    # Create symlink from ~/.zshrc to actual config
+    ln -sf "$HOME/.config/zsh/.zshrc" "$HOME/.zshrc"
+    
+    success "Zsh configured with symlink (no .zshenv needed)"
+}
+
 # Setup Vim
 setup_vim() {
     # Create vim directories
