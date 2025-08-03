@@ -1,15 +1,20 @@
-# XDG Base Directory
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_CACHE_HOME="$HOME/.cache"
-
 # Environment
 export GPG_TTY=$(tty)
 
+# Application XDG compliance
+export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC'
+export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
+export LESSHISTFILE=-  # Don't save less history
+
 # Build PATH efficiently
-path_components=("$HOME/downloads" "$HOME/.cargo/bin")
+path_components=("$HOME/.local/bin" "$HOME/downloads" "$HOME/.cargo/bin")
 [[ -e $HOME/path ]] && path_components+=("$HOME/path")
 export PATH="${(j.:.)path_components}:$PATH"
+
+# Tool-specific paths (if installed)
+if [ -d "$HOME/.cargo" ]; then
+    . "$HOME/.cargo/env" 2>/dev/null || true
+fi
 
 # History configuration
 export HISTFILE=${HOME}/.zhistory
