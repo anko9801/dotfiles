@@ -71,14 +71,5 @@ EOF
     fi
 }
 
-# Setup zsh symlink if needed
-setup_zsh_symlink() {
-    if [[ ! -e "$HOME/.zshrc" ]] || [[ ! -L "$HOME/.zshrc" ]]; then
-        echo "Creating .zshrc symlink..."
-        ln -sf "$HOME/.config/zsh/.zshrc" "$HOME/.zshrc"
-    fi
-}
-
-# Run the setups
+# Run the setup
 setup_1password_ssh
-setup_zsh_symlink

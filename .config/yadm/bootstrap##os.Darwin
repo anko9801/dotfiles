@@ -87,6 +87,7 @@ fi
 
 # Setup XDG and tools
 create_xdg_dirs
+setup_system_zdotdir  # Try system config first
 setup_vim
 setup_zsh
 install_mise
