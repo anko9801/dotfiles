@@ -127,9 +127,8 @@ Bootstrap内に統合された設定：
 ```
 .config/yadm/
 ├── bootstrap              # Main entry point (includes setup)
-├── bootstrap##os.Darwin   # macOS specific
-├── bootstrap##os.Linux    # Linux specific  
-└── bootstrap-common       # Shared functions
+├── bootstrap##os.Darwin   # macOS specific (self-contained)
+└── bootstrap##os.Linux    # Linux specific (self-contained)
 
 .config/homebrew/
 └── Brewfile##template     # macOS packages
