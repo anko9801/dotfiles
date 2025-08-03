@@ -39,6 +39,10 @@ shfmt = "latest"
 "npm:aicommits" = "latest"               # AI-powered commit messages
 "npm:@antfu/ni" = "latest"               # Package manager agnostic commands
 "npm:@anthropic-ai/claude-code" = "latest" # Claude Code CLI
+"npm:@google/gemini-cli" = "latest"     # Gemini AI CLI
+
+# Additional tools
+"aqua:ajeetdsouza/zoxide" = "latest"    # Smarter cd command
 
 [tasks.update]
 description = "Update all tools to latest versions"
