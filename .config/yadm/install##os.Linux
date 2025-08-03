@@ -178,7 +178,21 @@ if command -v mise &>/dev/null; then
     
     # Install all tools defined in config.toml
     info "Installing tools from mise config..."
-    mise install || true
+    # Install tools one by one to handle failures gracefully
+    mise install --yes || {
+        warning "Some tools failed to install, continuing..."
+        # Try to install essential tools individually
+        mise install node@latest || true
+        mise install pnpm@latest || true
+        mise install deno@latest || true
+        mise install bun@latest || true
+        mise install go@latest || true
+        mise install rust@latest || true
+        mise install uv@latest || true
+        mise install ruff@latest || true
+        # Skip ruby if it fails
+        mise install ruby@latest || warning "Ruby installation failed, skipping"
+    }
     
     success "mise configured"
 fi
