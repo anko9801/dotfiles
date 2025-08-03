@@ -202,7 +202,19 @@ if [[ ! -d "${ZDOTDIR:-$HOME}/.antidote" ]]; then
     success "antidote installed"
 fi
 
-# 8. Final summary
+# 8. WSL2 specific setup
+if [[ $(uname -r) =~ microsoft ]]; then
+    info "Detected WSL2 environment"
+    
+    # Copy wsl.conf if it doesn't exist
+    if [[ -f "$HOME/.config/wsl/wsl.conf" ]] && [[ ! -f "/etc/wsl.conf" ]]; then
+        info "Installing WSL configuration..."
+        sudo cp "$HOME/.config/wsl/wsl.conf" /etc/wsl.conf
+        success "wsl.conf installed (restart WSL2 to apply)"
+    fi
+fi
+
+# 9. Final summary
 success "Bootstrap completed!"
 echo
 echo "Installed tools:"
