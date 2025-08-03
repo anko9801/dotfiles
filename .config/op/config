@@ -1,0 +1,11 @@
+# 1Password CLI configuration
+# This file stores 1Password CLI settings
+
+# Default account (will be set after op signin)
+# account = "your-account.1password.com"
+
+# Enable biometric unlock on supported platforms
+biometric = true
+
+# Cache session for 30 minutes
+cache = 1800

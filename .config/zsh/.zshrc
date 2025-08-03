@@ -1,94 +1,58 @@
-# 起動速度を測定
-# zmodload zsh/zprof && zprof
+# XDG Base Directory
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
 
-# alias
+# Environment
+export GPG_TTY=$(tty)
 
-alias lst='ls -ltr --color=auto'
-alias l='ls -ltr --color=auto'
-alias la='ls -la --color=auto'
-alias ll='ls -l --color=auto'
-alias vz='vim ~/.zshrc'
-alias up='sudo apt update -y && sudo apt upgrade -y'
-alias rs='source ~/.zshrc'
-alias h='fc -lt '%F %T' 1' # historyに日付を表示
-alias cp='cp -i'
-alias rm='rm -i'
-alias mkdir='mkdir -p'
-alias tgz='tar -xzvf'
-alias g='git'
-alias we='explorer.exe'
-alias tm='time ( zsh -i -c exit )'
-alias cl="richpager -s native"
-alias dc="docker-compose"
+# Build PATH efficiently
+path_components=("$HOME/downloads" "$HOME/.cargo/bin")
+[[ -e $HOME/path ]] && path_components+=("$HOME/path")
+export PATH="${(j.:.)path_components}:$PATH"
 
-# export
+# History configuration
+export HISTFILE=${HOME}/.zhistory
+export HISTSIZE=10000
+export SAVEHIST=10000
+setopt hist_ignore_dups
+setopt EXTENDED_HISTORY
+setopt share_history
+setopt hist_ignore_all_dups
+setopt hist_ignore_space
 
-if [ -e $HOME/path ]; then
-  export PATH="$PATH:$HOME/path"
+# Shell options (grouped for efficiency)
+setopt auto_param_slash mark_dirs list_types auto_menu auto_param_keys \
+       interactive_comments magic_equal_subst complete_in_word \
+       always_last_prompt print_eight_bit extended_glob globdots \
+       list_packed correct
+
+# Smart completion initialization
+autoload -Uz compinit
+if [[ -n $HOME/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
 fi
 
-export GPG_TTY=$(tty)
-export PATH=$PATH:/usr/local/texlive/2019/bin/x86_64-linux
-# Removed: asdf python path (now using mise)
-export PATH=$PATH:$HOME/.cargo/bin
-export PATH=$PATH:$HOME/downloads
-
-# 補完機能
-
-# 補完機能の強化
-
-#補完に関するオプション
-setopt auto_param_slash      # ディレクトリ名の補完で末尾の / を自動的に付加し、次の補完に備える
-setopt mark_dirs             # ファイル名の展開でディレクトリにマッチした場合 末尾に / を付加
-setopt list_types            # 補完候補一覧でファイルの種別を識別マーク表示 (訳注:ls -F の記号)
-setopt auto_menu             # 補完キー連打で順に補完候補を自動で補完
-setopt auto_param_keys       # カッコの対応などを自動的に補完
-setopt interactive_comments  # コマンドラインでも # 以降をコメントと見なす
-setopt magic_equal_subst     # コマンドラインの引数で --prefix=/usr などの = 以降でも補完できる
-
-setopt complete_in_word      # 語の途中でもカーソル位置で補完
-setopt always_last_prompt    # カーソル位置は保持したままファイル名一覧を順次その場で表示
-
-setopt print_eight_bit       # 日本語ファイル名等8ビットを通す
-setopt extended_glob         # 拡張グロブで補完(~とか^とか。例えばless *.txt~memo.txt ならmemo.txt 以外の *.txt にマッチ)
-setopt globdots              # 明確なドットの指定なしで.から始まるファイルをマッチ
-
-setopt list_packed           # リストを詰めて表示
-
-autoload -U compinit
-compinit
-
-# 補完候補を ←↓↑→ でも選択出来るようにする
 zstyle ':completion:*:default' menu select=2
-
-# 補完関数の表示を過剰にする編
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*' completer _expand _complete _match _prefix _approximate _list _history
-zstyle ':completion:*:messages' format $YELLOW'%d'$DEFAULT
-zstyle ':completion:*:warnings' format $RED'No matches for:'$YELLOW' %d'$DEFAULT
-zstyle ':completion:*:descriptions' format $YELLOW'completing %B%d%b'$DEFAULT
-zstyle ':completion:*:corrections' format $YELLOW'%B%d '$RED'(errors: %e)%b'$DEFAULT
+zstyle ':completion:*:messages' format '%F{yellow}%d%f'
+zstyle ':completion:*:warnings' format '%F{red}No matches for:%f %F{yellow}%d%f'
+zstyle ':completion:*:descriptions' format '%F{yellow}completing %B%d%b%f'
+zstyle ':completion:*:corrections' format '%F{yellow}%B%d %f%F{red}(errors: %e)%b%f'
 zstyle ':completion:*:options' description 'yes'
-
-# グループ名に空文字列を指定すると，マッチ対象のタグ名がグループ名に使われる。
-# したがって，すべての マッチ種別を別々に表示させたいなら以下のようにする
 zstyle ':completion:*' group-name ''
 
 export LS_COLORS='di=94:ln=35:so=32:pi=33:ex=31:bd=46;94:cd=43;94:su=41;30:sg=46;30:tw=42;30:ow=43;30'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
-# 補正機能
+# Prompt correction
+SPROMPT="correct: %F{red}%R%f -> %F{green}%r%f ? [No/Yes/Abort/Edit]"
 
-setopt correct
-SPROMPT="correct: $RED%R$DEFAULT -> $GREEN%r$DEFAULT ? [No/Yes/Abort/Edit]"
-
-# prompt
-
-autoload -Uz add-zsh-hook
-autoload -Uz vcs_info
-autoload -Uz is-at-least
-
-# VCS
+# Load VCS functions efficiently
+autoload -Uz add-zsh-hook vcs_info is-at-least
 
 zstyle ":vcs_info:*" enable git svn hg bzr
 zstyle ":vcs_info:*" formats "(%s)-[%b]"
@@ -98,7 +62,7 @@ zstyle ":vcs_info:bzr:*" use-simple true
 zstyle ":vcs_info:*" max-exports 6
 
 if is-at-least 4.3.10; then
-  zstyle ":vcs_info:git:*" check-for-changes true # commitしていないのをチェック
+  zstyle ":vcs_info:git:*" check-for-changes true
   zstyle ":vcs_info:git:*" stagedstr "<S>"
   zstyle ":vcs_info:git:*" unstagedstr "<U>"
   zstyle ":vcs_info:git:*" formats "(%b) %c%u"
@@ -107,99 +71,51 @@ fi
 
 function _update_vcs_info_msg() {
   psvar=()
-    LANG=en_US.UTF-8 vcs_info
-    [[ -n "$vcs_info_msg_0_" ]] && psvar[1]="$vcs_info_msg_0_"
+  LANG=en_US.UTF-8 vcs_info
+  [[ -n "$vcs_info_msg_0_" ]] && psvar[1]="$vcs_info_msg_0_"
 }
 
-RPROMPT="[$BLUE%~%f$DEFAULT%1(v|%F{green}%1v%f|)]"
+RPROMPT="[%F{blue}%~%f%1(v|%F{green}%1v%f|)]"
 add-zsh-hook precmd _update_vcs_info_msg
 
-# mise is now loaded from common .profile
-
-# Load new configurations
-[[ -f "$HOME/.config/zsh/copilot.zsh" ]] && source "$HOME/.config/zsh/copilot.zsh"
-[[ -f "$HOME/.config/zsh/init-abbr.zsh" ]] && source "$HOME/.config/zsh/init-abbr.zsh"
-
-# history
-
-# 履歴ファイルの保存先
-export HISTFILE=${HOME}/.zhistory
-
-# メモリに保存される履歴の件数
-export HISTSIZE=10000
-
-# 履歴ファイルに保存される履歴の件数
-export SAVEHIST=10000
-
-# 重複を記録しない
-setopt hist_ignore_dups
-
-# 開始と終了を記録
-setopt EXTENDED_HISTORY
-
-
-
-### Added by Zinit's installer
-if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+# Zinit plugin manager (optimized)
+ZINIT_HOME="$HOME/.zinit"
+if [[ ! -f $ZINIT_HOME/bin/zinit.zsh ]]; then
+    print -P "%F{33}Installing Zinit...%f"
+    command mkdir -p "$ZINIT_HOME" && command chmod g-rwX "$ZINIT_HOME"
+    command git clone https://github.com/zdharma/zinit "$ZINIT_HOME/bin" && \
+        print -P "%F{34}Zinit installed successfully%f" || \
+        print -P "%F{160}Zinit installation failed%f"
 fi
 
-source "$HOME/.zinit/bin/zinit.zsh"
+source "$ZINIT_HOME/bin/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
-# Load a few important annexes, without Turbo
-# (this is currently required for annexes)
+# Load annexes
 zinit light-mode for \
     zinit-zsh/z-a-rust \
     zinit-zsh/z-a-as-monitor \
     zinit-zsh/z-a-patch-dl \
     zinit-zsh/z-a-bin-gem-node
-### End of Zinit's installer chunk
 
+# Load plugins with turbo mode for better performance
 zinit wait lucid for \
-    sbin b4b4r07/enhancd \
-    sbin supercrabtree/k \
-    sbin zsh-users/zsh-syntax-highlighting \
+    atload"_zsh_highlight_set_highlighters" \
+        zsh-users/zsh-syntax-highlighting \
+    blockf atpull'zinit creinstall -q .' \
+        zsh-users/zsh-completions
 
-zinit lucid for \
-    sbin danihodovic/steeef \
+# External tool integrations (lazy loaded)
+command -v mise &> /dev/null && eval "$(mise activate zsh)"
+command -v starship &> /dev/null && eval "$(starship init zsh)"
+command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 
-# if (which zprof > /dev/null 2>&1) ;then
-#   zprof | less
-# fi
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Atuin - Better shell history
-if command -v atuin &> /dev/null; then
-    eval "$(atuin init zsh)"
-fi
-
-# Starship prompt
-if command -v starship &> /dev/null; then
-    eval "$(starship init zsh)"
-fi
-
-# Zoxide - smarter cd
-if command -v zoxide &> /dev/null; then
-    eval "$(zoxide init --cmd cd --hook pwd zsh)"
-fi
-
-# Gomi - trash instead of rm
-if command -v gomi &> /dev/null; then
-    alias rm='gomi'
-fi
-
-# Eza - better ls
-if command -v eza &> /dev/null; then
-    alias ls='eza'
-    alias ll='eza -l'
-    alias la='eza -la'
-    alias lt='eza --tree'
-fi
-
-export PATH=$PATH:$HOME/downloads
+# Source configurations
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+[[ -f /usr/local/share/zsh-abbr/zsh-abbr.zsh ]] && {
+    source /usr/local/share/zsh-abbr/zsh-abbr.zsh
+    FPATH=/usr/local/share/zsh-abbr:$FPATH
+}
+[[ -f $XDG_CONFIG_HOME/zsh/init-abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/init-abbr.zsh
+[[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]] && source $XDG_CONFIG_HOME/zsh/copilot.zsh
