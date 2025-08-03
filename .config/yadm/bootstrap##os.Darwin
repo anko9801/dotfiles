@@ -93,6 +93,7 @@ setup_zsh
 install_mise
 setup_mise_tools
 setup_npm_packages
+setup_git_hooks
 
 # macOS specific settings
 if [[ "${CONFIGURE_MACOS:-}" == "yes" ]]; then
