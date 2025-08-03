@@ -1,34 +1,203 @@
 #!/usr/bin/env bash
 
-# YADM Bootstrap Script
-# yadm alternateで適切なOS別スクリプトが実行されない場合のフォールバック
+# Main bootstrap script
+# Detects OS and runs appropriate bootstrap process
 
-set -e
+set -euo pipefail
 
-echo "================================"
-echo " YADM Bootstrap"
-echo " パパッと楽に理想の環境を手に入れるやつ"
-echo "================================"
+# Setup logging
+export BOOTSTRAP_LOG="$HOME/.config/yadm/bootstrap.log"
+mkdir -p "$(dirname "$BOOTSTRAP_LOG")"
+echo "Bootstrap started at: $(date)" > "$BOOTSTRAP_LOG"
+
+# Source common functions
+source "$HOME/.config/yadm/bootstrap-common"
+
+# Print banner
+echo "==========================================="
+echo "       YADM Bootstrap Installation         "
+echo "==========================================="
 echo
 
-# yadmがalternateを処理しているか確認
-if [[ -n "${YADM_BOOTSTRAP_FILE:-}" ]]; then
-    echo "Running alternate bootstrap: $YADM_BOOTSTRAP_FILE"
-    exit 0
-fi
+# Check prerequisites
+info "Checking prerequisites..."
 
-# OS検出
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "Detected macOS"
-    exec "$HOME/.config/yadm/bootstrap##os.Darwin"
-elif [[ -f /etc/arch-release ]]; then
-    echo "Detected Arch Linux"
-    exec "$HOME/.config/yadm/bootstrap##distro.Arch"
-elif [[ -f /etc/debian_version ]]; then
-    echo "Detected Debian/Ubuntu"
-    exec "$HOME/.config/yadm/bootstrap##distro.Ubuntu"
-else
-    echo "ERROR: Unsupported OS"
-    echo "Please create a bootstrap file for your OS"
+# Check for yadm
+if ! command_exists yadm; then
+    error "yadm not found. Please install yadm first."
     exit 1
 fi
+
+# Check internet connection
+if ! check_internet; then
+    error "Internet connection required for bootstrap"
+    exit 1
+fi
+
+# Detect OS and distribution
+detect_os() {
+    local os=""
+    local distro=""
+    
+    if [[ "$(uname)" == "Darwin" ]]; then
+        os="darwin"
+        distro="macos"
+    elif [[ "$(uname)" == "Linux" ]]; then
+        os="linux"
+        if [[ -f /etc/os-release ]]; then
+            . /etc/os-release
+            distro="${ID,,}"  # Convert to lowercase
+        fi
+    else
+        os="unknown"
+    fi
+    
+    echo "${os}:${distro}"
+}
+
+# Configuration options
+show_config_menu() {
+    echo "Bootstrap Configuration"
+    echo "======================"
+    echo
+    
+    # Install optional packages?
+    read -p "Install optional packages? (y/N): " -n 1 -r
+    echo
+    export INSTALL_OPTIONAL="${REPLY,,}"
+    
+    # Install development languages?
+    read -p "Install programming languages? (Y/n): " -n 1 -r
+    echo
+    export INSTALL_LANGUAGES="${REPLY,,}"
+    [[ -z "$INSTALL_LANGUAGES" ]] && INSTALL_LANGUAGES="y"
+    
+    # Setup system ZDOTDIR?
+    read -p "Setup system-wide ZDOTDIR? (Y/n): " -n 1 -r
+    echo
+    export SETUP_SYSTEM_ZDOTDIR="${REPLY,,}"
+    [[ -z "$SETUP_SYSTEM_ZDOTDIR" ]] && SETUP_SYSTEM_ZDOTDIR="y"
+    
+    # macOS specific
+    if [[ "$(uname)" == "Darwin" ]]; then
+        read -p "Install GUI applications (Casks)? (y/N): " -n 1 -r
+        echo
+        export INSTALL_CASKS="${REPLY,,}"
+        
+        read -p "Configure macOS settings? (y/N): " -n 1 -r
+        echo
+        export CONFIGURE_MACOS="${REPLY,,}"
+    fi
+    
+    echo
+}
+
+# Run bootstrap based on OS
+run_bootstrap() {
+    local os_info=$(detect_os)
+    local os="${os_info%:*}"
+    local distro="${os_info#*:}"
+    
+    info "Detected OS: $os ($distro)"
+    
+    # Source modules
+    source "$HOME/.config/yadm/bootstrap-modules"
+    
+    # Start progress tracking
+    start_progress 10
+    
+    # Common installation steps
+    info "Running common installation steps..."
+    
+    # Update package manager
+    update_package_manager
+    step_done
+    
+    # Create XDG directories
+    create_xdg_dirs
+    step_done
+    
+    # Install base packages
+    install_base_packages
+    step_done
+    
+    # Install modern CLI tools
+    install_modern_cli
+    step_done
+    
+    # Install development tools
+    install_development_tools
+    step_done
+    
+    # Install security tools
+    install_security_tools
+    step_done
+    
+    # Install AI tools
+    install_ai_tools || warning "AI tools installation failed"
+    step_done
+    
+    # Configure shell
+    configure_shell
+    step_done
+    
+    # Configure development environment
+    configure_development
+    step_done
+    
+    # OS-specific configurations
+    case "$os" in
+        darwin)
+            configure_macos
+            install_gui_apps
+            ;;
+        linux)
+            case "$distro" in
+                ubuntu|debian)
+                    info "Ubuntu/Debian specific setup complete"
+                    ;;
+                arch|manjaro)
+                    info "Arch Linux specific setup complete"
+                    ;;
+                *)
+                    info "Generic Linux setup complete"
+                    ;;
+            esac
+            ;;
+    esac
+    step_done
+    
+    # Validate installation
+    validate_installation
+    
+    # Show completion message
+    post_install
+}
+
+# Main execution
+main() {
+    # Show configuration menu
+    show_config_menu
+    
+    # Confirm before proceeding
+    echo "Ready to start bootstrap process."
+    read -p "Continue? (Y/n): " -n 1 -r
+    echo
+    
+    if [[ ! "$REPLY" =~ ^[Yy]$ ]] && [[ -n "$REPLY" ]]; then
+        info "Bootstrap cancelled"
+        exit 0
+    fi
+    
+    # Run bootstrap
+    if run_bootstrap; then
+        success "Bootstrap completed successfully!"
+        exit 0
+    else
+        error "Bootstrap failed. Check $BOOTSTRAP_LOG for details"
+        exit 1
+    fi
+}
+
+# Run main function
+main "$@"
