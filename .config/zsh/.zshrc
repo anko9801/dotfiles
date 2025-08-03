@@ -103,12 +103,20 @@ command -v mise &> /dev/null && eval "$(mise activate zsh)"
 command -v starship &> /dev/null && eval "$(starship init zsh)"
 command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 
+# Configure fzf-tab (after plugin loads)
+# disable sort when completing `git checkout`
+zstyle ':completion:*:git-checkout:*' sort false
+# set descriptions format to enable group support  
+zstyle ':completion:*:descriptions' format '[%d]'
+# preview directory's content with eza when completing cd
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+# switch group using `,` and `.`
+zstyle ':fzf-tab:*' switch-group ',' '.'
+
 # Source configurations
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+[[ -f $XDG_CONFIG_HOME/zsh/abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/abbr.zsh
 [[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]] && source $XDG_CONFIG_HOME/zsh/copilot.zsh
-# Load additional configurations
-[[ -f $XDG_CONFIG_HOME/zsh/init-abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/init-abbr.zsh
-[[ -f $XDG_CONFIG_HOME/zsh/fzf-tab-config.zsh ]] && source $XDG_CONFIG_HOME/zsh/fzf-tab-config.zsh
 
 # WSL2 specific configurations
 [[ -f $XDG_CONFIG_HOME/shell/wsl2.sh ]] && source $XDG_CONFIG_HOME/shell/wsl2.sh
