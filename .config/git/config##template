@@ -1,7 +1,15 @@
-# Git Configuration
-# This file contains shared dotfiles Git configuration
-# Personal settings (user.name, user.email, user.signingkey) should be set locally
-# URL rewrites with tokens should be configured per-host
+# Git Configuration Template
+# Personal settings are populated by yadm templates
+# OS-specific configurations are handled via conditionals
+
+[user]
+    name = {{ yadm.user | default("Your Name") }}
+    email = {{ yadm.email | default("your.email@example.com") }}
+{% if yadm.os == "Darwin" %}
+    signingkey = ~/.ssh/id_ed25519.pub
+{% elif yadm.os == "Linux" %}
+    signingkey = ~/.ssh/id_ed25519.pub
+{% endif %}
 
 [core]
   editor = vim
@@ -34,7 +42,8 @@
   autostash = true
 
 [init]
-  defaultBranch = main
+    defaultBranch = main
+    templateDir = ~/.git-templates/git-secrets
 
 [commit]
   verbose = true
@@ -44,7 +53,12 @@
   gpgsign = true
 
 [gpg]
-  format = ssh
+    format = ssh
+{% if yadm.os == "Darwin" %}
+    ssh.allowedSignersFile = ~/.config/git/allowed_signers
+{% elif yadm.os == "Linux" %}
+    ssh.allowedSignersFile = ~/.config/git/allowed_signers
+{% endif %}
 
 [help]
   autocorrect = prompt
@@ -65,8 +79,13 @@
 [receive]
   fsckObjects = true
 
+{% if yadm.os == "Darwin" %}
 [credential]
-  helper = store
+    helper = osxkeychain
+{% elif yadm.os == "Linux" %}
+[credential]
+    helper = store
+{% endif %}
 
 # Aliases
 [alias]

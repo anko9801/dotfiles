@@ -46,23 +46,23 @@ configure_yadm() {
         echo "Current class: $current_class"
     fi
     
-    # Git configuration
+    # Git configuration for templates
     echo
     echo "Git Configuration:"
     echo "-----------------"
-    current_email=$(yadm config user.email 2>/dev/null || echo "")
-    current_name=$(yadm config user.name 2>/dev/null || echo "")
+    current_email=$(yadm config yadm.email 2>/dev/null || echo "")
+    current_name=$(yadm config yadm.user 2>/dev/null || echo "")
     
     if [[ -z "$current_email" ]]; then
         read -p "Git email: " email
-        [[ -n "$email" ]] && set_config user.email "$email"
+        [[ -n "$email" ]] && set_config yadm.email "$email"
     else
         echo "Email: $current_email"
     fi
     
     if [[ -z "$current_name" ]]; then
         read -p "Git name: " name
-        [[ -n "$name" ]] && set_config user.name "$name"
+        [[ -n "$name" ]] && set_config yadm.user "$name"
     else
         echo "Name: $current_name"
     fi
