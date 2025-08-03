@@ -1,76 +1,20 @@
-# WHITELIST MODE: Only allow explicitly listed files/directories
-# Ignore everything at root level first
+# Ignore everything by default
 /*
 
-# Then whitelist specific dotfiles and directories
+# Then whitelist what we want to track
 !.config/
-!.github/
-!.zshenv
+!.ssh/
 !.gitignore
-!.pre-commit-config.yaml
+!.zshenv
 
-# Whitelist specific .config subdirectories
-.config/*
-!.config/atuin/
-!.config/git/
-!.config/mise/
-!.config/shell/
-!.config/skhd/
-!.config/starship.toml
-!.config/tmux/
-!.config/vim/
-!.config/yabai/
-!.config/yadm/
-!.config/zsh/
-
-# Blacklist patterns within whitelisted areas
-.config/git/ignore
+# But still ignore sensitive/cache files within tracked directories
 .config/*/cache/
-.config/*/.DS_Store
-.config/*/*~
-
-# OS and editor files (global blacklist)
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-*.swp
-*.swo
-*~
-.netrwhist
-
-# Private/sensitive files (never include)
-.gitconfig
-*/.gitconfig
+.config/yadm/repo.git/
 .ssh/id_*
-.gnupg/
-.aws/credentials
-.kiro/
+.ssh/known_hosts
+.ssh/authorized_keys
 
-# Development directories (too large/personal)
-workspace/
-work/
-projects/
-repos/
-node_modules/
-.cargo/registry/
-.rustup/
-go/
-
-# User directories (personal data)
-Desktop/
-Documents/
-Downloads/
-Pictures/
-Movies/
-Music/
-Public/
-Library/
-
-# Cache and temporary
-.cache/
-.npm/
-.local/share/Trash/
-.local/share/vim/
-.Trash/
+# System files
+.DS_Store
+*.swp
+*~
