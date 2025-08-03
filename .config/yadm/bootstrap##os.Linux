@@ -9,138 +9,88 @@ source "$HOME/.config/yadm/bootstrap-common"
 info "Running Linux bootstrap..."
 
 # Detect distribution
-detect_distro() {
-    if [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        echo "${ID,,}"
-    else
-        echo "unknown"
-    fi
-}
+if [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+    DISTRO="${ID,,}"
+else
+    DISTRO="unknown"
+fi
 
-DISTRO=$(detect_distro)
 info "Detected distribution: $DISTRO"
 
-# Install packages based on distribution
-install_packages() {
-    case "$DISTRO" in
-        ubuntu|debian)
-            info "Using apt package manager..."
-            sudo apt update
-            sudo apt install -y \
-                git curl wget tmux tree jq \
-                build-essential software-properties-common \
-                zsh fish neovim \
-                python3 python3-pip \
-                nodejs npm
-            
-            # Install modern tools via cargo/releases
-            install_modern_tools_ubuntu
-            ;;
-            
-        arch|manjaro)
-            info "Using pacman package manager..."
-            sudo pacman -Syu --noconfirm
-            sudo pacman -S --noconfirm \
-                git curl wget tmux tree jq yq \
-                base-devel \
-                zsh fish neovim \
-                ripgrep fd bat fzf gh \
-                eza zoxide starship \
-                python nodejs npm go rust
-            ;;
-            
-        fedora)
-            info "Using dnf package manager..."
-            sudo dnf update -y
-            sudo dnf install -y \
-                git curl wget tmux tree jq \
-                @development-tools \
-                zsh fish neovim \
-                python3 nodejs npm golang rust cargo
-            
-            # Install modern tools
-            install_modern_tools_fedora
-            ;;
-            
-        *)
-            error "Unsupported distribution: $DISTRO"
-            exit 1
-            ;;
-    esac
-}
+# Update package manager and install base packages
+case "$DISTRO" in
+    ubuntu|debian)
+        sudo apt update
+        sudo apt install -y \
+            git curl wget tmux tree jq \
+            build-essential \
+            zsh fish neovim \
+            python3 python3-pip nodejs npm
+        
+        # Install modern tools
+        install_ubuntu_tools
+        ;;
+        
+    arch|manjaro)
+        sudo pacman -Syu --noconfirm
+        sudo pacman -S --noconfirm \
+            git curl wget tmux tree jq yq \
+            base-devel \
+            zsh fish neovim \
+            ripgrep fd bat fzf gh \
+            eza zoxide starship \
+            python nodejs npm go rust
+        ;;
+        
+    fedora)
+        sudo dnf update -y
+        sudo dnf install -y \
+            git curl wget tmux tree jq \
+            @development-tools \
+            zsh fish neovim \
+            python3 nodejs npm
+        ;;
+        
+    *)
+        error "Unsupported distribution: $DISTRO"
+        exit 1
+        ;;
+esac
 
-# Install modern CLI tools for Ubuntu/Debian
-install_modern_tools_ubuntu() {
-    info "Installing modern CLI tools..."
-    
-    # Create temp directory
+# Install modern CLI tools for Ubuntu
+install_ubuntu_tools() {
     local tmp_dir=$(mktemp -d)
     cd "$tmp_dir"
     
     # ripgrep
-    if ! command_exists rg; then
-        info "Installing ripgrep..."
-        curl -LO "https://github.com/BurntSushi/ripgrep/releases/latest/download/ripgrep_amd64.deb"
-        sudo dpkg -i ripgrep_amd64.deb
+    if ! command -v rg &>/dev/null; then
+        curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb"
+        sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
     fi
     
     # fd
-    if ! command_exists fd; then
-        info "Installing fd..."
-        curl -LO "https://github.com/sharkdp/fd/releases/latest/download/fd_amd64.deb"
-        sudo dpkg -i fd_amd64.deb
+    if ! command -v fd &>/dev/null; then
+        curl -LO "https://github.com/sharkdp/fd/releases/download/v9.0.0/fd_9.0.0_amd64.deb"
+        sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
     fi
     
     # bat
-    if ! command_exists bat; then
-        info "Installing bat..."
-        curl -LO "https://github.com/sharkdp/bat/releases/latest/download/bat_amd64.deb"
-        sudo dpkg -i bat_amd64.deb
+    if ! command -v bat &>/dev/null; then
+        curl -LO "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb"
+        sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
     fi
     
-    # eza
-    if ! command_exists eza; then
-        info "Installing eza..."
-        cargo install eza
-    fi
-    
-    # Clean up
-    cd -
-    rm -rf "$tmp_dir"
+    cd - && rm -rf "$tmp_dir"
 }
 
-# Install modern tools for Fedora
-install_modern_tools_fedora() {
-    info "Installing modern CLI tools..."
-    
-    # Enable COPR repos for modern tools
-    sudo dnf copr enable atim/starship -y
-    sudo dnf install -y starship
-    
-    # Install via cargo
-    cargo install ripgrep fd-find bat eza zoxide
-}
+# Install mise
+install_mise
 
-# Main execution
-main() {
-    start_progress 5
-    
-    install_packages
-    step_done
-    
-    install_mise
-    setup_mise_tools
-    step_done
-    
-    setup_development_environment
-    step_done
-    
-    setup_zsh
-    step_done
-    
-    post_install
-    step_done
-}
+# Setup development environment
+setup_development_environment
 
-main "$@"
+# Setup shell
+setup_zsh
+
+post_install

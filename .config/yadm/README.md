@@ -128,12 +128,12 @@ macOSではBrewfileテンプレートを使用：
 .config/yadm/
 ├── bootstrap              # Main entry point
 ├── bootstrap##os.Darwin   # macOS bootstrap
-├── bootstrap##os.Linux    # Linux bootstrap
+├── bootstrap##os.Linux    # Linux bootstrap  
 ├── bootstrap-check        # Pre-bootstrap configuration
 ├── bootstrap-common       # Shared functions
-├── bootstrap-modules      # Modular functions
-├── bootstrap-packages     # Package manager abstraction
-├── packages.toml          # Package definitions
+└── config                 # yadm configuration template
+
+.config/homebrew/
 └── Brewfile##template     # macOS packages (template)
 ```
 
@@ -214,58 +214,29 @@ yadm config local.class server
 - サーバー管理ツール（htop, ncdu）
 - GUIアプリなし
 
-### Checking System Health
+### Customization
 
-```bash
-~/.config/yadm/bootstrap-doctor
+#### macOSパッケージの追加
+`.config/homebrew/Brewfile##template`を編集：
+
+```ruby
+# 基本パッケージ
+brew "your-package"
+
+# クラス別パッケージ
+{% if yadm.class == "work" %}
+brew "work-specific-tool"
+{% endif %}
 ```
 
-This will check:
-- Bootstrap file integrity
-- File permissions
-- Package manager availability
-- Installed tools
-- Common configuration issues
-
-## Customization
-
-### Adding Packages
-
-Edit `.config/yadm/packages.toml`:
-
-```toml
-[category-name]
-packages = [
-    "package1",
-    "package2",
-    { name = "optional-package", optional = true },
-    { name = "os-specific", macos = "brew-name", linux = "apt-name" },
-]
-```
-
-### Adding Installation Steps
-
-Edit `.config/yadm/bootstrap-modules` to add new installation functions:
-
-```bash
-install_my_tools() {
-    info "Installing my custom tools..."
-    # Installation logic here
-}
-```
-
-Then call it from the main bootstrap sequence.
-
-## Migration from Old Bootstrap
-
-The old OS-specific bootstrap files (`bootstrap##os.Darwin`, etc.) are now deprecated but remain for compatibility. They simply redirect to the new unified bootstrap.
+#### Linuxパッケージの追加
+`.config/yadm/bootstrap##os.Linux`の該当セクションを編集
 
 ## Troubleshooting
 
-1. **Bootstrap fails**: Check `~/.config/yadm/bootstrap.log`
-2. **Package not found**: Update package manager first
-3. **Permission denied**: Run `bootstrap-doctor` to fix permissions
-4. **Missing ZDOTDIR**: Bootstrap will offer to set it up
+1. **Bootstrapが失敗**: エラーメッセージを確認
+2. **パッケージが見つからない**: パッケージマネージャーを更新
+3. **Brewfileがない**: `yadm alt`を実行
 
 ## Environment Variables
 
