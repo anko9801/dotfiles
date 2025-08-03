@@ -1,0 +1,24 @@
+#!/usr/bin/env zsh
+# Linux specific environment variables
+
+# Wayland/X11
+export MOZ_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM=wayland
+
+# Linux specific paths
+export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
+
+# Snap support
+if [ -d "/snap/bin" ]; then
+    export PATH="/snap/bin:$PATH"
+fi
+
+# Flatpak support
+if [ -d "/var/lib/flatpak/exports/bin" ]; then
+    export PATH="/var/lib/flatpak/exports/bin:$PATH"
+fi
+
+# 1Password SSH Agent (Linux)
+if command -v op >/dev/null 2>&1; then
+    export SSH_AUTH_SOCK=~/.1password/agent.sock
+fi
