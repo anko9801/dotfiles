@@ -1,20 +1,43 @@
-# Environment
+# Common environment variables
+export LANG=ja_JP.UTF-8
+export EDITOR=vim
+export VISUAL=vim
+export PAGER=less
+export LESSHISTFILE=-  # Don't save less history
 export GPG_TTY=$(tty)
 
 # Application XDG compliance
 export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC'
 export INPUTRC="$XDG_CONFIG_HOME/readline/inputrc"
-export LESSHISTFILE=-  # Don't save less history
+
+# mise (tool version manager)
+export MISE_GLOBAL_CONFIG_FILE="$HOME/.config/mise/config.toml"
+
+# FZF configuration
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # Build PATH efficiently
-path_components=("$HOME/.local/bin" "$HOME/downloads" "$HOME/.cargo/bin")
+path_components=("$HOME/.local/bin" "$HOME/downloads")
 [[ -e $HOME/path ]] && path_components+=("$HOME/path")
 export PATH="${(j.:.)path_components}:$PATH"
 
-# Tool-specific paths (if installed)
-if [ -d "$HOME/.cargo" ]; then
-    . "$HOME/.cargo/env" 2>/dev/null || true
-fi
+# Development paths
+export GOPATH=$HOME/go
+export PATH="$GOPATH/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# OS-specific environment
+case "$(uname -s)" in
+    Darwin)
+        [[ -f $XDG_CONFIG_HOME/zsh/env-darwin.zsh ]] && source $XDG_CONFIG_HOME/zsh/env-darwin.zsh
+        ;;
+    Linux)
+        [[ -f $XDG_CONFIG_HOME/zsh/env-linux.zsh ]] && source $XDG_CONFIG_HOME/zsh/env-linux.zsh
+        ;;
+esac
 
 # History configuration
 export HISTFILE=${HOME}/.zhistory
@@ -114,9 +137,14 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 zstyle ':fzf-tab:*' switch-group ',' '.'
 
 # Source configurations
-[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 [[ -f $XDG_CONFIG_HOME/zsh/abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/abbr.zsh
 [[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]] && source $XDG_CONFIG_HOME/zsh/copilot.zsh
 
+# fzf configuration
+if command -v fzf &>/dev/null; then
+    # Set up fzf key bindings and fuzzy completion
+    eval "$(fzf --zsh)" 2>/dev/null || true
+fi
+
 # WSL2 specific configurations
-[[ -f $XDG_CONFIG_HOME/shell/wsl2.sh ]] && source $XDG_CONFIG_HOME/shell/wsl2.sh
+[[ -f $XDG_CONFIG_HOME/zsh/wsl2.zsh ]] && source $XDG_CONFIG_HOME/zsh/wsl2.zsh
