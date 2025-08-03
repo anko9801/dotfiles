@@ -43,9 +43,7 @@ case "$DISTRO" in
             curl wget git \
             build-essential software-properties-common \
             zsh tmux neovim \
-            tree jq \
-            python3 python3-pip \
-            nodejs npm
+            tree jq
         
         # Add repositories for modern tools
         info "Adding PPAs for modern tools..."
@@ -125,7 +123,7 @@ case "$DISTRO" in
             zsh fish neovim \
             ripgrep fd bat fzf gh \
             eza zoxide starship atuin \
-            python nodejs npm go rust \
+            go rust \
             git-secrets
         ;;
         
@@ -138,7 +136,6 @@ case "$DISTRO" in
             git curl wget tmux tree jq \
             @development-tools \
             zsh fish neovim \
-            python3 nodejs npm \
             ripgrep fd-find bat fzf gh \
             git-secrets
         
@@ -167,9 +164,13 @@ if command -v mise &>/dev/null; then
     info "Setting up mise..."
     eval "$(mise activate bash)"
     
-    # Install and set global versions
-    mise install node@lts python@latest || true
-    mise use -g node@lts python@latest || true
+    # Trust config file
+    mise trust "$HOME/.config/mise/config.toml" || true
+    
+    # Install all tools defined in config.toml
+    info "Installing tools from mise config..."
+    mise install || true
+    
     success "mise configured"
 fi
 
@@ -185,11 +186,7 @@ if command -v git-secrets &>/dev/null; then
     success "git-secrets configured"
 fi
 
-# Install global npm packages (requires node from mise)
-if command -v npm &>/dev/null; then
-    info "Installing npm packages..."
-    npm install -g aicommits || true
-fi
+# Global npm packages are now managed by mise config.toml
 
 # Install GitHub Copilot CLI extension
 if command -v gh &>/dev/null; then
@@ -212,7 +209,7 @@ echo
 echo "Installed tools:"
 echo "  ✓ Base development packages"
 echo "  ✓ Modern CLI tools (ripgrep, fd, bat, etc.)"
-echo "  ✓ mise with Node.js and Python"
+echo "  ✓ mise with all configured tools"
 echo "  ✓ Development tools and Git configuration"
 echo "  ✓ Zsh with zinit"
 echo

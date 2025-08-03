@@ -122,30 +122,14 @@ fi
 echo "Generating configuration files..."
 yadm alt
 
-# Determine OS and run OS-specific bootstrap
-OS="$(uname -s)"
+# Run OS-specific installation
 echo
-echo "Running bootstrap for $OS..."
-
-case "$OS" in
-    Darwin)
-        if [[ -x "$BOOTSTRAP_DIR/bootstrap##os.Darwin" ]]; then
-            exec "$BOOTSTRAP_DIR/bootstrap##os.Darwin" "$@"
-        else
-            echo "Error: macOS bootstrap not found"
-            exit 1
-        fi
-        ;;
-    Linux)
-        if [[ -x "$BOOTSTRAP_DIR/bootstrap##os.Linux" ]]; then
-            exec "$BOOTSTRAP_DIR/bootstrap##os.Linux" "$@"
-        else
-            echo "Error: Linux bootstrap not found"
-            exit 1
-        fi
-        ;;
-    *)
-        echo "Error: Unsupported OS: $OS"
-        exit 1
-        ;;
-esac
+echo "Running OS-specific installation..."
+if [[ -x "$BOOTSTRAP_DIR/install" ]]; then
+    exec "$BOOTSTRAP_DIR/install" "$@"
+else
+    echo "Error: OS-specific install script not found"
+    echo "Available files:"
+    ls -la "$BOOTSTRAP_DIR"/install*
+    exit 1
+fi

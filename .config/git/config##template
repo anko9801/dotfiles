@@ -5,11 +5,7 @@
 [user]
     name = {{ yadm.user | default("Your Name") }}
     email = {{ yadm.email | default("your.email@example.com") }}
-{% if yadm.os == "Darwin" %}
     signingkey = ~/.ssh/id_ed25519.pub
-{% elif yadm.os == "Linux" %}
-    signingkey = ~/.ssh/id_ed25519.pub
-{% endif %}
 
 [core]
   editor = vim
@@ -54,11 +50,7 @@
 
 [gpg]
     format = ssh
-{% if yadm.os == "Darwin" %}
     ssh.allowedSignersFile = ~/.config/git/allowed_signers
-{% elif yadm.os == "Linux" %}
-    ssh.allowedSignersFile = ~/.config/git/allowed_signers
-{% endif %}
 
 [help]
   autocorrect = prompt
@@ -79,11 +71,10 @@
 [receive]
   fsckObjects = true
 
-{% if yadm.os == "Darwin" %}
 [credential]
+{% if yadm.os == "Darwin" %}
     helper = osxkeychain
 {% elif yadm.os == "Linux" %}
-[credential]
     helper = store
 {% endif %}
 
