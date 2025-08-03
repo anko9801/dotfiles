@@ -3,7 +3,7 @@
 
 set -e
 
-# Source common functions
+# Source logging functions
 source "$HOME/.config/yadm/bootstrap-common"
 
 info "Running Linux bootstrap..."
@@ -17,6 +17,32 @@ else
 fi
 
 info "Detected distribution: $DISTRO"
+
+# Function to install Ubuntu modern tools
+install_ubuntu_tools() {
+    local tmp_dir=$(mktemp -d)
+    cd "$tmp_dir"
+    
+    # ripgrep
+    if ! command -v rg &>/dev/null; then
+        curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb"
+        sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
+    fi
+    
+    # fd
+    if ! command -v fd &>/dev/null; then
+        curl -LO "https://github.com/sharkdp/fd/releases/download/v9.0.0/fd_9.0.0_amd64.deb"
+        sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
+    fi
+    
+    # bat
+    if ! command -v bat &>/dev/null; then
+        curl -LO "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb"
+        sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
+    fi
+    
+    cd - && rm -rf "$tmp_dir"
+}
 
 # Update package manager and install base packages
 case "$DISTRO" in
@@ -58,39 +84,57 @@ case "$DISTRO" in
         ;;
 esac
 
-# Install modern CLI tools for Ubuntu
-install_ubuntu_tools() {
-    local tmp_dir=$(mktemp -d)
-    cd "$tmp_dir"
-    
-    # ripgrep
-    if ! command -v rg &>/dev/null; then
-        curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb"
-        sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
-    fi
-    
-    # fd
-    if ! command -v fd &>/dev/null; then
-        curl -LO "https://github.com/sharkdp/fd/releases/download/v9.0.0/fd_9.0.0_amd64.deb"
-        sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
-    fi
-    
-    # bat
-    if ! command -v bat &>/dev/null; then
-        curl -LO "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb"
-        sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
-    fi
-    
-    cd - && rm -rf "$tmp_dir"
-}
-
 # Install mise
-install_mise
+if ! command -v mise &>/dev/null; then
+    info "Installing mise..."
+    curl https://mise.run | sh
+    export PATH="$HOME/.local/bin:$PATH"
+    success "mise installed"
+fi
+
+# Setup mise tools
+if command -v mise &>/dev/null; then
+    eval "$(mise activate bash)" || true
+    mise install node@lts python@latest || true
+    mise use -g node@lts python@latest || true
+fi
 
 # Setup development environment
-setup_development_environment
+info "Setting up development environment..."
 
-# Setup shell
-setup_zsh
+# Create necessary directories
+mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
 
-post_install
+# Setup git-secrets if available
+if command -v git-secrets &>/dev/null; then
+    mkdir -p ~/.config/git/templates/git-secrets
+    git secrets --install ~/.config/git/templates/git-secrets >/dev/null 2>&1 || true
+    git config --global init.templateDir ~/.config/git/templates/git-secrets
+    git secrets --register-aws >/dev/null 2>&1 || true
+fi
+
+# Install npm packages
+if command -v npm &>/dev/null; then
+    npm install -g aicommits || true
+fi
+
+# Install GitHub Copilot CLI
+if command -v gh &>/dev/null; then
+    gh extension install github/gh-copilot 2>/dev/null || true
+fi
+
+# Setup Zsh
+info "Setting up Zsh..."
+if [[ ! -d "$HOME/.local/share/zsh/zinit" ]]; then
+    mkdir -p ~/.local/share/zsh
+    git clone https://github.com/zdharma-continuum/zinit.git ~/.local/share/zsh/zinit/bin
+fi
+
+# Post install
+success "Bootstrap completed!"
+echo
+echo "Configuration: class=$(yadm config local.class || echo "personal"), OS=Linux"
+echo
+echo "Next steps:"
+echo "1. Restart your shell: exec zsh"
+echo "2. If you need to set zsh as default: chsh -s $(which zsh)"

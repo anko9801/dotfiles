@@ -10,11 +10,80 @@ if [[ -z "${YADM_BOOTSTRAP:-}" ]]; then
     exit 1
 fi
 
-# Determine OS
-OS="$(uname -s)"
 BOOTSTRAP_DIR="$HOME/.config/yadm"
 
-# Run OS-specific bootstrap
+# Function to set config
+set_config() {
+    local key="$1"
+    local value="$2"
+    yadm config "$key" "$value"
+    echo "✓ Set $key = $value"
+}
+
+# Configure if needed
+configure_yadm() {
+    echo "======================================"
+    echo "        YADM Configuration            "
+    echo "======================================"
+    echo
+    
+    # Check and set class
+    current_class=$(yadm config local.class 2>/dev/null || echo "")
+    if [[ -z "$current_class" ]]; then
+        echo "No class is set. Please choose one:"
+        echo "1) personal - Personal machine"
+        echo "2) work     - Work machine"
+        echo "3) server   - Server/headless machine"
+        read -p "Select [1-3]: " -n 1 -r
+        echo
+        case "$REPLY" in
+            1) set_config local.class personal ;;
+            2) set_config local.class work ;;
+            3) set_config local.class server ;;
+            *) echo "Invalid selection"; exit 1 ;;
+        esac
+    else
+        echo "Current class: $current_class"
+    fi
+    
+    # Git configuration
+    echo
+    echo "Git Configuration:"
+    echo "-----------------"
+    current_email=$(yadm config user.email 2>/dev/null || echo "")
+    current_name=$(yadm config user.name 2>/dev/null || echo "")
+    
+    if [[ -z "$current_email" ]]; then
+        read -p "Git email: " email
+        [[ -n "$email" ]] && set_config user.email "$email"
+    else
+        echo "Email: $current_email"
+    fi
+    
+    if [[ -z "$current_name" ]]; then
+        read -p "Git name: " name
+        [[ -n "$name" ]] && set_config user.name "$name"
+    else
+        echo "Name: $current_name"
+    fi
+    
+    echo
+}
+
+# Run configuration if first time
+if [[ -z "$(yadm config local.class 2>/dev/null)" ]]; then
+    configure_yadm
+fi
+
+# Generate alternates
+echo "Generating configuration files..."
+yadm alt
+
+# Determine OS and run OS-specific bootstrap
+OS="$(uname -s)"
+echo
+echo "Running bootstrap for $OS..."
+
 case "$OS" in
     Darwin)
         if [[ -x "$BOOTSTRAP_DIR/bootstrap##os.Darwin" ]]; then

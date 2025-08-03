@@ -116,24 +116,23 @@ macOSではBrewfileテンプレートを使用：
 - クラス別のパッケージ定義
 - Caskアプリの管理
 
-### 4. Pre-bootstrap Check
-`bootstrap-check`で事前設定：
-- クラスの選択
-- オプションの確認
-- インストール内容のプレビュー
+### 4. Interactive Setup
+Bootstrap内に統合された設定：
+- クラスの選択（初回のみ）
+- Git設定
+- 自動でalternates生成
 
 ## Structure
 
 ```
 .config/yadm/
-├── setup                  # Initial configuration & bootstrap
-├── bootstrap              # Main entry point
-├── bootstrap##os.Darwin   # macOS bootstrap
-├── bootstrap##os.Linux    # Linux bootstrap  
+├── bootstrap              # Main entry point (includes setup)
+├── bootstrap##os.Darwin   # macOS specific
+├── bootstrap##os.Linux    # Linux specific  
 └── bootstrap-common       # Shared functions
 
 .config/homebrew/
-└── Brewfile##template     # macOS packages (template)
+└── Brewfile##template     # macOS packages
 ```
 
 ## Key Features
@@ -169,22 +168,21 @@ macOSではBrewfileテンプレートを使用：
 
 ## Usage
 
-### Initial Setup
+### Setup and Installation
 
 ```bash
-# すべての設定とbootstrapを一度に
-~/.config/yadm/setup
-```
-
-または個別に：
-
-```bash
-# 設定のみ
-~/.config/yadm/setup  # 最後のbootstrap実行をスキップ
-
-# Bootstrapのみ
+# Bootstrapを実行
 yadm bootstrap
 ```
+
+初回実行時：
+1. yadmクラスの選択（personal/work/server）
+2. Git設定（名前、メール）
+3. テンプレートファイルの生成
+4. OS別のbootstrap実行
+
+2回目以降：
+- 設定はスキップされ、直接パッケージインストールが実行されます
 
 #### 自動実行されること：
 1. OSとディストリビューションの検出

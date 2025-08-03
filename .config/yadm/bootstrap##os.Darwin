@@ -3,7 +3,7 @@
 
 set -e
 
-# Source common functions
+# Source logging functions
 source "$HOME/.config/yadm/bootstrap-common"
 
 info "Running macOS bootstrap..."
@@ -30,10 +30,50 @@ else
 fi
 
 # Install mise
-install_mise
+if ! command -v mise &>/dev/null; then
+    info "Installing mise..."
+    curl https://mise.run | sh
+    export PATH="$HOME/.local/bin:$PATH"
+    success "mise installed"
+fi
+
+# Setup mise tools
+if command -v mise &>/dev/null; then
+    eval "$(mise activate bash)" || true
+    mise install node@lts python@latest || true
+    mise use -g node@lts python@latest || true
+fi
 
 # Setup development environment
-setup_development_environment
+info "Setting up development environment..."
+
+# Create necessary directories
+mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
+
+# Setup git-secrets
+if command -v git-secrets &>/dev/null; then
+    mkdir -p ~/.config/git/templates/git-secrets
+    git secrets --install ~/.config/git/templates/git-secrets >/dev/null 2>&1 || true
+    git config --global init.templateDir ~/.config/git/templates/git-secrets
+    git secrets --register-aws >/dev/null 2>&1 || true
+fi
+
+# Install npm packages
+if command -v npm &>/dev/null; then
+    npm install -g aicommits || true
+fi
+
+# Install GitHub Copilot CLI
+if command -v gh &>/dev/null; then
+    gh extension install github/gh-copilot 2>/dev/null || true
+fi
+
+# Setup Zsh
+info "Setting up Zsh..."
+if [[ ! -d "$HOME/.local/share/zsh/zinit" ]]; then
+    mkdir -p ~/.local/share/zsh
+    git clone https://github.com/zdharma-continuum/zinit.git ~/.local/share/zsh/zinit/bin
+fi
 
 # macOS settings (optional)
 if [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "false" ]]; then
@@ -49,4 +89,11 @@ if [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "false" ]]; then
     killall Finder || true
 fi
 
-post_install
+# Post install
+success "Bootstrap completed!"
+echo
+echo "Configuration: class=$(yadm config local.class || echo "personal"), OS=Darwin"
+echo
+echo "Next steps:"
+echo "1. Restart your shell: exec zsh"
+echo "2. If you need to set zsh as default: chsh -s $(which zsh)"
