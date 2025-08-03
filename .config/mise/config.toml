@@ -8,11 +8,26 @@ ruby = "latest"
 go = "latest"
 rust = "latest"
 deno = "latest"
+bun = "latest"
 
-# Additional tools via aqua
-"aqua:jesseduffield/lazygit" = "latest"
-"aqua:junegunn/fzf" = "latest"
-"aqua:sharkdp/fd" = "latest"
+# Package managers
+pnpm = "latest"
+
+# Additional tools
+fzf = "latest"
+fd = "latest"
+
+# Development workflow tools
+direnv = "latest"      # Environment variable management
+just = "latest"        # Modern make alternative
+watchexec = "latest"   # File watcher
+
+# Code quality tools
+# Python tools are now managed by uv
+
+# Global npm packages
+"npm:@antfu/ni" = "latest"               # Package manager agnostic commands
+"npm:@anthropic-ai/claude-code" = "latest" # Claude Code CLI
 
 [settings]
 # Automatically install missing tools

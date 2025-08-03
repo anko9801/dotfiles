@@ -1,34 +1,37 @@
 # Atuin configuration
+# https://docs.atuin.sh/configuration/config/
 
-# How often to sync with the server
-auto_sync = true
-sync_frequency = "10m"
+## Sync configuration
+# sync_frequency = "1h"
+# sync_address = "https://api.atuin.sh"
 
-# Search mode
-search_mode = "fuzzy"
-
-# Style
-style = "compact"
-
-# Use vim keybindings
-vim = true
-
-# Filter settings
-filter_mode = "host"
+## Search configuration
+search_mode = "fuzzy"    # exact, prefix, fulltext, fuzzy
+filter_mode = "global"   # global, host, session, directory
 filter_mode_shell_up_key_binding = "session"
-
-# UI settings
 show_preview = true
-inline_height = 20
+invert = false
+exit_mode = "return-query"
 
-# History settings
+## Style
+style = "auto"          # full, compact, auto
+
+## History settings
+max_history_length = 10000
 history_filter = [
     "^ls",
     "^cd",
     "^pwd",
     "^exit",
+    "^history",
     "^clear",
 ]
 
-# Key bindings - Use Ctrl+R for search
-key_path = ""
+## Behavior
+enter_accept = true
+secrets_filter = true
+show_help = false
+
+## Key bindings (for reference - set in shell config)
+# ctrl-r : history search
+# up-arrow: filter by session
