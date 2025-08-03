@@ -14,5 +14,11 @@ if [[ -d "$HOME/.local/share/vim/undo" ]]; then
     find "$HOME/.local/share/vim/undo" -type f -mtime +30 -delete
 fi
 
+# Setup pre-commit hook for this repository only
+if [[ -f "$HOME/.config/git/hooks/pre-commit" ]]; then
+    ln -sf "$HOME/.config/git/hooks/pre-commit" "$GIT_DIR/hooks/pre-commit"
+    echo "Pre-commit hook linked for this repository"
+fi
+
 # Reminder to run bootstrap if needed
 echo "Remember to run 'yadm bootstrap' if you need to update packages"
