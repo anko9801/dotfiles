@@ -2,123 +2,54 @@
 
 パパッと楽に理想の環境を手に入れるやつ
 
-XDG Base Directory仕様に準拠したモダンなdotfiles管理。
-
-## 特徴
-
-- 🚀 **ワンコマンド**: `yadm clone` だけで完全な環境構築
-- 📁 **XDG準拠**: 設定ファイルは`.config/`に整理
-- 🎯 **OS自動判定**: yadm alternateでOS別の設定を自動適用
-- 🔐 **暗号化対応**: 機密ファイルの安全な管理
-- 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
-- 🐚 **Zsh最適化**: zsh環境に特化した高速で直接的な設定
-- 🌍 **マルチプラットフォーム**: macOS, Linux (Ubuntu, Debian, Arch)
-
-## インストール
-
 ```bash
-# macOS
-brew install yadm && yadm clone https://github.com/anko9801/dotfiles
+# インストール
+brew install yadm  # macOS
+sudo apt install -y yadm  # Ubuntu/Debian  
+sudo pacman -S --noconfirm yadm  # Arch Linux
 
-# Ubuntu/Debian
-sudo apt install -y yadm && yadm clone https://github.com/anko9801/dotfiles
-
-# Arch Linux
-sudo pacman -S --noconfirm yadm && yadm clone https://github.com/anko9801/dotfiles
+# セットアップ
+yadm clone https://github.com/anko9801/dotfiles
+yadm status && yadm diff  # 既存設定がある場合は競合確認
+yadm reset --hard origin/master  # 必要に応じて既存設定を破棄
+yadm bootstrap
 ```
 
-## 構成
+## コンセプト
 
-```
-$HOME/
-├── .config/           # 設定ファイル (XDG_CONFIG_HOME)
-│   ├── git/          # Git設定
-│   ├── vim/          # Vim設定とプラグイン定義
-│   ├── tmux/         # tmux設定
-│   ├── zsh/          # Zsh設定
-│   ├── shell/        # 共通シェル設定とエイリアス
-│   └── yadm/         # yadm bootstrap と hooks
-├── .local/           # アプリケーションデータ (XDG_DATA_HOME)
-└── .zshenv           # XDG環境変数の設定（最小限）
-```
+理想のdotfiles管理システムの条件：
+- **1コマンドセットアップ** - 管理もシンプル
+- **マシン差分吸収** - OS・クラス別の自動適用
+- **シークレット保護** - 暗号化・ホワイトリスト管理
+- **XDG準拠** - ホームディレクトリをクリーンに
+- **冪等性** - 何度実行しても同じ結果
 
-## 含まれるツール
+dotfiles管理の3つのアプローチ：
+1. **シンボリックリンク** (GNU Stow) → 管理スクリプトが必要
+2. **ファイルコピー** (chezmoi) → Single Source of Truthじゃない
+3. **Bare Git** (yadm) → 導入は手間だが管理が楽
 
-- **Base**: git, curl, wget, tmux, tree, jq
-- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, atuin, zoxide, starship, gomi
-- **Shell**: zsh (zinit), .zshenv
-- **Editor**: vim (dein.vim), neovim
-- **Version Manager**: mise (faster asdf alternative)
-- **Languages**: Node.js, Python, Ruby, Go, Rust
-- **macOS**: yabai (window manager), skhd, Raycast, Warp
+**yadm**はBare Gitの欠点（導入時マージ問題）を解決し、テンプレート・暗号化・フックまで統合した最適解：
 
-## 使い方
+- **テンプレート**: Jinja2構文で動的設定生成（`##template`）
+- **Alternates**: OS・クラス・ホスト別ファイル切り替え（`##os.Darwin`, `##class.work`）
+- **Classes**: マシンタイプ別パッケージ管理（personal/work/server）
+- **Bootstrap**: 自動環境構築スクリプト実行
+- **暗号化**: openssl/gpgによる機密ファイル管理
+- **Hooks**: pre_commit, post_altなどのイベント駆動処理
+- **Git統合**: 通常のgitコマンドがそのまま使用可能
 
-```bash
-# 状態確認
-yadm status
+**このdotfilesでの実装**:
+- **システムワイドZDOTDIR**: `/etc/zsh/zshenv`でルートの`.zshenv`を排除
+- **ワンファイルbootstrap**: OS別スクリプトで依存関係を最適化
+- **セキュリティ強化**: bash実装のpre-commit hooks、git-secrets統合
+- **クリーンな.gitignore**: ホワイトリスト方式で最小限管理
 
-# 更新
-yadm pull && yadm bootstrap
+## ツール構成
 
-# 設定の追加
-yadm add ~/.config/newapp
-yadm commit -m "Add newapp config"
-yadm push
-```
+**共通**: git, tmux, zsh(zinit), vim/neovim, mise, modern CLI tools (bat, eza, ripgrep, fd, fzf, gh, starship, etc.)
 
-## 初回セットアップ
-
-クローン後に個人設定を行う：
-
-```bash
-# ユーザー情報を設定（重要！）
-yadm config yadm.user "Your Name"
-yadm config yadm.email "your.email@example.com"
-
-# テンプレートを生成して~/.gitconfigを作成
-yadm alt
-
-# SSH署名キーをGitHubに登録
-cat ~/.ssh/id_ed25519.pub
-# ↑をGitHub Settings > SSH and GPG keys > "Signing Key"として追加
-```
-
-## カスタマイズ
-
-新しいパッケージを追加する場合は、OS別のbootstrapファイルを編集：
-- macOS: `.config/yadm/bootstrap##os.Darwin`
-- Ubuntu: `.config/yadm/bootstrap##distro.Ubuntu`
-- Arch: `.config/yadm/bootstrap##distro.Arch`
-
-Git設定のカスタマイズは `.config/git/config` を編集。
-
-## ファイル構成
-
-プロジェクト関連ファイル：
-- `.github/README.md` - プロジェクトドキュメント（ホーム汚染回避）
-- `.pre-commit-config.yaml` - コード品質・セキュリティチェック設定
-
-## セキュリティ
-
-**多層防御**でセキュリティを強化：
-- 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
-- 🔐 **SSH署名**: コミットの真正性を暗号学的に保証
-- 🚫 **git-secrets**: シークレット情報の誤コミットを防止
-- 🔍 **pre-commit hooks**: コミット前の自動セキュリティチェック
-- 🎯 **Fine-grained PAT**: 最小権限の原則でAPIアクセス制御
-
-除外される機密データ：
-- 個人データ (Desktop/, Documents/, etc.)
-- 認証情報 (.ssh/id_*, .gitconfig, etc.)  
-- 開発ディレクトリ (workspace/, projects/, etc.)
-
-## AI統合
-
-**モダンなAI開発ツール**を活用：
-- 🤖 **aicommits**: AIによる自動コミットメッセージ生成
-- 🚀 **GitHub Copilot CLI**: ターミナルでのAI支援
-
----
-
-パパッと楽に理想の環境を手に入れよう！ 🚀
+**クラス別**:
+- Personal: メディアツール、個人アプリ
+- Work: クラウド・コンテナツール、IDE
+- Server: 最小構成
