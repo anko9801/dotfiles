@@ -1,0 +1,42 @@
+name: Test Installation
+
+on:
+  push:
+    branches: [ main, master, yadm-backup ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install yadm
+        run: |
+          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            brew install yadm
+          else
+            sudo apt-get update && sudo apt-get install -y yadm
+          fi
+          
+      - name: Clone dotfiles
+        run: |
+          yadm clone https://github.com/${{ github.repository }}.git --no-bootstrap
+          yadm checkout ${{ github.sha }}
+          
+      - name: Run yadm alt
+        run: yadm alt
+          
+      - name: Run bootstrap
+        run: |
+          export YADM_BOOTSTRAP_MACOS_SETTINGS=false
+          $HOME/.config/yadm/bootstrap
+          
+      - name: Verify
+        run: |
+          # 基本的な確認
+          test -f "$HOME/.config/zsh/.zshrc"
+          test -f "$HOME/.config/mise/config.toml"
+          command -v zsh
