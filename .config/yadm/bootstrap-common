@@ -3,6 +3,9 @@
 # Common functions for bootstrap scripts
 # このファイルは各OS別のbootstrapからsourceされます
 
+# Enable strict error handling
+set -euo pipefail
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -10,14 +13,88 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; }
-warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+# Logging functions
+info() { echo -e "${BLUE}[INFO]${NC} $1" | tee -a "${BOOTSTRAP_LOG:-/dev/null}"; }
+success() { echo -e "${GREEN}[SUCCESS]${NC} $1" | tee -a "${BOOTSTRAP_LOG:-/dev/null}"; }
+error() { echo -e "${RED}[ERROR]${NC} $1" | tee -a "${BOOTSTRAP_LOG:-/dev/null}" >&2; }
+warning() { echo -e "${YELLOW}[WARNING]${NC} $1" | tee -a "${BOOTSTRAP_LOG:-/dev/null}"; }
+
+# Progress tracking
+BOOTSTRAP_STEPS_TOTAL=0
+BOOTSTRAP_STEPS_DONE=0
+
+start_progress() {
+    BOOTSTRAP_STEPS_TOTAL="$1"
+    BOOTSTRAP_STEPS_DONE=0
+    info "Starting bootstrap with $BOOTSTRAP_STEPS_TOTAL steps"
+}
+
+step_done() {
+    ((BOOTSTRAP_STEPS_DONE++))
+    local percent=$((BOOTSTRAP_STEPS_DONE * 100 / BOOTSTRAP_STEPS_TOTAL))
+    info "Progress: [$BOOTSTRAP_STEPS_DONE/$BOOTSTRAP_STEPS_TOTAL] ${percent}%"
+}
 
 # Check if command exists
 command_exists() {
     command -v "$1" &> /dev/null
+}
+
+# Run command with retry
+retry() {
+    local max_attempts="${1:-3}"
+    local delay="${2:-1}"
+    local command="${@:3}"
+    local attempt=1
+    
+    while [[ $attempt -le $max_attempts ]]; do
+        if eval "$command"; then
+            return 0
+        fi
+        
+        if [[ $attempt -lt $max_attempts ]]; then
+            warning "Command failed, retrying in ${delay}s... (attempt $attempt/$max_attempts)"
+            sleep "$delay"
+        fi
+        
+        ((attempt++))
+    done
+    
+    error "Command failed after $max_attempts attempts: $command"
+    return 1
+}
+
+# Check internet connectivity
+check_internet() {
+    if ! curl -s --head --connect-timeout 5 https://github.com > /dev/null; then
+        error "No internet connection detected"
+        return 1
+    fi
+    return 0
+}
+
+# Create backup of file
+backup_file() {
+    local file="$1"
+    if [[ -f "$file" ]]; then
+        local backup="${file}.backup.$(date +%Y%m%d_%H%M%S)"
+        cp "$file" "$backup"
+        info "Backed up $file to $backup"
+    fi
+}
+
+# Safe symlink creation
+safe_symlink() {
+    local source="$1"
+    local target="$2"
+    
+    if [[ -e "$target" ]] && [[ ! -L "$target" ]]; then
+        backup_file "$target"
+        rm -f "$target"
+    fi
+    
+    ln -sf "$source" "$target"
+    info "Created symlink: $target -> $source"
 }
 
 # Install mise
@@ -152,13 +229,26 @@ create_xdg_dirs() {
 }
 
 # Post install message
-
 post_install() {
     success "Bootstrap completed!"
+    
+    # Show summary if function exists
+    if command_exists show_summary; then
+        show_summary
+    fi
+    
     echo
     echo "Next steps:"
-    echo "1. Restart your shell or run: source ~/.zshenv && source $ZDOTDIR/.zshrc"
+    if [[ -f "$HOME/.zshenv" ]]; then
+        echo "1. Restart your shell or run: source ~/.zshenv && source $ZDOTDIR/.zshrc"
+    else
+        echo "1. Restart your shell or run: exec zsh"
+    fi
     echo "2. Check yadm status: yadm status"
+    echo "3. Run 'yadm alt' to create alternative files"
     echo
     info "パパッと楽に理想の環境を手に入れました！"
+    
+    # Save completion timestamp
+    echo "Bootstrap completed at: $(date)" >> "${BOOTSTRAP_LOG:-/dev/null}"
 }

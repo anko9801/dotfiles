@@ -1,0 +1,218 @@
+#!/usr/bin/env bash
+
+# Bootstrap doctor - Validates and fixes common bootstrap issues
+
+source "$HOME/.config/yadm/bootstrap-common"
+
+echo "==========================================="
+echo "          Bootstrap Doctor                 "
+echo "==========================================="
+echo
+
+# Check bootstrap files
+check_bootstrap_files() {
+    info "Checking bootstrap files..."
+    
+    local required_files=(
+        "$HOME/.config/yadm/bootstrap"
+        "$HOME/.config/yadm/bootstrap-common"
+        "$HOME/.config/yadm/bootstrap-modules"
+        "$HOME/.config/yadm/bootstrap-packages"
+        "$HOME/.config/yadm/packages.toml"
+    )
+    
+    local missing=0
+    for file in "${required_files[@]}"; do
+        if [[ -f "$file" ]]; then
+            echo -e "${GREEN}✓${NC} $file"
+        else
+            echo -e "${RED}✗${NC} $file (missing)"
+            ((missing++))
+        fi
+    done
+    
+    if [[ $missing -gt 0 ]]; then
+        error "$missing required files missing"
+        return 1
+    fi
+    
+    success "All bootstrap files present"
+}
+
+# Check executable permissions
+check_permissions() {
+    info "Checking file permissions..."
+    
+    local exec_files=(
+        "$HOME/.config/yadm/bootstrap"
+        "$HOME/.config/yadm/bootstrap-common"
+        "$HOME/.config/yadm/bootstrap-modules"
+        "$HOME/.config/yadm/bootstrap-packages"
+        "$HOME/.config/yadm/hooks/pre_commit"
+        "$HOME/.config/yadm/hooks/post_checkout"
+    )
+    
+    local fixed=0
+    for file in "${exec_files[@]}"; do
+        if [[ -f "$file" ]]; then
+            if [[ -x "$file" ]]; then
+                echo -e "${GREEN}✓${NC} $file (executable)"
+            else
+                chmod +x "$file"
+                echo -e "${YELLOW}⚡${NC} $file (fixed permissions)"
+                ((fixed++))
+            fi
+        fi
+    done
+    
+    if [[ $fixed -gt 0 ]]; then
+        warning "Fixed permissions for $fixed files"
+    else
+        success "All permissions correct"
+    fi
+}
+
+# Check package manager
+check_package_manager() {
+    info "Checking package manager..."
+    
+    source "$HOME/.config/yadm/bootstrap-packages"
+    local pm=$(detect_package_manager)
+    
+    if [[ "$pm" == "unknown" ]]; then
+        error "No supported package manager found"
+        echo "Supported: brew (macOS), pacman (Arch), apt (Ubuntu/Debian), dnf (Fedora), zypper (openSUSE)"
+        return 1
+    fi
+    
+    success "Package manager detected: $pm"
+}
+
+# Check installed tools
+check_installed_tools() {
+    info "Checking installed tools..."
+    
+    # Core tools that should be installed
+    local core_tools=(
+        "git:Git version control"
+        "curl:HTTP client"
+        "zsh:Z shell"
+        "tmux:Terminal multiplexer"
+    )
+    
+    # Optional but recommended tools
+    local optional_tools=(
+        "rg:Ripgrep"
+        "fd:Fd find"
+        "bat:Bat viewer"
+        "fzf:Fuzzy finder"
+        "eza:Modern ls"
+        "mise:Version manager"
+        "starship:Prompt"
+    )
+    
+    echo
+    echo "Core tools:"
+    for tool_desc in "${core_tools[@]}"; do
+        IFS=':' read -r cmd desc <<< "$tool_desc"
+        if command_exists "$cmd"; then
+            echo -e "${GREEN}✓${NC} $desc"
+        else
+            echo -e "${RED}✗${NC} $desc (missing - run bootstrap to install)"
+        fi
+    done
+    
+    echo
+    echo "Optional tools:"
+    for tool_desc in "${optional_tools[@]}"; do
+        IFS=':' read -r cmd desc <<< "$tool_desc"
+        if command_exists "$cmd"; then
+            echo -e "${GREEN}✓${NC} $desc"
+        else
+            echo -e "${YELLOW}○${NC} $desc (not installed)"
+        fi
+    done
+}
+
+# Check ZDOTDIR configuration
+check_zdotdir() {
+    info "Checking ZDOTDIR configuration..."
+    
+    if [[ -f "/etc/zsh/zshenv" ]] && grep -q "ZDOTDIR" "/etc/zsh/zshenv"; then
+        success "System-wide ZDOTDIR configured"
+    elif [[ -f "$HOME/.zshenv" ]]; then
+        warning "Using .zshenv (consider system-wide configuration)"
+    else
+        error "No ZDOTDIR configuration found"
+        echo "Run bootstrap to set up ZDOTDIR"
+    fi
+}
+
+# Check for common issues
+check_common_issues() {
+    info "Checking for common issues..."
+    
+    # Check if running in correct directory
+    if [[ ! -d ".git" ]] || ! yadm status &>/dev/null; then
+        warning "Not in a yadm repository"
+    fi
+    
+    # Check for conflicting dotfiles managers
+    if command_exists chezmoi; then
+        warning "chezmoi is installed - may conflict with yadm"
+    fi
+    
+    # Check XDG directories
+    local xdg_dirs=(
+        "$HOME/.config"
+        "$HOME/.local/share"
+        "$HOME/.local/bin"
+        "$HOME/.cache"
+    )
+    
+    for dir in "${xdg_dirs[@]}"; do
+        if [[ ! -d "$dir" ]]; then
+            warning "XDG directory missing: $dir"
+        fi
+    done
+}
+
+# Fix common issues
+fix_issues() {
+    read -p "Attempt to fix issues? (y/N): " -n 1 -r
+    echo
+    
+    if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+        return
+    fi
+    
+    # Create missing XDG directories
+    create_xdg_dirs
+    
+    # Fix permissions
+    check_permissions
+    
+    success "Fixes applied"
+}
+
+# Main
+main() {
+    local has_errors=0
+    
+    check_bootstrap_files || ((has_errors++))
+    check_permissions
+    check_package_manager || ((has_errors++))
+    check_installed_tools
+    check_zdotdir
+    check_common_issues
+    
+    echo
+    if [[ $has_errors -gt 0 ]]; then
+        error "Found $has_errors critical issues"
+        fix_issues
+    else
+        success "Bootstrap system is healthy!"
+    fi
+}
+
+main "$@"

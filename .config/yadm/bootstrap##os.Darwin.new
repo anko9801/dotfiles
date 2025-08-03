@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Bootstrap for macOS - Simplified version using modules
+set -euo pipefail
+
+# This script is now deprecated in favor of the unified bootstrap
+# It remains for compatibility but simply calls the main bootstrap
+
+info() { echo "[INFO] $1"; }
+
+info "This OS-specific bootstrap is deprecated."
+info "Running unified bootstrap instead..."
+
+exec "$HOME/.config/yadm/bootstrap" "$@"

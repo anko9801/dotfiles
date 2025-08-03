@@ -1,0 +1,249 @@
+#!/usr/bin/env bash
+
+# Package management abstraction layer
+# Provides unified interface for different package managers
+
+# Package manager detection
+detect_package_manager() {
+    if command_exists brew; then
+        echo "brew"
+    elif command_exists pacman; then
+        echo "pacman"
+    elif command_exists apt; then
+        echo "apt"
+    elif command_exists dnf; then
+        echo "dnf"
+    elif command_exists zypper; then
+        echo "zypper"
+    else
+        echo "unknown"
+    fi
+}
+
+# Update package manager
+update_package_manager() {
+    local pm="${1:-$(detect_package_manager)}"
+    
+    case "$pm" in
+        brew)
+            info "Updating Homebrew..."
+            brew update
+            ;;
+        pacman)
+            info "Updating pacman..."
+            sudo pacman -Syu --noconfirm
+            ;;
+        apt)
+            info "Updating apt..."
+            sudo apt update && sudo apt upgrade -y
+            ;;
+        dnf)
+            info "Updating dnf..."
+            sudo dnf update -y
+            ;;
+        zypper)
+            info "Updating zypper..."
+            sudo zypper refresh && sudo zypper update -y
+            ;;
+        *)
+            error "Unknown package manager: $pm"
+            return 1
+            ;;
+    esac
+}
+
+# Install single package
+install_package() {
+    local package="$1"
+    local pm="${2:-$(detect_package_manager)}"
+    
+    # Check if already installed
+    if is_package_installed "$package" "$pm"; then
+        info "$package is already installed"
+        return 0
+    fi
+    
+    info "Installing $package..."
+    
+    case "$pm" in
+        brew)
+            brew install "$package"
+            ;;
+        pacman)
+            sudo pacman -S --noconfirm "$package"
+            ;;
+        apt)
+            sudo apt install -y "$package"
+            ;;
+        dnf)
+            sudo dnf install -y "$package"
+            ;;
+        zypper)
+            sudo zypper install -y "$package"
+            ;;
+        *)
+            error "Unknown package manager: $pm"
+            return 1
+            ;;
+    esac
+}
+
+# Install multiple packages
+install_packages() {
+    local packages=("$@")
+    local pm="$(detect_package_manager)"
+    local failed=()
+    
+    for package in "${packages[@]}"; do
+        if ! install_package "$package" "$pm"; then
+            failed+=("$package")
+        fi
+    done
+    
+    if [[ ${#failed[@]} -gt 0 ]]; then
+        error "Failed to install: ${failed[*]}"
+        return 1
+    fi
+}
+
+# Check if package is installed
+is_package_installed() {
+    local package="$1"
+    local pm="${2:-$(detect_package_manager)}"
+    
+    case "$pm" in
+        brew)
+            brew list "$package" &>/dev/null
+            ;;
+        pacman)
+            pacman -Qi "$package" &>/dev/null
+            ;;
+        apt)
+            dpkg -l "$package" 2>/dev/null | grep -q "^ii"
+            ;;
+        dnf)
+            dnf list installed "$package" &>/dev/null
+            ;;
+        zypper)
+            zypper se -i "$package" &>/dev/null
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# Install package from URL (for manual installations)
+install_from_url() {
+    local name="$1"
+    local url="$2"
+    local install_cmd="${3:-}"
+    
+    info "Installing $name from $url..."
+    
+    local temp_dir=$(mktemp -d)
+    local filename=$(basename "$url")
+    
+    # Download with progress
+    if command_exists wget; then
+        wget --progress=bar -O "$temp_dir/$filename" "$url"
+    elif command_exists curl; then
+        curl -L --progress-bar -o "$temp_dir/$filename" "$url"
+    else
+        error "Neither wget nor curl found"
+        return 1
+    fi
+    
+    # Install based on file type
+    case "$filename" in
+        *.deb)
+            sudo dpkg -i "$temp_dir/$filename"
+            sudo apt-get install -f -y  # Fix dependencies
+            ;;
+        *.rpm)
+            sudo rpm -i "$temp_dir/$filename"
+            ;;
+        *.tar.gz|*.tgz)
+            tar -xzf "$temp_dir/$filename" -C "$temp_dir"
+            if [[ -n "$install_cmd" ]]; then
+                eval "$install_cmd"
+            else
+                error "No install command provided for tarball"
+                return 1
+            fi
+            ;;
+        *)
+            if [[ -n "$install_cmd" ]]; then
+                eval "$install_cmd"
+            else
+                error "Unknown file type: $filename"
+                return 1
+            fi
+            ;;
+    esac
+    
+    # Cleanup
+    rm -rf "$temp_dir"
+}
+
+# Install packages for Ubuntu that need manual download
+install_ubuntu_modern_cli() {
+    local packages=(
+        "ripgrep|https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION:-13.0.0}/ripgrep_${RIPGREP_VERSION:-13.0.0}_amd64.deb"
+        "fd|https://github.com/sharkdp/fd/releases/download/${FD_VERSION:-v8.7.0}/fd_${FD_VERSION#v}_amd64.deb"
+        "bat|https://github.com/sharkdp/bat/releases/download/${BAT_VERSION:-v0.23.0}/bat_${BAT_VERSION#v}_amd64.deb"
+    )
+    
+    for pkg in "${packages[@]}"; do
+        IFS='|' read -r name url <<< "$pkg"
+        if ! command_exists "${name%% *}"; then
+            install_from_url "$name" "$url"
+        fi
+    done
+}
+
+# Parse package configuration from TOML
+parse_package_config() {
+    local config_file="$HOME/.config/yadm/packages.toml"
+    local section="$1"
+    
+    if [[ ! -f "$config_file" ]]; then
+        error "Package configuration not found: $config_file"
+        return 1
+    fi
+    
+    # Simple TOML parser for package lists
+    # This is a basic implementation - could be replaced with proper TOML parser
+    awk -v section="[$section]" '
+        BEGIN { in_section = 0; in_packages = 0 }
+        $0 == section { in_section = 1; next }
+        /^\[/ && in_section { exit }
+        in_section && /^packages = \[/ { in_packages = 1; next }
+        in_section && in_packages && /\]/ { in_packages = 0 }
+        in_section && in_packages {
+            gsub(/[",]/, "", $0)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", $0)
+            if ($0 && $0 !~ /^#/ && $0 !~ /^{/) print $0
+        }
+    ' "$config_file"
+}
+
+# Install packages from a category
+install_category() {
+    local category="$1"
+    local optional="${2:-no}"  # Install optional packages?
+    
+    info "Installing $category packages..."
+    
+    local packages=()
+    while IFS= read -r pkg; do
+        [[ -n "$pkg" ]] && packages+=("$pkg")
+    done < <(parse_package_config "$category")
+    
+    if [[ ${#packages[@]} -eq 0 ]]; then
+        warning "No packages found for category: $category"
+        return 0
+    fi
+    
+    install_packages "${packages[@]}"
+}

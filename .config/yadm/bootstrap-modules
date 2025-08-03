@@ -1,0 +1,263 @@
+#!/usr/bin/env bash
+
+# Modular installation functions
+# Each function handles a specific aspect of the bootstrap process
+
+# Source package management functions
+source "$HOME/.config/yadm/bootstrap-packages"
+
+# Install base system packages
+install_base_packages() {
+    info "Installing base packages..."
+    install_category "base"
+    install_category "shell"
+}
+
+# Install modern CLI tools
+install_modern_cli() {
+    info "Installing modern CLI tools..."
+    
+    # Check if we need manual installation (Ubuntu)
+    if [[ "$(detect_package_manager)" == "apt" ]]; then
+        install_ubuntu_modern_cli
+        # Install remaining tools via apt
+        local apt_tools=("fzf" "gh" "exa" "zoxide" "starship" "atuin")
+        install_packages "${apt_tools[@]}"
+    else
+        install_category "modern-cli"
+    fi
+}
+
+# Install development tools
+install_development_tools() {
+    info "Installing development tools..."
+    install_category "development"
+    
+    # Install mise for version management
+    if ! command_exists mise; then
+        install_mise
+    fi
+    
+    # Optionally install languages
+    if [[ "${INSTALL_LANGUAGES:-yes}" == "yes" ]]; then
+        install_category "languages"
+    fi
+}
+
+# Install security tools
+install_security_tools() {
+    info "Installing security tools..."
+    install_category "security"
+    
+    # Setup git-secrets
+    setup_git_secrets
+}
+
+# Setup git-secrets globally
+setup_git_secrets() {
+    if command_exists git-secrets; then
+        info "Configuring git-secrets..."
+        
+        # Create template directory
+        local template_dir="$HOME/.config/git/templates/git-secrets"
+        mkdir -p "$template_dir"
+        
+        # Install git-secrets hooks
+        git secrets --install "$template_dir" >/dev/null 2>&1
+        
+        # Set as global template
+        git config --global init.templateDir "$template_dir"
+        
+        # Register patterns
+        git secrets --register-aws >/dev/null 2>&1
+        
+        success "Git-secrets configured"
+    else
+        warning "git-secrets not installed"
+    fi
+}
+
+# Install AI development tools
+install_ai_tools() {
+    info "Installing AI development tools..."
+    
+    # Ensure npm is available
+    if ! command_exists npm; then
+        warning "npm not found - skipping AI tools"
+        return 1
+    fi
+    
+    # Install npm packages
+    local npm_packages=(
+        "aicommits"
+    )
+    
+    for pkg in "${npm_packages[@]}"; do
+        if ! npm list -g "$pkg" &>/dev/null; then
+            npm install -g "$pkg"
+        fi
+    done
+    
+    # Install GitHub Copilot CLI extension
+    if command_exists gh; then
+        if ! gh extension list | grep -q "github/gh-copilot"; then
+            gh extension install github/gh-copilot 2>/dev/null || \
+                info "GitHub Copilot CLI may require authentication"
+        fi
+    fi
+    
+    success "AI tools installed"
+}
+
+# Configure shell environment
+configure_shell() {
+    info "Configuring shell environment..."
+    
+    # Setup Zsh
+    setup_zsh
+    
+    # Setup system ZDOTDIR if requested
+    if [[ "${SETUP_SYSTEM_ZDOTDIR:-yes}" == "yes" ]]; then
+        setup_system_zdotdir
+    fi
+    
+    # Setup other shells if installed
+    if command_exists fish; then
+        info "Fish shell detected - remember to configure it separately"
+    fi
+}
+
+# Configure development environment
+configure_development() {
+    info "Configuring development environment..."
+    
+    # Setup Vim/Neovim
+    setup_vim
+    
+    # Setup mise tools
+    if command_exists mise; then
+        setup_mise_tools
+    fi
+    
+    # Configure npm packages via mise
+    setup_npm_packages
+}
+
+# macOS specific configurations
+configure_macos() {
+    if [[ "$(uname)" != "Darwin" ]]; then
+        return 0
+    fi
+    
+    if [[ "${CONFIGURE_MACOS:-no}" != "yes" ]]; then
+        info "Skipping macOS configuration (set CONFIGURE_MACOS=yes to enable)"
+        return 0
+    fi
+    
+    info "Configuring macOS settings..."
+    
+    # Show hidden files
+    defaults write com.apple.finder AppleShowAllFiles -bool true
+    
+    # Disable press-and-hold for keys in favor of key repeat
+    defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+    
+    # Set fast key repeat
+    defaults write NSGlobalDomain KeyRepeat -int 2
+    defaults write NSGlobalDomain InitialKeyRepeat -int 15
+    
+    # Enable subpixel font rendering on non-Apple LCDs
+    defaults write NSGlobalDomain AppleFontSmoothing -int 2
+    
+    # Disable auto-correct
+    defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+    
+    killall Finder
+    
+    success "macOS configured"
+}
+
+# Install GUI applications (macOS)
+install_gui_apps() {
+    if [[ "$(uname)" != "Darwin" ]] || [[ "${INSTALL_CASKS:-no}" != "yes" ]]; then
+        return 0
+    fi
+    
+    info "Installing GUI applications..."
+    
+    local casks=(
+        "visual-studio-code"
+        "iterm2"
+        "warp"
+        "raycast"
+        "rectangle"
+    )
+    
+    for cask in "${casks[@]}"; do
+        if ! brew list --cask "$cask" &>/dev/null; then
+            brew install --cask "$cask"
+        fi
+    done
+}
+
+# Validate installation
+validate_installation() {
+    info "Validating installation..."
+    
+    local missing_tools=()
+    local critical_tools=(
+        "git"
+        "curl"
+        "zsh"
+    )
+    
+    for tool in "${critical_tools[@]}"; do
+        if ! command_exists "$tool"; then
+            missing_tools+=("$tool")
+        fi
+    done
+    
+    if [[ ${#missing_tools[@]} -gt 0 ]]; then
+        error "Critical tools missing: ${missing_tools[*]}"
+        return 1
+    fi
+    
+    success "Installation validated"
+}
+
+# Show installation summary
+show_summary() {
+    echo
+    echo "========================================="
+    echo "          Installation Summary           "
+    echo "========================================="
+    echo
+    
+    # Check installed tools
+    local tools=(
+        "git|Git"
+        "zsh|Zsh shell"
+        "tmux|Terminal multiplexer"
+        "vim|Vim editor"
+        "nvim|Neovim"
+        "mise|Version manager"
+        "rg|Ripgrep"
+        "fd|Fd finder"
+        "bat|Bat viewer"
+        "fzf|Fuzzy finder"
+        "eza|Modern ls"
+        "zoxide|Smart cd"
+        "starship|Prompt"
+    )
+    
+    for tool_info in "${tools[@]}"; do
+        IFS='|' read -r cmd name <<< "$tool_info"
+        if command_exists "$cmd"; then
+            echo -e "${GREEN}✓${NC} $name"
+        else
+            echo -e "${RED}✗${NC} $name"
+        fi
+    done
+    
+    echo
+}
