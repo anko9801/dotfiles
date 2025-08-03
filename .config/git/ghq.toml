@@ -1,0 +1,17 @@
+[general]
+# ghq root directories
+root = ["~/repos", "~/go/src"]
+
+# Default directory for ghq get
+# If not specified, the first directory in root is used
+default_root = "~/repos"
+
+[vcs]
+# Use SSH for GitHub by default
+git = { protocol = "ssh" }
+
+[ui]
+# Set up peco/fzf integration
+# You can customize the command used for interactive selection
+# Example with fzf:
+# selector = "fzf --height 40% --reverse --border"

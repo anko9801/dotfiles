@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# 1Password SSH integration hook for yadm
+
+set -e
+
+# Setup 1Password SSH agent integration
+setup_1password_ssh() {
+    echo "Setting up 1Password SSH integration..."
+    
+    # Create SSH config directory if it doesn't exist
+    mkdir -p "$HOME/.ssh"
+    chmod 700 "$HOME/.ssh"
+    
+    # Check if 1Password is installed
+    if command -v op >/dev/null 2>&1; then
+        # Create or update SSH config for 1Password agent
+        SSH_CONFIG="$HOME/.ssh/config"
+        
+        # Backup existing config
+        if [[ -f "$SSH_CONFIG" ]]; then
+            cp "$SSH_CONFIG" "$SSH_CONFIG.backup"
+        fi
+        
+        # Check if 1Password SSH agent config already exists
+        if ! grep -q "IdentityAgent.*1Password" "$SSH_CONFIG" 2>/dev/null; then
+            echo "Adding 1Password SSH agent to SSH config..."
+            
+            # Determine the correct socket path based on OS
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                SOCKET_PATH="~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+            else
+                SOCKET_PATH="~/.1password/agent.sock"
+            fi
+            
+            # Add 1Password SSH agent configuration
+            cat >> "$SSH_CONFIG" <<EOF
+
+# 1Password SSH Agent
+Host *
+    IdentityAgent "$SOCKET_PATH"
+EOF
+            echo "1Password SSH agent configuration added."
+        else
+            echo "1Password SSH agent already configured."
+        fi
+        
+        # Create 1Password config directory
+        mkdir -p "$HOME/.config/op"
+        
+        # Create 1Password CLI config if not exists
+        if [[ ! -f "$HOME/.config/op/config" ]]; then
+            cat > "$HOME/.config/op/config" <<EOF
+{
+  "latest_signin": "",
+  "device": "$(uuidgen || cat /proc/sys/kernel/random/uuid 2>/dev/null || echo 'default-device')",
+  "commands": {
+    "biometric_unlock": true
+  },
+  "cache": {
+    "session": {
+      "ttl": 1800
+    }
+  }
+}
+EOF
+            echo "1Password CLI configuration created."
+        fi
+    else
+        echo "Warning: 1Password CLI (op) not found. Please install it first."
+        echo "Visit: https://developer.1password.com/docs/cli/get-started/"
+    fi
+}
+
+# Run the setup
+setup_1password_ssh

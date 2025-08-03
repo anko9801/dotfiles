@@ -116,6 +116,10 @@ add-zsh-hook precmd _update_vcs_info_msg
 
 # mise is now loaded from common .profile
 
+# Load new configurations
+[[ -f "$HOME/.config/zsh/copilot.zsh" ]] && source "$HOME/.config/zsh/copilot.zsh"
+[[ -f "$HOME/.config/zsh/init-abbr.zsh" ]] && source "$HOME/.config/zsh/init-abbr.zsh"
+
 # history
 
 # 履歴ファイルの保存先
