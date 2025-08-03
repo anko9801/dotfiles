@@ -57,6 +57,29 @@ setup_mise_tools() {
     fi
 }
 
+# Setup npm global packages
+setup_npm_packages() {
+    if command_exists npm; then
+        info "Installing global npm packages..."
+        
+        if [[ -f "$HOME/.default-npm-packages" ]]; then
+            while IFS= read -r package; do
+                # Skip empty lines and comments
+                [[ -z "$package" || "$package" =~ ^# ]] && continue
+                
+                info "Installing $package..."
+                npm install -g "$package"
+            done < "$HOME/.default-npm-packages"
+            
+            success "npm packages installed"
+        else
+            warning "No .default-npm-packages file found"
+        fi
+    else
+        warning "npm not found, skipping npm packages"
+    fi
+}
+
 # Setup Vim
 setup_vim() {
     # Create vim directories

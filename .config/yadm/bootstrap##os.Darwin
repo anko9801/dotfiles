@@ -34,6 +34,9 @@ brew install atuin
 # Better CLI tools
 brew install eza zoxide starship gomi
 
+# Terminal multiplexer
+brew install zellij
+
 # Window manager
 brew install yabai
 
@@ -49,7 +52,7 @@ brew install mise
 
 # Security tools
 info "Installing security tools..."
-brew install git-secrets
+brew install 1password-cli git-secrets
 
 # Setup git-secrets globally
 mkdir -p ~/.git-templates/git-secrets
@@ -88,6 +91,7 @@ setup_vim
 setup_zsh
 install_mise
 setup_mise_tools
+setup_npm_packages
 
 # macOS specific settings
 if [[ "${CONFIGURE_MACOS:-}" == "yes" ]]; then
