@@ -96,19 +96,45 @@ yadm.terminal = "wezterm"
 
 ## Overview
 
-The bootstrap system has been refactored for better modularity, maintainability, and user experience.
+yadmの機能をフル活用したbootstrapシステムです。OS、ディストリビューション、マシンクラスに応じて自動的に適切な設定とパッケージをインストールします。
+
+## Bootstrap Features
+
+### 1. OS-specific Bootstrap
+- `bootstrap##os.Darwin` - macOS用
+- `bootstrap##os.Linux` - Linux用
+- 自動的に適切なスクリプトが実行されます
+
+### 2. Class-based Installation
+マシンクラスに応じたパッケージインストール：
+- **personal**: 個人用ツール（media tools, personal apps）
+- **work**: 仕事用ツール（AWS, Docker, Kubernetes）
+- **server**: サーバー用最小構成
+
+### 3. Brewfile Template
+macOSではBrewfileテンプレートを使用：
+- クラス別のパッケージ定義
+- Caskアプリの管理
+
+### 4. Pre-bootstrap Check
+`bootstrap-check`で事前設定：
+- クラスの選択
+- オプションの確認
+- インストール内容のプレビュー
 
 ## Structure
 
 ```
 .config/yadm/
-├── bootstrap              # Main entry point (unified for all OS)
-├── bootstrap-common       # Shared functions and utilities
-├── bootstrap-modules      # Modular installation functions
+├── bootstrap              # Main entry point
+├── bootstrap##os.Darwin   # macOS bootstrap
+├── bootstrap##os.Linux    # Linux bootstrap
+├── bootstrap-check        # Pre-bootstrap configuration
+├── bootstrap-common       # Shared functions
+├── bootstrap-modules      # Modular functions
 ├── bootstrap-packages     # Package manager abstraction
-├── bootstrap-doctor       # Validation and troubleshooting tool
-├── packages.toml          # Package configuration
-└── bootstrap##os.*        # Legacy OS-specific scripts (deprecated)
+├── packages.toml          # Package definitions
+└── Brewfile##template     # macOS packages (template)
 ```
 
 ## Key Features
@@ -147,23 +173,46 @@ The bootstrap system has been refactored for better modularity, maintainability,
 ### Running Bootstrap
 
 ```bash
+# 1. まず設定を確認
+~/.config/yadm/bootstrap-check
+
+# 2. Bootstrapを実行
 yadm bootstrap
 ```
 
-The bootstrap will:
-1. Detect your OS and package manager
-2. Show configuration options
-3. Install packages based on your selections
-4. Configure development environment
-5. Show installation summary
+#### 自動実行されること：
+1. OSとディストリビューションの検出
+2. クラスに応じたパッケージのインストール
+3. 開発環境のセットアップ
+4. AIツールの設定
+5. インストールサマリーの表示
 
-### Configuration Options
+### Bootstrap Classes
 
-- **Install optional packages**: Additional utilities and tools
-- **Install programming languages**: Node.js, Python, Ruby, Go, Rust
-- **Setup system ZDOTDIR**: Configure Zsh without ~/.zshenv
-- **Install GUI apps** (macOS): VS Code, iTerm2, etc.
-- **Configure macOS settings**: System preferences
+#### Personal Class
+```bash
+yadm config local.class personal
+```
+- 基本パッケージ + 個人用ツール
+- メディアツール（ffmpeg, imagemagick）
+- 個人用アプリ（Obsidian, Spotify）
+
+#### Work Class
+```bash
+yadm config local.class work
+```
+- 基本パッケージ + 仕事用ツール
+- クラウドツール（AWS CLI, Terraform）
+- コンテナツール（Docker, Kubernetes）
+- セキュリティツール（Vault, Consul）
+
+#### Server Class
+```bash
+yadm config local.class server
+```
+- 最小限のパッケージセット
+- サーバー管理ツール（htop, ncdu）
+- GUIアプリなし
 
 ### Checking System Health
 
@@ -220,9 +269,7 @@ The old OS-specific bootstrap files (`bootstrap##os.Darwin`, etc.) are now depre
 
 ## Environment Variables
 
-- `BOOTSTRAP_LOG`: Path to log file (default: `~/.config/yadm/bootstrap.log`)
-- `INSTALL_OPTIONAL`: Install optional packages (y/n)
-- `INSTALL_LANGUAGES`: Install programming languages (y/n)
-- `SETUP_SYSTEM_ZDOTDIR`: Configure system-wide ZDOTDIR (y/n)
-- `INSTALL_CASKS`: Install macOS GUI apps (y/n)
-- `CONFIGURE_MACOS`: Apply macOS system settings (y/n)
+- `YADM_BOOTSTRAP`: Set to 1 to run bootstrap directly (not recommended)
+- `YADM_BOOTSTRAP_OPTIONAL`: Install optional packages (y/n)
+- `YADM_BOOTSTRAP_MACOS_SETTINGS`: Configure macOS settings (true/false)
+- `BOOTSTRAP_LOG`: Log file path (default: `~/.config/yadm/bootstrap.log`)

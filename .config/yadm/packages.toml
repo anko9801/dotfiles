@@ -92,6 +92,7 @@ packages = [
 # macOS specific tools
 packages = [
     { name = "yabai", optional = true },  # Window manager
+    { name = "skhd", optional = true },   # Hotkey daemon for yabai
 ]
 
 casks = [
@@ -100,6 +101,44 @@ casks = [
     { name = "warp", optional = true },
     { name = "raycast", optional = true },
     { name = "rectangle", optional = true },
+]
+
+# Class-specific packages
+[class.work]
+packages = [
+    "awscli",
+    "terraform",
+    "kubectl",
+    "helm",
+    "docker",
+    "vault",
+    "consul",
+]
+
+npm_packages = [
+    "npm-check-updates",
+    "license-checker",
+]
+
+[class.personal]
+packages = [
+    { name = "ffmpeg", optional = true },
+    { name = "imagemagick", optional = true },
+    { name = "youtube-dl", optional = true },
+    { name = "pandoc", optional = true },
+]
+
+casks = [
+    { name = "obsidian", optional = true },
+    { name = "spotify", optional = true },
+]
+
+[class.server]
+# Minimal packages for servers
+packages = [
+    "htop",
+    "ncdu",
+    "fail2ban",
 ]
 
 [linux]

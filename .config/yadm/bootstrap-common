@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
 # Common functions for bootstrap scripts
-# このファイルは各OS別のbootstrapからsourceされます
+# Used by OS-specific bootstrap scripts
+
+# Get yadm class
+get_yadm_class() {
+    yadm config local.class || echo "personal"
+}
 
 # Enable strict error handling
 set -euo pipefail
@@ -102,6 +107,11 @@ install_mise() {
     if ! command_exists mise; then
         info "Installing mise..."
         curl https://mise.run | sh
+        
+        # Add to current session
+        export PATH="$HOME/.local/bin:$PATH"
+        eval "$(~/.local/bin/mise activate bash)"
+        
         success "mise installed"
     else
         info "mise already installed"
@@ -136,8 +146,30 @@ setup_mise_tools() {
 
 # Setup npm global packages
 setup_npm_packages() {
-    # npm packages are now managed by mise
-    info "npm packages are managed by mise - see .config/mise/config.toml"
+    if ! command_exists npm; then
+        warning "npm not found - skipping npm packages"
+        return
+    fi
+    
+    info "Installing global npm packages..."
+    
+    # Base packages
+    local packages=("aicommits")
+    
+    # Add class-specific packages
+    local class=$(get_yadm_class)
+    case "$class" in
+        work)
+            packages+=("npm-check-updates" "license-checker")
+            ;;
+        personal)
+            packages+=("gatsby-cli" "create-react-app")
+            ;;
+    esac
+    
+    for pkg in "${packages[@]}"; do
+        npm install -g "$pkg" || warning "Failed to install $pkg"
+    done
 }
 
 # Setup system-wide ZDOTDIR (requires sudo)
@@ -174,12 +206,15 @@ setup_system_zdotdir() {
     fi
 }
 
-# Setup Vim
-setup_vim() {
+# Setup development environment
+setup_development_environment() {
+    info "Setting up development environment..."
+    
     # Create vim directories
     mkdir -p "$HOME/.config/vim"
     mkdir -p "$HOME/.local/share/vim/dein"
     
+    # Install vim plugin manager
     if [[ ! -d "$HOME/.local/share/vim/dein" ]]; then
         info "Installing dein.vim..."
         curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh > /tmp/installer.sh
@@ -187,6 +222,12 @@ setup_vim() {
         rm /tmp/installer.sh
         success "dein.vim installed"
     fi
+    
+    # Setup git
+    setup_git_config
+    
+    # Setup AI tools
+    setup_ai_tools
 }
 
 # Setup Zsh
@@ -228,27 +269,67 @@ create_xdg_dirs() {
     mkdir -p "$HOME/.cache"
 }
 
+# Setup git configuration
+setup_git_config() {
+    info "Setting up git configuration..."
+    
+    # Git secrets
+    if command_exists git-secrets; then
+        mkdir -p ~/.config/git/templates/git-secrets
+        git secrets --install ~/.config/git/templates/git-secrets >/dev/null 2>&1
+        git config --global init.templateDir ~/.config/git/templates/git-secrets
+        git secrets --register-aws >/dev/null 2>&1
+        success "git-secrets configured"
+    fi
+}
+
+# Setup AI tools
+setup_ai_tools() {
+    info "Setting up AI development tools..."
+    
+    # GitHub Copilot CLI
+    if command_exists gh; then
+        if ! gh extension list | grep -q "github/gh-copilot"; then
+            gh extension install github/gh-copilot || warning "Failed to install GitHub Copilot CLI"
+        fi
+    fi
+    
+    # Setup npm packages
+    setup_npm_packages
+}
+
 # Post install message
 post_install() {
     success "Bootstrap completed!"
     
-    # Show summary if function exists
-    if command_exists show_summary; then
-        show_summary
-    fi
+    local class=$(get_yadm_class)
+    echo
+    echo "================================"
+    echo "  Bootstrap Summary"
+    echo "  Class: $class"
+    echo "  OS: $(uname -s)"
+    echo "================================"
+    echo
+    
+    # Show installed tools
+    echo "Checking installed tools:"
+    local tools=("git" "zsh" "tmux" "mise" "rg" "fd" "bat" "fzf")
+    for tool in "${tools[@]}"; do
+        if command_exists "$tool"; then
+            echo "  ✓ $tool"
+        else
+            echo "  ✗ $tool (not installed)"
+        fi
+    done
     
     echo
     echo "Next steps:"
-    if [[ -f "$HOME/.zshenv" ]]; then
-        echo "1. Restart your shell or run: source ~/.zshenv && source $ZDOTDIR/.zshrc"
-    else
-        echo "1. Restart your shell or run: exec zsh"
-    fi
-    echo "2. Check yadm status: yadm status"
-    echo "3. Run 'yadm alt' to create alternative files"
+    echo "1. Restart your shell: exec zsh"
+    echo "2. Run: yadm alt   # Generate alternates"
+    echo "3. Run: yadm encrypt   # Encrypt sensitive files"
     echo
     info "パパッと楽に理想の環境を手に入れました！"
     
-    # Save completion timestamp
+    # Save completion
     echo "Bootstrap completed at: $(date)" >> "${BOOTSTRAP_LOG:-/dev/null}"
 }
