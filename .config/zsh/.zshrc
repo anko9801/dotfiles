@@ -32,9 +32,6 @@ export PATH="$HOME/.npm-global/bin:$PATH"
 # OS-specific environment (via yadm alternates)
 [[ -f $XDG_CONFIG_HOME/zsh/env.zsh ]] && source $XDG_CONFIG_HOME/zsh/env.zsh
 
-# 1Password SSH Agent configuration (via yadm alternates)
-[[ -f $XDG_CONFIG_HOME/zsh/1password.zsh ]] && source $XDG_CONFIG_HOME/zsh/1password.zsh
-
 # History configuration
 export HISTFILE=${HOME}/.zhistory
 export HISTSIZE=10000
