@@ -142,5 +142,3 @@ if command -v fzf &>/dev/null; then
     eval "$(fzf --zsh)" 2>/dev/null || true
 fi
 
-# WSL2 specific configurations (via yadm alternates on Linux)
-[[ -f $XDG_CONFIG_HOME/zsh/wsl2.zsh ]] && source $XDG_CONFIG_HOME/zsh/wsl2.zsh
