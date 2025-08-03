@@ -16,7 +16,7 @@ NODE_OPTIONS = "--max-old-space-size=4096"
 [tools]
 # Languages
 node = "lts"
-ruby = "latest"
+# ruby = "latest"  # Skip ruby in CI - takes too long to build
 go = "latest"
 rust = "latest"
 uv = "latest"
