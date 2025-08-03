@@ -152,6 +152,19 @@ create_xdg_dirs() {
 }
 
 # Post install message
+# Setup git hooks
+setup_git_hooks() {
+    info "Setting up git hooks..."
+    
+    # Link pre-commit hook for yadm repository
+    if [[ -d "$HOME/.local/share/yadm/repo.git" ]]; then
+        ln -sf "$HOME/.config/git/hooks/pre-commit" "$HOME/.local/share/yadm/repo.git/hooks/pre-commit"
+        success "Git hooks configured for yadm repository"
+    else
+        warning "yadm repository not found, skipping git hooks"
+    fi
+}
+
 post_install() {
     success "Bootstrap completed!"
     echo
