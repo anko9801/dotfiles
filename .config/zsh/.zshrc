@@ -111,6 +111,7 @@ zinit wait lucid for \
     blockf atpull'zinit creinstall -q .' \
         zsh-users/zsh-completions
 
+
 # External tool integrations (lazy loaded)
 command -v mise &> /dev/null && eval "$(mise activate zsh)"
 command -v starship &> /dev/null && eval "$(starship init zsh)"
@@ -118,9 +119,9 @@ command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 
 # Source configurations
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
-[[ -f /usr/local/share/zsh-abbr/zsh-abbr.zsh ]] && {
-    source /usr/local/share/zsh-abbr/zsh-abbr.zsh
-    FPATH=/usr/local/share/zsh-abbr:$FPATH
-}
 [[ -f $XDG_CONFIG_HOME/zsh/init-abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/init-abbr.zsh
 [[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]] && source $XDG_CONFIG_HOME/zsh/copilot.zsh
+[[ -f $XDG_CONFIG_HOME/zsh/plugins.zsh ]] && source $XDG_CONFIG_HOME/zsh/plugins.zsh
+
+# WSL2 specific configurations
+[[ -f $XDG_CONFIG_HOME/shell/wsl2.sh ]] && source $XDG_CONFIG_HOME/shell/wsl2.sh
