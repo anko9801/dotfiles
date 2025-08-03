@@ -9,15 +9,9 @@
 !.gitignore
 !.zshenv
 
-# But still ignore sensitive files
+# But still ignore sensitive files within whitelisted directories
 .ssh/id_*
 .ssh/known_hosts
 .ssh/authorized_keys
 .config/*/cache/
 .config/yadm/repo.git/
-
-# System files
-.DS_Store
-*.swp
-*~
-.*.swp
