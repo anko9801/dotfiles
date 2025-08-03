@@ -50,7 +50,8 @@
 
 [gpg]
     format = ssh
-    ssh.allowedSignersFile = ~/.config/git/allowed_signers
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers
 
 [help]
   autocorrect = prompt
