@@ -89,12 +89,11 @@ if command -v gh &>/dev/null; then
     fi
 fi
 
-# 7. Setup Zsh and zinit
+# 7. Setup Zsh and antidote
 info "Setting up Zsh..."
-if [[ ! -d "$HOME/.local/share/zsh/zinit" ]]; then
-    mkdir -p ~/.local/share/zsh
-    git clone https://github.com/zdharma-continuum/zinit.git ~/.local/share/zsh/zinit/bin
-    success "zinit installed"
+if [[ ! -d "${ZDOTDIR:-$HOME}/.antidote" ]]; then
+    git clone --depth=1 https://github.com/mattmc3/antidote.git "${ZDOTDIR:-$HOME}/.antidote"
+    success "antidote installed"
 fi
 
 # 8. macOS system settings (optional, at the end)
@@ -123,7 +122,7 @@ echo "Installed tools:"
 echo "  ✓ Homebrew packages (via Brewfile)"
 echo "  ✓ mise with all configured tools"
 echo "  ✓ Development tools and Git configuration"
-echo "  ✓ Zsh with zinit"
+echo "  ✓ Zsh with antidote"
 [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "false" ]] && echo "  ✓ macOS settings"
 echo
 echo "Configuration: class=$(yadm config local.class || echo "personal")"
