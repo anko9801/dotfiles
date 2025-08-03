@@ -127,14 +127,24 @@ fi
 echo "Generating configuration files..."
 yadm alt
 
+# Debug: Show what yadm alt did
+echo "DEBUG: After yadm alt, checking files..."
+ls -la "$BOOTSTRAP_DIR"/ || true
+
+# Wait a moment for alternates to be processed
+sleep 1
+
 # Run OS-specific installation
 echo
 echo "Running OS-specific installation..."
 if [[ -x "$BOOTSTRAP_DIR/install" ]]; then
+    echo "Found install script at: $BOOTSTRAP_DIR/install"
     exec "$BOOTSTRAP_DIR/install" "$@"
 else
-    echo "Error: OS-specific install script not found"
-    echo "Available files:"
-    ls -la "$BOOTSTRAP_DIR"/install*
+    echo "Error: OS-specific install script not found or not executable"
+    echo "Available files in $BOOTSTRAP_DIR:"
+    ls -la "$BOOTSTRAP_DIR"/install* || true
+    echo "Checking if symlink exists:"
+    file "$BOOTSTRAP_DIR/install" || true
     exit 1
 fi
