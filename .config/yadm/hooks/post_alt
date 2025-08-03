@@ -71,5 +71,54 @@ EOF
     fi
 }
 
-# Run the setup
+# Post-alt hook - runs after yadm creates alternates/templates
+echo "Running post-alt hook..."
+
+# Setup 1Password SSH
 setup_1password_ssh
+
+# Regenerate compiled configurations
+regenerate_configs() {
+    echo "Regenerating compiled configurations..."
+    
+    # Reload tmux config if tmux is running
+    if command -v tmux >/dev/null 2>&1 && tmux list-sessions >/dev/null 2>&1; then
+        echo "Reloading tmux configuration..."
+        tmux source-file "$HOME/.config/tmux/tmux.conf" || true
+    fi
+    
+    # Reload starship if shell is running
+    if command -v starship >/dev/null 2>&1; then
+        echo "Starship configuration updated. Restart your shell to see changes."
+    fi
+    
+    # Update atuin if installed
+    if command -v atuin >/dev/null 2>&1; then
+        echo "Atuin configuration updated."
+    fi
+}
+
+# Set correct permissions
+set_permissions() {
+    echo "Setting correct permissions..."
+    
+    # SSH directory
+    if [[ -d "$HOME/.ssh" ]]; then
+        chmod 700 "$HOME/.ssh"
+        find "$HOME/.ssh" -type f -name "id_*" ! -name "*.pub" -exec chmod 600 {} \;
+        find "$HOME/.ssh" -type f -name "*.pub" -exec chmod 644 {} \;
+        [[ -f "$HOME/.ssh/config" ]] && chmod 600 "$HOME/.ssh/config"
+    fi
+    
+    # GPG directory
+    if [[ -d "$HOME/.gnupg" ]]; then
+        chmod 700 "$HOME/.gnupg"
+        find "$HOME/.gnupg" -type f -exec chmod 600 {} \;
+    fi
+}
+
+# Run all setup functions
+regenerate_configs
+set_permissions
+
+echo "Post-alt hook completed!"

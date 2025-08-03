@@ -1,3 +1,97 @@
+# YADM Configuration
+
+このリポジトリはyadmの機能をフル活用しています。
+
+## yadm機能の活用
+
+### 1. Templates (テンプレート)
+動的な設定生成のためにテンプレートを使用：
+
+- `.config/tmux/tmux.conf##template` - OS別のシェルパスと設定
+- `.config/starship.toml##template` - マシンクラス別のプロンプト
+- `.ssh/config##template` - OS別のSSHエージェントパス
+- `.gitconfig##template` - 環境別のGit設定
+
+### 2. Alternates (代替ファイル)
+OS/ディストロ/ホスト名別の設定：
+
+- `.config/shell/env##os.Darwin` - macOS用環境変数
+- `.config/shell/env##os.Linux` - Linux用環境変数
+- `.config/atuin/config.toml##class.work` - 仕事用マシンの設定
+- `.config/atuin/config.toml##class.personal` - 個人用マシンの設定
+
+### 3. Encryption (暗号化)
+機密ファイルの暗号化（`.config/yadm/encrypt`で定義）：
+
+- SSH秘密鍵
+- GPG鍵
+- 環境変数ファイル（.env）
+- AWS認証情報
+- その他の機密設定
+
+### 4. Hooks (フック)
+自動化されたタスク：
+
+- `pre_commit` - コミット前のチェック（lint、フォーマット等）
+- `post_alt` - テンプレート生成後の設定（権限、再読み込み）
+- `post_checkout` - チェックアウト後のクリーンアップ
+
+### 5. Classes (クラス)
+マシンタイプ別の設定：
+
+```bash
+# クラスを設定
+yadm config local.class work     # 仕事用マシン
+yadm config local.class personal # 個人用マシン
+yadm config local.class server   # サーバー
+```
+
+## 使い方
+
+### 初期セットアップ
+
+```bash
+# yadmをインストール
+brew install yadm  # macOS
+# または
+sudo apt install yadm  # Ubuntu
+
+# リポジトリをクローン
+yadm clone https://github.com/yourusername/dotfiles.git
+
+# クラスを設定（オプション）
+yadm config local.class personal
+
+# 代替ファイルとテンプレートを生成
+yadm alt
+
+# Bootstrapを実行
+yadm bootstrap
+```
+
+### 暗号化されたファイルの管理
+
+```bash
+# 暗号化
+yadm encrypt
+
+# 復号化
+yadm decrypt
+
+# 暗号化されたファイルのリストを表示
+yadm list -a
+```
+
+### テンプレート変数のカスタマイズ
+
+`.config/yadm/config.local`を作成して変数を設定：
+
+```ini
+yadm.class = "work"
+yadm.shell = "/opt/homebrew/bin/zsh"
+yadm.terminal = "wezterm"
+```
+
 # YADM Bootstrap System
 
 ## Overview

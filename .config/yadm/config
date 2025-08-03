@@ -1,15 +1,25 @@
-# yadm configuration
+# yadm configuration file
+# https://yadm.io/docs/config
 
-# Template variables for .gitconfig generation
-# These should be set by each user after cloning
-yadm.user = "Daiki Usami"
-yadm.email = "d_usami@no9.co.jp"
+# Local overrides (not committed to repository)
+# Copy this file to ~/.config/yadm/config.local and modify as needed
 
-# Auto-update submodules
-yadm.auto-submodules = true
+# Set yadm class (work, personal, server)
+# yadm.class = "personal"
 
-# Enable git-crypt if available
-yadm.git-crypt = true
+# Custom template variables
+# yadm.shell = "/opt/homebrew/bin/zsh"
+# yadm.workspace = "~/workspace"
+# yadm.terminal = "iterm2"
 
-# Git settings
-yadm.git-dir = "~/.local/share/yadm/repo.git"
+# Git configuration for yadm repository
+# yadm.git-config.user.email = "your-email@example.com"
+# yadm.git-config.user.name = "Your Name"
+
+# Auto-commit changes
+# yadm.auto-commit = true
+# yadm.auto-commit-msg = "Auto-commit from {hostname}"
+
+# Encryption settings
+# yadm.cipher = "gpg"  # or "openssl"
+# yadm.gpg-recipient = "your-gpg-key-id"

@@ -1,5 +1,9 @@
 # tmux起動時のシェルをzshにする
-set-option -g default-shell /bin/zsh
+{% if yadm.os == "Darwin" %}
+set-option -g default-shell /opt/homebrew/bin/zsh
+{% else %}
+set-option -g default-shell /usr/bin/zsh
+{% endif %}
 
 # tmuxを256色表示できるようにする
 set-option -g default-terminal screen-256color
@@ -24,7 +28,11 @@ set-option -g status-left '#H:[#P]'
 
 # Wi-Fi、バッテリー残量、現在時刻
 # 最右に表示
+{% if yadm.os == "Darwin" %}
 set-option -g status-right '#(wifi) #(battery --tmux) [%Y-%m-%d(%a) %H:%M]'
+{% else %}
+set-option -g status-right '[%Y-%m-%d(%a) %H:%M]'
+{% endif %}
 
 # ステータスバーを1秒毎に描画し直す
 set-option -g status-interval 1
@@ -153,7 +161,11 @@ set -g @resurrect-strategy-nvim 'session'        # neovimセッションも復�
 
 # tmux-continuum settings
 set -g @continuum-boot 'on'                      # PC起動時にtmux自動起動
+{% if yadm.os == "Darwin" %}
 set -g @continuum-boot-options 'iterm'           # iTerm2で起動
+{% else %}
+set -g @continuum-boot-options 'gnome-terminal'  # GNOME Terminalで起動
+{% endif %}
 set -g @continuum-restore 'on'                   # tmux起動時に自動復元
 set -g @continuum-save-interval '15'             # 15分ごとに自動保存
 

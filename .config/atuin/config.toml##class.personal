@@ -1,0 +1,37 @@
+# Atuin configuration
+# https://docs.atuin.sh/configuration/config/
+
+## Sync configuration
+# sync_frequency = "1h"
+# sync_address = "https://api.atuin.sh"
+
+## Search configuration
+search_mode = "fuzzy"    # exact, prefix, fulltext, fuzzy
+filter_mode = "global"   # global, host, session, directory
+filter_mode_shell_up_key_binding = "session"
+show_preview = true
+invert = false
+exit_mode = "return-query"
+
+## Style
+style = "auto"          # full, compact, auto
+
+## History settings
+max_history_length = 10000
+history_filter = [
+    "^ls",
+    "^cd",
+    "^pwd",
+    "^exit",
+    "^history",
+    "^clear",
+]
+
+## Behavior
+enter_accept = true
+secrets_filter = true
+show_help = false
+
+## Key bindings (for reference - set in shell config)
+# ctrl-r : history search
+# up-arrow: filter by session
