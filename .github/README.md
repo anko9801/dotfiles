@@ -25,7 +25,7 @@ yadm bootstrap
 - **冪等性** - 何度実行しても同じ結果
 
 dotfiles管理の3つのアプローチ：
-1. **シンボリックリンク** (GNU Stow) → Windowsでリンクを追従しないことがあったり、特定のパーミッションを要求された時のエッジケースが辛い
+1. **シンボリックリンク** (GNU Stow) → Windowsでエッジケースが多い
 2. **ファイルコピー** (chezmoi) → Single Source of Truthじゃない
 3. **Bare Git** → 管理は楽だが、誤操作リスク・OS別設定・機密管理に課題
 
