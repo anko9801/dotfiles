@@ -27,9 +27,9 @@ yadm bootstrap
 dotfiles管理の3つのアプローチ：
 1. **シンボリックリンク** (GNU Stow) → 管理スクリプトが必要
 2. **ファイルコピー** (chezmoi) → Single Source of Truthじゃない
-3. **Bare Git** (yadm) → 導入は手間だが管理が楽
+3. **Bare Git** → 管理は楽だが、誤操作リスク・OS別設定・機密管理に課題
 
-**yadm**はBare Gitの欠点（導入時マージ問題）を解決し、テンプレート・暗号化・フックまで統合した最適解：
+**yadm**はBare Gitの管理しやすさを保ちつつ、全ての欠点を解決した最適解：
 
 - **テンプレート**: Jinja2構文で動的設定生成（`##template`）
 - **Alternates**: OS・クラス・ホスト別ファイル切り替え（`##os.Darwin`, `##class.work`）
