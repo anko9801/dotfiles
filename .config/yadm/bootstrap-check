@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pre-bootstrap checks and configuration
+# Pre-bootstrap configuration
 
 set -e
 
@@ -8,48 +8,32 @@ echo "     YADM Bootstrap Configuration     "
 echo "======================================"
 echo
 
-# Check yadm
-if ! command -v yadm >/dev/null 2>&1; then
-    echo "Error: yadm is not installed"
-    echo "Please install yadm first:"
-    echo "  macOS: brew install yadm"
-    echo "  Linux: sudo apt install yadm"
-    exit 1
-fi
-
-# Show current configuration
-echo "Current Configuration:"
-echo "---------------------"
-echo "OS: $(uname -s)"
-echo "Hostname: $(hostname)"
-echo "User: $USER"
-
-# Check yadm class
+# Check current class
 current_class=$(yadm config local.class 2>/dev/null || echo "not set")
-echo "YADM Class: $current_class"
-echo
 
 # Set or change class
 if [[ "$current_class" == "not set" ]]; then
     echo "No yadm class is set. Please choose one:"
 else
-    echo "Current class is '$current_class'. Change it?"
+    echo "Current class: $current_class"
+    echo
+    read -p "Change class? (y/N): " -n 1 -r
+    echo
+    [[ ! $REPLY =~ ^[Yy]$ ]] && exit 0
 fi
 
 echo "1) personal - Personal machine"
 echo "2) work     - Work machine"
 echo "3) server   - Server/headless machine"
-echo "4) keep     - Keep current setting"
 echo
 
-read -p "Select class [1-4]: " -n 1 -r
+read -p "Select class [1-3]: " -n 1 -r
 echo
 
 case "$REPLY" in
     1) yadm config local.class personal ;;
     2) yadm config local.class work ;;
     3) yadm config local.class server ;;
-    4) ;;
     *) echo "Invalid selection"; exit 1 ;;
 esac
 
@@ -57,57 +41,33 @@ esac
 echo
 echo "Bootstrap will install:"
 echo "----------------------"
-class=$(yadm config local.class || echo "personal")
-echo "- Base packages (git, curl, tmux, etc.)"
-echo "- Modern CLI tools (ripgrep, fd, bat, etc.)"
-echo "- Shell environment (zsh, starship)"
-echo "- Development tools (vim, neovim, mise)"
+class=$(yadm config local.class)
 
 case "$class" in
     work)
-        echo "- Work tools (aws, terraform, docker, k8s)"
-        echo "- Security tools (vault, consul)"
+        echo "- Standard dev tools + Work tools (AWS, Docker, K8s)"
         ;;
     personal)
-        echo "- Media tools (ffmpeg, imagemagick)"
-        echo "- Personal apps (obsidian, spotify)"
+        echo "- Standard dev tools + Media tools (ffmpeg, etc.)"
         ;;
     server)
-        echo "- Server tools (htop, ncdu, fail2ban)"
-        echo "- Minimal GUI applications"
+        echo "- Minimal tools for server environment"
         ;;
 esac
 
-echo
-echo "Configuration Options:"
-echo "--------------------"
-
-# Ask about optional installations
-read -p "Install optional packages? (y/N): " -n 1 -r
-echo
-export YADM_BOOTSTRAP_OPTIONAL="${REPLY,,}"
-
-if [[ "$(uname -s)" == "Darwin" ]]; then
-    read -p "Configure macOS settings? (Y/n): " -n 1 -r
-    echo
-    [[ "$REPLY" =~ ^[Nn]$ ]] && export YADM_BOOTSTRAP_MACOS_SETTINGS="false"
-fi
-
-# Generate alternates before bootstrap
+# Generate alternates
 echo
 echo "Generating configuration files..."
 yadm alt
 
 echo
-echo "Ready to bootstrap!"
-echo
-read -p "Continue? (Y/n): " -n 1 -r
+read -p "Start bootstrap? (Y/n): " -n 1 -r
 echo
 
-if [[ ! "$REPLY" =~ ^[Yy]$ ]] && [[ -n "$REPLY" ]]; then
+if [[ $REPLY =~ ^[Nn]$ ]]; then
     echo "Bootstrap cancelled"
     exit 0
 fi
 
 echo "Starting bootstrap..."
-echo
+exec yadm bootstrap
