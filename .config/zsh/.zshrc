@@ -29,15 +29,8 @@ export PATH="$GOPATH/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.npm-global/bin:$PATH"
 
-# OS-specific environment
-case "$(uname -s)" in
-    Darwin)
-        [[ -f $XDG_CONFIG_HOME/zsh/env-darwin.zsh ]] && source $XDG_CONFIG_HOME/zsh/env-darwin.zsh
-        ;;
-    Linux)
-        [[ -f $XDG_CONFIG_HOME/zsh/env-linux.zsh ]] && source $XDG_CONFIG_HOME/zsh/env-linux.zsh
-        ;;
-esac
+# OS-specific environment (via yadm alternates)
+[[ -f $XDG_CONFIG_HOME/zsh/env.zsh ]] && source $XDG_CONFIG_HOME/zsh/env.zsh
 
 # History configuration
 export HISTFILE=${HOME}/.zhistory
@@ -146,5 +139,5 @@ if command -v fzf &>/dev/null; then
     eval "$(fzf --zsh)" 2>/dev/null || true
 fi
 
-# WSL2 specific configurations
+# WSL2 specific configurations (via yadm alternates on Linux)
 [[ -f $XDG_CONFIG_HOME/zsh/wsl2.zsh ]] && source $XDG_CONFIG_HOME/zsh/wsl2.zsh
