@@ -1,10 +1,18 @@
 [general]
 # ghq root directories
+{% if yadm.class == "work" %}
+root = ["~/work/repos", "~/work/go/src"]
+{% else %}
 root = ["~/repos", "~/go/src"]
+{% endif %}
 
 # Default directory for ghq get
 # If not specified, the first directory in root is used
+{% if yadm.class == "work" %}
+default_root = "~/work/repos"
+{% else %}
 default_root = "~/repos"
+{% endif %}
 
 [vcs]
 # Use SSH for GitHub by default
