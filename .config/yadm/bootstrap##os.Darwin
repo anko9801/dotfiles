@@ -54,14 +54,7 @@ fi
 if command -v mise &>/dev/null; then
     info "Setting up mise..."
     export PATH="$HOME/.local/bin:$PATH"
-    # Detect current shell and activate accordingly
-    if [[ -n "$ZSH_VERSION" ]]; then
-        eval "$(mise activate zsh)"
-    elif [[ -n "$BASH_VERSION" ]]; then
-        eval "$(mise activate bash)"
-    else
-        eval "$(mise activate sh)"
-    fi
+    eval "$(mise activate bash)"
     
     # Install and set global versions
     mise install node@lts python@latest || true
