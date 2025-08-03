@@ -67,6 +67,47 @@ configure_yadm() {
         echo "Name: $current_name"
     fi
     
+    # Auto-commit configuration
+    echo
+    echo "Auto-commit Configuration:"
+    echo "-------------------------"
+    auto_commit=$(yadm config yadm.auto-commit 2>/dev/null || echo "false")
+    echo "Current: $auto_commit"
+    read -p "Enable auto-commit? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        set_config yadm.auto-commit true
+        set_config yadm.auto-commit-msg "Auto update from $(hostname)"
+    fi
+    
+    # Encryption configuration
+    echo
+    echo "Encryption Configuration:"
+    echo "------------------------"
+    cipher=$(yadm config yadm.cipher 2>/dev/null || echo "")
+    if [[ -z "$cipher" ]]; then
+        echo "1) gpg (recommended)"
+        echo "2) openssl"
+        echo "3) skip"
+        read -p "Select encryption method [1-3]: " -n 1 -r
+        echo
+        case "$REPLY" in
+            1) 
+                set_config yadm.cipher gpg
+                read -p "GPG key ID (or email): " gpg_key
+                [[ -n "$gpg_key" ]] && set_config yadm.gpg-recipient "$gpg_key"
+                ;;
+            2) 
+                set_config yadm.cipher openssl
+                ;;
+            3) 
+                echo "Skipping encryption setup"
+                ;;
+        esac
+    else
+        echo "Encryption: $cipher"
+    fi
+    
     echo
 }
 
