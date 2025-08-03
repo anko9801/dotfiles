@@ -83,33 +83,19 @@ function _update_vcs_info_msg() {
 RPROMPT="[%F{blue}%~%f%1(v|%F{green}%1v%f|)]"
 add-zsh-hook precmd _update_vcs_info_msg
 
-# Zinit plugin manager (optimized)
-ZINIT_HOME="$HOME/.zinit"
-if [[ ! -f $ZINIT_HOME/bin/zinit.zsh ]]; then
-    print -P "%F{33}Installing Zinit...%f"
-    command mkdir -p "$ZINIT_HOME" && command chmod g-rwX "$ZINIT_HOME"
-    command git clone https://github.com/zdharma/zinit "$ZINIT_HOME/bin" && \
-        print -P "%F{34}Zinit installed successfully%f" || \
-        print -P "%F{160}Zinit installation failed%f"
+# Antidote plugin manager
+ANTIDOTE_HOME="${ZDOTDIR:-$HOME}/.antidote"
+[[ -d $ANTIDOTE_HOME ]] || git clone --depth=1 https://github.com/mattmc3/antidote.git $ANTIDOTE_HOME
+
+# Source antidote
+source $ANTIDOTE_HOME/antidote.zsh
+
+# Initialize plugins
+zsh_plugins="${ZDOTDIR:-$HOME}/.zsh_plugins.txt"
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins} ]]; then
+  (antidote bundle <${zsh_plugins} >|${zsh_plugins}.zsh)
 fi
-
-source "$ZINIT_HOME/bin/zinit.zsh"
-autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
-
-# Load annexes
-zinit light-mode for \
-    zinit-zsh/z-a-rust \
-    zinit-zsh/z-a-as-monitor \
-    zinit-zsh/z-a-patch-dl \
-    zinit-zsh/z-a-bin-gem-node
-
-# Load plugins with turbo mode for better performance
-zinit wait lucid for \
-    atload"_zsh_highlight_set_highlighters" \
-        zsh-users/zsh-syntax-highlighting \
-    blockf atpull'zinit creinstall -q .' \
-        zsh-users/zsh-completions
+source ${zsh_plugins}.zsh
 
 
 # External tool integrations (lazy loaded)
@@ -119,9 +105,10 @@ command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 
 # Source configurations
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
-[[ -f $XDG_CONFIG_HOME/zsh/init-abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/init-abbr.zsh
 [[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]] && source $XDG_CONFIG_HOME/zsh/copilot.zsh
-[[ -f $XDG_CONFIG_HOME/zsh/plugins.zsh ]] && source $XDG_CONFIG_HOME/zsh/plugins.zsh
+# Load additional configurations
+[[ -f $XDG_CONFIG_HOME/zsh/init-abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/init-abbr.zsh
+[[ -f $XDG_CONFIG_HOME/zsh/fzf-tab-config.zsh ]] && source $XDG_CONFIG_HOME/zsh/fzf-tab-config.zsh
 
 # WSL2 specific configurations
 [[ -f $XDG_CONFIG_HOME/shell/wsl2.sh ]] && source $XDG_CONFIG_HOME/shell/wsl2.sh

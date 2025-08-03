@@ -114,3 +114,8 @@ abbr -S yaml="yq"
 
 # Shell utilities
 abbr -S reload="source \$ZDOTDIR/.zshrc"
+
+# Kubernetes abbreviations
+abbr -S k="kubectl"
+abbr -S kx="kubectx"
+abbr -S kn="kubens"
