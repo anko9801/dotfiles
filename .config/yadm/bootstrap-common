@@ -63,17 +63,38 @@ setup_npm_packages() {
     info "npm packages are managed by mise - see .config/mise/config.toml"
 }
 
-# Setup Zsh without .zshenv
-setup_zsh_no_zshenv() {
-    info "Setting up zsh configuration without .zshenv..."
+# Setup system-wide ZDOTDIR (requires sudo)
+setup_system_zdotdir() {
+    info "Setting up system-wide ZDOTDIR configuration..."
     
-    # Remove .zshenv if it exists
-    [[ -f "$HOME/.zshenv" ]] && rm -f "$HOME/.zshenv"
+    local system_zshenv="/etc/zsh/zshenv"
+    local zdotdir_line='export ZDOTDIR="$HOME/.config/zsh"'
     
-    # Create symlink from ~/.zshrc to actual config
-    ln -sf "$HOME/.config/zsh/.zshrc" "$HOME/.zshrc"
+    # Check if already configured
+    if [[ -f "$system_zshenv" ]] && grep -q "ZDOTDIR" "$system_zshenv"; then
+        info "ZDOTDIR already configured in $system_zshenv"
+        return 0
+    fi
     
-    success "Zsh configured with symlink (no .zshenv needed)"
+    # Ask for confirmation
+    warning "This requires sudo access to modify $system_zshenv"
+    echo "Do you want to add ZDOTDIR to system configuration? (y/N)"
+    read -r response
+    
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        # Create /etc/zsh directory if it doesn't exist
+        [[ ! -d "/etc/zsh" ]] && sudo mkdir -p /etc/zsh
+        
+        # Add ZDOTDIR configuration
+        echo "$zdotdir_line" | sudo tee -a "$system_zshenv" > /dev/null
+        
+        # Remove .zshenv from home if it exists
+        [[ -f "$HOME/.zshenv" ]] && rm -f "$HOME/.zshenv"
+        
+        success "System-wide ZDOTDIR configured (no .zshenv needed!)"
+    else
+        info "Skipping system configuration. Using .zshenv instead."
+    fi
 }
 
 # Setup Vim
