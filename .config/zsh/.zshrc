@@ -37,14 +37,14 @@ path_components=(
     "$HOME/.cargo/bin"
     "$HOME/.npm-global/bin"
 )
-[[ -e $HOME/path ]] && path_components+=("$HOME/path")
+[[ -e "$HOME/path" ]] && path_components+=("$HOME/path")
 export PATH="${(j.:.)path_components}:$PATH"
 
 # OS固有の環境変数を読み込み
-[[ -f $XDG_CONFIG_HOME/zsh/env.zsh ]] && source $XDG_CONFIG_HOME/zsh/env.zsh
+[[ -f "$XDG_CONFIG_HOME/zsh/env.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/env.zsh"
 
 # 略語定義
-[[ -f $XDG_CONFIG_HOME/zsh/abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/abbr.zsh
+[[ -f "$XDG_CONFIG_HOME/zsh/abbr.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/abbr.zsh"
 
 # ------------------------------------------------------------------------------
 # 履歴設定
@@ -81,7 +81,7 @@ setopt correct                # コマンドのスペルを訂正
 # ------------------------------------------------------------------------------
 # 補完機能の初期化
 autoload -Uz compinit
-if [[ -n $HOME/.zcompdump(#qN.mh+24) ]]; then
+if [[ -n "$HOME/.zcompdump"(#qN.mh+24) ]]; then
     compinit
 else
     compinit -C
@@ -138,31 +138,31 @@ add-zsh-hook precmd _update_vcs_info_msg
 # プラグインマネージャー (Antidote)
 # ------------------------------------------------------------------------------
 ANTIDOTE_HOME="${ZDOTDIR:-$HOME}/.antidote"
-[[ -d $ANTIDOTE_HOME ]] || git clone --depth=1 https://github.com/mattmc3/antidote.git $ANTIDOTE_HOME
+[[ -d "$ANTIDOTE_HOME" ]] || git clone --depth=1 https://github.com/mattmc3/antidote.git "$ANTIDOTE_HOME"
 
-source $ANTIDOTE_HOME/antidote.zsh
+source "$ANTIDOTE_HOME/antidote.zsh"
 
 # プラグインの読み込み
 zsh_plugins="${ZDOTDIR:-$HOME}/.zsh_plugins.txt"
-if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins} ]]; then
-    (antidote bundle <${zsh_plugins} >|${zsh_plugins}.zsh)
+if [[ ! "${zsh_plugins}.zsh" -nt "${zsh_plugins}" ]]; then
+    (antidote bundle <"${zsh_plugins}" >|"${zsh_plugins}.zsh")
 fi
-source ${zsh_plugins}.zsh
+source "${zsh_plugins}.zsh"
 
 # ------------------------------------------------------------------------------
 # ツール統合
 # ------------------------------------------------------------------------------
 # mise（ツールバージョン管理）
-command -v mise &> /dev/null && eval "$(mise activate zsh)"
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
 # starship（プロンプト）
-command -v starship &> /dev/null && eval "$(starship init zsh)"
+command -v starship &>/dev/null && eval "$(starship init zsh)"
 
 # zoxide（スマートcd）
-command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
+command -v zoxide &>/dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 
 # fzf（ファジー検索）
-command -v fzf &> /dev/null && eval "$(fzf --zsh)"
+command -v fzf &>/dev/null && eval "$(fzf --zsh)"
 
 # ------------------------------------------------------------------------------
 # プラグイン設定
