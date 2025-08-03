@@ -18,7 +18,11 @@ warning() { echo -e "${YELLOW}!${NC} $1"; }
 
 info "Running Linux bootstrap..."
 
-# Detect distribution
+# 1. Create necessary directories first
+info "Creating directories..."
+mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
+
+# 2. Detect distribution
 if [[ -f /etc/os-release ]]; then
     . /etc/os-release
     DISTRO="${ID,,}"
@@ -28,64 +32,120 @@ fi
 
 info "Detected distribution: $DISTRO"
 
-# Function to install Ubuntu modern tools
-install_ubuntu_tools() {
-    local tmp_dir=$(mktemp -d)
-    cd "$tmp_dir"
-    
-    # ripgrep
-    if ! command -v rg &>/dev/null; then
-        curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb"
-        sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
-    fi
-    
-    # fd
-    if ! command -v fd &>/dev/null; then
-        curl -LO "https://github.com/sharkdp/fd/releases/download/v9.0.0/fd_9.0.0_amd64.deb"
-        sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
-    fi
-    
-    # bat
-    if ! command -v bat &>/dev/null; then
-        curl -LO "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb"
-        sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
-    fi
-    
-    cd - && rm -rf "$tmp_dir"
-}
-
-# Update package manager and install base packages
+# 3. Update package manager and install packages based on distribution
 case "$DISTRO" in
     ubuntu|debian)
+        info "Updating apt repositories..."
         sudo apt update
-        sudo apt install -y \
-            git curl wget tmux tree jq \
-            build-essential \
-            zsh fish neovim \
-            python3 python3-pip nodejs npm
         
-        # Install modern tools
-        install_ubuntu_tools
+        info "Installing base packages..."
+        sudo apt install -y \
+            curl wget git \
+            build-essential software-properties-common \
+            zsh tmux neovim \
+            tree jq \
+            python3 python3-pip \
+            nodejs npm
+        
+        # Add repositories for modern tools
+        info "Adding PPAs for modern tools..."
+        
+        # GitHub CLI
+        if ! command -v gh &>/dev/null; then
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install -y gh
+        fi
+        
+        # Install tools available in apt
+        info "Installing available tools from apt..."
+        local apt_tools=(fzf git-secrets)
+        for tool in "${apt_tools[@]}"; do
+            sudo apt install -y "$tool" || warning "Failed to install $tool"
+        done
+        
+        # Install modern CLI tools via .deb files
+        info "Installing modern CLI tools..."
+        local tmp_dir=$(mktemp -d)
+        cd "$tmp_dir"
+        
+        # ripgrep
+        if ! command -v rg &>/dev/null; then
+            info "Installing ripgrep..."
+            curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb"
+            sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # fd
+        if ! command -v fd &>/dev/null; then
+            info "Installing fd..."
+            curl -LO "https://github.com/sharkdp/fd/releases/download/v9.0.0/fd_9.0.0_amd64.deb"
+            sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # bat
+        if ! command -v bat &>/dev/null; then
+            info "Installing bat..."
+            curl -LO "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb"
+            sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # eza (modern ls)
+        if ! command -v eza &>/dev/null; then
+            info "Installing eza..."
+            curl -LO "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
+            tar -xzf eza_*.tar.gz
+            sudo mv eza /usr/local/bin/
+        fi
+        
+        cd - && rm -rf "$tmp_dir"
+        
+        # Install from cargo if Rust is available
+        if command -v cargo &>/dev/null; then
+            info "Installing Rust-based tools..."
+            cargo install zoxide starship atuin || true
+        else
+            # Install starship directly
+            if ! command -v starship &>/dev/null; then
+                info "Installing starship..."
+                curl -sS https://starship.rs/install.sh | sh -s -- -y
+            fi
+        fi
         ;;
         
     arch|manjaro)
+        info "Updating pacman..."
         sudo pacman -Syu --noconfirm
+        
+        info "Installing packages..."
         sudo pacman -S --noconfirm \
             git curl wget tmux tree jq yq \
             base-devel \
             zsh fish neovim \
             ripgrep fd bat fzf gh \
-            eza zoxide starship \
-            python nodejs npm go rust
+            eza zoxide starship atuin \
+            python nodejs npm go rust \
+            git-secrets
         ;;
         
     fedora)
+        info "Updating dnf..."
         sudo dnf update -y
+        
+        info "Installing packages..."
         sudo dnf install -y \
             git curl wget tmux tree jq \
             @development-tools \
             zsh fish neovim \
-            python3 nodejs npm
+            python3 nodejs npm \
+            ripgrep fd-find bat fzf gh \
+            git-secrets
+        
+        # Install tools not in standard repos
+        if ! command -v starship &>/dev/null; then
+            curl -sS https://starship.rs/install.sh | sh -s -- -y
+        fi
         ;;
         
     *)
@@ -94,7 +154,7 @@ case "$DISTRO" in
         ;;
 esac
 
-# Install mise
+# 4. Install mise (version manager)
 if ! command -v mise &>/dev/null; then
     info "Installing mise..."
     curl https://mise.run | sh
@@ -102,49 +162,63 @@ if ! command -v mise &>/dev/null; then
     success "mise installed"
 fi
 
-# Setup mise tools
+# 5. Setup mise tools and language runtimes
 if command -v mise &>/dev/null; then
-    eval "$(mise activate bash)" || true
+    info "Setting up mise..."
+    eval "$(mise activate bash)"
+    
+    # Install and set global versions
     mise install node@lts python@latest || true
     mise use -g node@lts python@latest || true
+    success "mise configured"
 fi
 
-# Setup development environment
-info "Setting up development environment..."
+# 6. Setup development tools (requires languages from mise)
+info "Setting up development tools..."
 
-# Create necessary directories
-mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
-
-# Setup git-secrets if available
+# Git secrets configuration
 if command -v git-secrets &>/dev/null; then
     mkdir -p ~/.config/git/templates/git-secrets
     git secrets --install ~/.config/git/templates/git-secrets >/dev/null 2>&1 || true
     git config --global init.templateDir ~/.config/git/templates/git-secrets
     git secrets --register-aws >/dev/null 2>&1 || true
+    success "git-secrets configured"
 fi
 
-# Install npm packages
+# Install global npm packages (requires node from mise)
 if command -v npm &>/dev/null; then
+    info "Installing npm packages..."
     npm install -g aicommits || true
 fi
 
-# Install GitHub Copilot CLI
+# Install GitHub Copilot CLI extension
 if command -v gh &>/dev/null; then
-    gh extension install github/gh-copilot 2>/dev/null || true
+    if ! gh extension list | grep -q "github/gh-copilot"; then
+        gh extension install github/gh-copilot || true
+    fi
 fi
 
-# Setup Zsh
+# 7. Setup Zsh and zinit
 info "Setting up Zsh..."
 if [[ ! -d "$HOME/.local/share/zsh/zinit" ]]; then
     mkdir -p ~/.local/share/zsh
     git clone https://github.com/zdharma-continuum/zinit.git ~/.local/share/zsh/zinit/bin
+    success "zinit installed"
 fi
 
-# Post install
+# 8. Final summary
 success "Bootstrap completed!"
 echo
-echo "Configuration: class=$(yadm config local.class || echo "personal"), OS=Linux"
+echo "Installed tools:"
+echo "  ✓ Base development packages"
+echo "  ✓ Modern CLI tools (ripgrep, fd, bat, etc.)"
+echo "  ✓ mise with Node.js and Python"
+echo "  ✓ Development tools and Git configuration"
+echo "  ✓ Zsh with zinit"
+echo
+echo "Configuration: class=$(yadm config local.class || echo "personal")"
 echo
 echo "Next steps:"
-echo "1. Restart your shell: exec zsh"
-echo "2. If you need to set zsh as default: chsh -s $(which zsh)"
+echo "1. Restart your terminal"
+echo "2. Run 'exec zsh' to switch to Zsh"
+echo "3. If needed: chsh -s $(which zsh)"
