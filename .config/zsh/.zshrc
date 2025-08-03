@@ -131,7 +131,6 @@ zstyle ':fzf-tab:*' switch-group ',' '.'
 
 # Source configurations
 [[ -f $XDG_CONFIG_HOME/zsh/abbr.zsh ]] && source $XDG_CONFIG_HOME/zsh/abbr.zsh
-[[ -f $XDG_CONFIG_HOME/zsh/copilot.zsh ]] && source $XDG_CONFIG_HOME/zsh/copilot.zsh
 
 # fzf configuration
 if command -v fzf &>/dev/null; then
