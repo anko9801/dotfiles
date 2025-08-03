@@ -56,9 +56,13 @@ if command -v mise &>/dev/null; then
     export PATH="$HOME/.local/bin:$PATH"
     eval "$(mise activate bash)"
     
-    # Install and set global versions
-    mise install node@lts python@latest || true
-    mise use -g node@lts python@latest || true
+    # Trust config file
+    mise trust "$HOME/.config/mise/config.toml" || true
+    
+    # Install all tools defined in config.toml
+    info "Installing tools from mise config..."
+    mise install || true
+    
     success "mise configured"
 else
     warning "mise not found. Install it from https://mise.run"
@@ -76,11 +80,7 @@ if command -v git-secrets &>/dev/null; then
     success "git-secrets configured"
 fi
 
-# Install global npm packages (requires node from mise)
-if command -v npm &>/dev/null; then
-    info "Installing npm packages..."
-    npm install -g aicommits || true
-fi
+# Global npm packages are now managed by mise config.toml
 
 # Install GitHub Copilot CLI extension
 if command -v gh &>/dev/null; then
@@ -121,7 +121,7 @@ success "Bootstrap completed!"
 echo
 echo "Installed tools:"
 echo "  ✓ Homebrew packages (via Brewfile)"
-echo "  ✓ mise with Node.js and Python"
+echo "  ✓ mise with all configured tools"
 echo "  ✓ Development tools and Git configuration"
 echo "  ✓ Zsh with zinit"
 [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "false" ]] && echo "  ✓ macOS settings"

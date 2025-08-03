@@ -1,36 +1,121 @@
-# mise configuration
+# mise global configuration
+# https://mise.jdx.dev/configuration.html
+
+[settings]
+experimental = true
+legacy_version_file = true
+jobs = 4
+missing_runtime_behavior = "auto_install"
+shims_dir = "~/.local/bin"
+task_output = "prefix"
+not_found_auto_install = true
+
+# Status display configuration
+status = { 
+    missing_tools = "if_other_versions_installed", 
+    show_env = false, 
+    show_tools = false 
+}
+
+[env]
+# Load environment from files
+_.source = ["./.env", { value = "./.env.local", if_exists = true }]
+
+# Python
+PYTHONDONTWRITEBYTECODE = "1"
+PYTHONUNBUFFERED = "1"
+UV_SYSTEM_PYTHON = "true"
+
+# Node.js
+NODE_OPTIONS = "--max-old-space-size=4096"
+
+# Development
+EDITOR = "vim"
 
 [tools]
-# Core languages
+# Languages
 node = "lts"
-python = "latest"
 ruby = "latest"
 go = "latest"
 rust = "latest"
+uv = "latest"
+ruff = "latest"
+pnpm = "latest"
 deno = "latest"
 bun = "latest"
-
-# Package managers
-pnpm = "latest"
-
-# Additional tools
-fzf = "latest"
-fd = "latest"
 
 # Development workflow tools
 direnv = "latest"      # Environment variable management
 just = "latest"        # Modern make alternative
 watchexec = "latest"   # File watcher
 
-# Code quality tools
-# Python tools are now managed by uv
+# Shell tools
+shellcheck = "latest"
+shfmt = "latest"
 
 # Global npm packages
+"npm:aicommits" = "latest"               # AI-powered commit messages
 "npm:@antfu/ni" = "latest"               # Package manager agnostic commands
 "npm:@anthropic-ai/claude-code" = "latest" # Claude Code CLI
 
-[settings]
-# Automatically install missing tools
-experimental = true
-# Use .node-version, .python-version etc
-legacy_version_file = true
+[alias.node]
+lts = "lts/iron"  # Node.js 20.x
+latest = "latest"
+
+[alias.python]
+latest = "3.12"
+system = "system"
+
+# Variables for tasks
+[vars]
+python_version = "3.12"
+
+[tasks.update]
+description = "Update all tools to latest versions"
+run = """
+echo "📦 Updating mise tools..."
+mise update
+mise prune
+echo "✅ All tools updated!"
+"""
+
+[tasks.doctor]
+description = "Check mise configuration and health"
+run = """
+mise doctor
+echo "---"
+mise list
+"""
+
+[tasks.clean]
+description = "Clean up old tool versions"
+run = """
+echo "🧹 Cleaning up old versions..."
+mise prune --yes
+echo "✅ Cleanup complete!"
+"""
+
+[tasks.sync]
+description = "Sync development environment"
+depends = ["update"]
+run = """
+echo "🔄 Syncing environment..."
+mise install
+echo "✅ Environment synced!"
+"""
+
+# Hidden task for completions
+[tasks._list_tools]
+hide = true
+quiet = true
+run = "mise list --installed | cut -f1 -d' '"
+
+# Hooks for shell integration
+[hooks.enter]
+shell = "bash"
+script = """
+# Activate mise if not already active
+if [[ -z "$MISE_SHELL" ]]; then
+    eval "$(mise activate bash)"
+fi
+"""

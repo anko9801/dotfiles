@@ -47,7 +47,7 @@ dotfiles管理の3つのアプローチ：
 
 ## ツール構成
 
-**共通**: git, tmux, zsh(zinit), vim/neovim, mise, modern CLI tools (bat, eza, ripgrep, fd, fzf, gh, starship, etc.)
+**共通**: git, tmux, zsh(zinit), vim/neovim, mise, modern CLI tools (bat, eza, ripgrep, fd, fzf, gh, starship, etc.), Python tools (uv, ruff)
 
 **クラス別**:
 - Personal: メディアツール、個人アプリ
