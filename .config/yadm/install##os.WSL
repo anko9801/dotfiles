@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Bootstrap for WSL
+
+set -e
+
+# Source the Linux bootstrap first
+BOOTSTRAP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$BOOTSTRAP_DIR/install##os.Linux"
+
+# Additional WSL-specific setup
+
+# Colors
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+info() { echo -e "${BLUE}==>${NC} $1"; }
+success() { echo -e "${GREEN}✓${NC} $1"; }
+
+info "Running WSL-specific setup..."
+
+# Copy wsl.conf if it doesn't exist
+if [[ -f "$HOME/.config/wsl/wsl.conf" ]] && [[ ! -f "/etc/wsl.conf" ]]; then
+    info "Installing WSL configuration..."
+    sudo cp "$HOME/.config/wsl/wsl.conf" /etc/wsl.conf
+    success "wsl.conf installed (restart WSL2 to apply)"
+fi
+
+# Install WSL-specific packages
+info "Installing WSL utilities..."
+if command -v apt-get &>/dev/null; then
+    sudo apt-get install -y \
+        wslu \
+        socat \
+        ntpdate
+fi
+
+success "WSL setup completed!"
