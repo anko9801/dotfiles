@@ -18,92 +18,117 @@ warning() { echo -e "${YELLOW}!${NC} $1"; }
 
 info "Running macOS bootstrap..."
 
-# Install Homebrew
+# 1. Create necessary directories first
+info "Creating directories..."
+mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
+
+# 2. Install Homebrew (required for everything else)
 if ! command -v brew &>/dev/null; then
     info "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     
-    # Add Homebrew to PATH
-    [[ -d "/opt/homebrew" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+    # Add Homebrew to PATH for this session
+    if [[ -d "/opt/homebrew" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    else
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+    success "Homebrew installed"
 fi
 
-# Update Homebrew
+# 3. Update Homebrew
+info "Updating Homebrew..."
 brew update
 
-# Install from Brewfile
+# 4. Install all packages from Brewfile (includes mise, git-secrets, gh, etc.)
 if [[ -f "$HOME/.config/homebrew/Brewfile" ]]; then
     info "Installing packages from Brewfile..."
-    brew bundle --file="$HOME/.config/homebrew/Brewfile"
+    brew bundle --file="$HOME/.config/homebrew/Brewfile" --no-lock
+    success "Packages installed"
 else
     error "Brewfile not found. Run 'yadm alt' first."
     exit 1
 fi
 
-# Install mise
-if ! command -v mise &>/dev/null; then
-    info "Installing mise..."
-    curl https://mise.run | sh
-    export PATH="$HOME/.local/bin:$PATH"
-    success "mise installed"
-fi
-
-# Setup mise tools
+# 5. Setup mise and install language runtimes
 if command -v mise &>/dev/null; then
-    eval "$(mise activate bash)" || true
+    info "Setting up mise..."
+    export PATH="$HOME/.local/bin:$PATH"
+    eval "$(mise activate bash)"
+    
+    # Install and set global versions
     mise install node@lts python@latest || true
     mise use -g node@lts python@latest || true
+    success "mise configured"
+else
+    warning "mise not found. Install it from https://mise.run"
 fi
 
-# Setup development environment
-info "Setting up development environment..."
+# 6. Setup development tools (requires languages from mise)
+info "Setting up development tools..."
 
-# Create necessary directories
-mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
-
-# Setup git-secrets
+# Git secrets configuration
 if command -v git-secrets &>/dev/null; then
     mkdir -p ~/.config/git/templates/git-secrets
     git secrets --install ~/.config/git/templates/git-secrets >/dev/null 2>&1 || true
     git config --global init.templateDir ~/.config/git/templates/git-secrets
     git secrets --register-aws >/dev/null 2>&1 || true
+    success "git-secrets configured"
 fi
 
-# Install npm packages
+# Install global npm packages (requires node from mise)
 if command -v npm &>/dev/null; then
+    info "Installing npm packages..."
     npm install -g aicommits || true
 fi
 
-# Install GitHub Copilot CLI
+# Install GitHub Copilot CLI extension
 if command -v gh &>/dev/null; then
-    gh extension install github/gh-copilot 2>/dev/null || true
+    if ! gh extension list | grep -q "github/gh-copilot"; then
+        gh extension install github/gh-copilot || true
+    fi
 fi
 
-# Setup Zsh
+# 7. Setup Zsh and zinit
 info "Setting up Zsh..."
 if [[ ! -d "$HOME/.local/share/zsh/zinit" ]]; then
     mkdir -p ~/.local/share/zsh
     git clone https://github.com/zdharma-continuum/zinit.git ~/.local/share/zsh/zinit/bin
+    success "zinit installed"
 fi
 
-# macOS settings (optional)
+# 8. macOS system settings (optional, at the end)
 if [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "false" ]]; then
     info "Configuring macOS settings..."
     
-    # Show hidden files
+    # Show hidden files in Finder
     defaults write com.apple.finder AppleShowAllFiles -bool true
     
-    # Fast key repeat
+    # Enable fast key repeat
     defaults write NSGlobalDomain KeyRepeat -int 2
     defaults write NSGlobalDomain InitialKeyRepeat -int 15
     
+    # Disable press-and-hold for keys
+    defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+    
+    # Restart Finder to apply changes
     killall Finder || true
+    success "macOS settings applied"
 fi
 
-# Post install
+# 9. Final summary
 success "Bootstrap completed!"
 echo
-echo "Configuration: class=$(yadm config local.class || echo "personal"), OS=Darwin"
+echo "Installed tools:"
+echo "  ✓ Homebrew packages (via Brewfile)"
+echo "  ✓ mise with Node.js and Python"
+echo "  ✓ Development tools and Git configuration"
+echo "  ✓ Zsh with zinit"
+[[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "false" ]] && echo "  ✓ macOS settings"
+echo
+echo "Configuration: class=$(yadm config local.class || echo "personal")"
 echo
 echo "Next steps:"
-echo "1. Restart your shell: exec zsh"
-echo "2. If you need to set zsh as default: chsh -s $(which zsh)"
+echo "1. Restart your terminal"
+echo "2. Run 'exec zsh' to switch to Zsh"
+echo "3. If needed: chsh -s $(which zsh)"

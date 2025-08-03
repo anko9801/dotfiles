@@ -33,7 +33,7 @@ brew "atuin"
 # Development
 brew "vim"
 brew "neovim"
-brew "mise"
+brew "mise"  # Version manager for Node, Python, etc.
 brew "git-secrets"
 
 {% if yadm.class == "work" %}
