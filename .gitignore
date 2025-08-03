@@ -1,20 +1,23 @@
 # Ignore everything by default
-/*
+*
 
-# Then whitelist what we want to track
+# Whitelist directories and files we want to track
 !.config/
+!.config/**
 !.ssh/
+!.ssh/**
 !.gitignore
 !.zshenv
 
-# But still ignore sensitive/cache files within tracked directories
-.config/*/cache/
-.config/yadm/repo.git/
+# But still ignore sensitive files
 .ssh/id_*
 .ssh/known_hosts
 .ssh/authorized_keys
+.config/*/cache/
+.config/yadm/repo.git/
 
 # System files
 .DS_Store
 *.swp
 *~
+.*.swp
