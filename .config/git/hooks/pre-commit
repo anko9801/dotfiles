@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# yadm pre_commit hook - prevent committing secrets
+# Git pre-commit hook - prevent committing secrets
 
 set -e
 
@@ -30,14 +30,14 @@ declare -a patterns=(
 )
 
 # Get staged files once
-staged_files=$(yadm diff --cached --name-only -z)
+staged_files=$(git diff --cached --name-only -z)
 
 # Check for secrets in staged files
 if [[ -n "$staged_files" ]]; then
     for pattern in "${patterns[@]}"; do
         if echo "$staged_files" | xargs -0 grep -qE "$pattern" 2>/dev/null; then
             echo "Error: Potential secret detected (pattern: $pattern)"
-            echo "Use 1Password op:// references or add to .gitignore"
+            echo "Remove the secret or add to .gitignore"
             exit 1
         fi
     done

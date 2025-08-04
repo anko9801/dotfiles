@@ -1,0 +1,390 @@
+#!/usr/bin/env bash
+# Bootstrap installation script
+set -euo pipefail
+
+# ============================================================================
+# Constants & Utilities
+# ============================================================================
+
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly HOME="${HOME:-$(eval echo ~)}"
+
+# Colors
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly BLUE='\033[0;34m'
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m'
+
+# Logging
+info() { echo -e "${BLUE}==>${NC} $1"; }
+success() { echo -e "${GREEN}✓${NC} $1"; }
+error() { echo -e "${RED}✗${NC} $1" >&2; }
+warning() { echo -e "${YELLOW}!${NC} $1"; }
+
+# Cleanup on exit
+cleanup() {
+    local exit_code=$?
+    [[ $exit_code -ne 0 ]] && echo -e "\nBootstrap interrupted. You can safely run it again."
+    exit $exit_code
+}
+trap cleanup EXIT INT TERM
+
+# ============================================================================
+# Core Setup Functions
+# ============================================================================
+
+setup_directories() {
+    info "Creating directory structure..."
+    mkdir -p \
+        "$HOME/.config" \
+        "$HOME/.local/bin" \
+        "$HOME/.local/share" \
+        "$HOME/.cache" \
+        "$HOME/.ssh/config.d" \
+        "$HOME/.config/git/hooks"
+    
+    # Set permissions
+    chmod 700 "$HOME/.ssh" "$HOME/.ssh/config.d" 2>/dev/null || true
+}
+
+setup_package_manager() {
+{% if yadm.os == "Darwin" %}
+    if ! command -v brew &>/dev/null; then
+        info "Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        eval "$([[ -d "/opt/homebrew" ]] && echo /opt/homebrew || echo /usr/local)/bin/brew shellenv"
+    fi
+    info "Updating Homebrew..."
+    brew update
+{% endif %}
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
+    # Detect Linux distribution
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        DISTRO="${ID,,}"
+    else
+        DISTRO="unknown"
+    fi
+    info "Detected distribution: $DISTRO"
+    
+    case "$DISTRO" in
+        ubuntu|debian) sudo apt-get update || true ;;
+        arch|manjaro) sudo pacman -Syu --noconfirm ;;
+        fedora) sudo dnf update -y ;;
+    esac
+{% endif %}
+}
+
+install_packages() {
+{% if yadm.os == "Darwin" %}
+    local brewfile="$HOME/.config/homebrew/Brewfile"
+    if [[ -f "$brewfile" ]]; then
+        info "Installing packages from Brewfile..."
+        brew bundle --file="$brewfile"
+    else
+        error "Brewfile not found. Run 'yadm alt' first."
+        exit 1
+    fi
+{% endif %}
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
+    info "Installing base packages..."
+    
+    # Common packages
+    local packages=(
+        git curl wget tmux tree jq zsh neovim fzf git-secrets
+    )
+    
+    # Platform-specific packages
+    case "${DISTRO:-}" in
+        ubuntu|debian)
+            packages+=(build-essential software-properties-common)
+            sudo apt install -y "${packages[@]}"
+            install_modern_tools_debian
+            ;;
+        arch|manjaro)
+            packages+=(base-devel yq ripgrep fd bat gh eza starship zoxide atuin git-delta)
+            sudo pacman -S --needed --noconfirm "${packages[@]}"
+            ;;
+        fedora)
+            packages+=(@development-tools ripgrep fd-find bat gh git-delta)
+            sudo dnf install -y "${packages[@]}"
+            install_modern_tools_fedora
+            ;;
+        *)
+            warning "Unknown distribution, skipping package installation"
+            ;;
+    esac
+{% endif %}
+}
+
+# ============================================================================
+# Tool Setup Functions
+# ============================================================================
+
+setup_mise() {
+    if ! command -v mise &>/dev/null; then
+        info "Installing mise..."
+        curl https://mise.run | sh
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+    
+    if command -v mise &>/dev/null; then
+        info "Configuring mise..."
+        eval "$(mise activate bash)"
+        mise trust "$HOME/.config/mise/config.toml" 2>/dev/null || true
+        mise install --yes || warning "Some mise tools failed to install"
+        success "mise configured"
+    else
+        error "Failed to install mise"
+        exit 1
+    fi
+}
+
+setup_git_config() {
+    info "Configuring Git..."
+    
+    # Ensure hooks directory exists
+    mkdir -p "$HOME/.config/git/hooks"
+    
+    # Make hooks executable
+    find "$HOME/.config/git/hooks" -type f -exec chmod +x {} \;
+    
+    # Register git-secrets patterns
+    if command -v git-secrets &>/dev/null; then
+        git secrets --register-aws 2>/dev/null || true
+    fi
+}
+
+setup_shell() {
+    info "Setting up shell environment..."
+    
+    # Install Zsh plugin manager
+    local antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
+    if [[ ! -d "$antidote_dir" ]]; then
+        git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir"
+    fi
+    
+    # SSH config
+    if [[ -f "$HOME/.ssh/config" ]]; then
+        if ! grep -q "^Include ~/.ssh/config.d/\*" "$HOME/.ssh/config" 2>/dev/null; then
+            echo -e "Include ~/.ssh/config.d/*\n" | cat - "$HOME/.ssh/config" > "$HOME/.ssh/config.tmp"
+            mv "$HOME/.ssh/config.tmp" "$HOME/.ssh/config"
+        fi
+    else
+        echo -e "Include ~/.ssh/config.d/*\n" > "$HOME/.ssh/config"
+    fi
+    chmod 600 "$HOME/.ssh/config" 2>/dev/null || true
+}
+
+setup_1password() {
+    if command -v op &>/dev/null; then
+        info "Configuring 1Password integration..."
+        if [[ -f "$HOME/.config/op/plugins.sh" ]]; then
+            bash "$HOME/.config/op/plugins.sh" || true
+        fi
+    else
+        warning "1Password CLI not found - install from https://developer.1password.com/docs/cli/"
+{% if yadm.os == "WSL" %}
+        info "For WSL: Consider installing 1Password on Windows and using the WSL integration"
+{% endif %}
+    fi
+}
+
+setup_python_tools() {
+    if command -v uv &>/dev/null; then
+        info "Installing Python tools..."
+        uv tool install ruff@latest || true
+    fi
+}
+
+setup_gh_extensions() {
+    if command -v gh &>/dev/null; then
+        if ! gh extension list | grep -q "github/gh-copilot"; then
+            gh extension install github/gh-copilot || true
+        fi
+    fi
+}
+
+{% if yadm.os == "Darwin" %}
+# ============================================================================
+# macOS Specific
+# ============================================================================
+
+setup_macos_settings() {
+    if [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" == "true" ]]; then
+        info "Applying macOS settings..."
+        
+        # Show hidden files in Finder
+        defaults write com.apple.finder AppleShowAllFiles -bool true
+        
+        # Enable fast key repeat
+        defaults write NSGlobalDomain KeyRepeat -int 2
+        defaults write NSGlobalDomain InitialKeyRepeat -int 15
+        
+        # Disable press-and-hold for keys
+        defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+        
+        # Restart Finder to apply changes
+        killall Finder 2>/dev/null || true
+        
+        success "macOS settings applied"
+    fi
+}
+{% endif %}
+# ============================================================================
+# Linux/WSL Specific
+# ============================================================================
+
+{% if yadm.os == "WSL" %}
+setup_wsl_integration() {
+    info "Configuring WSL integration..."
+        
+        # Windows interop settings
+        if [[ -f /etc/wsl.conf ]]; then
+            if ! grep -q "\\[interop\\]" /etc/wsl.conf; then
+                echo -e "\n[interop]\nappendWindowsPath = false" | sudo tee -a /etc/wsl.conf
+                info "Disabled Windows PATH pollution"
+            fi
+        else
+            echo -e "[interop]\nappendWindowsPath = false" | sudo tee /etc/wsl.conf
+        fi
+        
+        # Create Windows home symlink if it doesn't exist
+        if [[ ! -e "$HOME/winhome" ]] && command -v wslpath &>/dev/null; then
+            WINHOME=$(wslpath "$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r')")
+            if [[ -d "$WINHOME" ]]; then
+                ln -s "$WINHOME" "$HOME/winhome"
+                success "Created Windows home symlink"
+            fi
+        fi
+        
+    # WSL-specific Git config
+    git config --global core.autocrlf input
+    git config --global core.filemode false
+}
+{% endif %}
+
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
+install_modern_tools_debian() {
+    info "Installing modern CLI tools..."
+    local tmp_dir=$(mktemp -d)
+    cd "$tmp_dir"
+    
+    # Helper function for downloading .deb files
+    install_deb_from_github() {
+        local repo="$1" name="$2" pattern="$3"
+        if ! command -v "$name" &>/dev/null; then
+            local version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
+            local url=$(printf "$pattern" "$version" "$version")
+            curl -LO "$url" && sudo dpkg -i *.deb || sudo apt-get install -f -y
+            rm -f *.deb
+        fi
+    }
+    
+    install_deb_from_github "BurntSushi/ripgrep" "rg" "https://github.com/BurntSushi/ripgrep/releases/download/%s/ripgrep_%s-1_amd64.deb"
+    install_deb_from_github "sharkdp/fd" "fd" "https://github.com/sharkdp/fd/releases/download/v%s/fd_%s_amd64.deb"
+    install_deb_from_github "sharkdp/bat" "bat" "https://github.com/sharkdp/bat/releases/download/v%s/bat_%s_amd64.deb"
+    install_deb_from_github "dandavison/delta" "delta" "https://github.com/dandavison/delta/releases/download/%s/git-delta_%s_amd64.deb"
+    install_deb_from_github "eza-community/eza" "eza" "https://github.com/eza-community/eza/releases/download/v%s/eza_amd64.deb"
+    
+    cd - >/dev/null
+    rm -rf "$tmp_dir"
+    
+    # Install from scripts
+    command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
+    command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    
+    # GitHub CLI
+    if ! command -v gh &>/dev/null; then
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+        sudo apt update
+        sudo apt install -y gh
+    fi
+}
+
+install_modern_tools_fedora() {
+    # COPR repositories
+    if ! command -v eza &>/dev/null; then
+        sudo dnf copr enable -y atim/eza
+        sudo dnf install -y eza
+    fi
+    
+    if ! command -v zoxide &>/dev/null; then
+        sudo dnf copr enable -y atim/zoxide
+        sudo dnf install -y zoxide
+    fi
+    
+    # Install scripts
+    command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
+    command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+}
+{% endif %}
+
+# ============================================================================
+# Summary
+# ============================================================================
+
+show_summary() {
+    success "Bootstrap completed!"
+    echo
+    echo "Installed tools:"
+{% if yadm.os == "Darwin" %}
+    echo "  ✓ Homebrew packages (via Brewfile)"
+{% else %}
+    echo "  ✓ System packages and modern CLI tools"
+{% endif %}
+    echo "  ✓ mise with all configured tools"
+    echo "  ✓ Python tools (ruff via uv)"
+    echo "  ✓ Development tools and Git configuration"
+    echo "  ✓ Zsh with antidote"
+    echo "  ✓ 1Password integration"
+{% if yadm.os == "Darwin" %}
+    [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" == "true" ]] && echo "  ✓ macOS settings"
+{% endif %}
+    echo
+    echo "Configuration: class={{ yadm.class | default("personal") }}"
+    echo
+    echo "Next steps:"
+    echo "1. Restart your terminal"
+    echo "2. Run 'exec zsh' to switch to Zsh"
+    [[ "$(basename "$SHELL")" != "zsh" ]] && echo "3. Run: chsh -s $(which zsh)"
+}
+
+# ============================================================================
+# Main
+# ============================================================================
+
+main() {
+{% if yadm.os == "Darwin" %}
+    info "Running macOS bootstrap..."
+{% endif %}
+{% if yadm.os == "Linux" %}
+    info "Running Linux bootstrap..."
+{% endif %}
+{% if yadm.os == "WSL" %}
+    info "Running Linux bootstrap (via WSL)..."
+{% endif %}
+    
+    setup_directories
+    setup_package_manager
+    install_packages
+    setup_git_config
+    setup_shell
+    setup_mise
+    setup_python_tools
+    setup_gh_extensions
+    setup_1password
+    
+{% if yadm.os == "Darwin" %}
+    setup_macos_settings
+{% endif %}
+{% if yadm.os == "WSL" %}
+    setup_wsl_integration
+{% endif %}
+    
+    show_summary
+}
+
+main "$@"

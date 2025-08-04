@@ -100,15 +100,14 @@ main() {
     echo "Generating configuration files..."
     yadm alt
     
-    # Run OS-specific installation
-    echo -e "\nRunning OS-specific installation..."
+    # Run installation
+    echo -e "\nRunning installation..."
     local install_script="$BOOTSTRAP_DIR/install"
     
     if [[ -x "$install_script" ]]; then
         exec "$install_script" "$@"
     else
-        echo "Error: OS-specific install script not found or not executable"
-        ls -la "$BOOTSTRAP_DIR"/install* || true
+        echo "Error: Install script not found or not executable"
         exit $EXIT_ERROR
     fi
 }
