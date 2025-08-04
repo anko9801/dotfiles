@@ -100,6 +100,9 @@ main() {
     echo "Generating configuration files..."
     yadm alt
     
+    # Fix permissions for sensitive files
+    [[ -f "$HOME/.config/op/config" ]] && chmod 600 "$HOME/.config/op/config"
+    
     # Run installation
     echo -e "\nRunning installation..."
     local install_script="$BOOTSTRAP_DIR/install"
