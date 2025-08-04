@@ -1,149 +1,117 @@
 #!/usr/bin/env bash
 # YADM Bootstrap - Main entry point
-
 set -euo pipefail
 
-BOOTSTRAP_DIR="$HOME/.config/yadm"
+readonly BOOTSTRAP_DIR="$HOME/.config/yadm"
+readonly EXIT_SUCCESS=0 EXIT_ERROR=1
 
-# Cleanup function
 cleanup() {
     local exit_code=$?
-    if [[ $exit_code -ne 0 ]]; then
-        echo
-        echo "Bootstrap interrupted. You can safely run it again."
-    fi
+    [[ $exit_code -ne $EXIT_SUCCESS ]] && echo -e "\nBootstrap interrupted. You can safely run it again."
     exit $exit_code
 }
-
-# Set trap for cleanup on exit
 trap cleanup EXIT INT TERM
 
-# Function to set config
-set_config() {
-    local key="$1"
-    local value="$2"
-    yadm config "$key" "$value"
-    echo "✓ Set $key = $value"
-}
+# ============================================================================
+# Helper Functions
+# ============================================================================
 
-# Helper functions for configuration
+set_config() { yadm config "$1" "$2" && echo "✓ Set $1 = $2"; }
+show_header() { echo -e "\n$1\n${1//?/-}"; }
+
 configure_if_empty() {
-    local key="$1"
-    local prompt="$2"
-    local current_value
-    current_value=$(yadm config "$key" 2>/dev/null || echo "")
-    
-    if [[ -z "$current_value" ]]; then
-        read -p "$prompt: " value
-        [[ -n "$value" ]] && set_config "$key" "$value"
+    local current=$(yadm config "$1" 2>/dev/null || echo "")
+    if [[ -z "$current" ]]; then
+        read -rp "$2: " value
+        [[ -n "$value" ]] && set_config "$1" "$value"
     else
-        echo "${prompt%:}: $current_value"
+        echo "${2%:}: $current"
     fi
 }
 
-show_header() {
-    echo
-    echo "$1"
-    echo "${1//?/-}"
+# ============================================================================
+# Configuration Functions
+# ============================================================================
+
+configure_class() {
+    local current=$(yadm config local.class 2>/dev/null || echo "")
+    [[ -n "$current" ]] && { echo "Current class: $current"; return; }
+    
+    if [[ -n "${YADM_CLASS:-}" ]]; then
+        set_config local.class "$YADM_CLASS"
+    else
+        echo "Select class: 1) personal  2) work  3) server"
+        read -rp "[1-3]: " -n 1 && echo
+        case "$REPLY" in
+            1) set_config local.class personal ;;
+            2) set_config local.class work ;;
+            3) set_config local.class server ;;
+            *) echo "Invalid selection" && exit $EXIT_ERROR ;;
+        esac
+    fi
 }
 
-# Run configuration if first time (skip if YADM_SKIP_CONFIG is set)
-if [[ -z "${YADM_SKIP_CONFIG:-}" && -z "$(yadm config local.class 2>/dev/null)" ]]; then
-    echo "======================================"
-    echo "        YADM Configuration            "
-    echo "======================================"
-    echo
-    
-    # Check and set class
-    current_class=$(yadm config local.class 2>/dev/null || echo "")
-    if [[ -z "$current_class" ]]; then
-        # Use environment variable if set
-        if [[ -n "${YADM_CLASS:-}" ]]; then
-            set_config local.class "$YADM_CLASS"
-        else
-            echo "No class is set. Please choose one:"
-            echo "1) personal - Personal machine"
-            echo "2) work     - Work machine"
-            echo "3) server   - Server/headless machine"
-            read -p "Select [1-3]: " -n 1 -r
-            echo
-            case "$REPLY" in
-                1) set_config local.class personal ;;
-                2) set_config local.class work ;;
-                3) set_config local.class server ;;
-                *) echo "Invalid selection"; exit 1 ;;
-            esac
-        fi
-    else
-        echo "Current class: $current_class"
-    fi
-    
-    # Git configuration for templates
-    show_header "Git Configuration"
-    configure_if_empty "yadm.email" "Git email"
-    configure_if_empty "yadm.user" "Git name"
-    
-    # Auto-commit configuration
-    show_header "Auto-commit Configuration"
-    auto_commit=$(yadm config yadm.auto-commit 2>/dev/null || echo "false")
-    echo "Current: $auto_commit"
-    read -p "Enable auto-commit? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+configure_auto_commit() {
+    echo "Current: $(yadm config yadm.auto-commit 2>/dev/null || echo 'false')"
+    read -rp "Enable auto-commit? (y/N): " -n 1 && echo
+    [[ $REPLY =~ ^[Yy]$ ]] && {
         set_config yadm.auto-commit true
         set_config yadm.auto-commit-msg "Auto update from $(hostname)"
-    fi
+    }
+}
+
+configure_encryption() {
+    local cipher=$(yadm config yadm.cipher 2>/dev/null || echo "")
+    [[ -n "$cipher" ]] && { echo "Encryption: $cipher"; return; }
     
-    # Encryption configuration
-    show_header "Encryption Configuration"
-    cipher=$(yadm config yadm.cipher 2>/dev/null || echo "")
-    if [[ -z "$cipher" ]]; then
-        echo "1) openssl (default)"
-        echo "2) gpg"
-        echo "3) skip"
-        read -p "Select encryption method [1-3]: " -n 1 -r
+    echo "Select encryption: 1) openssl  2) gpg  3) skip"
+    read -rp "[1-3]: " -n 1 && echo
+    case "$REPLY" in
+        1|"") set_config yadm.cipher openssl ;;
+        2) read -rp "GPG key ID: " key && [[ -n "$key" ]] && set_config yadm.gpg-recipient "$key" ;;
+        3) echo "Skipping encryption" ;;
+    esac
+}
+
+# ============================================================================
+# Main Script
+# ============================================================================
+
+main() {
+    # Run first-time configuration if needed
+    if [[ -z "${YADM_SKIP_CONFIG:-}" && -z "$(yadm config local.class 2>/dev/null)" ]]; then
+        echo "======================================"
+        echo "        YADM Configuration            "
+        echo "======================================"
         echo
-        case "$REPLY" in
-            1|"") 
-                set_config yadm.cipher openssl
-                echo "Openssl encryption will use your SSH key for encryption"
-                echo "Make sure your SSH key is available when encrypting/decrypting"
-                ;;
-            2) 
-                set_config yadm.cipher gpg
-                read -p "GPG key ID (or email): " gpg_key
-                [[ -n "$gpg_key" ]] && set_config yadm.gpg-recipient "$gpg_key"
-                ;;
-            3) 
-                echo "Skipping encryption setup"
-                ;;
-        esac
-    else
-        echo "Encryption: $cipher"
+        
+        configure_class
+        show_header "Git Configuration"
+        configure_if_empty "yadm.email" "Git email"
+        configure_if_empty "yadm.user" "Git name"
+        show_header "Auto-commit Configuration"
+        configure_auto_commit
+        show_header "Encryption Configuration"
+        configure_encryption
+        echo
     fi
     
-    echo
-fi
+    # Generate alternates
+    echo "Generating configuration files..."
+    yadm alt
+    
+    # Run OS-specific installation
+    echo -e "\nRunning OS-specific installation..."
+    local install_script="$BOOTSTRAP_DIR/install"
+    
+    if [[ -x "$install_script" ]]; then
+        exec "$install_script" "$@"
+    else
+        echo "Error: OS-specific install script not found or not executable"
+        ls -la "$BOOTSTRAP_DIR"/install* || true
+        exit $EXIT_ERROR
+    fi
+}
 
-# Generate alternates
-echo "Generating configuration files..."
-yadm alt
-
-# Debug: Show what yadm alt did
-echo "DEBUG: After yadm alt, checking files..."
-ls -la "$BOOTSTRAP_DIR"/ || true
-
-# Run OS-specific installation
-echo
-echo "Running OS-specific installation..."
-if [[ -x "$BOOTSTRAP_DIR/install" ]]; then
-    echo "Found install script at: $BOOTSTRAP_DIR/install"
-    exec "$BOOTSTRAP_DIR/install" "$@"
-else
-    echo "Error: OS-specific install script not found or not executable"
-    echo "Available files in $BOOTSTRAP_DIR:"
-    ls -la "$BOOTSTRAP_DIR"/install* || true
-    echo "Checking if symlink exists:"
-    file "$BOOTSTRAP_DIR/install" || true
-    exit 1
-fi
+# Run main function
+main "$@"

@@ -347,65 +347,26 @@ setup_zsh() {
     fi
 }
 
-# Setup 1Password SSH integration (Linux)
+# Setup 1Password SSH integration (simplified - configs are now in templates)
 setup_1password_ssh() {
     info "Setting up 1Password SSH integration..."
     
-    # Create SSH config directory if it doesn't exist
+    # Ensure SSH directory exists with correct permissions
     mkdir -p "$HOME/.ssh"
     chmod 700 "$HOME/.ssh"
     
-    # Check if 1Password is installed
+    # Link SSH config from .config if it exists and .ssh/config doesn't
+    if [[ -f "$HOME/.config/ssh/config" ]] && [[ ! -e "$HOME/.ssh/config" ]]; then
+        ln -s "$HOME/.config/ssh/config" "$HOME/.ssh/config"
+        chmod 600 "$HOME/.ssh/config"
+        success "SSH config linked"
+    fi
+    
+    # Check if 1Password CLI is available
     if command -v op >/dev/null 2>&1; then
-        local ssh_config="$HOME/.ssh/config"
-        
-        # Check if 1Password SSH agent config already exists
-        if ! grep -q "IdentityAgent.*1Password" "$ssh_config" 2>/dev/null; then
-            info "Adding 1Password SSH agent to SSH config..."
-            
-            # Backup before modifying
-            if [[ -f "$ssh_config" ]]; then
-                cp "$ssh_config" "$ssh_config.backup"
-            fi
-            
-            # Linux socket path
-            local socket_path="~/.1password/agent.sock"
-            
-            # Add 1Password SSH agent configuration
-            cat >> "$ssh_config" <<EOF
-
-# 1Password SSH Agent
-Host *
-    IdentityAgent "$socket_path"
-EOF
-            success "1Password SSH agent configuration added"
-        else
-            info "1Password SSH agent already configured"
-        fi
-        
-        # Create 1Password config directory
-        mkdir -p "$HOME/.config/op"
-        
-        # Create 1Password CLI config if not exists
-        if [[ ! -f "$HOME/.config/op/config" ]]; then
-            cat > "$HOME/.config/op/config" <<EOF
-{
-  "latest_signin": "",
-  "device": "$(uuidgen 2>/dev/null || cat /proc/sys/kernel/random/uuid 2>/dev/null || echo 'default-device')",
-  "commands": {
-    "biometric_unlock": true
-  },
-  "cache": {
-    "session": {
-      "ttl": 1800
-    }
-  }
-}
-EOF
-            success "1Password CLI configuration created"
-        fi
+        success "1Password CLI found"
     else
-        warning "1Password CLI (op) not found. Install from: https://developer.1password.com/docs/cli/get-started/"
+        warning "1Password CLI not found - install from https://developer.1password.com/docs/cli/"
     fi
 }
 
