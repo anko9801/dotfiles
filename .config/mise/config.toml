@@ -1,12 +1,7 @@
-# mise global configuration
-# https://mise.jdx.dev/configuration.html
-
 [settings]
 experimental = true
 legacy_version_file = true
 jobs = 4
-# not_found_auto_install = true
-# shims_dir = "~/.local/bin"
 task_output = "prefix"
 
 [env]
@@ -14,7 +9,6 @@ PYTHONUNBUFFERED = "1"
 NODE_OPTIONS = "--max-old-space-size=4096"
 
 [tools]
-# Languages
 node = "lts"
 python = "latest"
 ruby = "latest"
@@ -23,18 +17,13 @@ rust = "latest"
 pnpm = "latest"
 deno = "latest"
 bun = "latest"
-# Python tools:
-# uv is installed via curl/brew in bootstrap
-# Other tools can be run with: uvx ruff, uvx black, etc.
 
-# Shell tools
 shellcheck = "latest"
 shfmt = "latest"
 
-# Global npm packages
-"npm:@antfu/ni" = "latest"               # Package manager agnostic commands
-"npm:@anthropic-ai/claude-code" = "latest" # Claude Code CLI
-"npm:@google/gemini-cli" = "latest"     # Gemini AI CLI
+"npm:@antfu/ni" = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
+"npm:@google/gemini-cli" = "latest"
 
 [tasks.update]
 description = "Update all tools to latest versions"
@@ -70,7 +59,6 @@ mise install
 echo "✅ Environment synced!"
 """
 
-# Hidden task for completions
 [tasks._list_tools]
 hide = true
 quiet = true
