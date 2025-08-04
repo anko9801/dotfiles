@@ -1,9 +1,7 @@
 # Homebrew Bundle file
 # https://github.com/Homebrew/homebrew-bundle
 
-# Taps
-tap "homebrew/bundle"
-tap "homebrew/services"
+# Taps (none needed - all are now built-in)
 
 # Essential tools
 brew "git"
