@@ -173,14 +173,21 @@ setup_packages() {
         if ! command -v atuin &>/dev/null; then
             bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
         fi
+        
+        # git-delta
+        if ! command -v delta &>/dev/null; then
+            local version=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+            curl -LO "https://github.com/dandavison/delta/releases/download/${version}/git-delta_${version}_amd64.deb"
+            sudo dpkg -i git-delta_*.deb || sudo apt-get install -f -y
+        fi
         ;;
         
     arch|manjaro)
-        install_packages base-devel yq fish ripgrep fd bat gh eza starship zoxide atuin
+        install_packages base-devel yq fish ripgrep fd bat gh eza starship zoxide atuin git-delta
         ;;
         
     fedora)
-        install_packages @development-tools fish ripgrep fd-find bat gh
+        install_packages @development-tools fish ripgrep fd-find bat gh git-delta
         
         # Tools from COPR repositories
         command -v eza &>/dev/null || install_from_copr atim/eza eza

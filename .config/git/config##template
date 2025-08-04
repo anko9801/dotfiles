@@ -12,6 +12,7 @@
   autocrlf = false
   safecrlf = true
   filemode = false
+  pager = delta
 
 [color]
   ui = auto
@@ -22,6 +23,15 @@
 
 [diff]
   renames = true
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  light = false
+  side-by-side = true
+  line-numbers = true
 
 [pull]
   ff = only

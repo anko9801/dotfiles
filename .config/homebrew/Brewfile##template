@@ -34,6 +34,7 @@ brew "neovim"
 brew "mise"  # Version manager for Node, Python, etc.
 brew "uv"    # Fast Python package and project manager
 brew "git-secrets"
+brew "git-delta"  # Better git diffs
 
 {% if yadm.class == "work" %}
 # Work-specific tools
