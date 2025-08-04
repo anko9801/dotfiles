@@ -155,6 +155,12 @@ source "${zsh_plugins}.zsh"
 # mise（ツールバージョン管理）
 command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
+# gitleaks（シークレット検出）
+[[ -f "$XDG_CONFIG_HOME/gitleaks/env.zsh" ]] && source "$XDG_CONFIG_HOME/gitleaks/env.zsh"
+
+# 1Password Shell Plugins
+[[ -f "$XDG_CONFIG_HOME/op/plugins.sh" ]] && source "$XDG_CONFIG_HOME/op/plugins.sh"
+
 # starship（プロンプト）
 command -v starship &>/dev/null && eval "$(starship init zsh)"
 
