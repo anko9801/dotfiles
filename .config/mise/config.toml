@@ -42,6 +42,7 @@ shfmt = "latest"
 
 # Additional tools
 "aqua:ajeetdsouza/zoxide" = "latest"    # Smarter cd command
+"cargo:atuin" = "latest"                 # Shell history sync
 
 [tasks.update]
 description = "Update all tools to latest versions"

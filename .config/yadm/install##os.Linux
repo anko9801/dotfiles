@@ -132,7 +132,7 @@ case "$DISTRO" in
             base-devel \
             zsh fish neovim \
             ripgrep fd bat fzf gh \
-            eza starship \
+            eza starship zoxide atuin \
             git-secrets
         ;;
         
