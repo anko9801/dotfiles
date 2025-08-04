@@ -13,6 +13,7 @@
   safecrlf = true
   filemode = false
   pager = delta
+  hooksPath = ~/.config/git/hooks
 
 [color]
   ui = auto
@@ -49,7 +50,6 @@
 
 [init]
     defaultBranch = main
-    templateDir = ~/.git-templates/git-secrets
 
 [commit]
   verbose = true
