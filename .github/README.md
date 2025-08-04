@@ -83,8 +83,8 @@ dotfiles管理の3つのアプローチ：
   ```
 
 #### セキュリティ強化
-- **pre-commit hooks**: `.config/git/templates/git-secrets/hooks/pre-commit` で秘密情報の誤コミットを防止
-  - git-secrets による AWS 認証情報の検出
+- **pre-commit hooks**: `.config/git/hooks/pre-commit` で秘密情報の誤コミットを防止
+  - gitleaks による包括的なシークレット検出
   - API キー、トークン、秘密鍵のパターンマッチング
   - データベース URL のパスワード検出
 - **ゼロトラスト**: ローカルに秘密情報を一切保存しないアーキテクチャ
@@ -96,7 +96,7 @@ dotfiles管理の3つのアプローチ：
 - **バージョン管理**: mise (全OS共通でcurl経由インストール)
 - **シェル**: zsh + antidote (プラグイン管理)
 - **エディタ**: vim/neovim
-- **開発ツール**: git (core.hooksPath設定済み), tmux, git-secrets
+- **開発ツール**: git (core.hooksPath設定済み), tmux, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, delta
 - **Python**: uv (パッケージマネージャー), ruff (リンター)
 

@@ -1,0 +1,5 @@
+# Gitleaks ignore file
+# Format: <fingerprint>:<filename>:<secret>
+
+# Example entries (add actual fingerprints when false positives occur)
+# abc123def456:path/to/file:line-number

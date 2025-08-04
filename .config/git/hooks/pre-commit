@@ -3,44 +3,61 @@
 
 set -e
 
-# Run git-secrets if available
-if command -v git-secrets &>/dev/null; then
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Run gitleaks if available
+if command -v gitleaks &>/dev/null; then
+    echo -e "${YELLOW}Running gitleaks...${NC}"
+    if ! gitleaks protect --staged --verbose --config "${GITLEAKS_CONFIG:-$HOME/.config/gitleaks/config.toml}"; then
+        echo -e "${RED}Gitleaks detected secrets!${NC}"
+        echo "Fix the issues or add to .gitleaksignore if false positive"
+        exit 1
+    fi
+    echo -e "${GREEN}Gitleaks check passed${NC}"
+# Fallback to git-secrets if available
+elif command -v git-secrets &>/dev/null; then
+    echo -e "${YELLOW}Running git-secrets (consider installing gitleaks)...${NC}"
     git secrets --pre_commit_hook -- "$@" || exit 1
-fi
-
-# Define secret patterns to check
-declare -a patterns=(
-    # Authentication
-    'api[_-]?key.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
-    'token.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
-    'secret.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
-    'AKIA[0-9A-Z]{16}'
-    'aws[_-]?(access[_-]?key[_-]?id|secret[_-]?access[_-]?key)'
-    'oauth[_-]?token'
-    'bearer[[:space:]]+[a-zA-Z0-9_-]{20,}'
+# Basic pattern matching as last resort
+else
+    echo -e "${YELLOW}No secret scanner found, using basic patterns...${NC}"
+    echo "Consider installing gitleaks: https://github.com/gitleaks/gitleaks"
     
-    # Private Keys
-    '-----BEGIN[[:space:]]+(RSA|DSA|EC|OPENSSH|PGP)[[:space:]]+PRIVATE[[:space:]]+KEY'
+    # Define secret patterns to check
+    declare -a patterns=(
+        # Authentication
+        'api[_-]?key.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
+        'token.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
+        'secret.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
+        'AKIA[0-9A-Z]{16}'
+        'aws[_-]?(access[_-]?key[_-]?id|secret[_-]?access[_-]?key)'
+        
+        # Private Keys
+        '-----BEGIN[[:space:]]+(RSA|DSA|EC|OPENSSH|PGP)[[:space:]]+PRIVATE[[:space:]]+KEY'
+        
+        # Connection strings
+        '(mysql|postgresql|mongodb|redis)://[^:]+:[^@]+@'
+    )
     
-    # Connection strings
-    '(mysql|postgresql|mongodb|redis)://[^:]+:[^@]+@'
-    
-    # Environment files
-    '\.env\.(local|production|staging)'
-)
-
-# Get staged files once
-staged_files=$(git diff --cached --name-only -z)
-
-# Check for secrets in staged files
-if [[ -n "$staged_files" ]]; then
-    for pattern in "${patterns[@]}"; do
-        if echo "$staged_files" | xargs -0 grep -qE "$pattern" 2>/dev/null; then
-            echo "Error: Potential secret detected (pattern: $pattern)"
-            echo "Remove the secret or add to .gitignore"
-            exit 1
-        fi
-    done
+    # Check staged files
+    staged_files=$(git diff --cached --name-only)
+    if [[ -n "$staged_files" ]]; then
+        for file in $staged_files; do
+            if [[ -f "$file" ]]; then
+                for pattern in "${patterns[@]}"; do
+                    if grep -qE "$pattern" "$file" 2>/dev/null; then
+                        echo -e "${RED}Error: Potential secret detected in $file${NC}"
+                        echo "Pattern: $pattern"
+                        exit 1
+                    fi
+                done
+            fi
+        done
+    fi
 fi
 
 exit 0

@@ -94,7 +94,7 @@ install_packages() {
     
     # Common packages
     local packages=(
-        git curl wget tmux tree jq zsh neovim fzf git-secrets
+        git curl wget tmux tree jq zsh neovim fzf
     )
     
     # Platform-specific packages
@@ -154,9 +154,15 @@ setup_git_config() {
     # Make hooks executable
     find "$HOME/.config/git/hooks" -type f -exec chmod +x {} \;
     
-    # Register git-secrets patterns
-    if command -v git-secrets &>/dev/null; then
-        git secrets --register-aws 2>/dev/null || true
+    # Download and install gitleaks if not available through package manager
+    if ! command -v gitleaks &>/dev/null; then
+        info "Installing gitleaks..."
+        local gitleaks_version=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        local gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz"
+        if [[ "$(uname)" == "Darwin" ]]; then
+            gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_darwin_arm64.tar.gz"
+        fi
+        curl -sL "$gitleaks_url" | tar -xz -C "$HOME/.local/bin" gitleaks 2>/dev/null || warning "Failed to install gitleaks"
     fi
 }
 

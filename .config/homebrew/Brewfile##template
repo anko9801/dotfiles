@@ -33,7 +33,7 @@ brew "vim"
 brew "neovim"
 # mise is installed directly via curl in bootstrap
 brew "uv"    # Fast Python package and project manager
-brew "git-secrets"
+brew "gitleaks"
 brew "git-delta"  # Better git diffs
 
 {% if yadm.class == "work" %}
