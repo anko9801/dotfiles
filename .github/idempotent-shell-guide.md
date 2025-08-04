@@ -1,8 +1,6 @@
 # 冪等なシェルスクリプト実践ガイド
 
-## 基本パターン
-
-### ファイルシステム操作
+## ファイル操作
 
 ```bash
 # ディレクトリ作成
@@ -21,41 +19,20 @@ cp -af "$source" "$destination"  # -f: 強制上書き、エラーなし
 rm -f "$file"     # ファイルが存在しなくてもエラーなし
 rm -rf "$dir"     # ディレクトリが存在しなくてもエラーなし
 
-# バックアップ付き操作
-backup_and_replace() {
-    local file="$1" new_content="$2"
-    [ -f "$file" ] && cp -a "$file" "$file.bak.$(date +%Y%m%d_%H%M%S)"
-    echo "$new_content" > "$file"
-}
+# バックアップ
+[ -f "$file" ] && cp -a "$file" "$file.bak.$(date +%Y%m%d_%H%M%S)"
 
 # 行の冪等な追加
 grep -Fxq "$line" "$file" || echo "$line" >> "$file"
 
-# 設定ブロックの追加
-add_config_block() {
-    local marker="$1" file="$2"
-    shift 2
-    if ! grep -qF "$marker" "$file"; then
-        echo -e "\n$marker\n$*" >> "$file"
-    fi
-}
-```
+# sed の基本（-iで直接編集）
+sed -i 's/old/new/g' "$file"        # 直接編集
+sed -i.bak 's/old/new/g' "$file"    # .bakでバックアップ
 
-### 設定管理
+# 冪等なsed（条件付き実行）
+grep -q "pattern" "$file" && sed -i 's/pattern/replacement/g' "$file"
 
-```bash
-# sed によるインプレース編集
-# -i: ファイルを直接編集（バックアップなし）
-# -i.bak: 編集前のファイルを .bak として保存
-sed -i 's/old_pattern/new_pattern/g' "$file"
-sed -i.bak 's/old_pattern/new_pattern/g' "$file"  # バックアップ付き
-
-# 冪等な sed 編集（条件付き）
-if grep -q "old_pattern" "$file"; then
-    sed -i 's/old_pattern/new_pattern/g' "$file"
-fi
-
-# キー・バリュー形式の更新
+# キー=値 形式の設定更新
 update_config() {
     local key="$1" value="$2" file="$3"
     if grep -q "^${key}=" "$file"; then
@@ -65,32 +42,23 @@ update_config() {
     fi
 }
 
-# Git設定の冪等化
-git_config_set() {
-    local key="$1" value="$2"
-    current=$(git config --global "$key" 2>/dev/null || echo "")
-    [[ "$current" != "$value" ]] && git config --global "$key" "$value"
+# 設定ブロックの追加
+add_config_block() {
+    local marker="$1" file="$2"
+    shift 2
+    if ! grep -qF "$marker" "$file"; then
+        echo -e "\n$marker\n$*" >> "$file"
+    fi
 }
 
-# アトミックなファイル更新（sed -i の安全な代替）
-atomic_update() {
-    local file="$1"
-    cp -a "$file" "$file.tmp"
-    sed 's/old_pattern/new_pattern/g' "$file.tmp"
-    mv "$file.tmp" "$file"
-}
-
-# 複数行の置換（sed -i の応用）
-replace_block() {
-    local file="$1" start_marker="$2" end_marker="$3" new_content="$4"
-    sed -i "/${start_marker}/,/${end_marker}/c\\
-${new_content}" "$file"
+# アトミックな更新（大きな変更や重要なファイル向け）
+cp "$file" "$file.tmp" && {
+    sed 's/old/new/g' "$file.tmp" > "$file"
+    rm "$file.tmp"
 }
 ```
 
-## パッケージ・サービス管理
-
-### パッケージインストール
+## パッケージ管理
 
 ```bash
 # 汎用的で効率的な一括パッケージインストール
@@ -115,14 +83,9 @@ packages=(
     build-essential python3 nodejs
 )
 install_packages "${packages[@]}"
+```
 
-# 注：最新のパッケージマネージャーは内部で並列ダウンロードを最適化しています
-# - apt (APT 2.0+): Acquire::Queue-Mode "host"
-# - pacman: /etc/pacman.conf で ParallelDownloads = 5
-# - dnf: /etc/dnf/dnf.conf で max_parallel_downloads=10
-# - zypper: aria2c を使用して並列ダウンロード
-
-### サービス管理（systemd）
+## サービス管理（systemd）
 
 ```bash
 # サービスの有効化と起動
@@ -135,19 +98,13 @@ ensure_service() {
 
 ## エラーハンドリングと安全性
 
-### 基本設定
-
 ```bash
 #!/bin/bash
 set -euo pipefail
 # -e: エラーで即座に終了
 # -u: 未定義変数でエラー
 # -o pipefail: パイプライン内のエラーを検知
-```
 
-### クリーンアップと排他制御
-
-```bash
 # クリーンアップ処理
 TEMP_FILES=()
 cleanup() {
@@ -176,23 +133,36 @@ TEMP_FILES+=("$temp_file")
 
 ## 確認コマンド一覧
 
-| リソース | 確認コマンド | 用途 |
-|---------|------------|------|
-| **ファイルシステム** |
-| ディレクトリ | `[ -d "$path" ]` | ディレクトリの存在確認 |
-| ファイル | `[ -f "$path" ]` | 通常ファイルの存在確認 |
-| 任意のファイル | `[ -e "$path" ]` | 任意のファイルタイプの存在確認 |
-| シンボリックリンク | `[ -L "$path" ]` | シンボリックリンクの確認 |
-| **パッケージ** |
-| Debian/Ubuntu | `dpkg -l "$pkg" &>/dev/null` | aptパッケージの確認 |
-| Arch Linux | `pacman -Qi "$pkg" &>/dev/null` | pacmanパッケージの確認 |
-| RHEL/CentOS | `rpm -q "$pkg" &>/dev/null` | yumパッケージの確認 |
-| **システム** |
-| コマンド | `command -v "$cmd" &>/dev/null` | コマンドの存在確認 |
-| サービス（有効） | `systemctl is-enabled --quiet "$svc"` | 自動起動設定の確認 |
-| サービス（実行中） | `systemctl is-active --quiet "$svc"` | サービス実行状態の確認 |
-| ユーザー | `id -u "$user" &>/dev/null` | ユーザーの存在確認 |
-| グループ | `getent group "$grp" &>/dev/null` | グループの存在確認 |
+| 対象 | 確認方法 | 説明 |
+|------|---------|------|
+| **ファイル・ディレクトリ** |
+| ディレクトリ | `[ -d "$dir" ]` | ディレクトリか確認 |
+| ファイル | `[ -f "$file" ]` | 通常ファイルか確認 |
+| 存在確認 | `[ -e "$path" ]` | 何かが存在するか確認 |
+| シンボリックリンク | `[ -L "$link" ]` | シンボリックリンクか確認 |
+| 読み取り可能 | `[ -r "$file" ]` | 読み取り権限の確認 |
+| 書き込み可能 | `[ -w "$file" ]` | 書き込み権限の確認 |
+| 実行可能 | `[ -x "$file" ]` | 実行権限の確認 |
+| **文字列・内容** |
+| 文字列が空でない | `[ -n "$str" ]` | 文字列に内容があるか |
+| 文字列が空 | `[ -z "$str" ]` | 文字列が空か |
+| ファイル内検索 | `grep -q "pattern" "$file"` | パターンが存在するか |
+| 完全一致行検索 | `grep -Fxq "$line" "$file"` | 行が完全一致で存在するか |
+| **コマンド・パッケージ** |
+| コマンド | `command -v "$cmd" &>/dev/null` | コマンドが利用可能か |
+| which（非推奨） | `which "$cmd" &>/dev/null` | command -v を使うべき |
+| Debian/Ubuntu | `dpkg -l "$pkg" &>/dev/null` | パッケージ確認 |
+| Arch Linux | `pacman -Qi "$pkg" &>/dev/null` | パッケージ確認 |
+| RedHat系 | `rpm -q "$pkg" &>/dev/null` | パッケージ確認 |
+| **サービス・プロセス** |
+| サービス有効 | `systemctl is-enabled --quiet "$svc"` | 自動起動が有効か |
+| サービス実行中 | `systemctl is-active --quiet "$svc"` | 現在実行中か |
+| プロセス | `pgrep "$process" &>/dev/null` | プロセスが実行中か |
+| ポート | `netstat -tln | grep -q ":$port "` | ポートが使用中か |
+| **ユーザー・権限** |
+| ユーザー | `id "$user" &>/dev/null` | ユーザーが存在するか |
+| グループ | `getent group "$grp" &>/dev/null` | グループが存在するか |
+| root権限 | `[ $EUID -eq 0 ]` | rootで実行中か |
 
 ## 実例：Before/After
 
