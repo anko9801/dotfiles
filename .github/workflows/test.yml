@@ -85,8 +85,9 @@ jobs:
           if [[ -f "$HOME/.config/yadm/bootstrap" ]]; then
             echo "=== Running bootstrap ==="
             "$HOME/.config/yadm/bootstrap" || {
-              echo "Bootstrap failed with exit code: $?"
-              # Continue to see what was installed
+              code=$?
+              echo "Bootstrap failed with exit code: $code"
+              exit $code
             }
           else
             echo "ERROR: bootstrap not found"
