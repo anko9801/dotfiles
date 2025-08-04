@@ -297,7 +297,8 @@ setup_gh_extensions() {
 }
 
 setup_macos_settings() {
-{% if yadm.os == "Darwin" %}
+    # Skip if not on macOS
+    [[ "$(uname)" != "Darwin" ]] && return 0
     [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "true" ]] && return 0
     
     info "Applying macOS settings..."
@@ -316,12 +317,11 @@ setup_macos_settings() {
     killall Finder 2>/dev/null || true
     
     success "macOS settings applied"
-{% else %}
-    :
-{% endif %}
 }
 setup_wsl_integration() {
-{% if yadm.os == "WSL" %}
+    # Skip if not in WSL
+    [[ ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]] && return 0
+    
     info "Configuring WSL integration..."
     
     # Windows interop settings
@@ -345,9 +345,6 @@ setup_wsl_integration() {
     # WSL-specific Git config
     git config --global core.autocrlf input
     git config --global core.filemode false
-{% else %}
-    :
-{% endif %}
 }
 
 install_modern_tools_debian() {
@@ -391,39 +388,12 @@ install_modern_tools_fedora() {
 # Summary
 # ============================================================================
 
-show_summary() {
+finish_bootstrap() {
     success "Bootstrap completed!"
     echo
-    echo "Installed tools:"
-{% if yadm.os == "Darwin" %}
-    echo "  ✓ Homebrew packages (via Brewfile)"
-{% endif %}
-{% if yadm.os == "Windows" %}
-    echo "  ✓ Windows packages (via winget)"
-{% endif %}
-{% if yadm.os == "Linux" or yadm.os == "WSL" %}
-    echo "  ✓ System packages and modern CLI tools"
-{% endif %}
-    echo "  ✓ mise with all configured tools"
-    echo "  ✓ Python tools (ruff via uv)"
-    echo "  ✓ Development tools and Git configuration"
-    echo "  ✓ Zsh with antidote"
-    echo "  ✓ 1Password integration"
-{% if yadm.os == "Darwin" %}
-    [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" == "true" ]] && echo "  ✓ macOS settings"
-{% endif %}
-    echo
-    echo "Configuration: class={% if yadm.class %}{{ yadm.class }}{% else %}personal{% endif %}"
-    echo
-    echo "Next steps:"
-{% if yadm.os == "Windows" %}
-    echo "1. Restart Windows Terminal"
-    echo "2. Configure your PowerShell profile"
-    echo "3. Set up WSL if needed for Linux tools"
-{% else %}
-    echo "1. Restart your terminal"
-    echo "2. Run 'exec zsh' to switch to Zsh"
-    [[ "$(basename "$SHELL")" != "zsh" ]] && echo "3. Run: chsh -s $(which zsh)"
+    echo "Please restart your terminal to apply all changes."
+{% if yadm.os != "Windows" %}
+    [[ "$(basename "$SHELL")" != "zsh" ]] && echo "Run 'chsh -s $(which zsh)' to set Zsh as your default shell."
 {% endif %}
 }
 
@@ -457,7 +427,7 @@ main() {
     setup_macos_settings
     setup_wsl_integration
     
-    show_summary
+    finish_bootstrap
 }
 
 main "$@"
