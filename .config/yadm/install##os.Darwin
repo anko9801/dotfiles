@@ -40,11 +40,9 @@ fi
 info "Updating Homebrew..."
 brew update
 
-# Optionally upgrade existing packages
-if [[ "${BREW_UPGRADE:-false}" == "true" ]]; then
-    info "Upgrading Homebrew packages..."
-    brew upgrade
-fi
+# Upgrade existing packages
+info "Upgrading Homebrew packages..."
+brew upgrade
 
 # 4. Install all packages from Brewfile (includes mise, git-secrets, gh, etc.)
 if [[ -f "$HOME/.config/homebrew/Brewfile" ]]; then
