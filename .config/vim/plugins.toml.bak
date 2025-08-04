@@ -36,10 +36,10 @@ repo = 'vim-denops/denops.vim'
 [[plugins]]
 repo = 'vim-airline/vim-airline'
 hook_add = '''
-let g:airline_theme = 'onedark'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#branch#enabled = 1
-let g:airline_powerline_fonts = 1
+  let g:airline_theme = 'onedark'
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline#extensions#branch#enabled = 1
+  let g:airline_powerline_fonts = 1
 '''
 
 [[plugins]]
@@ -69,21 +69,21 @@ repo = 'junegunn/fzf.vim'
 depends = ['fzf']
 on_cmd = ['Files', 'GFiles', 'Buffers', 'Rg', 'Lines', 'BLines', 'Commands']
 hook_add = '''
-nnoremap <leader>f :Files<CR>
-nnoremap <leader>g :GFiles<CR>
-nnoremap <leader>b :Buffers<CR>
-nnoremap <leader>r :Rg<CR>
-nnoremap <leader>l :Lines<CR>
+  nnoremap <leader>f :Files<CR>
+  nnoremap <leader>g :GFiles<CR>
+  nnoremap <leader>b :Buffers<CR>
+  nnoremap <leader>r :Rg<CR>
+  nnoremap <leader>l :Lines<CR>
 '''
 
 [[plugins]]
 repo = 'preservim/nerdtree'
 on_cmd = ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']
 hook_add = '''
-nnoremap <leader>n :NERDTreeToggle<CR>
-nnoremap <leader>nf :NERDTreeFind<CR>
-let g:NERDTreeShowHidden = 1
-let g:NERDTreeIgnore = ['\.git$', '\.DS_Store$']
+  nnoremap <leader>n :NERDTreeToggle<CR>
+  nnoremap <leader>nf :NERDTreeFind<CR>
+  let g:NERDTreeShowHidden = 1
+  let g:NERDTreeIgnore = ['\.git$', '\.DS_Store$']
 '''
 
 # =============================================================================
@@ -97,12 +97,12 @@ on_cmd = ['Git', 'Gstatus', 'Gblame', 'Gdiff', 'Glog']
 [[plugins]]
 repo = 'airblade/vim-gitgutter'
 hook_add = '''
-let g:gitgutter_map_keys = 0
-nmap ]h <Plug>(GitGutterNextHunk)
-nmap [h <Plug>(GitGutterPrevHunk)
-nmap <leader>hp <Plug>(GitGutterPreviewHunk)
-nmap <leader>hs <Plug>(GitGutterStageHunk)
-nmap <leader>hu <Plug>(GitGutterUndoHunk)
+  let g:gitgutter_map_keys = 0
+  nmap ]h <Plug>(GitGutterNextHunk)
+  nmap [h <Plug>(GitGutterPrevHunk)
+  nmap <leader>hp <Plug>(GitGutterPreviewHunk)
+  nmap <leader>hs <Plug>(GitGutterStageHunk)
+  nmap <leader>hu <Plug>(GitGutterUndoHunk)
 '''
 
 # =============================================================================
@@ -112,11 +112,11 @@ nmap <leader>hu <Plug>(GitGutterUndoHunk)
 [[plugins]]
 repo = 'prabirshrestha/vim-lsp'
 hook_add = '''
-let g:lsp_diagnostics_enabled = 1
-let g:lsp_diagnostics_echo_cursor = 1
-let g:lsp_text_edit_enabled = 1
-let g:lsp_signs_enabled = 1
-let g:lsp_virtual_text_enabled = 1
+  let g:lsp_diagnostics_enabled = 1
+  let g:lsp_diagnostics_echo_cursor = 1
+  let g:lsp_text_edit_enabled = 1
+  let g:lsp_signs_enabled = 1
+  let g:lsp_virtual_text_enabled = 1
 '''
 
 [[plugins]]
@@ -133,12 +133,12 @@ depends = ['asyncomplete.vim', 'vim-lsp']
 [[plugins]]
 repo = 'hrsh7th/vim-vsnip'
 hook_add = '''
-imap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
-smap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
-imap <expr> <Tab> vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
-smap <expr> <Tab> vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
-imap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
-smap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
+  imap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
+  smap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
+  imap <expr> <Tab> vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+  smap <expr> <Tab> vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+  imap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
+  smap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
 '''
 
 [[plugins]]
@@ -155,25 +155,25 @@ repo = 'sheerun/vim-polyglot'
 [[plugins]]
 repo = 'dense-analysis/ale'
 hook_add = '''
-let g:ale_linters_explicit = 1
-let g:ale_fix_on_save = 1
-let g:ale_sign_column_always = 1
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let g:ale_linters = {
-\   'python': ['flake8', 'mypy'],
-\   'javascript': ['eslint'],
-\   'typescript': ['eslint', 'tsserver'],
-\   'go': ['gopls', 'golint'],
-\   'rust': ['rustc', 'cargo'],
-\}
-let g:ale_fixers = {
-\   '*': ['remove_trailing_lines', 'trim_whitespace'],
-\   'python': ['black', 'isort'],
-\   'javascript': ['prettier'],
-\   'typescript': ['prettier'],
-\   'go': ['gofmt'],
-\   'rust': ['rustfmt'],
-\}
+  let g:ale_linters_explicit = 1
+  let g:ale_fix_on_save = 1
+  let g:ale_sign_column_always = 1
+  let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+  let g:ale_linters = {
+  \   'python': ['flake8', 'mypy'],
+  \   'javascript': ['eslint'],
+  \   'typescript': ['eslint', 'tsserver'],
+  \   'go': ['gopls', 'golint'],
+  \   'rust': ['rustc', 'cargo'],
+  \}
+  let g:ale_fixers = {
+  \   '*': ['remove_trailing_lines', 'trim_whitespace'],
+  \   'python': ['black', 'isort'],
+  \   'javascript': ['prettier'],
+  \   'typescript': ['prettier'],
+  \   'go': ['gofmt'],
+  \   'rust': ['rustfmt'],
+  \}
 '''
 
 # =============================================================================
@@ -197,18 +197,18 @@ repo = 'junegunn/vim-easy-align'
 on_cmd = ['EasyAlign']
 on_map = {n = 'ga', x = 'ga'}
 hook_add = '''
-nmap ga <Plug>(EasyAlign)
-xmap ga <Plug>(EasyAlign)
+  nmap ga <Plug>(EasyAlign)
+  xmap ga <Plug>(EasyAlign)
 '''
 
 [[plugins]]
 repo = 'easymotion/vim-easymotion'
 on_map = {n = '<Leader>'}
 hook_add = '''
-let g:EasyMotion_do_mapping = 0
-let g:EasyMotion_smartcase = 1
-nmap <Leader>s <Plug>(easymotion-overwin-f2)
-nmap <Leader>w <Plug>(easymotion-overwin-w)
+  let g:EasyMotion_do_mapping = 0
+  let g:EasyMotion_smartcase = 1
+  nmap <Leader>s <Plug>(easymotion-overwin-f2)
+  nmap <Leader>w <Plug>(easymotion-overwin-w)
 '''
 
 # =============================================================================
@@ -219,7 +219,7 @@ nmap <Leader>w <Plug>(easymotion-overwin-w)
 repo = 'mbbill/undotree'
 on_cmd = ['UndotreeToggle']
 hook_add = '''
-nnoremap <leader>u :UndotreeToggle<CR>
+  nnoremap <leader>u :UndotreeToggle<CR>
 '''
 
 [[plugins]]
@@ -238,5 +238,5 @@ build = 'make'
 repo = 'thinca/vim-quickrun'
 on_cmd = ['QuickRun']
 hook_add = '''
-nnoremap <leader>r :QuickRun<CR>
+  nnoremap <leader>r :QuickRun<CR>
 '''
