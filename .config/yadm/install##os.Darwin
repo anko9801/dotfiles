@@ -47,7 +47,7 @@ brew upgrade
 # 4. Install all packages from Brewfile (includes mise, git-secrets, gh, etc.)
 if [[ -f "$HOME/.config/homebrew/Brewfile" ]]; then
     info "Installing packages from Brewfile..."
-    brew bundle --file="$HOME/.config/homebrew/Brewfile" --no-lock
+    brew bundle --file="$HOME/.config/homebrew/Brewfile"
     success "Packages installed"
 else
     error "Brewfile not found. Run 'yadm alt' first."
