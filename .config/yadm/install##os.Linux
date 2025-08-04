@@ -68,22 +68,52 @@ case "$DISTRO" in
         # Install tools available in apt
         info "Installing available tools from apt..."
         
-        # Tools available in standard Ubuntu repos
-        apt_tools=(fzf git-secrets ripgrep fd-find bat)
+        # Basic tools from standard repos
+        apt_tools=(fzf git-secrets)
         for tool in "${apt_tools[@]}"; do
             sudo apt install -y "$tool" || warning "Failed to install $tool"
         done
         
-        # eza needs to be installed from deb file (not in standard repos)
+        # Install modern CLI tools via .deb files for latest versions
+        info "Installing modern CLI tools..."
+        tmp_dir=$(mktemp -d)
+        cd "$tmp_dir"
+        
+        # ripgrep
+        if ! command -v rg &>/dev/null; then
+            info "Installing ripgrep..."
+            RIPGREP_VERSION=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+            curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep_${RIPGREP_VERSION}-1_amd64.deb"
+            sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # fd
+        if ! command -v fd &>/dev/null; then
+            info "Installing fd..."
+            FD_VERSION=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd_${FD_VERSION}_amd64.deb"
+            sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # bat
+        if ! command -v bat &>/dev/null; then
+            info "Installing bat..."
+            BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat_${BAT_VERSION}_amd64.deb"
+            sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # eza
         if ! command -v eza &>/dev/null; then
             info "Installing eza..."
-            tmp_dir=$(mktemp -d)
-            cd "$tmp_dir"
-            curl -LO "https://github.com/eza-community/eza/releases/latest/download/eza_amd64.deb" || \
-            curl -LO "https://github.com/eza-community/eza/releases/download/v0.18.0/eza_0.18.0-1_amd64.deb"
+            # eza uses different naming convention
+            EZA_VERSION=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_amd64.deb" || \
+            curl -LO "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_${EZA_VERSION}-1_amd64.deb"
             sudo dpkg -i eza*.deb || sudo apt-get install -f -y
-            cd - && rm -rf "$tmp_dir"
         fi
+        
+        cd - && rm -rf "$tmp_dir"
         
         # starship from official script (ensures latest version)
         if ! command -v starship &>/dev/null; then
