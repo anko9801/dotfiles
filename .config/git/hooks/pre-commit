@@ -1,63 +1,17 @@
 #!/usr/bin/env bash
 # Git pre-commit hook - prevent committing secrets
 
-set -e
+set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Run gitleaks if available
-if command -v gitleaks &>/dev/null; then
-    echo -e "${YELLOW}Running gitleaks...${NC}"
-    if ! gitleaks protect --staged --verbose --config "${GITLEAKS_CONFIG:-$HOME/.config/gitleaks/config.toml}"; then
-        echo -e "${RED}Gitleaks detected secrets!${NC}"
-        echo "Fix the issues or add to .gitleaksignore if false positive"
-        exit 1
-    fi
-    echo -e "${GREEN}Gitleaks check passed${NC}"
-# Fallback to git-secrets if available
-elif command -v git-secrets &>/dev/null; then
-    echo -e "${YELLOW}Running git-secrets (consider installing gitleaks)...${NC}"
-    git secrets --pre_commit_hook -- "$@" || exit 1
-# Basic pattern matching as last resort
-else
-    echo -e "${YELLOW}No secret scanner found, using basic patterns...${NC}"
-    echo "Consider installing gitleaks: https://github.com/gitleaks/gitleaks"
-    
-    # Define secret patterns to check
-    declare -a patterns=(
-        # Authentication
-        'api[_-]?key.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
-        'token.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
-        'secret.*[:=][[:space:]]*["\047]?[a-zA-Z0-9_-]{20,}'
-        'AKIA[0-9A-Z]{16}'
-        'aws[_-]?(access[_-]?key[_-]?id|secret[_-]?access[_-]?key)'
-        
-        # Private Keys
-        '-----BEGIN[[:space:]]+(RSA|DSA|EC|OPENSSH|PGP)[[:space:]]+PRIVATE[[:space:]]+KEY'
-        
-        # Connection strings
-        '(mysql|postgresql|mongodb|redis)://[^:]+:[^@]+@'
-    )
-    
-    # Check staged files
-    staged_files=$(git diff --cached --name-only)
-    if [[ -n "$staged_files" ]]; then
-        for file in $staged_files; do
-            if [[ -f "$file" ]]; then
-                for pattern in "${patterns[@]}"; do
-                    if grep -qE "$pattern" "$file" 2>/dev/null; then
-                        echo -e "${RED}Error: Potential secret detected in $file${NC}"
-                        echo "Pattern: $pattern"
-                        exit 1
-                    fi
-                done
-            fi
-        done
-    fi
+# Check if gitleaks is installed
+if ! command -v gitleaks &>/dev/null; then
+    echo "Warning: gitleaks not found. Install it to scan for secrets."
+    echo "  brew install gitleaks  # macOS"
+    echo "  or see: https://github.com/gitleaks/gitleaks#installation"
+    exit 0
 fi
 
-exit 0
+# Run gitleaks on staged changes
+gitleaks protect --staged --redact \
+    --config "${GITLEAKS_CONFIG:-$HOME/.config/gitleaks/config.toml}" \
+    --exit-code 1
