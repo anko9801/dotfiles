@@ -2,6 +2,30 @@
 # Bootstrap installation script
 set -euo pipefail
 
+# Script options
+VERBOSE=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --verbose|-v)
+            VERBOSE=true
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [options]"
+            echo "Options:"
+            echo "  --verbose, -v   Show detailed output"
+            echo "  --help, -h      Show this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
 # ============================================================================
 # Constants & Utilities
 # ============================================================================
@@ -21,6 +45,7 @@ info() { echo -e "${BLUE}==>${NC} $1"; }
 success() { echo -e "${GREEN}✓${NC} $1"; }
 error() { echo -e "${RED}✗${NC} $1" >&2; }
 warning() { echo -e "${YELLOW}!${NC} $1"; }
+verbose() { [[ "$VERBOSE" == "true" ]] && echo -e "${BLUE}[VERBOSE]${NC} $1"; }
 
 # Cleanup on exit
 cleanup() {
@@ -57,8 +82,7 @@ setup_package_manager() {
     fi
     info "Updating Homebrew..."
     brew update
-{% endif %}
-{% if yadm.os == "Linux" or yadm.os == "WSL" %}
+{% else %}
     # Detect Linux distribution
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
@@ -74,22 +98,18 @@ setup_package_manager() {
         fedora) sudo dnf update -y ;;
     esac
 {% endif %}
-    # Default: no-op for unknown OS
-    :
 }
 
 install_packages() {
 {% if yadm.os == "Darwin" %}
     local brewfile="$HOME/.config/homebrew/Brewfile"
-    if [[ -f "$brewfile" ]]; then
-        info "Installing packages from Brewfile..."
-        brew bundle --file="$brewfile"
-    else
+    if [[ ! -f "$brewfile" ]]; then
         error "Brewfile not found. Run 'yadm alt' first."
         exit 1
     fi
-{% endif %}
-{% if yadm.os == "Linux" or yadm.os == "WSL" %}
+    info "Installing packages from Brewfile..."
+    brew bundle --file="$brewfile"
+{% else %}
     info "Installing base packages..."
     
     # Common packages
@@ -118,8 +138,6 @@ install_packages() {
             ;;
     esac
 {% endif %}
-    # Default: no-op for unknown OS
-    :
 }
 
 # ============================================================================
@@ -127,22 +145,25 @@ install_packages() {
 # ============================================================================
 
 setup_mise() {
-    if ! command -v mise &>/dev/null; then
-        info "Installing mise..."
-        curl https://mise.run | sh
-        export PATH="$HOME/.local/bin:$PATH"
+    if command -v mise &>/dev/null; then
+        success "mise already installed"
+        return 0
     fi
     
-    if command -v mise &>/dev/null; then
-        info "Configuring mise..."
-        eval "$(mise activate bash)"
-        mise trust "$HOME/.config/mise/config.toml" 2>/dev/null || true
-        mise install --yes || warning "Some mise tools failed to install"
-        success "mise configured"
-    else
+    info "Installing mise..."
+    curl https://mise.run | sh
+    export PATH="$HOME/.local/bin:$PATH"
+    
+    if ! command -v mise &>/dev/null; then
         error "Failed to install mise"
         exit 1
     fi
+    
+    info "Configuring mise..."
+    eval "$(mise activate bash)"
+    mise trust "$HOME/.config/mise/config.toml" 2>/dev/null || true
+    mise install --yes || warning "Some mise tools failed to install"
+    success "mise configured"
 }
 
 setup_git_config() {
@@ -154,16 +175,18 @@ setup_git_config() {
     # Make hooks executable
     find "$HOME/.config/git/hooks" -type f -exec chmod +x {} \;
     
-    # Download and install gitleaks if not available through package manager
-    if ! command -v gitleaks &>/dev/null; then
-        info "Installing gitleaks..."
-        local gitleaks_version=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        local gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz"
-        if [[ "$(uname)" == "Darwin" ]]; then
-            gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_darwin_arm64.tar.gz"
-        fi
-        curl -sL "$gitleaks_url" | tar -xz -C "$HOME/.local/bin" gitleaks 2>/dev/null || warning "Failed to install gitleaks"
+    # Skip gitleaks installation if already available
+    command -v gitleaks &>/dev/null && return 0
+    
+    info "Installing gitleaks..."
+    local gitleaks_version=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+    local gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz"
+    
+    if [[ "$(uname)" == "Darwin" ]]; then
+        gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_darwin_arm64.tar.gz"
     fi
+    
+    curl -sL "$gitleaks_url" | tar -xz -C "$HOME/.local/bin" gitleaks 2>/dev/null || warning "Failed to install gitleaks"
 }
 
 setup_shell() {
@@ -175,12 +198,16 @@ setup_shell() {
         git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir"
     fi
     
-    # SSH config
+    # SSH config - early return if already configured
+    if [[ -f "$HOME/.ssh/config" ]] && grep -q "^Include ~/.ssh/config.d/\*" "$HOME/.ssh/config" 2>/dev/null; then
+        chmod 600 "$HOME/.ssh/config" 2>/dev/null || true
+        return 0
+    fi
+    
+    # Add include directive
     if [[ -f "$HOME/.ssh/config" ]]; then
-        if ! grep -q "^Include ~/.ssh/config.d/\*" "$HOME/.ssh/config" 2>/dev/null; then
-            echo -e "Include ~/.ssh/config.d/*\n" | cat - "$HOME/.ssh/config" > "$HOME/.ssh/config.tmp"
-            mv "$HOME/.ssh/config.tmp" "$HOME/.ssh/config"
-        fi
+        echo -e "Include ~/.ssh/config.d/*\n" | cat - "$HOME/.ssh/config" > "$HOME/.ssh/config.tmp"
+        mv "$HOME/.ssh/config.tmp" "$HOME/.ssh/config"
     else
         echo -e "Include ~/.ssh/config.d/*\n" > "$HOME/.ssh/config"
     fi
@@ -188,94 +215,92 @@ setup_shell() {
 }
 
 setup_1password() {
-    if command -v op &>/dev/null; then
-        info "Configuring 1Password integration..."
-        if [[ -f "$HOME/.config/op/plugins.sh" ]]; then
-            bash "$HOME/.config/op/plugins.sh" || true
-        fi
-    else
+    if ! command -v op &>/dev/null; then
         warning "1Password CLI not found - install from https://developer.1password.com/docs/cli/"
 {% if yadm.os == "WSL" %}
         info "For WSL: Consider installing 1Password on Windows and using the WSL integration"
 {% endif %}
+        return 0
+    fi
+    
+    info "Configuring 1Password integration..."
+    if [[ -f "$HOME/.config/op/plugins.sh" ]]; then
+        bash "$HOME/.config/op/plugins.sh" || true
     fi
 }
 
 setup_python_tools() {
-    if command -v uv &>/dev/null; then
-        info "Installing Python tools..."
-        uv tool install ruff@latest || true
-    fi
+    command -v uv &>/dev/null || return 0
+    
+    info "Installing Python tools..."
+    uv tool install ruff@latest || true
 }
 
 setup_gh_extensions() {
-    if command -v gh &>/dev/null; then
-        if ! gh extension list | grep -q "github/gh-copilot"; then
-            gh extension install github/gh-copilot || true
-        fi
-    fi
+    command -v gh &>/dev/null || return 0
+    
+    gh extension list | grep -q "github/gh-copilot" && return 0
+    
+    gh extension install github/gh-copilot || true
 }
-
-{% if yadm.os == "Darwin" %}
-# ============================================================================
-# macOS Specific
-# ============================================================================
 
 setup_macos_settings() {
-    if [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" == "true" ]]; then
-        info "Applying macOS settings..."
-        
-        # Show hidden files in Finder
-        defaults write com.apple.finder AppleShowAllFiles -bool true
-        
-        # Enable fast key repeat
-        defaults write NSGlobalDomain KeyRepeat -int 2
-        defaults write NSGlobalDomain InitialKeyRepeat -int 15
-        
-        # Disable press-and-hold for keys
-        defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-        
-        # Restart Finder to apply changes
-        killall Finder 2>/dev/null || true
-        
-        success "macOS settings applied"
-    fi
-}
+{% if yadm.os == "Darwin" %}
+    [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "true" ]] && return 0
+    
+    info "Applying macOS settings..."
+    
+    # Show hidden files in Finder
+    defaults write com.apple.finder AppleShowAllFiles -bool true
+    
+    # Enable fast key repeat
+    defaults write NSGlobalDomain KeyRepeat -int 2
+    defaults write NSGlobalDomain InitialKeyRepeat -int 15
+    
+    # Disable press-and-hold for keys
+    defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+    
+    # Restart Finder to apply changes
+    killall Finder 2>/dev/null || true
+    
+    success "macOS settings applied"
+{% else %}
+    :
 {% endif %}
-# ============================================================================
-# Linux/WSL Specific
-# ============================================================================
-
-{% if yadm.os == "WSL" %}
+}
 setup_wsl_integration() {
+{% if yadm.os == "WSL" %}
     info "Configuring WSL integration..."
-        
-        # Windows interop settings
+    
+    # Windows interop settings
+    if [[ -f /etc/wsl.conf ]] && grep -q "\[interop\]" /etc/wsl.conf; then
+        verbose "WSL interop already configured"
+    else
         if [[ -f /etc/wsl.conf ]]; then
-            if ! grep -q "\\[interop\\]" /etc/wsl.conf; then
-                echo -e "\n[interop]\nappendWindowsPath = false" | sudo tee -a /etc/wsl.conf
-                info "Disabled Windows PATH pollution"
-            fi
+            echo -e "\n[interop]\nappendWindowsPath = false" | sudo tee -a /etc/wsl.conf
         else
             echo -e "[interop]\nappendWindowsPath = false" | sudo tee /etc/wsl.conf
         fi
-        
-        # Create Windows home symlink if it doesn't exist
-        if [[ ! -e "$HOME/winhome" ]] && command -v wslpath &>/dev/null; then
-            WINHOME=$(wslpath "$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r')")
-            if [[ -d "$WINHOME" ]]; then
-                ln -s "$WINHOME" "$HOME/winhome"
-                success "Created Windows home symlink"
-            fi
+        info "Disabled Windows PATH pollution"
+    fi
+    
+    # Create Windows home symlink if it doesn't exist
+    if [[ ! -e "$HOME/winhome" ]] && command -v wslpath &>/dev/null; then
+        WINHOME=$(wslpath "$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r')")
+        if [[ -d "$WINHOME" ]]; then
+            ln -s "$WINHOME" "$HOME/winhome"
+            success "Created Windows home symlink"
         fi
-        
+    fi
+    
     # WSL-specific Git config
     git config --global core.autocrlf input
     git config --global core.filemode false
-}
+{% else %}
+    :
 {% endif %}
+}
 
-{% if yadm.os == "Linux" or yadm.os == "WSL" %}
 install_modern_tools_debian() {
     info "Installing modern CLI tools..."
     local tmp_dir=$(mktemp -d)
@@ -284,12 +309,12 @@ install_modern_tools_debian() {
     # Helper function for downloading .deb files
     install_deb_from_github() {
         local repo="$1" name="$2" pattern="$3"
-        if ! command -v "$name" &>/dev/null; then
-            local version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
-            local url=$(printf "$pattern" "$version" "$version")
-            curl -LO "$url" && sudo dpkg -i *.deb || sudo apt-get install -f -y
-            rm -f *.deb
-        fi
+        command -v "$name" &>/dev/null && return 0
+        
+        local version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
+        local url=$(printf "$pattern" "$version" "$version")
+        curl -LO "$url" && sudo dpkg -i *.deb || sudo apt-get install -f -y
+        rm -f *.deb
     }
     
     install_deb_from_github "BurntSushi/ripgrep" "rg" "https://github.com/BurntSushi/ripgrep/releases/download/%s/ripgrep_%s-1_amd64.deb"
@@ -302,8 +327,13 @@ install_modern_tools_debian() {
     rm -rf "$tmp_dir"
     
     # Install from scripts
-    command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
-    command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    if ! command -v starship &>/dev/null; then
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
+    fi
+    
+    if ! command -v atuin &>/dev/null; then
+        bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    fi
     
     # GitHub CLI
     if ! command -v gh &>/dev/null; then
@@ -327,10 +357,14 @@ install_modern_tools_fedora() {
     fi
     
     # Install scripts
-    command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
-    command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    if ! command -v starship &>/dev/null; then
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
+    fi
+    
+    if ! command -v atuin &>/dev/null; then
+        bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    fi
 }
-{% endif %}
 
 # ============================================================================
 # Summary
@@ -354,7 +388,7 @@ show_summary() {
     [[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" == "true" ]] && echo "  ✓ macOS settings"
 {% endif %}
     echo
-    echo "Configuration: class={{ yadm.class | default("personal") }}"
+    echo "Configuration: class={% if yadm.class %}{{ yadm.class }}{% else %}personal{% endif %}"
     echo
     echo "Next steps:"
     echo "1. Restart your terminal"
@@ -370,11 +404,11 @@ main() {
 {% if yadm.os == "Darwin" %}
     info "Running macOS bootstrap..."
 {% endif %}
-{% if yadm.os == "Linux" %}
-    info "Running Linux bootstrap..."
-{% endif %}
 {% if yadm.os == "WSL" %}
     info "Running Linux bootstrap (via WSL)..."
+{% endif %}
+{% if yadm.os == "Linux" %}
+    info "Running Linux bootstrap..."
 {% endif %}
     
     setup_directories
@@ -386,13 +420,8 @@ main() {
     setup_python_tools
     setup_gh_extensions
     setup_1password
-    
-{% if yadm.os == "Darwin" %}
     setup_macos_settings
-{% endif %}
-{% if yadm.os == "WSL" %}
     setup_wsl_integration
-{% endif %}
     
     show_summary
 }
