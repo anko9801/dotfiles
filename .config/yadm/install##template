@@ -109,6 +109,8 @@ setup_package_manager() {
         fedora) sudo dnf update -y ;;
     esac
 {% endif %}
+    # Fallback for unknown OS
+    :
 }
 
 install_packages() {
@@ -140,12 +142,12 @@ install_packages() {
         "ajeetdsouza.zoxide"
         "ellie.atuin"
         "Starship.Starship"
+        "AgileBits.1Password.CLI"
     )
     
     for package in "${packages[@]}"; do
         winget install --id "$package" --accept-package-agreements --accept-source-agreements || warning "Failed to install $package"
     done
-    winget install --id AgileBits.1Password.CLI --accept-package-agreements --accept-source-agreements || warning "Failed to install 1Password CLI"
     
     # Install mise via PowerShell
     if ! command -v mise &>/dev/null; then
@@ -181,6 +183,8 @@ install_packages() {
             ;;
     esac
 {% endif %}
+    # Fallback for unknown OS
+    :
 }
 
 # ============================================================================

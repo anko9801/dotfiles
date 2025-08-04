@@ -81,11 +81,7 @@ setopt correct                # コマンドのスペルを訂正
 # ------------------------------------------------------------------------------
 # 補完機能の初期化
 autoload -Uz compinit
-if [[ -n "$HOME/.zcompdump"(#qN.mh+24) ]]; then
-    compinit
-else
-    compinit -C
-fi
+[[ -n "$HOME/.zcompdump"(#qN.mh+24) ]] && compinit || compinit -C
 
 # 補完スタイル
 zstyle ':completion:*:default' menu select=2
@@ -125,11 +121,7 @@ if is-at-least 4.3.10; then
     zstyle ":vcs_info:git:*" actionformats "(%s)-[%b|%a] %c%u"
 fi
 
-function _update_vcs_info_msg() {
-    psvar=()
-    LANG=en_US.UTF-8 vcs_info
-    [[ -n "$vcs_info_msg_0_" ]] && psvar[1]="$vcs_info_msg_0_"
-}
+function _update_vcs_info_msg() { psvar=(); LANG=en_US.UTF-8 vcs_info; [[ -n "$vcs_info_msg_0_" ]] && psvar[1]="$vcs_info_msg_0_"; }
 
 RPROMPT="[%F{blue}%~%f%1(v|%F{green}%1v%f|)]"
 add-zsh-hook precmd _update_vcs_info_msg
@@ -144,9 +136,7 @@ source "$ANTIDOTE_HOME/antidote.zsh"
 
 # プラグインの読み込み
 zsh_plugins="${ZDOTDIR:-$HOME}/.zsh_plugins.txt"
-if [[ ! "${zsh_plugins}.zsh" -nt "${zsh_plugins}" ]]; then
-    (antidote bundle <"${zsh_plugins}" >|"${zsh_plugins}.zsh")
-fi
+[[ ! "${zsh_plugins}.zsh" -nt "${zsh_plugins}" ]] && (antidote bundle <"${zsh_plugins}" >|"${zsh_plugins}.zsh")
 source "${zsh_plugins}.zsh"
 
 # ------------------------------------------------------------------------------
