@@ -72,16 +72,40 @@ dotfiles管理の3つのアプローチ：
 設定は `~/.config/op/plugins.sh` で自動化され、bootstrap 時に適用されます。
 
 #### 環境変数の安全な管理
-- **op:// 参照**: `.env` ファイル内で秘密情報を直接記載せず、1Password への参照を使用
-  ```bash
-  DATABASE_URL=op://Personal/MyApp/database/url
-  API_KEY=op://Personal/MyApp/api/key
-  ```
-- **実行時の解決**: `op run` コマンドで環境変数を自動的に解決
-  ```bash
-  op run --env-file=.env -- npm start
-  op run --env-file=.env -- docker-compose up
-  ```
+`.env` ファイルで秘密情報を直接記載する代わりに、1Password への参照を使用します：
+
+**従来の危険な方法**:
+```bash
+# .env
+API_KEY=sk_test_1234567890abcdef  # 危険！Git に入ってしまう
+```
+
+**1Password を使った安全な方法**:
+```bash
+# .env
+API_KEY="op://Personal/MyApp/api/key"
+DATABASE_URL="op://Personal/MyApp/database/url"
+AWS_ACCESS_KEY_ID="op://Personal/AWS/access_key_id"
+AWS_SECRET_ACCESS_KEY="op://Personal/AWS/secret_access_key"
+```
+
+**使い方**:
+```bash
+# 1Password が自動的に参照を実際の値に置き換えて実行
+op run --env-file="./.env" -- npm start
+op run --env-file="./.env" -- docker compose up
+```
+
+**1Password でのアイテム作成**:
+```bash
+# 新しいアイテムを作成
+op item create --category=login --title='MyApp' --vault='Personal'
+
+# フィールドを追加・編集
+op item edit 'MyApp' api.key="your-actual-api-key"
+op item edit 'MyApp' database.url="postgresql://..."
+```
+
 
 #### セキュリティ強化
 - **pre-commit hooks**: `.config/git/hooks/pre-commit` で秘密情報の誤コミットを防止
