@@ -42,6 +42,39 @@ return {
     end,
   },
 
+  -- Mason setup (for LSP and tools)
+  {
+    "williamboman/mason.nvim",
+    build = ":MasonUpdate",
+    config = true,
+  },
+
+  -- Auto-install tools
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    config = function()
+      require("mason-tool-installer").setup({
+        ensure_installed = {
+          -- LSP servers
+          "lua-language-server",
+          "rust-analyzer",
+          "typescript-language-server",
+          "pyright",
+          "gopls",
+          -- Formatters
+          "stylua",
+          "black",
+          "isort",
+          "prettier",
+          "rustfmt",
+        },
+        auto_update = false,
+        run_on_start = true,
+      })
+    end,
+  },
+
   -- LSP
   {
     "neovim/nvim-lspconfig",
@@ -55,13 +88,12 @@ return {
       },
     },
     config = function()
-      -- Mason setup
-      require("mason").setup()
+      -- Mason-lspconfig setup
       require("mason-lspconfig").setup({
         ensure_installed = {
           "lua_ls",
           "rust_analyzer",
-          "tsserver",
+          "ts_ls",
           "pyright",
           "gopls",
         },
@@ -106,7 +138,7 @@ return {
           },
         },
         rust_analyzer = {},
-        tsserver = {},
+        ts_ls = {},
         pyright = {},
         gopls = {},
       }
@@ -193,6 +225,9 @@ return {
   -- Formatter
   {
     "stevearc/conform.nvim",
+    dependencies = {
+      "williamboman/mason.nvim",
+    },
     opts = {
       formatters_by_ft = {
         lua = { "stylua" },
@@ -207,10 +242,19 @@ return {
         go = { "gofmt" },
         rust = { "rustfmt" },
       },
-      format_on_save = {
-        timeout_ms = 500,
-        lsp_fallback = true,
-      },
+      format_on_save = function(bufnr)
+        -- Disable autoformat for files in node_modules
+        local bufname = vim.api.nvim_buf_get_name(bufnr)
+        if bufname:match("/node_modules/") then
+          return
+        end
+        
+        return {
+          timeout_ms = 500,
+          lsp_fallback = true,
+        }
+      end,
+      notify_on_error = false, -- Don't show error notifications for missing formatters
     },
   },
 }

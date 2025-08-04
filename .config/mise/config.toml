@@ -18,6 +18,10 @@ pnpm = "latest"
 deno = "latest"
 bun = "latest"
 
+# Lua
+lua = "latest"
+luarocks = "latest"
+
 shellcheck = "latest"
 shfmt = "latest"
 
