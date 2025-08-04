@@ -73,11 +73,11 @@
   fsckObjects = true
 
 [credential]
-{%- if yadm.os == "Darwin" %}
+{% if yadm.os == "Darwin" -%}
     helper = osxkeychain
-{%- elif yadm.os == "Linux" %}
+{% elif yadm.os == "Linux" -%}
     helper = store
-{%- endif %}
+{% endif -%}
 
 # Aliases
 [alias]
