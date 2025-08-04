@@ -40,9 +40,7 @@ shfmt = "latest"
 "npm:@anthropic-ai/claude-code" = "latest" # Claude Code CLI
 "npm:@google/gemini-cli" = "latest"     # Gemini AI CLI
 
-# Additional tools
-"aqua:ajeetdsouza/zoxide" = "latest"    # Smarter cd command
-"cargo:atuin" = "latest"                 # Shell history sync
+# Additional tools (managed by system package managers)
 
 [tasks.update]
 description = "Update all tools to latest versions"
