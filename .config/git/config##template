@@ -126,6 +126,3 @@
   contributors = shortlog -sn
   delete-merged-branches = !git branch --merged | grep -v "\\*\\|main\\|master\\|develop" | xargs -n 1 git branch -d
   open = !gh browse
-  
-  # AI-powered tools
-  ac = !aicommits

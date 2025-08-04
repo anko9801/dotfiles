@@ -3,13 +3,6 @@
 
 set -euo pipefail
 
-# Check if we're running via yadm
-if [[ -z "${YADM_BOOTSTRAP:-}" ]]; then
-    echo "Error: This bootstrap should be run via 'yadm bootstrap'"
-    echo "If you really want to run directly, set YADM_BOOTSTRAP=1"
-    exit 1
-fi
-
 BOOTSTRAP_DIR="$HOME/.config/yadm"
 
 # Function to set config
@@ -20,8 +13,8 @@ set_config() {
     echo "✓ Set $key = $value"
 }
 
-# Configure if needed
-configure_yadm() {
+# Run configuration if first time (skip if YADM_SKIP_CONFIG is set)
+if [[ -z "${YADM_SKIP_CONFIG:-}" && -z "$(yadm config local.class 2>/dev/null)" ]]; then
     echo "======================================"
     echo "        YADM Configuration            "
     echo "======================================"
@@ -116,11 +109,6 @@ configure_yadm() {
     fi
     
     echo
-}
-
-# Run configuration if first time (skip if YADM_SKIP_CONFIG is set)
-if [[ -z "${YADM_SKIP_CONFIG:-}" && -z "$(yadm config local.class 2>/dev/null)" ]]; then
-    configure_yadm
 fi
 
 # Generate alternates
@@ -130,9 +118,6 @@ yadm alt
 # Debug: Show what yadm alt did
 echo "DEBUG: After yadm alt, checking files..."
 ls -la "$BOOTSTRAP_DIR"/ || true
-
-# Wait a moment for alternates to be processed
-sleep 1
 
 # Run OS-specific installation
 echo
