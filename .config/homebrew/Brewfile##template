@@ -60,7 +60,7 @@ cask "rectangle"
 brew "ffmpeg"
 brew "imagemagick"
 brew "pandoc"
-brew "youtube-dl"
+brew "yt-dlp"
 
 # Personal apps
 cask "obsidian"
