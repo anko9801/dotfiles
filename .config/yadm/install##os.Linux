@@ -325,15 +325,25 @@ setup_zsh() {
 setup_1password_ssh() {
     info "Setting up 1Password SSH integration..."
     
-    # Ensure SSH directory exists with correct permissions
-    mkdir -p "$HOME/.ssh"
+    # Ensure SSH directory and config.d exist with correct permissions
+    mkdir -p "$HOME/.ssh/config.d"
     chmod 700 "$HOME/.ssh"
+    chmod 700 "$HOME/.ssh/config.d"
     
-    # Link SSH config from .config if it exists and .ssh/config doesn't
-    if [[ -f "$HOME/.config/ssh/config" ]] && [[ ! -e "$HOME/.ssh/config" ]]; then
-        ln -s "$HOME/.config/ssh/config" "$HOME/.ssh/config"
+    # Add Include directive to SSH config if not present
+    if [[ -f "$HOME/.ssh/config" ]]; then
+        if ! grep -q "^Include ~/.ssh/config.d/\*" "$HOME/.ssh/config"; then
+            # Add Include at the beginning of the file
+            echo -e "# Added by yadm\nInclude ~/.ssh/config.d/*\n" | cat - "$HOME/.ssh/config" > "$HOME/.ssh/config.tmp"
+            mv "$HOME/.ssh/config.tmp" "$HOME/.ssh/config"
+            chmod 600 "$HOME/.ssh/config"
+            success "Added Include directive to SSH config"
+        fi
+    else
+        # Create minimal SSH config with Include
+        echo -e "# SSH Configuration\n# Added by yadm\n\nInclude ~/.ssh/config.d/*\n" > "$HOME/.ssh/config"
         chmod 600 "$HOME/.ssh/config"
-        success "SSH config linked"
+        success "Created SSH config with Include directive"
     fi
     
     # Check if 1Password CLI is available
