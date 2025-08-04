@@ -82,7 +82,18 @@ setup_package_manager() {
     fi
     info "Updating Homebrew..."
     brew update
-{% else %}
+{% endif %}
+{% if yadm.os == "Windows" %}
+    # Check if winget is available
+    if ! command -v winget &>/dev/null; then
+        error "winget not found. Please install App Installer from Microsoft Store"
+        error "https://www.microsoft.com/store/productId/9NBLGGH4NNS1"
+        exit 1
+    fi
+    info "Updating winget sources..."
+    winget source update
+{% endif %}
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
     # Detect Linux distribution
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
@@ -109,6 +120,38 @@ install_packages() {
     fi
     info "Installing packages from Brewfile..."
     brew bundle --file="$brewfile"
+{% endif %}
+{% if yadm.os == "Windows" %}
+    info "Installing packages via winget..."
+    
+    # Core packages available on Windows
+    local packages=(
+        "Git.Git"
+        "Microsoft.PowerShell"
+        "Microsoft.VisualStudioCode"
+        "GitHub.cli"
+        "BurntSushi.ripgrep.MSVC"
+        "sharkdp.fd"
+        "sharkdp.bat"
+        "dandavison.delta"
+        "junegunn.fzf"
+        "Neovim.Neovim"
+        "eza-community.eza"
+        "ajeetdsouza.zoxide"
+        "ellie.atuin"
+        "Starship.Starship"
+    )
+    
+    for package in "${packages[@]}"; do
+        winget install --id "$package" --accept-package-agreements --accept-source-agreements || warning "Failed to install $package"
+    done
+    winget install --id AgileBits.1Password.CLI --accept-package-agreements --accept-source-agreements || warning "Failed to install 1Password CLI"
+    
+    # Install mise via PowerShell
+    if ! command -v mise &>/dev/null; then
+        info "Installing mise..."
+        powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://mise.run | iex"
+    fi
 {% else %}
     info "Installing base packages..."
     
@@ -160,6 +203,13 @@ setup_mise() {
         return 0
     fi
     
+{% if yadm.os == "Windows" %}
+    # mise should already be installed via winget in install_packages
+    if ! command -v mise &>/dev/null; then
+        error "mise installation failed"
+        return 1
+    fi
+{% else %}
     info "Installing mise..."
     curl https://mise.run | sh
     export PATH="$HOME/.local/bin:$PATH"
@@ -168,6 +218,7 @@ setup_mise() {
         error "Failed to install mise"
         exit 1
     fi
+{% endif %}
     
     info "Configuring mise..."
     eval "$(mise activate bash)"
@@ -188,6 +239,10 @@ setup_git_config() {
     # Skip gitleaks installation if already available
     command -v gitleaks &>/dev/null && return 0
     
+{% if yadm.os == "Windows" %}
+    info "Installing gitleaks..."
+    winget install --id Gitleaks.Gitleaks --accept-package-agreements --accept-source-agreements || warning "Failed to install gitleaks"
+{% else %}
     info "Installing gitleaks..."
     local gitleaks_version=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
     local gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_linux_x64.tar.gz"
@@ -195,14 +250,17 @@ setup_git_config() {
     [[ "$(uname)" == "Darwin" ]] && gitleaks_url="https://github.com/gitleaks/gitleaks/releases/download/v${gitleaks_version}/gitleaks_${gitleaks_version}_darwin_arm64.tar.gz"
     
     curl -sL "$gitleaks_url" | tar -xz -C "$HOME/.local/bin" gitleaks 2>/dev/null || warning "Failed to install gitleaks"
+{% endif %}
 }
 
 setup_shell() {
     info "Setting up shell environment..."
     
+{% if yadm.os != "Windows" %}
     # Install Zsh plugin manager
     local antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
     [[ ! -d "$antidote_dir" ]] && git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir"
+{% endif %}
     
     # SSH config - early return if already configured
     if [[ -f "$HOME/.ssh/config" ]] && grep -q "^Include ~/.ssh/config.d/\*" "$HOME/.ssh/config" 2>/dev/null; then
@@ -221,14 +279,7 @@ setup_shell() {
 }
 
 setup_1password() {
-    if ! command -v op &>/dev/null; then
-        warning "1Password CLI not found - install from https://developer.1password.com/docs/cli/"
-{% if yadm.os == "WSL" %}
-        info "For WSL: Consider installing 1Password on Windows and using the WSL integration"
-{% endif %}
-        return 0
-    fi
-    
+    command -v op &>/dev/null || return 0
     info "Configuring 1Password integration..."
     [[ -f "$HOME/.config/op/plugins.sh" ]] && bash "$HOME/.config/op/plugins.sh" || true
 }
@@ -328,12 +379,8 @@ install_modern_tools_debian() {
 
 install_modern_tools_fedora() {
     # COPR repositories
-    if ! command -v eza &>/dev/null; then
-        sudo dnf copr enable -y atim/eza && sudo dnf install -y eza
-    fi
-    if ! command -v zoxide &>/dev/null; then
-        sudo dnf copr enable -y atim/zoxide && sudo dnf install -y zoxide
-    fi
+    command -v eza &>/dev/null || (sudo dnf copr enable -y atim/eza && sudo dnf install -y eza)
+    command -v zoxide &>/dev/null || (sudo dnf copr enable -y atim/zoxide && sudo dnf install -y zoxide)
     
     # Install scripts
     command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
@@ -350,7 +397,11 @@ show_summary() {
     echo "Installed tools:"
 {% if yadm.os == "Darwin" %}
     echo "  ✓ Homebrew packages (via Brewfile)"
-{% else %}
+{% endif %}
+{% if yadm.os == "Windows" %}
+    echo "  ✓ Windows packages (via winget)"
+{% endif %}
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
     echo "  ✓ System packages and modern CLI tools"
 {% endif %}
     echo "  ✓ mise with all configured tools"
@@ -365,9 +416,15 @@ show_summary() {
     echo "Configuration: class={% if yadm.class %}{{ yadm.class }}{% else %}personal{% endif %}"
     echo
     echo "Next steps:"
+{% if yadm.os == "Windows" %}
+    echo "1. Restart Windows Terminal"
+    echo "2. Configure your PowerShell profile"
+    echo "3. Set up WSL if needed for Linux tools"
+{% else %}
     echo "1. Restart your terminal"
     echo "2. Run 'exec zsh' to switch to Zsh"
     [[ "$(basename "$SHELL")" != "zsh" ]] && echo "3. Run: chsh -s $(which zsh)"
+{% endif %}
 }
 
 # ============================================================================
@@ -377,6 +434,9 @@ show_summary() {
 main() {
 {% if yadm.os == "Darwin" %}
     info "Running macOS bootstrap..."
+{% endif %}
+{% if yadm.os == "Windows" %}
+    info "Running Windows bootstrap..."
 {% endif %}
 {% if yadm.os == "WSL" %}
     info "Running Linux bootstrap (via WSL)..."
