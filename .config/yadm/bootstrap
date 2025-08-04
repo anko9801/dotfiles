@@ -5,12 +5,46 @@ set -euo pipefail
 
 BOOTSTRAP_DIR="$HOME/.config/yadm"
 
+# Cleanup function
+cleanup() {
+    local exit_code=$?
+    if [[ $exit_code -ne 0 ]]; then
+        echo
+        echo "Bootstrap interrupted. You can safely run it again."
+    fi
+    exit $exit_code
+}
+
+# Set trap for cleanup on exit
+trap cleanup EXIT INT TERM
+
 # Function to set config
 set_config() {
     local key="$1"
     local value="$2"
     yadm config "$key" "$value"
     echo "✓ Set $key = $value"
+}
+
+# Helper functions for configuration
+configure_if_empty() {
+    local key="$1"
+    local prompt="$2"
+    local current_value
+    current_value=$(yadm config "$key" 2>/dev/null || echo "")
+    
+    if [[ -z "$current_value" ]]; then
+        read -p "$prompt: " value
+        [[ -n "$value" ]] && set_config "$key" "$value"
+    else
+        echo "${prompt%:}: $current_value"
+    fi
+}
+
+show_header() {
+    echo
+    echo "$1"
+    echo "${1//?/-}"
 }
 
 # Run configuration if first time (skip if YADM_SKIP_CONFIG is set)
@@ -45,30 +79,12 @@ if [[ -z "${YADM_SKIP_CONFIG:-}" && -z "$(yadm config local.class 2>/dev/null)" 
     fi
     
     # Git configuration for templates
-    echo
-    echo "Git Configuration:"
-    echo "-----------------"
-    current_email=$(yadm config yadm.email 2>/dev/null || echo "")
-    current_name=$(yadm config yadm.user 2>/dev/null || echo "")
-    
-    if [[ -z "$current_email" ]]; then
-        read -p "Git email: " email
-        [[ -n "$email" ]] && set_config yadm.email "$email"
-    else
-        echo "Email: $current_email"
-    fi
-    
-    if [[ -z "$current_name" ]]; then
-        read -p "Git name: " name
-        [[ -n "$name" ]] && set_config yadm.user "$name"
-    else
-        echo "Name: $current_name"
-    fi
+    show_header "Git Configuration"
+    configure_if_empty "yadm.email" "Git email"
+    configure_if_empty "yadm.user" "Git name"
     
     # Auto-commit configuration
-    echo
-    echo "Auto-commit Configuration:"
-    echo "-------------------------"
+    show_header "Auto-commit Configuration"
     auto_commit=$(yadm config yadm.auto-commit 2>/dev/null || echo "false")
     echo "Current: $auto_commit"
     read -p "Enable auto-commit? (y/N): " -n 1 -r
@@ -79,9 +95,7 @@ if [[ -z "${YADM_SKIP_CONFIG:-}" && -z "$(yadm config local.class 2>/dev/null)" 
     fi
     
     # Encryption configuration
-    echo
-    echo "Encryption Configuration:"
-    echo "------------------------"
+    show_header "Encryption Configuration"
     cipher=$(yadm config yadm.cipher 2>/dev/null || echo "")
     if [[ -z "$cipher" ]]; then
         echo "1) openssl (default)"
