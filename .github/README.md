@@ -32,10 +32,11 @@ dotfiles管理の3つのアプローチ：
 **yadm** は Bare Git の管理しやすさを保ちつつ、上記の欠点を解決した最適解：
 
 **このdotfilesでの実装**:
-- **システムワイドZDOTDIR**: `/etc/zsh/zshenv`でルートの`.zshenv`を排除
-- **セキュリティ強化**: `core.hooksPath`による一元的なGitフック管理、git-secrets統合
+- **システムワイドZDOTDIR**: `/etc/zsh/zshenv`で`ZDOTDIR=$HOME/.config/zsh`を設定し、`~/.zshenv`を不要に
+- **セキュリティ強化**: `core.hooksPath`による一元的なGitフック管理、gitleaks統合
 - **クリーンな .gitignore**: ホワイトリスト方式で最小限管理
 - **テンプレート化**: yadmテンプレートでOS/クラス別の設定を効率的に管理
+- **Windows対応**: wingetによるパッケージ管理とGit Bashサポート
 
 ### 1Password によるシークレット管理
 
@@ -84,9 +85,9 @@ dotfiles管理の3つのアプローチ：
 
 #### セキュリティ強化
 - **pre-commit hooks**: `.config/git/hooks/pre-commit` で秘密情報の誤コミットを防止
-  - gitleaks による包括的なシークレット検出
+  - gitleaks による包括的なシークレット検出 (git-secretsから移行)
   - API キー、トークン、秘密鍵のパターンマッチング
-  - データベース URL のパスワード検出
+  - カスタムルール設定 (`~/.config/gitleaks/config.toml`)
 - **ゼロトラスト**: ローカルに秘密情報を一切保存しないアーキテクチャ
 - **監査証跡**: 1Password のアクティビティログで全てのアクセスを追跡可能
 
@@ -104,6 +105,7 @@ dotfiles管理の3つのアプローチ：
 - **macOS**: Homebrew経由でツールインストール
 - **Linux**: apt/pacman/dnf + 最新版は.debファイルから
 - **WSL**: Windows連携ツール (pbcopy/pbpaste, explorer統合)
+- **Windows**: winget経由でツールインストール、Git Bash環境
 
 **クラス別構成**:
 - **Personal**: メディアツール (ffmpeg, yt-dlp)、個人アプリ (Obsidian, Spotify)

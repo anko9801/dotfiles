@@ -55,15 +55,16 @@ yadm decrypt
 
 1. **Git hooks** (`core.hooksPath = ~/.config/git/hooks`)
    - 全Gitリポジトリで自動的に適用
-   - 秘密鍵の検出とgit-secretsによるパターンマッチング
+   - gitleaksによる包括的なシークレット検出
 
 2. **yadm pre-commit hook** (`.config/yadm/hooks/pre_commit`)
    - dotfiles専用の追加チェック
    - yadmコマンド使用時のみ適用
 
-3. **GitHub Actions** (`.github/workflows/lint.yaml`)
+3. **GitHub Actions** (`.github/workflows/`)
    - 構文チェック（JSON/YAML/TOML）
    - ShellCheckによるシェルスクリプト検証
+   - gitleaksによる継続的なシークレットスキャン
 
 #### 手動チェック
 
@@ -73,8 +74,8 @@ yadm decrypt
 # ステージングされたファイルの確認
 yadm diff --cached
 
-# 機密情報のパターン検索
-yadm diff --cached | grep -E '(BEGIN.*PRIVATE KEY|api_key|password|token)'
+# gitleaksでのローカルスキャン
+gitleaks detect --source . --config ~/.config/gitleaks/config.toml
 ```
 
 ### 4. インシデント対応
@@ -97,18 +98,20 @@ yadm diff --cached | grep -E '(BEGIN.*PRIVATE KEY|api_key|password|token)'
 #### Git設定での機密情報分離
 
 ```toml
-# ~/.config/git/config (公開・yadmテンプレートで生成)
+# ~/.config/git/config (公開)
 [user]
     name = anko9801
-    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG...
 [core]
     hooksPath = ~/.config/git/hooks  # 全リポジトリで共通のフック
+[gpg "ssh"]
+    program = op-ssh-sign  # 1Password経由で署名
+
+# ~/.config/git/allowed_signers##template (yadmテンプレート)
+# ユーザー固有の署名鍵を管理
 
 # ~/.gitconfig.local (暗号化/gitignore)
 [user]
     email = private@example.com
-[github]
-    token = ghp_xxxxxxxxxxxxxxxxxxxx  # 非推奨 - 1Password Shell Pluginsを使用
 ```
 
 #### 環境変数テンプレート
@@ -123,6 +126,13 @@ SECRET_KEY=op://Personal/MyApp/secret/key
 cp .env.example .env
 op run --env-file=.env -- npm start
 ```
+
+### 7. Windows環境での追加考慮事項
+
+- **Git Bash**: Windows環境ではGit Bashを推奨
+- **winget**: パッケージ管理にwingetを使用し、信頼できるソースからのみインストール
+- **パス区切り**: Windowsパスでは`\`を使用、Git Bashでは`/`を使用
+- **改行コード**: `core.autocrlf = input`で統一
 
 ## セキュリティ脆弱性の報告
 
