@@ -1,6 +1,6 @@
 {
   "latest_signin": "",
-  "device": "{{ yadm.hostname }}",
+  "device": "{% if yadm.hostname == "" %}unknown{% else %}{{ yadm.hostname }}{% endif %}",
   "commands": {
     "biometric_unlock": true
   },
