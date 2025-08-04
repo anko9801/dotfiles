@@ -240,8 +240,6 @@ if command -v mise &>/dev/null; then
         mise install bun@latest || true
         mise install go@latest || true
         mise install rust@latest || true
-        mise install uv@latest || true
-        mise install ruff@latest || true
         # Skip ruby if it fails
         mise install ruby@latest || warning "Ruby installation failed, skipping"
     }
@@ -249,7 +247,22 @@ if command -v mise &>/dev/null; then
     success "mise configured"
 fi
 
-# 6. Setup development tools (requires languages from mise)
+# 6. Install uv (Python package manager) and Python tools
+if ! command -v uv &>/dev/null; then
+    info "Installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.cargo/bin:$PATH"
+    success "uv installed"
+fi
+
+# Install Python tools via uv
+if command -v uv &>/dev/null; then
+    info "Installing Python tools via uv..."
+    uv tool install ruff@latest || true
+    success "Python tools installed"
+fi
+
+# 7. Setup development tools (requires languages from mise)
 info "Setting up development tools..."
 
 # Git secrets configuration
@@ -270,20 +283,21 @@ if command -v gh &>/dev/null; then
     fi
 fi
 
-# 7. Setup Zsh and antidote
+# 8. Setup Zsh and antidote
 info "Setting up Zsh..."
 if [[ ! -d "${ZDOTDIR:-$HOME}/.antidote" ]]; then
     git clone --depth=1 https://github.com/mattmc3/antidote.git "${ZDOTDIR:-$HOME}/.antidote"
     success "antidote installed"
 fi
 
-# 8. Final summary
+# 9. Final summary
 success "Bootstrap completed!"
 echo
 echo "Installed tools:"
 echo "  ✓ Base development packages"
 echo "  ✓ Modern CLI tools (ripgrep, fd, bat, etc.)"
 echo "  ✓ mise with all configured tools"
+echo "  ✓ uv (Python package manager)"
 echo "  ✓ Development tools and Git configuration"
 echo "  ✓ Zsh with antidote"
 echo

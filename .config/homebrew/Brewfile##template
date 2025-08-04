@@ -32,6 +32,7 @@ brew "atuin"
 brew "vim"
 brew "neovim"
 brew "mise"  # Version manager for Node, Python, etc.
+brew "uv"    # Fast Python package and project manager
 brew "git-secrets"
 
 {% if yadm.class == "work" %}

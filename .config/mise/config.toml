@@ -16,14 +16,16 @@ NODE_OPTIONS = "--max-old-space-size=4096"
 [tools]
 # Languages
 node = "lts"
+python = "latest"
 ruby = "latest"
 go = "latest"
 rust = "latest"
-uv = "latest"
-ruff = "latest"
 pnpm = "latest"
 deno = "latest"
 bun = "latest"
+# Python tools:
+# uv is installed via curl/brew in bootstrap
+# Other tools can be run with: uvx ruff, uvx black, etc.
 
 # Shell tools
 shellcheck = "latest"
