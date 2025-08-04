@@ -5,7 +5,7 @@
 [user]
     name = {{ yadm.user | default("Your Name") }}
     email = {{ yadm.email | default("your.email@example.com") }}
-    signingkey = ~/.ssh/id_ed25519.pub
+    signingkey = {{ yadm.signingkey | default("~/.ssh/id_ed25519.pub") }}
 
 [core]
   editor = vim
@@ -61,6 +61,11 @@
 [gpg]
     format = ssh
 [gpg "ssh"]
+{% if yadm.os == "Darwin" %}
+    program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+{% else %}
+    program = op-ssh-sign
+{% endif %}
     allowedSignersFile = ~/.config/git/allowed_signers
 
 [help]
@@ -99,7 +104,7 @@
   re = restore
   
   # Commit operations
-  c = commit -S
+  c = commit
   cm = commit -m
   a = add --all
   amend = commit --amend --no-edit

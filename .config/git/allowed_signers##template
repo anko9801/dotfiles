@@ -1,0 +1,6 @@
+# Git SSH Allowed Signers
+# This file lists the SSH keys that are allowed to sign commits
+# Format: email key-type key-data
+
+# Your signing key from 1Password
+{{ yadm.email | default("your.email@example.com") }} {{ yadm.signingkey_type | default("ssh-ed25519") }} {{ yadm.signingkey_data | default("YOUR_PUBLIC_KEY_HERE") }}
