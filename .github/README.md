@@ -19,7 +19,7 @@ yadm bootstrap
 
 理想のdotfiles管理システムの条件：
 - **1コマンドセットアップ・管理** - 低い導入コスト
-- **マシン差分吸収** - OS・マシン別に環境を整える
+- **マシン差分吸収** - OS（macOS/Linux/WSL）・クラス別に環境を整える
 - **シークレット保護** - 1Password にまとめる
 - **XDG 準拠** - ホームディレクトリをクリーンに
 - **冪等性** - 何度実行しても同じ結果
@@ -33,8 +33,9 @@ dotfiles管理の3つのアプローチ：
 
 **このdotfilesでの実装**:
 - **システムワイドZDOTDIR**: `/etc/zsh/zshenv`でルートの`.zshenv`を排除
-- **セキュリティ強化**: bash実装のpre-commit hooks、git-secrets統合
+- **セキュリティ強化**: `core.hooksPath`による一元的なGitフック管理、git-secrets統合
 - **クリーンな .gitignore**: ホワイトリスト方式で最小限管理
+- **テンプレート化**: yadmテンプレートでOS/クラス別の設定を効率的に管理
 
 ### 1Password によるシークレット管理
 
@@ -45,7 +46,7 @@ dotfiles管理の3つのアプローチ：
 - **自動設定**: `~/.ssh/config.d/1password` で OS 別のエージェントソケットを自動設定
   - macOS: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
   - Linux: `~/.1password/agent.sock`
-  - Windows: `\\.\pipe\openssh-ssh-agent`
+  - WSL: npiperelay経由でWindows側の1Passwordと連携
 - **ForwardAgent**: 全ホストで有効化し、リモートサーバーでも 1Password の鍵を使用可能
 
 #### Git コミット署名
@@ -91,9 +92,20 @@ dotfiles管理の3つのアプローチ：
 
 ## ツール構成
 
-**共通**: git, tmux, zsh(zinit), vim/neovim, mise, modern CLI tools (bat, eza, ripgrep, fd, fzf, gh, starship, etc.), Python tools (uv, ruff)
+**共通ツール**:
+- **バージョン管理**: mise (全OS共通でcurl経由インストール)
+- **シェル**: zsh + antidote (プラグイン管理)
+- **エディタ**: vim/neovim
+- **開発ツール**: git (core.hooksPath設定済み), tmux, git-secrets
+- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, delta
+- **Python**: uv (パッケージマネージャー), ruff (リンター)
 
-**クラス別**:
-- Personal: メディアツール、個人アプリ
-- Work: クラウド・コンテナツール、IDE
-- Server: 最小構成
+**OS別対応**:
+- **macOS**: Homebrew経由でツールインストール
+- **Linux**: apt/pacman/dnf + 最新版は.debファイルから
+- **WSL**: Windows連携ツール (pbcopy/pbpaste, explorer統合)
+
+**クラス別構成**:
+- **Personal**: メディアツール (ffmpeg, yt-dlp)、個人アプリ (Obsidian, Spotify)
+- **Work**: クラウド・コンテナツール (AWS CLI, terraform, kubectl, docker)
+- **Server**: 最小構成（基本ツールのみ）

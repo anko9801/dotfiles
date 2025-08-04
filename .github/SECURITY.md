@@ -53,13 +53,17 @@ yadm decrypt
 
 #### 自動チェック
 
-1. **yadm pre-commit hook** (`.config/yadm/hooks/pre_commit`)
-   - 秘密鍵の検出
-   - git-secretsによるパターンマッチング
+1. **Git hooks** (`core.hooksPath = ~/.config/git/hooks`)
+   - 全Gitリポジトリで自動的に適用
+   - 秘密鍵の検出とgit-secretsによるパターンマッチング
 
-2. **GitHub Actions** (`.github/workflows/`)
-   - pre-commitによる包括的チェック
-   - 機密情報パターンのスキャン
+2. **yadm pre-commit hook** (`.config/yadm/hooks/pre_commit`)
+   - dotfiles専用の追加チェック
+   - yadmコマンド使用時のみ適用
+
+3. **GitHub Actions** (`.github/workflows/lint.yaml`)
+   - 構文チェック（JSON/YAML/TOML）
+   - ShellCheckによるシェルスクリプト検証
 
 #### 手動チェック
 
@@ -93,10 +97,12 @@ yadm diff --cached | grep -E '(BEGIN.*PRIVATE KEY|api_key|password|token)'
 #### Git設定での機密情報分離
 
 ```toml
-# ~/.config/git/config (公開)
+# ~/.config/git/config (公開・yadmテンプレートで生成)
 [user]
     name = anko9801
     signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG...
+[core]
+    hooksPath = ~/.config/git/hooks  # 全リポジトリで共通のフック
 
 # ~/.gitconfig.local (暗号化/gitignore)
 [user]
