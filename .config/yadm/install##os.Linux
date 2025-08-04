@@ -67,171 +67,138 @@ detect_distro() {
     info "Detected distribution: $DISTRO"
 }
 
-# Install command helper
-install_package() {
-    local package="$1"
-    if ! command -v "$package" &>/dev/null; then
-        info "Installing $package..."
-        return 0
-    else
-        return 1
+# Universal package installation function
+install_packages() {
+    if command -v apt &>/dev/null; then
+        sudo apt install -y "$@"
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -S --needed --noconfirm "$@"
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y "$@"
+    elif command -v zypper &>/dev/null; then
+        sudo zypper install -y "$@"
+    elif command -v apk &>/dev/null; then
+        sudo apk add --no-cache "$@"
     fi
 }
 
-# Install modern CLI tools for Debian/Ubuntu
-install_modern_cli_tools_debian() {
-    info "Installing modern CLI tools..."
-    local tmp_dir=$(mktemp -d)
-    TEMP_DIRS+=("$tmp_dir")
-    cd "$tmp_dir"
-    
-    # ripgrep
-    if install_package "rg"; then
-        local version=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -Po '"tag_name": "\K[^"]*')
-        curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep_${version}-1_amd64.deb"
-        sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
-    fi
-    
-    # fd
-    if install_package "fd"; then
-        local version=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -LO "https://github.com/sharkdp/fd/releases/download/v${version}/fd_${version}_amd64.deb"
-        sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
-    fi
-    
-    # bat
-    if install_package "bat"; then
-        local version=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -LO "https://github.com/sharkdp/bat/releases/download/v${version}/bat_${version}_amd64.deb"
-        sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
-    fi
-    
-    # eza
-    if install_package "eza"; then
-        local version=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -LO "https://github.com/eza-community/eza/releases/download/v${version}/eza_amd64.deb" || \
-        curl -LO "https://github.com/eza-community/eza/releases/download/v${version}/eza_${version}-1_amd64.deb"
-        sudo dpkg -i eza*.deb || sudo apt-get install -f -y
-    fi
-    
-    cd - >/dev/null
-    
-    # starship
-    if install_package "starship"; then
-        curl -sS https://starship.rs/install.sh | sh -s -- -y
-    fi
-    
-    # zoxide
-    if install_package "zoxide"; then
-        local tmp_zoxide=$(mktemp -d)
-        TEMP_DIRS+=("$tmp_zoxide")
-        cd "$tmp_zoxide"
-        local version=$(curl -s https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-        curl -LO "https://github.com/ajeetdsouza/zoxide/releases/download/v${version}/zoxide_${version}-1_amd64.deb"
-        sudo dpkg -i zoxide_*.deb || sudo apt-get install -f -y
-        cd - >/dev/null
-    fi
-    
-    # atuin
-    if install_package "atuin"; then
-        bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
-    fi
+# Add COPR repository and install package
+install_from_copr() {
+    local repo="$1" package="$2"
+    sudo dnf copr enable -y "$repo"
+    install_packages "$package"
 }
 
 # Install base packages for each distribution
 setup_packages() {
+    # Update package manager
+    case "$DISTRO" in
+        ubuntu|debian) sudo apt-get update || warning "Failed to update apt repositories" ;;
+        arch|manjaro) sudo pacman -Syu --noconfirm ;;
+        fedora) sudo dnf update -y ;;
+    esac
+    
+    info "Installing base packages..."
+    
+    # Common packages across all distributions
+    install_packages git curl wget tmux tree jq zsh neovim fzf git-secrets
+    
+    # Distribution-specific setup
     case "$DISTRO" in
     ubuntu|debian)
-        info "Updating apt repositories..."
-        sudo apt-get update || {
-            warning "Failed to update apt repositories"
-        }
+        install_packages build-essential software-properties-common
         
-        info "Installing base packages..."
-        sudo apt-get install -y \
-            curl wget git \
-            build-essential software-properties-common \
-            zsh tmux neovim \
-            tree jq || {
-            warning "Some packages failed to install"
-        }
-        
-        # Add repositories for modern tools
-        info "Adding PPAs for modern tools..."
-        
-        # GitHub CLI
         if ! command -v gh &>/dev/null; then
+            info "Adding GitHub CLI repository..."
             curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
             echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
             sudo apt update
-            sudo apt install -y gh
+            install_packages gh
         fi
         
-        # Install tools available in apt
-        info "Installing available tools from apt..."
+        # Install modern CLI tools from .deb files
+        info "Installing modern CLI tools..."
+        local tmp_dir=$(mktemp -d)
+        TEMP_DIRS+=("$tmp_dir")
+        cd "$tmp_dir"
         
-        # Basic tools from standard repos
-        apt_tools=(fzf git-secrets)
-        for tool in "${apt_tools[@]}"; do
-            sudo apt install -y "$tool" || warning "Failed to install $tool"
-        done
+        # ripgrep
+        if ! command -v rg &>/dev/null; then
+            local version=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+            curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep_${version}-1_amd64.deb"
+            sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
+        fi
         
-        # Install modern CLI tools
-        install_modern_cli_tools_debian
+        # fd
+        if ! command -v fd &>/dev/null; then
+            local version=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/sharkdp/fd/releases/download/v${version}/fd_${version}_amd64.deb"
+            sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # bat
+        if ! command -v bat &>/dev/null; then
+            local version=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/sharkdp/bat/releases/download/v${version}/bat_${version}_amd64.deb"
+            sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # eza
+        if ! command -v eza &>/dev/null; then
+            local version=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/eza-community/eza/releases/download/v${version}/eza_amd64.deb" || \
+            curl -LO "https://github.com/eza-community/eza/releases/download/v${version}/eza_${version}-1_amd64.deb"
+            sudo dpkg -i eza*.deb || sudo apt-get install -f -y
+        fi
+        
+        cd - >/dev/null
+        
+        # starship
+        if ! command -v starship &>/dev/null; then
+            curl -sS https://starship.rs/install.sh | sh -s -- -y
+        fi
+        
+        # zoxide
+        if ! command -v zoxide &>/dev/null; then
+            local tmp_zoxide=$(mktemp -d)
+            TEMP_DIRS+=("$tmp_zoxide")
+            cd "$tmp_zoxide"
+            local version=$(curl -s https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/ajeetdsouza/zoxide/releases/download/v${version}/zoxide_${version}-1_amd64.deb"
+            sudo dpkg -i zoxide_*.deb || sudo apt-get install -f -y
+            cd - >/dev/null
+        fi
+        
+        # atuin
+        if ! command -v atuin &>/dev/null; then
+            bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+        fi
         ;;
         
     arch|manjaro)
-        info "Updating pacman..."
-        sudo pacman -Syu --noconfirm
-        
-        info "Installing packages..."
-        sudo pacman -S --noconfirm \
-            git curl wget tmux tree jq yq \
-            base-devel \
-            zsh fish neovim \
-            ripgrep fd bat fzf gh \
-            eza starship zoxide atuin \
-            git-secrets
+        install_packages base-devel yq fish ripgrep fd bat gh eza starship zoxide atuin
         ;;
         
     fedora)
-        info "Updating dnf..."
-        sudo dnf update -y
+        install_packages @development-tools fish ripgrep fd-find bat gh
         
-        info "Installing packages..."
-        sudo dnf install -y \
-            git curl wget tmux tree jq \
-            @development-tools \
-            zsh fish neovim \
-            ripgrep fd-find bat fzf gh \
-            git-secrets
+        # Tools from COPR repositories
+        command -v eza &>/dev/null || install_from_copr atim/eza eza
+        command -v zoxide &>/dev/null || install_from_copr atim/zoxide zoxide
         
-        # eza from copr
-        sudo dnf copr enable -y atim/eza
-        sudo dnf install -y eza
-        
-        # starship from official script
+        # Tools from install scripts
         if ! command -v starship &>/dev/null; then
             info "Installing starship..."
             curl -sS https://starship.rs/install.sh | sh -s -- -y
         fi
         
-        # zoxide from copr
-        sudo dnf copr enable -y atim/zoxide
-        sudo dnf install -y zoxide
-        
-        # atuin
         if ! command -v atuin &>/dev/null; then
             info "Installing atuin..."
             bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
         fi
         ;;
-        
-    *)
-        error "Unsupported distribution: $DISTRO"
-        exit 1
-        ;;
-esac
+    esac
+}
 
 # Install mise version manager
 install_mise() {
