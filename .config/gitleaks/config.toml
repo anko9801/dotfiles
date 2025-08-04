@@ -32,16 +32,13 @@ paths = [
 ]
 
 # Allow example/template files
-[[allowlist.regexTarget]]
-target = "line"
+[[allowlist.regexes]]
 regex = '''(example|template|sample|test|demo)'''
 
 # Allow environment variable references without values
-[[allowlist.regexTarget]]
-target = "line"
+[[allowlist.regexes]]
 regex = '''[A-Z_]+=(\$\{[A-Z_]+\}|<[^>]+>|TODO|CHANGEME|REPLACE_ME|your-.*-here)'''
 
 # Allow localhost URLs
-[[allowlist.regexTarget]]
-target = "line"
+[[allowlist.regexes]]
 regex = '''(localhost|127\.0\.0\.1|0\.0\.0\.0|example\.com)'''
