@@ -10,35 +10,137 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Temporary directories to clean up
+TEMP_DIRS=()
+
+# Cleanup function
+cleanup() {
+    local exit_code=$?
+    # Clean up temporary directories
+    for dir in "${TEMP_DIRS[@]}"; do
+        if [[ -d "$dir" ]]; then
+            rm -rf "$dir"
+        fi
+    done
+    if [[ $exit_code -ne 0 ]]; then
+        echo
+        echo "Installation interrupted. You can safely run it again."
+    fi
+    exit $exit_code
+}
+
+# Set trap for cleanup
+trap cleanup EXIT INT TERM
+
 # Logging
 info() { echo -e "${BLUE}==>${NC} $1"; }
 success() { echo -e "${GREEN}✓${NC} $1"; }
 error() { echo -e "${RED}✗${NC} $1" >&2; }
 warning() { echo -e "${YELLOW}!${NC} $1"; }
 
-info "Running Linux bootstrap..."
-
-# Debug: Show environment
-echo "DEBUG: Current directory: $(pwd)"
-echo "DEBUG: HOME: $HOME"
-echo "DEBUG: Script: $0"
-
-# 1. Create necessary directories first
-info "Creating directories..."
-mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.cache"
-
-# 2. Detect distribution
-if [[ -f /etc/os-release ]]; then
-    . /etc/os-release
-    DISTRO="${ID,,}"
+if [[ -n "${IS_WSL:-}" ]]; then
+    info "Running Linux bootstrap (via WSL)..."
 else
-    DISTRO="unknown"
+    info "Running Linux bootstrap..."
 fi
 
-info "Detected distribution: $DISTRO"
+# Create necessary directories
+setup_directories() {
+    info "Creating directories..."
+    local dirs=(
+        "$HOME/.config"
+        "$HOME/.local/bin"
+        "$HOME/.local/share"
+        "$HOME/.cache"
+    )
+    mkdir -p "${dirs[@]}"
+}
 
-# 3. Update package manager and install packages based on distribution
-case "$DISTRO" in
+# Detect Linux distribution
+detect_distro() {
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        DISTRO="${ID,,}"
+    else
+        DISTRO="unknown"
+    fi
+    info "Detected distribution: $DISTRO"
+}
+
+# Install command helper
+install_package() {
+    local package="$1"
+    if ! command -v "$package" &>/dev/null; then
+        info "Installing $package..."
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Install modern CLI tools for Debian/Ubuntu
+install_modern_cli_tools_debian() {
+    info "Installing modern CLI tools..."
+    local tmp_dir=$(mktemp -d)
+    TEMP_DIRS+=("$tmp_dir")
+    cd "$tmp_dir"
+    
+    # ripgrep
+    if install_package "rg"; then
+        local version=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -Po '"tag_name": "\K[^"]*')
+        curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep_${version}-1_amd64.deb"
+        sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
+    fi
+    
+    # fd
+    if install_package "fd"; then
+        local version=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -LO "https://github.com/sharkdp/fd/releases/download/v${version}/fd_${version}_amd64.deb"
+        sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
+    fi
+    
+    # bat
+    if install_package "bat"; then
+        local version=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -LO "https://github.com/sharkdp/bat/releases/download/v${version}/bat_${version}_amd64.deb"
+        sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
+    fi
+    
+    # eza
+    if install_package "eza"; then
+        local version=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -LO "https://github.com/eza-community/eza/releases/download/v${version}/eza_amd64.deb" || \
+        curl -LO "https://github.com/eza-community/eza/releases/download/v${version}/eza_${version}-1_amd64.deb"
+        sudo dpkg -i eza*.deb || sudo apt-get install -f -y
+    fi
+    
+    cd - >/dev/null
+    
+    # starship
+    if install_package "starship"; then
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
+    fi
+    
+    # zoxide
+    if install_package "zoxide"; then
+        local tmp_zoxide=$(mktemp -d)
+        TEMP_DIRS+=("$tmp_zoxide")
+        cd "$tmp_zoxide"
+        local version=$(curl -s https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        curl -LO "https://github.com/ajeetdsouza/zoxide/releases/download/v${version}/zoxide_${version}-1_amd64.deb"
+        sudo dpkg -i zoxide_*.deb || sudo apt-get install -f -y
+        cd - >/dev/null
+    fi
+    
+    # atuin
+    if install_package "atuin"; then
+        bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    fi
+}
+
+# Install base packages for each distribution
+setup_packages() {
+    case "$DISTRO" in
     ubuntu|debian)
         info "Updating apt repositories..."
         sudo apt-get update || {
@@ -74,66 +176,8 @@ case "$DISTRO" in
             sudo apt install -y "$tool" || warning "Failed to install $tool"
         done
         
-        # Install modern CLI tools via .deb files for latest versions
-        info "Installing modern CLI tools..."
-        tmp_dir=$(mktemp -d)
-        cd "$tmp_dir"
-        
-        # ripgrep
-        if ! command -v rg &>/dev/null; then
-            info "Installing ripgrep..."
-            RIPGREP_VERSION=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -Po '"tag_name": "\K[^"]*')
-            curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep_${RIPGREP_VERSION}-1_amd64.deb"
-            sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
-        fi
-        
-        # fd
-        if ! command -v fd &>/dev/null; then
-            info "Installing fd..."
-            FD_VERSION=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-            curl -LO "https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd_${FD_VERSION}_amd64.deb"
-            sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
-        fi
-        
-        # bat
-        if ! command -v bat &>/dev/null; then
-            info "Installing bat..."
-            BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-            curl -LO "https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat_${BAT_VERSION}_amd64.deb"
-            sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
-        fi
-        
-        # eza
-        if ! command -v eza &>/dev/null; then
-            info "Installing eza..."
-            # eza uses different naming convention
-            EZA_VERSION=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-            curl -LO "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_amd64.deb" || \
-            curl -LO "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_${EZA_VERSION}-1_amd64.deb"
-            sudo dpkg -i eza*.deb || sudo apt-get install -f -y
-        fi
-        
-        cd - && rm -rf "$tmp_dir"
-        
-        # starship from official script (ensures latest version)
-        if ! command -v starship &>/dev/null; then
-            info "Installing starship..."
-            curl -sS https://starship.rs/install.sh | sh -s -- -y
-        fi
-        
-        # zoxide
-        if ! command -v zoxide &>/dev/null; then
-            info "Installing zoxide..."
-            ZOXIDE_VERSION=$(curl -s https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
-            curl -LO "https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide_${ZOXIDE_VERSION}-1_amd64.deb"
-            sudo dpkg -i zoxide_*.deb || sudo apt-get install -f -y
-        fi
-        
-        # atuin
-        if ! command -v atuin &>/dev/null; then
-            info "Installing atuin..."
-            bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
-        fi
+        # Install modern CLI tools
+        install_modern_cli_tools_debian
         ;;
         
     arch|manjaro)
@@ -189,121 +233,152 @@ case "$DISTRO" in
         ;;
 esac
 
-# 4. Install mise (version manager)
-if ! command -v mise &>/dev/null; then
-    info "Installing mise..."
-    # Try to install from package manager first
-    case "$DISTRO" in
-        ubuntu|debian)
-            # mise is not in standard repos, use install script
-            curl https://mise.run | sh
-            ;;
-        arch|manjaro)
-            # Available in AUR
-            if command -v yay &>/dev/null; then
-                yay -S --noconfirm mise || curl https://mise.run | sh
-            elif command -v paru &>/dev/null; then
-                paru -S --noconfirm mise || curl https://mise.run | sh
-            else
+# Install mise version manager
+install_mise() {
+    if ! command -v mise &>/dev/null; then
+        info "Installing mise..."
+        case "$DISTRO" in
+            ubuntu|debian)
                 curl https://mise.run | sh
-            fi
-            ;;
-        fedora)
-            # mise is not in standard repos, use install script
-            curl https://mise.run | sh
-            ;;
-        *)
-            curl https://mise.run | sh
-            ;;
-    esac
-    export PATH="$HOME/.local/bin:$PATH"
-    success "mise installed"
-fi
-
-# 5. Setup mise tools and language runtimes
-if command -v mise &>/dev/null; then
-    info "Setting up mise..."
-    eval "$(mise activate bash)"
-    
-    # Trust config file
-    mise trust "$HOME/.config/mise/config.toml" || true
-    
-    # Install all tools defined in config.toml
-    info "Installing tools from mise config..."
-    # Install tools one by one to handle failures gracefully
-    mise install --yes || {
-        warning "Some tools failed to install, continuing..."
-        # Try to install essential tools individually
-        mise install node@latest || true
-        mise install pnpm@latest || true
-        mise install deno@latest || true
-        mise install bun@latest || true
-        mise install go@latest || true
-        mise install rust@latest || true
-        # Skip ruby if it fails
-        mise install ruby@latest || warning "Ruby installation failed, skipping"
-    }
-    
-    success "mise configured"
-fi
-
-# 6. Install uv (Python package manager) and Python tools
-if ! command -v uv &>/dev/null; then
-    info "Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH="$HOME/.cargo/bin:$PATH"
-    success "uv installed"
-fi
-
-# Install Python tools via uv
-if command -v uv &>/dev/null; then
-    info "Installing Python tools via uv..."
-    uv tool install ruff@latest || true
-    success "Python tools installed"
-fi
-
-# 7. Setup development tools (requires languages from mise)
-info "Setting up development tools..."
-
-# Git secrets configuration
-if command -v git-secrets &>/dev/null; then
-    mkdir -p ~/.config/git/templates/git-secrets
-    git secrets --install ~/.config/git/templates/git-secrets >/dev/null 2>&1 || true
-    git config --global init.templateDir ~/.config/git/templates/git-secrets
-    git secrets --register-aws >/dev/null 2>&1 || true
-    success "git-secrets configured"
-fi
-
-# Global npm packages are now managed by mise config.toml
-
-# Install GitHub Copilot CLI extension
-if command -v gh &>/dev/null; then
-    if ! gh extension list | grep -q "github/gh-copilot"; then
-        gh extension install github/gh-copilot || true
+                ;;
+            arch|manjaro)
+                # Try AUR helpers first
+                if command -v yay &>/dev/null; then
+                    yay -S --noconfirm mise || curl https://mise.run | sh
+                elif command -v paru &>/dev/null; then
+                    paru -S --noconfirm mise || curl https://mise.run | sh
+                else
+                    curl https://mise.run | sh
+                fi
+                ;;
+            fedora)
+                curl https://mise.run | sh
+                ;;
+            *)
+                curl https://mise.run | sh
+                ;;
+        esac
+        export PATH="$HOME/.local/bin:$PATH"
+        success "mise installed"
     fi
-fi
+}
 
-# 8. Setup Zsh and antidote
-info "Setting up Zsh..."
-if [[ ! -d "${ZDOTDIR:-$HOME}/.antidote" ]]; then
-    git clone --depth=1 https://github.com/mattmc3/antidote.git "${ZDOTDIR:-$HOME}/.antidote"
-    success "antidote installed"
-fi
+# Setup mise and install tools
+setup_mise() {
+    if command -v mise &>/dev/null; then
+        info "Setting up mise..."
+        export PATH="$HOME/.local/bin:$PATH"
+        eval "$(mise activate bash)"
+        
+        # Trust config file
+        mise trust "$HOME/.config/mise/config.toml" || true
+        
+        # Install all tools defined in config.toml
+        info "Installing tools from mise config..."
+        mise install --yes || {
+            warning "Some tools failed to install, continuing..."
+            # Try to install essential tools individually
+            mise install node@latest || true
+            mise install pnpm@latest || true
+            mise install deno@latest || true
+            mise install bun@latest || true
+            mise install go@latest || true
+            mise install rust@latest || true
+            mise install ruby@latest || warning "Ruby installation failed, skipping"
+        }
+        
+        success "mise configured"
+    fi
+}
 
-# 9. Final summary
-success "Bootstrap completed!"
-echo
-echo "Installed tools:"
-echo "  ✓ Base development packages"
-echo "  ✓ Modern CLI tools (ripgrep, fd, bat, etc.)"
-echo "  ✓ mise with all configured tools"
-echo "  ✓ uv (Python package manager)"
-echo "  ✓ Development tools and Git configuration"
-echo "  ✓ Zsh with antidote"
-echo
-echo "Configuration: class=$(yadm config local.class || echo "personal")"
-echo
-echo "Next steps:"
-echo "1. Restart your terminal"
-echo "2. Run 'exec zsh' to switch to Zsh"
-echo "3. If needed: chsh -s $(which zsh)"
+# Install uv and Python tools
+setup_python_tools() {
+    if ! command -v uv &>/dev/null; then
+        info "Installing uv..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.cargo/bin:$PATH"
+        success "uv installed"
+    fi
+    
+    if command -v uv &>/dev/null; then
+        info "Installing Python tools via uv..."
+        uv tool install ruff@latest || true
+        success "Python tools installed"
+    fi
+}
+
+# Setup git-secrets
+setup_git_secrets() {
+    if command -v git-secrets &>/dev/null; then
+        local template_dir="$HOME/.config/git/templates/git-secrets"
+        mkdir -p "$template_dir"
+        
+        if [[ ! -f "$template_dir/hooks/commit-msg" ]]; then
+            git secrets --install "$template_dir" >/dev/null 2>&1 || true
+        fi
+        
+        git config --global init.templateDir "$template_dir"
+        
+        # Check if AWS patterns are already registered
+        if ! git secrets --list 2>/dev/null | grep -q "AWS"; then
+            git secrets --register-aws >/dev/null 2>&1 || true
+        fi
+        success "git-secrets configured"
+    fi
+}
+
+# Setup GitHub CLI extensions
+setup_gh_extensions() {
+    if command -v gh &>/dev/null; then
+        if ! gh extension list | grep -q "github/gh-copilot"; then
+            gh extension install github/gh-copilot || true
+        fi
+    fi
+}
+
+# Setup Zsh with antidote
+setup_zsh() {
+    info "Setting up Zsh..."
+    local antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
+    
+    if [[ ! -d "$antidote_dir" ]]; then
+        git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir"
+        success "antidote installed"
+    fi
+}
+
+# Show installation summary
+show_summary() {
+    success "Bootstrap completed!"
+    echo
+    echo "Installed tools:"
+    echo "  ✓ Base development packages"
+    echo "  ✓ Modern CLI tools (ripgrep, fd, bat, etc.)"
+    echo "  ✓ mise with all configured tools"
+    echo "  ✓ uv (Python package manager)"
+    echo "  ✓ Development tools and Git configuration"
+    echo "  ✓ Zsh with antidote"
+    echo
+    echo "Configuration: class=$(yadm config local.class || echo "personal")"
+    echo
+    echo "Next steps:"
+    echo "1. Restart your terminal"
+    echo "2. Run 'exec zsh' to switch to Zsh"
+    echo "3. If needed: chsh -s $(which zsh)"
+}
+
+# Main execution
+setup_directories
+detect_distro
+setup_packages
+
+install_mise
+setup_mise
+setup_python_tools
+
+info "Setting up development tools..."
+setup_git_secrets
+setup_gh_extensions
+
+setup_zsh
+show_summary
