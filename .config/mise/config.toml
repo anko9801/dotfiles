@@ -34,13 +34,6 @@ watchexec = "latest"   # File watcher
 shellcheck = "latest"
 shfmt = "latest"
 
-# CLI tools
-"cargo:ripgrep" = "latest"    # Better grep (rg)
-"cargo:fd-find" = "latest"    # Better find (fd)
-"cargo:bat" = "latest"        # Better cat with syntax highlighting
-"cargo:eza" = "latest"        # Better ls
-"cargo:starship" = "latest"   # Modern prompt
-
 # Global npm packages
 "npm:aicommits" = "latest"               # AI-powered commit messages
 "npm:@antfu/ni" = "latest"               # Package manager agnostic commands
