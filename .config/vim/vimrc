@@ -8,6 +8,20 @@ if &compatible
 endif
 
 " XDG Base Directory support
+" Set default XDG directories if not already set
+if empty($XDG_CONFIG_HOME)
+  let $XDG_CONFIG_HOME = expand('~/.config')
+endif
+if empty($XDG_DATA_HOME)
+  let $XDG_DATA_HOME = expand('~/.local/share')
+endif
+if empty($XDG_STATE_HOME)
+  let $XDG_STATE_HOME = expand('~/.local/state')
+endif
+if empty($XDG_CACHE_HOME)
+  let $XDG_CACHE_HOME = expand('~/.cache')
+endif
+
 let $MYVIMRC = expand('$XDG_CONFIG_HOME/vim/vimrc')
 let $VIM_CONFIG_HOME = expand('$XDG_CONFIG_HOME/vim')
 set runtimepath^=$VIM_CONFIG_HOME
@@ -51,6 +65,8 @@ execute 'set runtimepath+=' . s:denops_source
 " Load separate configuration files
 runtime! options.vim
 runtime! mappings.vim
+runtime! autocmds.vim
+runtime! lsp.vim
 
 " =============================================================================
 " Basic Options (before plugins)

@@ -91,6 +91,7 @@ set regexpengine=1            " 正規表現エンジン
 set noerrorbells              " エラー音を鳴らさない
 set novisualbell              " ビジュアルベルを無効
 set t_vb=                     " ビープ音を無効
+set belloff=all               " 全てのベル音を無効
 
 " =============================================================================
 " Encoding
@@ -108,6 +109,9 @@ set mouse=a                   " マウスを有効
 if !has('nvim')
   set ttymouse=xterm2         " ターミナルでのマウス
 endif
+set viminfo='100,<1000,s100,h " ヤンクの制限をゆるくする
+set tags=./tags;,tags;        " タグファイルの検索パス
+set ambiwidth=double          " □や○文字が崩れる問題を解決
 
 " Persistent undo
 if has('persistent_undo')
