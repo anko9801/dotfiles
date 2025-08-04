@@ -9,6 +9,8 @@
 " Better navigation
 nnoremap j gj
 nnoremap k gk
+vnoremap j gj
+vnoremap k gk
 nnoremap <Down> gj
 nnoremap <Up> gk
 
@@ -64,6 +66,12 @@ nnoremap <Leader>sv :source $MYVIMRC<CR>
 
 " Yank to end of line
 nnoremap Y y$
+
+" Paste without moving cursor (from backup)
+nnoremap p gP
+
+" Quick access to visual block mode
+nnoremap gv <C-v>
 
 " Keep cursor centered
 nnoremap n nzzzv
@@ -186,3 +194,12 @@ augroup BWCCreateDir
   autocmd!
   autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
 augroup END
+
+" =============================================================================
+" WSL Specific Mappings
+" =============================================================================
+if system('uname -a | grep -i microsoft') != ''
+  " WSL clipboard copy
+  nmap <silent> <C-c> <Plug>WslCopy
+  xmap <silent> <C-c> <Plug>WslCopy
+endif
