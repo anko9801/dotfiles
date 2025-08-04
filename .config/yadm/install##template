@@ -74,6 +74,8 @@ setup_package_manager() {
         fedora) sudo dnf update -y ;;
     esac
 {% endif %}
+    # Default: no-op for unknown OS
+    :
 }
 
 install_packages() {
@@ -116,6 +118,8 @@ install_packages() {
             ;;
     esac
 {% endif %}
+    # Default: no-op for unknown OS
+    :
 }
 
 # ============================================================================
@@ -388,3 +392,4 @@ main() {
 }
 
 main "$@"
+
