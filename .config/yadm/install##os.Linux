@@ -67,15 +67,29 @@ case "$DISTRO" in
         
         # Install tools available in apt
         info "Installing available tools from apt..."
-        apt_tools=(fzf git-secrets)
+        
+        # Tools available in standard Ubuntu repos
+        apt_tools=(fzf git-secrets ripgrep fd-find bat)
         for tool in "${apt_tools[@]}"; do
             sudo apt install -y "$tool" || warning "Failed to install $tool"
         done
         
-        # Modern CLI tools will be installed via mise with cargo backend
-        info "Modern CLI tools (ripgrep, fd, bat, eza) will be installed via mise..."
+        # eza needs to be installed from deb file (not in standard repos)
+        if ! command -v eza &>/dev/null; then
+            info "Installing eza..."
+            tmp_dir=$(mktemp -d)
+            cd "$tmp_dir"
+            curl -LO "https://github.com/eza-community/eza/releases/latest/download/eza_amd64.deb" || \
+            curl -LO "https://github.com/eza-community/eza/releases/download/v0.18.0/eza_0.18.0-1_amd64.deb"
+            sudo dpkg -i eza*.deb || sudo apt-get install -f -y
+            cd - && rm -rf "$tmp_dir"
+        fi
         
-        # Note: starship and other Rust tools will be installed via mise
+        # starship from official script (ensures latest version)
+        if ! command -v starship &>/dev/null; then
+            info "Installing starship..."
+            curl -sS https://starship.rs/install.sh | sh -s -- -y
+        fi
         ;;
         
     arch|manjaro)
@@ -88,8 +102,7 @@ case "$DISTRO" in
             base-devel \
             zsh fish neovim \
             ripgrep fd bat fzf gh \
-            eza zoxide starship atuin \
-            go rust \
+            eza starship \
             git-secrets
         ;;
         
@@ -105,7 +118,15 @@ case "$DISTRO" in
             ripgrep fd-find bat fzf gh \
             git-secrets
         
-        # Note: starship will be installed via mise
+        # eza from copr
+        sudo dnf copr enable -y atim/eza
+        sudo dnf install -y eza
+        
+        # starship from official script
+        if ! command -v starship &>/dev/null; then
+            info "Installing starship..."
+            curl -sS https://starship.rs/install.sh | sh -s -- -y
+        fi
         ;;
         
     *)
