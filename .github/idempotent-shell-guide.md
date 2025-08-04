@@ -14,26 +14,18 @@ mkdir -p "$HOME/.config"
 # シンボリックリンク
 ln -sfn "$source" "$target"
 
-# ファイルコピー（属性保持）
-# -a: アーカイブモード（-dR --preserve=all と同等）
-# 権限、所有者、タイムスタンプ、シンボリックリンクを保持
-cp -a "$source" "$destination"
+# ファイルコピー（常に冪等）
+cp -af "$source" "$destination"  # -f: 強制上書き、エラーなし
 
-# バックアップ付きコピー（冪等）
-[ ! -f "$destination" ] && cp -a "$source" "$destination"
+# ファイル削除（常に冪等）
+rm -f "$file"     # ファイルが存在しなくてもエラーなし
+rm -rf "$dir"     # ディレクトリが存在しなくてもエラーなし
 
-# ファイル削除（存在確認付き）
-# -f: 強制削除（エラーを出さない）
-[ -f "$file" ] && rm -f "$file"
-[ -d "$dir" ] && rm -rf "$dir"
-
-# 安全な削除（バックアップ付き）
-safe_remove() {
-    local file="$1"
-    if [ -f "$file" ]; then
-        cp -a "$file" "$file.bak.$(date +%Y%m%d_%H%M%S)"
-        rm -f "$file"
-    fi
+# バックアップ付き操作
+backup_and_replace() {
+    local file="$1" new_content="$2"
+    [ -f "$file" ] && cp -a "$file" "$file.bak.$(date +%Y%m%d_%H%M%S)"
+    echo "$new_content" > "$file"
 }
 
 # 行の冪等な追加
@@ -207,38 +199,32 @@ TEMP_FILES+=("$temp_file")
 ```bash
 # ❌ 非冪等な例
 mkdir /opt/myapp                           # 既存時にエラー
-sudo apt install -y nginx                  # 毎回実行
+sudo apt install nginx                     # 実は冪等（パッケージマネージャーが処理）
 ln -s /etc/nginx/sites-available/mysite    # 既存時にエラー
 echo "PATH=/usr/local/bin:$PATH" >> ~/.bashrc  # 重複追加
-git config --global user.name "John"       # 毎回実行
-cp config.conf /etc/myapp/                 # 警告なし上書き
-sed -i 's/DEBUG=true/DEBUG=false/' app.conf  # 毎回実行
+cp config.conf /etc/myapp/                 # 実は冪等（上書きするだけ）
 rm /tmp/oldfile                            # ファイルなしでエラー
 
-# ✅ 冪等な改善例
-mkdir -p /opt/myapp
-dpkg -l nginx &>/dev/null || sudo apt install -y nginx
+# ✅ シンプルで冪等な例
+mkdir -p /opt/myapp                        # 常に成功
+sudo apt install -y nginx                  # パッケージマネージャーは冪等
 ln -sfn /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled/mysite
 grep -Fxq 'PATH=/usr/local/bin:$PATH' ~/.bashrc || echo 'PATH=/usr/local/bin:$PATH' >> ~/.bashrc
-[[ "$(git config --global user.name)" != "John" ]] && git config --global user.name "John"
-[ ! -f /etc/myapp/config.conf ] && cp -a config.conf /etc/myapp/
-grep -q "DEBUG=true" app.conf && sed -i 's/DEBUG=true/DEBUG=false/' app.conf
-[ -f /tmp/oldfile ] && rm -f /tmp/oldfile
+cp -af config.conf /etc/myapp/             # -f で強制上書き
+rm -f /tmp/oldfile                         # -f でエラー抑制
 ```
 
 ## チェックリスト
 
 - [ ] `mkdir` → `mkdir -p` に変更
 - [ ] `ln -s` → `ln -sfn` に変更
-- [ ] `cp` → 存在確認付きまたは `cp -a` で属性保持
-- [ ] `sed -i` → 条件確認してから実行
-- [ ] `rm` → 存在確認付きまたは `rm -f` でエラー抑制
+- [ ] `cp` → `cp -af` でシンプルに
+- [ ] `rm` → `rm -f` / `rm -rf` でエラー抑制
 - [ ] ファイル追記前に `grep` で重複確認
-- [ ] パッケージインストール前に存在確認
-- [ ] サービス操作前に状態確認
+- [ ] `sed -i` は条件付きで使用（必要な場合のみ）
+- [ ] パッケージマネージャーの冪等性を活用
 - [ ] スクリプト冒頭に `set -euo pipefail`
 - [ ] 必要に応じて `trap` でクリーンアップ
-- [ ] 並行実行が問題なら `flock` で排他制御
 
 ## 冪等性の原則
 
