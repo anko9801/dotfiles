@@ -349,6 +349,11 @@ setup_1password_ssh() {
     # Check if 1Password CLI is available
     if command -v op >/dev/null 2>&1; then
         success "1Password CLI found"
+        # Set up shell plugins if available
+        if [[ -f "$HOME/.config/op/plugins.sh" ]]; then
+            info "Setting up 1Password shell plugins..."
+            bash "$HOME/.config/op/plugins.sh" || true
+        fi
     else
         warning "1Password CLI not found - install from https://developer.1password.com/docs/cli/"
     fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# yadm pre_commit hook - implements all checks from pre-commit-config.yaml
+# yadm pre_commit hook - security checks for dotfiles
 
 set -e
 
@@ -9,7 +9,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${YELLOW}Running pre-commit checks...${NC}"
+echo -e "${YELLOW}Running security checks...${NC}"
 
 # Get list of files to be committed
 FILES=$(yadm diff --cached --name-only)
@@ -21,158 +21,7 @@ fi
 # Track if any check fails
 FAILED=0
 
-# 1. Trailing whitespace
-echo -n "Checking for trailing whitespace... "
-if echo "$FILES" | xargs grep -l '[[:space:]]$' 2>/dev/null; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Remove trailing whitespace from the above files"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 2. End of file fixer (files should end with newline)
-echo -n "Checking for missing newline at end of files... "
-MISSING_NEWLINE=""
-for file in $FILES; do
-    if [[ -f "$file" ]] && [[ -s "$file" ]] && [[ $(tail -c1 "$file" | wc -l) -eq 0 ]]; then
-        MISSING_NEWLINE="$MISSING_NEWLINE $file"
-    fi
-done
-if [[ -n "$MISSING_NEWLINE" ]]; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Add newline to:$MISSING_NEWLINE"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 3. Check merge conflict markers
-echo -n "Checking for merge conflict markers... "
-if echo "$FILES" | xargs grep -E '<<<<<<< |======= |>>>>>>> ' 2>/dev/null; then
-    echo -e "${RED}FAILED${NC}"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 4. Detect private keys
-echo -n "Checking for private keys... "
-if echo "$FILES" | xargs grep -E 'BEGIN (RSA|DSA|EC|OPENSSH) PRIVATE KEY' 2>/dev/null; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Private key detected!"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 5. Check for large files (>1MB)
-echo -n "Checking for large files (>1MB)... "
-LARGE_FILES=""
-for file in $FILES; do
-    if [[ -f "$file" ]]; then
-        SIZE=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
-        if [[ $SIZE -gt 1048576 ]]; then
-            LARGE_FILES="$LARGE_FILES $file($(($SIZE/1048576))MB)"
-        fi
-    fi
-done
-if [[ -n "$LARGE_FILES" ]]; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Large files:$LARGE_FILES"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 6. Check case conflicts (e.g., File.txt and file.txt)
-echo -n "Checking for case conflicts... "
-LOWERCASE_FILES=$(echo "$FILES" | tr '[:upper:]' '[:lower:]' | sort)
-if [[ $(echo "$LOWERCASE_FILES" | uniq -d) ]]; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Case conflict detected"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 7. Check executables have shebangs
-echo -n "Checking executables have shebangs... "
-NO_SHEBANG=""
-for file in $FILES; do
-    if [[ -f "$file" ]] && [[ -x "$file" ]]; then
-        if ! head -n1 "$file" | grep -q '^#!'; then
-            NO_SHEBANG="$NO_SHEBANG $file"
-        fi
-    fi
-done
-if [[ -n "$NO_SHEBANG" ]]; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Missing shebang:$NO_SHEBANG"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 8. Check JSON files
-echo -n "Checking JSON files... "
-JSON_ERRORS=""
-for file in $FILES; do
-    if [[ "$file" =~ \.json$ ]] && [[ -f "$file" ]]; then
-        if ! python3 -m json.tool "$file" >/dev/null 2>&1; then
-            JSON_ERRORS="$JSON_ERRORS $file"
-        fi
-    fi
-done
-if [[ -n "$JSON_ERRORS" ]]; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Invalid JSON:$JSON_ERRORS"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 9. Check YAML files
-echo -n "Checking YAML files... "
-YAML_ERRORS=""
-for file in $FILES; do
-    if [[ "$file" =~ \.(yml|yaml)$ ]] && [[ -f "$file" ]]; then
-        if command -v python3 >/dev/null 2>&1; then
-            if ! python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
-                YAML_ERRORS="$YAML_ERRORS $file"
-            fi
-        fi
-    fi
-done
-if [[ -n "$YAML_ERRORS" ]]; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Invalid YAML:$YAML_ERRORS"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 10. Check TOML files
-echo -n "Checking TOML files... "
-TOML_ERRORS=""
-for file in $FILES; do
-    if [[ "$file" =~ \.toml$ ]] && [[ -f "$file" ]]; then
-        if command -v python3 >/dev/null 2>&1; then
-            if ! python3 -c "import toml; toml.load('$file')" 2>/dev/null; then
-                TOML_ERRORS="$TOML_ERRORS $file"
-            fi
-        fi
-    fi
-done
-if [[ -n "$TOML_ERRORS" ]]; then
-    echo -e "${RED}FAILED${NC}"
-    echo "  Invalid TOML:$TOML_ERRORS"
-    FAILED=1
-else
-    echo -e "${GREEN}OK${NC}"
-fi
-
-# 11. Run git-secrets if available
+# 1. Run git-secrets if available
 if command -v git-secrets &> /dev/null; then
     echo -n "Running git-secrets... "
     if ! git-secrets --pre_commit_hook -- "$@"; then
@@ -183,34 +32,121 @@ if command -v git-secrets &> /dev/null; then
     fi
 fi
 
-# 12. ShellCheck for shell scripts
-if command -v shellcheck &> /dev/null; then
-    echo -n "Running ShellCheck... "
-    SHELL_ERRORS=""
-    for file in $FILES; do
-        if [[ "$file" =~ \.(sh|bash|zsh)$ ]] && [[ ! "$file" =~ ^\.zinit/ ]] && [[ -f "$file" ]]; then
-            if ! shellcheck "$file" >/dev/null 2>&1; then
-                SHELL_ERRORS="$SHELL_ERRORS $file"
-            fi
-        fi
-    done
-    if [[ -n "$SHELL_ERRORS" ]]; then
-        echo -e "${RED}FAILED${NC}"
-        echo "  ShellCheck errors in:$SHELL_ERRORS"
-        echo "  Run 'shellcheck <file>' for details"
-        FAILED=1
-    else
-        echo -e "${GREEN}OK${NC}"
-    fi
+# 2. Detect private keys
+echo -n "Checking for private keys... "
+if echo "$FILES" | xargs grep -E 'BEGIN (RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY' 2>/dev/null; then
+    echo -e "${RED}FAILED${NC}"
+    echo "  Private key detected! Use 1Password SSH Agent instead."
+    FAILED=1
+else
+    echo -e "${GREEN}OK${NC}"
 fi
+
+# 3. Additional secret patterns for dotfiles
+echo -n "Checking for hardcoded secrets... "
+patterns=(
+    # API Keys and Tokens
+    'api[_-]?key.*[:=]\s*["'\'']*[a-zA-Z0-9_-]{20,}'
+    'token.*[:=]\s*["'\'']*[a-zA-Z0-9_-]{20,}'
+    'secret.*[:=]\s*["'\'']*[a-zA-Z0-9_-]{20,}'
+    
+    # AWS
+    'AKIA[0-9A-Z]{16}'
+    'aws[_-]?access[_-]?key[_-]?id'
+    'aws[_-]?secret[_-]?access[_-]?key'
+    
+    # Database URLs with passwords
+    '(mysql|postgresql|mongodb)://[^:]+:[^@]+@'
+    
+    # OAuth tokens
+    'oauth[_-]?token'
+    'bearer\s+[a-zA-Z0-9_-]{20,}'
+)
+
+SECRET_FOUND=0
+for pattern in "${patterns[@]}"; do
+    if git diff --cached --name-only -z | xargs -0 grep -E "$pattern" 2>/dev/null; then
+        SECRET_FOUND=1
+        break
+    fi
+done
+
+if [[ $SECRET_FOUND -eq 1 ]]; then
+    echo -e "${RED}FAILED${NC}"
+    echo "  Possible secret detected! Use 1Password op:// references instead."
+    FAILED=1
+else
+    echo -e "${GREEN}OK${NC}"
+fi
+
+# 4. Check for dangerous files that should never be in dotfiles
+echo -n "Checking for dangerous files... "
+dangerous_files=(
+    # Private keys
+    '.ssh/id_rsa'
+    '.ssh/id_dsa'
+    '.ssh/id_ecdsa'
+    '.ssh/id_ed25519'
+    
+    # Cloud credentials
+    '.aws/credentials'
+    '.gcloud/credentials.json'
+    '.azure/credentials'
+    
+    # Environment files with secrets
+    '.env.local'
+    '.env.production'
+    '.env.*.local'
+    
+    # Application secrets
+    '.npmrc'
+    '.pypirc'
+    '.docker/config.json'
+    
+    # GPG keys
+    '.gnupg/secring.gpg'
+    '.gnupg/private-keys-v1.d/*'
+)
+
+DANGEROUS_FOUND=0
+for file in "${dangerous_files[@]}"; do
+    if git diff --cached --name-only | grep -qE "^${file}$"; then
+        echo -e "${RED}FAILED${NC}"
+        echo "  Dangerous file detected: $file"
+        echo "  This file likely contains secrets. Add to .gitignore or encrypt with yadm."
+        DANGEROUS_FOUND=1
+        FAILED=1
+        break
+    fi
+done
+
+if [[ $DANGEROUS_FOUND -eq 0 ]]; then
+    echo -e "${GREEN}OK${NC}"
+fi
+
+# 5. Warn about unencrypted sensitive files
+sensitive_files=(
+    '.ssh/config'
+    '.gitconfig'
+    '.netrc'
+)
+
+for file in "${sensitive_files[@]}"; do
+    if git diff --cached --name-only | grep -qE "^${file}$"; then
+        if ! yadm list --encrypt | grep -qE "^${file}$"; then
+            echo -e "${YELLOW}Warning:${NC} Committing potentially sensitive file: $file"
+            echo "  Consider adding it to .config/yadm/encrypt for encryption."
+        fi
+    fi
+done
 
 # Summary
 echo
 if [[ $FAILED -eq 0 ]]; then
-    echo -e "${GREEN}All pre-commit checks passed!${NC}"
+    echo -e "${GREEN}All security checks passed!${NC}"
     exit 0
 else
-    echo -e "${RED}Pre-commit checks failed!${NC}"
+    echo -e "${RED}Security checks failed!${NC}"
     echo "Fix the issues above and try again."
     exit 1
 fi

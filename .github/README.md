@@ -20,30 +20,74 @@ yadm bootstrap
 理想のdotfiles管理システムの条件：
 - **1コマンドセットアップ・管理** - 低い導入コスト
 - **マシン差分吸収** - OS・マシン別に環境を整える
-- **シークレット保護** - 暗号化や 1Password による管理
+- **シークレット保護** - 1Password にまとめる
 - **XDG 準拠** - ホームディレクトリをクリーンに
 - **冪等性** - 何度実行しても同じ結果
 
 dotfiles管理の3つのアプローチ：
-1. **シンボリックリンク** (GNU Stow) → Windowsでエッジケースが多い
-2. **ファイルコピー** (chezmoi) → Single Source of Truthじゃない
+1. **シンボリックリンク** (GNU Stow) → Windows でエッジケースが多い
+2. **ファイルコピー** (chezmoi) → Single Source of Truth じゃない
 3. **Bare Git** → 管理は最も楽だが誤操作や導入時の上書きが怖い
 
-**yadm**はBare Gitの管理しやすさを保ちつつ、全ての欠点を解決した最適解：
-
-- **テンプレート**: Jinja2構文で動的設定生成（`##template`）
-- **Alternates**: OS・クラス・ホスト別ファイル切り替え（`##os.Darwin`, `##class.work`）
-- **Classes**: マシンタイプ別パッケージ管理（personal/work/server）
-- **Bootstrap**: 自動環境構築スクリプト実行
-- **暗号化**: openssl/gpgによる機密ファイル管理
-- **Hooks**: pre_commit, post_altなどのイベント駆動処理
-- **Git統合**: 通常のgitコマンドがそのまま使用可能
+**yadm** は Bare Git の管理しやすさを保ちつつ、上記の欠点を解決した最適解：
 
 **このdotfilesでの実装**:
 - **システムワイドZDOTDIR**: `/etc/zsh/zshenv`でルートの`.zshenv`を排除
-- **ワンファイルbootstrap**: OS別スクリプトで依存関係を最適化
 - **セキュリティ強化**: bash実装のpre-commit hooks、git-secrets統合
-- **クリーンな.gitignore**: ホワイトリスト方式で最小限管理
+- **クリーンな .gitignore**: ホワイトリスト方式で最小限管理
+
+### 1Password によるシークレット管理
+
+[ローカル環境からシークレットを削除](https://efcl.info/2023/01/31/remove-secret-from-local/)する設計により、秘密情報を一切ローカルに保存しません：
+
+#### SSH鍵管理
+- **1Password SSH Agent**: 全ての SSH 秘密鍵を 1Password で管理
+- **自動設定**: `~/.ssh/config.d/1password` で OS 別のエージェントソケットを自動設定
+  - macOS: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
+  - Linux: `~/.1password/agent.sock`
+  - Windows: `\\.\pipe\openssh-ssh-agent`
+- **ForwardAgent**: 全ホストで有効化し、リモートサーバーでも 1Password の鍵を使用可能
+
+#### Git コミット署名
+- **SSH 署名**: GPG の代わりに SSH 鍵で Git コミットに署名
+- **op-ssh-sign**: 1Password が提供する署名プログラムを使用
+  - macOS: `/Applications/1Password.app/Contents/MacOS/op-ssh-sign`
+  - Linux/WSL: `op-ssh-sign`
+- **allowed_signers**: `~/.config/git/allowed_signers` で信頼する署名者を管理
+- **自動検証**: 署名されたコミットを自動的に検証
+
+#### CLI ツール認証 (Shell Plugins)
+1Password Shell Plugins により、各種 CLI ツールの認証情報を安全に管理：
+- **GitHub CLI (`gh`)**: Personal Access Token を 1Password で管理
+- **AWS CLI**: Access Key/Secret Key を安全に保存
+- **その他対応ツール**: 
+  - Stripe CLI
+  - Vercel CLI
+  - Netlify CLI
+  - CircleCI CLI
+  - など多数
+
+設定は `~/.config/op/plugins.sh` で自動化され、bootstrap 時に適用されます。
+
+#### 環境変数の安全な管理
+- **op:// 参照**: `.env` ファイル内で秘密情報を直接記載せず、1Password への参照を使用
+  ```bash
+  DATABASE_URL=op://Personal/MyApp/database/url
+  API_KEY=op://Personal/MyApp/api/key
+  ```
+- **実行時の解決**: `op run` コマンドで環境変数を自動的に解決
+  ```bash
+  op run --env-file=.env -- npm start
+  op run --env-file=.env -- docker-compose up
+  ```
+
+#### セキュリティ強化
+- **pre-commit hooks**: `.config/git/templates/git-secrets/hooks/pre-commit` で秘密情報の誤コミットを防止
+  - git-secrets による AWS 認証情報の検出
+  - API キー、トークン、秘密鍵のパターンマッチング
+  - データベース URL のパスワード検出
+- **ゼロトラスト**: ローカルに秘密情報を一切保存しないアーキテクチャ
+- **監査証跡**: 1Password のアクティビティログで全てのアクセスを追跡可能
 
 ## ツール構成
 
