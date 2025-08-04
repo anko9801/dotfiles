@@ -46,7 +46,7 @@ brew "docker-compose"
 
 {% if yadm.class != "server" %}
 # Desktop tools
-brew "1password-cli"
+cask "1password-cli"
 brew "zellij"
 
 # macOS apps
