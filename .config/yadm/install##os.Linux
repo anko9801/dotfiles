@@ -72,53 +72,10 @@ case "$DISTRO" in
             sudo apt install -y "$tool" || warning "Failed to install $tool"
         done
         
-        # Install modern CLI tools via .deb files
-        info "Installing modern CLI tools..."
-        tmp_dir=$(mktemp -d)
-        cd "$tmp_dir"
+        # Modern CLI tools will be installed via mise with cargo backend
+        info "Modern CLI tools (ripgrep, fd, bat, eza) will be installed via mise..."
         
-        # ripgrep
-        if ! command -v rg &>/dev/null; then
-            info "Installing ripgrep..."
-            curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0-1_amd64.deb"
-            sudo dpkg -i ripgrep_*.deb || sudo apt-get install -f -y
-        fi
-        
-        # fd
-        if ! command -v fd &>/dev/null; then
-            info "Installing fd..."
-            curl -LO "https://github.com/sharkdp/fd/releases/download/v9.0.0/fd_9.0.0_amd64.deb"
-            sudo dpkg -i fd_*.deb || sudo apt-get install -f -y
-        fi
-        
-        # bat
-        if ! command -v bat &>/dev/null; then
-            info "Installing bat..."
-            curl -LO "https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb"
-            sudo dpkg -i bat_*.deb || sudo apt-get install -f -y
-        fi
-        
-        # eza (modern ls)
-        if ! command -v eza &>/dev/null; then
-            info "Installing eza..."
-            curl -LO "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
-            tar -xzf eza_*.tar.gz
-            sudo mv eza /usr/local/bin/
-        fi
-        
-        cd - && rm -rf "$tmp_dir"
-        
-        # Install from cargo if Rust is available
-        if command -v cargo &>/dev/null; then
-            info "Installing Rust-based tools..."
-            cargo install zoxide starship atuin || true
-        else
-            # Install starship directly
-            if ! command -v starship &>/dev/null; then
-                info "Installing starship..."
-                curl -sS https://starship.rs/install.sh | sh -s -- -y
-            fi
-        fi
+        # Note: starship and other Rust tools will be installed via mise
         ;;
         
     arch|manjaro)
@@ -148,10 +105,7 @@ case "$DISTRO" in
             ripgrep fd-find bat fzf gh \
             git-secrets
         
-        # Install tools not in standard repos
-        if ! command -v starship &>/dev/null; then
-            curl -sS https://starship.rs/install.sh | sh -s -- -y
-        fi
+        # Note: starship will be installed via mise
         ;;
         
     *)
@@ -163,7 +117,30 @@ esac
 # 4. Install mise (version manager)
 if ! command -v mise &>/dev/null; then
     info "Installing mise..."
-    curl https://mise.run | sh
+    # Try to install from package manager first
+    case "$DISTRO" in
+        ubuntu|debian)
+            # mise is not in standard repos, use install script
+            curl https://mise.run | sh
+            ;;
+        arch|manjaro)
+            # Available in AUR
+            if command -v yay &>/dev/null; then
+                yay -S --noconfirm mise || curl https://mise.run | sh
+            elif command -v paru &>/dev/null; then
+                paru -S --noconfirm mise || curl https://mise.run | sh
+            else
+                curl https://mise.run | sh
+            fi
+            ;;
+        fedora)
+            # mise is not in standard repos, use install script
+            curl https://mise.run | sh
+            ;;
+        *)
+            curl https://mise.run | sh
+            ;;
+    esac
     export PATH="$HOME/.local/bin:$PATH"
     success "mise installed"
 fi
