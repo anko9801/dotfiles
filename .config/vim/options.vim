@@ -17,10 +17,10 @@ set cursorcolumn              " カーソル列をハイライト
 set showmatch                 " 対応する括弧をハイライト
 set matchtime=1               " 括弧のハイライト時間
 set list                      " 不可視文字を表示
-set listchars=tab:▸\ ,trail:·,extends:>,precedes:<,nbsp:+
+set listchars=tab:>-,trail:-,extends:>,precedes:<,nbsp:%
 set wrap                      " 長い行を折り返す
 set linebreak                 " 単語の途中で折り返さない
-set showbreak=↪               " 折り返し行の先頭に表示
+set showbreak=\\              " 折り返し行の先頭に表示
 set display=lastline          " 長い行を省略しない
 
 " =============================================================================
