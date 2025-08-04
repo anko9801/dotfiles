@@ -120,6 +120,20 @@ case "$DISTRO" in
             info "Installing starship..."
             curl -sS https://starship.rs/install.sh | sh -s -- -y
         fi
+        
+        # zoxide
+        if ! command -v zoxide &>/dev/null; then
+            info "Installing zoxide..."
+            ZOXIDE_VERSION=$(curl -s https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+            curl -LO "https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide_${ZOXIDE_VERSION}-1_amd64.deb"
+            sudo dpkg -i zoxide_*.deb || sudo apt-get install -f -y
+        fi
+        
+        # atuin
+        if ! command -v atuin &>/dev/null; then
+            info "Installing atuin..."
+            bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+        fi
         ;;
         
     arch|manjaro)
@@ -156,6 +170,16 @@ case "$DISTRO" in
         if ! command -v starship &>/dev/null; then
             info "Installing starship..."
             curl -sS https://starship.rs/install.sh | sh -s -- -y
+        fi
+        
+        # zoxide from copr
+        sudo dnf copr enable -y atim/zoxide
+        sudo dnf install -y zoxide
+        
+        # atuin
+        if ! command -v atuin &>/dev/null; then
+            info "Installing atuin..."
+            bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
         fi
         ;;
         
