@@ -1,0 +1,66 @@
+name: Lint
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          FAILED=0
+          for file in $(find . -name "*.json" -not -path "./.git/*"); do
+            if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
+              echo "Invalid JSON: $file"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+      
+      - name: Validate YAML files
+        run: |
+          echo "Validating YAML files..."
+          pip install -q pyyaml
+          FAILED=0
+          for file in $(find . -name "*.yaml" -o -name "*.yml" -not -path "./.git/*"); do
+            if ! python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
+              echo "Invalid YAML: $file"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+      
+      - name: Validate TOML files
+        run: |
+          echo "Validating TOML files..."
+          pip install -q toml
+          FAILED=0
+          for file in $(find . -name "*.toml" -not -path "./.git/*"); do
+            if ! python3 -c "import toml; toml.load('$file')" 2>/dev/null; then
+              echo "Invalid TOML: $file"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          ignore_paths: |
+            .zinit
+            .antidote
+          ignore_names: |
+            *.zsh
+          check_together: 'yes'
+

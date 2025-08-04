@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Pre-commit hook to prevent committing secrets
+# This uses git-secrets and additional patterns
+
+# Run git-secrets scan
+if command -v git-secrets &>/dev/null; then
+    git secrets --pre_commit_hook -- "$@"
+fi
+
+# Additional checks for common secret patterns
+patterns=(
+    # API Keys
+    'api[_-]?key.*[:=]\s*["\047]?[a-zA-Z0-9_-]{20,}'
+    'token.*[:=]\s*["\047]?[a-zA-Z0-9_-]{20,}'
+    'secret.*[:=]\s*["\047]?[a-zA-Z0-9_-]{20,}'
+    
+    # AWS
+    'AKIA[0-9A-Z]{16}'
+    'aws[_-]?access[_-]?key[_-]?id'
+    'aws[_-]?secret[_-]?access[_-]?key'
+    
+    # Private Keys
+    '-----BEGIN\s+(RSA|DSA|EC|OPENSSH|PGP)\s+PRIVATE\s+KEY'
+    
+    # Database URLs with passwords
+    '(mysql|postgresql|mongodb)://[^:]+:[^@]+@'
+    
+    # Files that shouldn't be committed
+    '\.env\.local'
+    '\.env\.production'
+)
+
+# Check staged files for patterns
+for pattern in "${patterns[@]}"; do
+    if git diff --cached --name-only -z | xargs -0 grep -E "$pattern" 2>/dev/null; then
+        echo "Error: Possible secret detected matching pattern: $pattern"
+        echo "Remove the secret or add to .gitignore before committing"
+        exit 1
+    fi
+done
+
+exit 0

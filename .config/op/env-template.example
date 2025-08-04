@@ -1,0 +1,20 @@
+# Example .env file using 1Password references
+# Copy this to your project and customize as needed
+
+# Instead of storing secrets directly:
+# API_KEY=sk_test_1234567890abcdef
+
+# Use 1Password references:
+API_KEY="op://Personal/MyApp/api/key"
+DATABASE_URL="op://Personal/MyApp/database/url"
+AWS_ACCESS_KEY_ID="op://Personal/AWS/access_key_id"
+AWS_SECRET_ACCESS_KEY="op://Personal/AWS/secret_access_key"
+
+# Usage:
+# op run --env-file="./.env" -- npm start
+# op run --env-file="./.env" -- docker compose up
+
+# To create items in 1Password:
+# op item create --category=login --title='MyApp' --vault='Personal'
+# op item edit 'MyApp' api.key="your-actual-api-key"
+# op item edit 'MyApp' database.url="postgresql://..."
