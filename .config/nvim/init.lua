@@ -17,6 +17,14 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Setup luarocks path if available
+if vim.fn.executable("luarocks") == 1 then
+  local luarocks_path = vim.fn.system("luarocks path --lr-path"):gsub("\n", "")
+  local luarocks_cpath = vim.fn.system("luarocks path --lr-cpath"):gsub("\n", "")
+  package.path = package.path .. ";" .. luarocks_path
+  package.cpath = package.cpath .. ";" .. luarocks_cpath
+end
+
 -- Load core settings
 require("config.options")
 require("config.keymaps")

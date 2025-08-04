@@ -80,7 +80,6 @@ setup_package_manager() {
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         eval "$([[ -d "/opt/homebrew" ]] && echo /opt/homebrew || echo /usr/local)/bin/brew shellenv"
     fi
-    info "Updating Homebrew..."
     brew update
 {% endif %}
 {% if yadm.os == "Windows" %}
