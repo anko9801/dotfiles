@@ -27,6 +27,9 @@ shfmt = "latest"
 "npm:@antfu/ni" = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:@google/gemini-cli" = "latest"
+"npm:czg" = "latest"
+"npm:commitizen" = "latest"
+"npm:cz-git" = "latest"
 
 [tasks.update]
 description = "Update all tools to latest versions"
