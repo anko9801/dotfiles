@@ -1,7 +1,8 @@
 # Homebrew Bundle file
 # https://github.com/Homebrew/homebrew-bundle
 
-# Taps (none needed - all are now built-in)
+# Taps
+tap "koekeishiya/formulae"
 
 # Essential tools
 brew "git"
