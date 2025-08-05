@@ -28,6 +28,10 @@ brew "zoxide"
 brew "gomi"
 brew "atuin"
 brew "mcfly"
+brew "duf"
+brew "dust"
+brew "tokei"
+brew "sd"
 
 # Development
 brew "vim"
