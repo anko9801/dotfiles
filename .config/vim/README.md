@@ -54,6 +54,28 @@ export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC'
 - `mappings.vim`: キーバインディング
 - `autocmds.vim`: 自動コマンド（末尾空白削除、カーソル位置復元など）
 
-## プラグインについて
+## プラグインマネージャー
 
-現在の設定ではプラグインマネージャーを使用していません。将来的に dpp.vim への移行を検討中です。
+### dpp.vim（準備中）
+
+次世代の Vim プラグインマネージャー dpp.vim の設定ファイルが用意されています：
+
+- `vimrc.dpp`: dpp.vim を使用する場合の vimrc
+- `plugins.toml`: プラグイン定義（TOML形式）
+- `dpp.ts`: Deno ベースの設定スクリプト
+
+#### 切り替え方法
+
+```bash
+# dpp.vim を使用する場合
+mv ~/.config/vim/vimrc ~/.config/vim/vimrc.simple
+mv ~/.config/vim/vimrc.dpp ~/.config/vim/vimrc
+```
+
+dpp.vim は Shougo 氏による最新のプラグインマネージャーで、以下の特徴があります：
+- Deno/TypeScript ベースの設定
+- 非同期処理による高速化
+- TOML による宣言的なプラグイン管理
+- Denops.vim との統合
+
+現在はシンプルな設定を使用していますが、プラグインが必要になった場合は dpp.vim への移行が可能です。
