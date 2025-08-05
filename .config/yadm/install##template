@@ -141,6 +141,10 @@ install_packages() {
         "ajeetdsouza.zoxide"
         "ellie.atuin"
         "cantino.mcfly"
+        "muesli.duf"
+        "bootandy.dust"
+        "XAMPPRocky.Tokei"
+        "chmln.sd"
         "Starship.Starship"
         "AgileBits.1Password.CLI"
         "extrawurst.gitui"
@@ -171,7 +175,7 @@ install_packages() {
             install_modern_tools_debian
             ;;
         arch|manjaro)
-            packages+=(base-devel yq ripgrep fd bat gh eza starship zoxide atuin mcfly git-delta)
+            packages+=(base-devel yq ripgrep fd bat gh eza starship zoxide atuin mcfly git-delta duf dust tokei sd)
             sudo pacman -S --needed --noconfirm "${packages[@]}"
             ;;
         fedora)
@@ -406,6 +410,10 @@ install_modern_tools_debian() {
     install_deb_from_github "sharkdp/bat" "bat" "https://github.com/sharkdp/bat/releases/download/v%s/bat_%s_amd64.deb"
     install_deb_from_github "dandavison/delta" "delta" "https://github.com/dandavison/delta/releases/download/%s/git-delta_%s_amd64.deb"
     install_deb_from_github "eza-community/eza" "eza" "https://github.com/eza-community/eza/releases/download/v%s/eza_amd64.deb"
+    install_deb_from_github "muesli/duf" "duf" "https://github.com/muesli/duf/releases/download/v%s/duf_%s_linux_amd64.deb"
+    install_deb_from_github "bootandy/dust" "dust" "https://github.com/bootandy/dust/releases/download/v%s/dust-v%s-x86_64-unknown-linux-gnu.tar.gz" "tar"
+    install_deb_from_github "XAMPPRocky/tokei" "tokei" "https://github.com/XAMPPRocky/tokei/releases/download/v%s/tokei-x86_64-unknown-linux-gnu.tar.gz" "tar"
+    install_deb_from_github "chmln/sd" "sd" "https://github.com/chmln/sd/releases/download/v%s/sd-v%s-x86_64-unknown-linux-gnu" "tar"
     
     cd - >/dev/null
     rm -rf "$tmp_dir"
