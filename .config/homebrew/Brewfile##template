@@ -35,6 +35,9 @@ brew "neovim"
 brew "uv"    # Fast Python package and project manager
 brew "gitleaks"
 brew "git-delta"  # Better git diffs
+brew "gitui"      # Git TUI
+brew "ghq"        # Repository manager
+brew "gibo"       # .gitignore templates
 
 {% if yadm.class == "work" %}
 # Work-specific tools
