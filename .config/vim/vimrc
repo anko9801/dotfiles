@@ -48,6 +48,14 @@ runtime! mappings.vim
 runtime! autocmds.vim
 runtime! lsp.vim
 
+" Load additional integrations if available
+if filereadable(expand('$VIM_CONFIG_HOME/wsl-clipboard.vim'))
+  runtime wsl-clipboard.vim
+endif
+if filereadable(expand('$VIM_CONFIG_HOME/opam-integration.vim'))
+  runtime opam-integration.vim
+endif
+
 " =============================================================================
 " Basic Options (before plugins)
 " =============================================================================
