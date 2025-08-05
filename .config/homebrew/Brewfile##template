@@ -33,7 +33,6 @@ brew "dust"
 brew "tokei"
 brew "sd"
 brew "bottom"    # System monitor
-brew "nyancat"   # Nyan Cat!
 
 # Window Management
 brew "koekeishiya/formulae/yabai"
