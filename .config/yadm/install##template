@@ -182,7 +182,7 @@ install_packages() {
             install_modern_tools_debian
             ;;
         arch|manjaro)
-            packages+=(base-devel yq ripgrep fd bat gh eza starship zoxide atuin mcfly git-delta duf dust tokei sd)
+            packages+=(base-devel yq ripgrep fd bat gh eza starship zoxide atuin mcfly git-delta duf dust tokei sd sheldon)
             sudo pacman -S --needed --noconfirm "${packages[@]}"
             ;;
         fedora)
@@ -444,6 +444,12 @@ install_modern_tools_debian() {
     command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
     command -v mcfly &>/dev/null || curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
     
+    # Sheldon
+    if ! command -v sheldon &>/dev/null; then
+        info "Installing sheldon..."
+        curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to ~/.local/bin
+    fi
+    
     # GitHub CLI
     if ! command -v gh &>/dev/null; then
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -462,6 +468,16 @@ install_modern_tools_fedora() {
     command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
     command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
     command -v mcfly &>/dev/null || curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
+    
+    # Sheldon - install via dnf
+    if ! command -v sheldon &>/dev/null; then
+        info "Installing sheldon..."
+        sudo dnf install -y sheldon || {
+            # Fallback to cargo if dnf fails
+            warning "sheldon not available in dnf, installing via cargo..."
+            curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to ~/.local/bin
+        }
+    fi
 }
 
 # ============================================================================
