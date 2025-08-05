@@ -2,56 +2,9 @@
 
 yadmによるdotfiles管理の中核ディレクトリ。
 
-## 主要ファイル
-
-### `bootstrap`
-`yadm clone`後に自動実行されるセットアップスクリプト。
-
-### `install##template`  
-OS/環境別のインストーラー。yadmのテンプレート機能で差分を吸収。
-
-対応環境:
-- macOS (`yadm.os == "Darwin"`)
-- Linux (`yadm.os == "Linux"`)
-- WSL (`yadm.os == "WSL"`)
-- Windows Git Bash (`yadm.os == "Windows"`)
-
-## 使い方
-
-```bash
-# 手動でbootstrap実行
-yadm bootstrap
-
-# マシンクラスを設定（work/personal）
-yadm config local.class work
-
-# テンプレートの確認
-yadm alt
-```
-
-## テンプレート構文
-
-```bash
-{% if yadm.os == "Darwin" %}
-    # macOS用の設定
-{% endif %}
-
-{% if yadm.class == "work" %}
-    # work環境用の設定  
-{% endif %}
-```
-
-利用可能な変数:
-- `yadm.os` - OS種別
-- `yadm.class` - マシンクラス
-- `yadm.hostname` - ホスト名
-- `yadm.user` - ユーザー名
-
 ## 冪等なシェルスクリプトのベストプラクティス
 
 bootstrap および install スクリプトは何度実行しても安全であるよう、冪等性を保つことが重要です。
-
-### ファイル操作
 
 ```bash
 # ディレクトリ作成
@@ -107,12 +60,8 @@ cp "$file" "$file.tmp" && {
     sed 's/old/new/g' "$file.tmp" > "$file"
     rm "$file.tmp"
 }
-```
 
-### パッケージ管理
-
-```bash
-# 汎用的で効率的な一括パッケージインストール
+# 一括パッケージインストール
 install_packages() {
     if command -v apt &>/dev/null; then
         sudo apt install -y "$@"
@@ -134,11 +83,7 @@ packages=(
     build-essential python3 nodejs
 )
 install_packages "${packages[@]}"
-```
 
-### サービス管理（systemd）
-
-```bash
 # サービスの有効化と起動
 ensure_service() {
     local svc="$1"
@@ -215,18 +160,6 @@ TEMP_FILES+=("$temp_file")
 | グループ | `getent group "$grp" &>/dev/null` | グループが存在するか |
 | root権限 | `[ $EUID -eq 0 ]` | rootで実行中か |
 
-### チェックリスト
-
-- [ ] `mkdir` → `mkdir -p` に変更
-- [ ] `ln -s` → `ln -sfn` に変更
-- [ ] `cp` → `cp -af` でシンプルに
-- [ ] `rm` → `rm -f` / `rm -rf` でエラー抑制
-- [ ] ファイル追記前に `grep` で重複確認
-- [ ] `sed -i` は条件付きで使用（必要な場合のみ）
-- [ ] パッケージマネージャーの冪等性を活用
-- [ ] スクリプト冒頭に `set -euo pipefail`
-- [ ] 必要に応じて `trap` でクリーンアップ
-
 ### 実例：Before/After
 
 ```bash
@@ -246,21 +179,3 @@ grep -Fxq 'PATH=/usr/local/bin:$PATH' ~/.bashrc || echo 'PATH=/usr/local/bin:$PA
 cp -af config.conf /etc/myapp/             # -f で強制上書き
 rm -f /tmp/oldfile                         # -f でエラー抑制
 ```
-
-## 暗号化（オプション）
-
-機密情報をどうしてもリポジトリに含める必要がある場合：
-
-```bash
-# 暗号化対象に追加
-echo ".ssh/config" >> ~/.config/yadm/encrypt
-echo ".gitconfig.local" >> ~/.config/yadm/encrypt
-
-# 暗号化
-yadm encrypt
-
-# 復号化
-yadm decrypt
-```
-
-※ 基本的には1Passwordなどの外部ツールでの管理を推奨
