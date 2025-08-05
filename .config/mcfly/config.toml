@@ -1,0 +1,22 @@
+# McFly Configuration
+
+# Don't show the same command twice
+fuzzy = 2
+
+# Use the light color scheme
+light = false
+
+# Disable keyboard shortcuts (let mcfly do the binding)
+disable_menu = false
+
+# Number of results to display
+results = 10
+
+# Interface type (default, vim, compact)
+interface_view = "default"
+
+# Delete without confirmation
+delete_without_confirm = false
+
+# Use results from all sessions
+results_filter = "all"

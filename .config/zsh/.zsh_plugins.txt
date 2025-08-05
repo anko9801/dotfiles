@@ -1,0 +1,9 @@
+# Zsh plugin list for antidote
+
+# Core plugins
+zsh-users/zsh-completions kind:fpath
+zsh-users/zsh-syntax-highlighting kind:defer
+
+# Additional plugins
+Aloxaf/fzf-tab
+olets/zsh-abbr kind:defer

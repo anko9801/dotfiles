@@ -1,7 +1,32 @@
 # Files to encrypt
 # Add sensitive files here, one per line
-# Example:
-# .ssh/id_*
-# .gnupg/*
-# .aws/credentials
-# .config/hub
+
+# SSH keys (if not using 1Password)
+.ssh/id_*
+!.ssh/id_*.pub
+
+# GPG keys
+.gnupg/private-keys*
+.gnupg/secring.gpg
+.gnupg/trustdb.gpg
+
+# 1Password config (may contain session tokens)
+.config/op/config
+
+# Environment files with secrets
+.env*
+!.env.example
+!.env.sample
+
+# AWS credentials
+.aws/credentials
+
+# Other sensitive files
+.netrc
+.authinfo
+.authinfo.gpg
+
+# Custom secrets
+.secrets/*
+.config/*/secrets.toml
+.config/*/secrets.yaml

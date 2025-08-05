@@ -1,0 +1,78 @@
+# Homebrew Bundle file
+# https://github.com/Homebrew/homebrew-bundle
+
+# Taps (none needed - all are now built-in)
+
+# Essential tools
+brew "git"
+brew "curl"
+brew "wget"
+brew "tmux"
+brew "tree"
+brew "jq"
+brew "yq"
+
+# Shell
+brew "zsh"
+brew "fish"
+brew "starship"
+
+# Modern CLI tools
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "fzf"
+brew "gh"
+brew "eza"
+brew "zoxide"
+brew "gomi"
+brew "atuin"
+brew "mcfly"
+brew "duf"
+brew "dust"
+brew "tokei"
+brew "sd"
+
+# Development
+brew "vim"
+brew "neovim"
+# mise is installed directly via curl in bootstrap
+brew "uv"    # Fast Python package and project manager
+brew "gitleaks"
+brew "git-delta"  # Better git diffs
+brew "gitui"      # Git TUI
+brew "ghq"        # Repository manager
+brew "gibo"       # .gitignore templates
+
+{% if yadm.class == "work" %}
+# Work-specific tools
+brew "awscli"
+brew "terraform"
+brew "kubectl"
+brew "helm"
+brew "docker"
+brew "docker-compose"
+{% endif %}
+
+{% if yadm.class != "server" %}
+# Desktop tools
+cask "1password-cli"
+brew "zellij"
+
+# macOS apps
+cask "visual-studio-code"
+cask "iterm2"
+cask "rectangle"
+{% endif %}
+
+{% if yadm.class == "personal" %}
+# Personal tools
+brew "ffmpeg"
+brew "imagemagick"
+brew "pandoc"
+brew "yt-dlp"
+
+# Personal apps
+cask "obsidian"
+cask "spotify"
+{% endif %}
