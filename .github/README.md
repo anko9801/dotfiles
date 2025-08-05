@@ -19,7 +19,7 @@ yadm bootstrap
 
 理想のdotfiles管理システムの条件：
 - **1コマンドセットアップ・管理** - 低い導入コスト
-- **マシン差分吸収** - OS（macOS/Linux/WSL）・クラス別に環境を整える
+- **マシン差分吸収** - OS（macOS/Linux/WSL/Windows）・クラス別に環境を整える
 - **シークレット保護** - [1Password でゼロトラスト](.config/op/README.md)
 - **XDG 準拠** - ホームディレクトリをクリーンに
 - **冪等性** - 何度実行しても同じ結果
