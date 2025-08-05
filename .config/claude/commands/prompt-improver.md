@@ -26,46 +26,40 @@ When analyzing prompts, consider:
 
 ## Output Format
 
-Provide:
-1. **Best Prompts**: Top 3 most effective prompts with explanations
-2. **Improvement Areas**: Common issues found in less effective prompts
-3. **Recommendations**: Specific techniques for better prompts
-4. **Examples**: Before/after comparisons showing improvements
+Focus on prompt improvements with clear before/after examples:
+1. **修正前** - 実際の問題があったプロンプト
+2. **なぜよくないか** - 具体的な問題点
+3. **修正後** - 改善されたプロンプト
 
 ## Example Analysis
 
 ```
-## Best Prompts Analysis
+## プロンプト改善例
 
-### 1. Most Effective: "エディタをvim/neovim に追加してプラグインマネージャーも"
-**Why it worked:**
-- Clear, specific request
-- Mentioned both main task and subtask
-- Led to comprehensive implementation
+### 1. コンテキスト不足
+**修正前:** "いや戻して"
+**なぜよくないか:** 何を戻すのか不明。直前の変更内容が複数ある場合、誤った対象を戻す可能性
+**修正後:** "settings.json を元の権限設定だけの状態に戻して"
 
-**Could improve:**
-- Specify which plugin managers preferred
-- Mention any specific requirements
+### 2. 曖昧な指示
+**修正前:** "便利なコマンドを調べて追加してください"
+**なぜよくないか:** 「便利」の定義が不明。どこに追加するかも不明確
+**修正後:** "Claude Code の slash commands で開発効率が上がるコマンドを5つ選んで .config/claude/commands/ に追加"
 
-### 2. Effective: "gitconfig などの設定をよく読んで最適なコマンドにしてください"
-**Why it worked:**
-- Directed attention to existing config
-- Asked for optimization based on context
-- Clear goal (optimal commands)
+### 3. スコープが広すぎる
+**修正前:** "設定を確認して"
+**なぜよくないか:** どの設定ファイルか、何を確認すべきか不明
+**修正後:** ".gitconfig の signing.key が正しく 1Password と連携しているか確認"
 
-### Improvement Recommendations:
+### 4. 期待する結果が不明
+**修正前:** "README.md を再考してください"
+**なぜよくないか:** どの観点で再考すべきか、どう変更してほしいか不明
+**修正後:** "README.md のコンセプトを「意識高い」技術説明から実用的なメリット中心に変更"
 
-1. **Be Specific About Scope**
-   - Bad: "設定を更新して"
-   - Good: "~/.config/git/config のエイリアスを実際の使用頻度に基づいて更新"
-
-2. **Provide Context**
-   - Bad: "これ直して"
-   - Good: "CI環境でSSH認証エラーが出ているので、git configのURL rewriteを環境に応じて無効化"
-
-3. **State Expected Outcome**
-   - Bad: "READMEを改善"
-   - Good: "READMEのコンセプトを技術的な説明から実用的なメリット中心に変更"
+### 5. 不可能な要求
+**修正前:** "claude code を再起動して"
+**なぜよくないか:** AIアシスタントにはアプリケーションを制御する権限がない
+**修正後:** "claude code 再起動後も設定が維持されるか確認したいので、永続化の仕組みを説明して"
 ```
 
 ## Implementation Notes
