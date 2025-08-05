@@ -55,7 +55,7 @@ dotfiles管理の3つのアプローチ：
 - **シェル**: zsh + antidote
 - **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
 - **開発ツール**: git, tmux, gitleaks
-- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, delta
+- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, delta
 - **Python**: uv, ruff
 
 **OS別対応**:
