@@ -27,57 +27,43 @@
 ## よく使う操作
 
 ```bash
+# 日常フロー
+git pull --rebase                              # 作業開始前に最新を取得
+git switch -c feature/new                      # ブランチ作成
+gitui                                          # 作業しながら差分確認
+git add -p                                     # 部分的にステージング
+git cz                                         # 規約に沿ったコミット
+git ps                                         # プッシュ
+gh pr create                                   # プルリクエスト作成
+
 # プロジェクト管理
-gh repo create my-project --private --clone   # 新規プロジェクトを作成
-ghq get github.com/username/project           # 既存プロジェクトをクローン
-cd $(ghq list --full-path | fzf)              # プロジェクト間を高速移動
-ghq browse                                     # 現在のリポジトリをブラウザで開く
-gibo dump Python > .gitignore                  # .gitignore テンプレートを生成
+gh repo create my-project --private --clone    # 新規作成
+ghq get github.com/user/repo                   # クローン
+cd $(ghq list --full-path | fzf)               # 移動
+gibo dump Python Node > .gitignore             # .gitignore生成
 
 # 状態確認
-git st                                         # 短縮表示
-git diff                                       # 差分確認（delta）
-gitui                                          # 視覚的に確認
+git st                                         # status -sb
+git diff                                       # 差分（delta）
+git lg                                         # ログ（グラフ）
+git blame <file>                               # 行ごとの最終更新者
 
-# コミット方法
-# 1) GitUI で対話的に（推奨）
-gitui
-# Tab: パネル移動、a: ステージング、c: コミット、P: プッシュ
+# コミット操作
+git cm "message"                               # commit -m
+git amend                                      # --amend --no-edit
+git undo                                       # reset HEAD~1 --mixed
+git restore --staged <file>                    # ステージング取り消し
 
-# 2) 部分的にステージング
-git add -p                                     # 変更を選択
-git cz                                         # 規約に沿ったメッセージ
+# ブランチ・リモート
+git sw <branch>                                # switch
+git sw -                                       # 直前のブランチ
+git cleanup                                    # マージ済み削除
+git pl                                         # pull
+git please                                     # --force-with-lease
 
-# 3) 素早くコミット
-git add .
-git cm "feat: 新機能"
-
-# コミット修正
-git add forgotten.txt && git amend             # ファイル追加し忘れ
-git commit --amend                             # メッセージ変更
-git undo                                       # 直前を取り消し
-
-# ブランチ
-git switch -c feature/awesome                  # ブランチ作成
-git sw main                                    # ブランチ切り替え
-git cleanup                                    # マージ済みを削除
-
-# リモート同期
-git pull --rebase                              # 最新を取得
-git ps                                         # プッシュ
-git please                                     # 安全な強制プッシュ
-
-# 履歴
-git lg                                         # グラフ表示
-git la                                         # 全ブランチ
-git rebase -i HEAD~3                           # 履歴整理
-
-# トラブル対処
-git stash                                      # 作業を一時保存
-git stash pop                                  # 一時保存を復元
-git rebase --continue                          # コンフリクト解決後に続行
-git rebase --abort                             # リベースを中止
-
-# 設定
-git config user.email "12345678+username@users.noreply.github.com"  # GitHub noreply
+# 履歴・一時保存
+git rebase -i HEAD~3                           # 対話的リベース
+git cherry-pick <commit>                       # 特定コミット取り込み
+git stash -u                                   # 未追跡ファイルも含む
+git stash pop                                  # 復元
 ```
