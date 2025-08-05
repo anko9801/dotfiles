@@ -1,0 +1,37 @@
+# Gitleaks configuration file
+# https://github.com/gitleaks/gitleaks
+
+title = "gitleaks config"
+
+[extend]
+# useDefault will extend the base configuration with the default gitleaks config
+useDefault = true
+
+# Additional custom rules can be added here
+[[rules]]
+id = "1password-secret-reference"
+description = "1Password secret reference"
+regex = '''op://[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+'''
+[rules.allowlist]
+description = "Allow 1Password references"
+regexes = [
+    '''op://[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+'''
+]
+
+# Allowlist for common false positives
+[allowlist]
+description = "global allow list"
+paths = [
+    '''\.gitleaks\.toml$''',
+    '''\.gitleaksignore$''',
+    '''(^|/)vendor/''',
+    '''(^|/)node_modules/''',
+    '''\.lock$''',
+    '''\.md$''',
+    '''\.txt$'''
+]
+regexes = [
+    '''(example|template|sample|test|demo)''',
+    '''[A-Z_]+=(\$\{[A-Z_]+\}|<[^>]+>|TODO|CHANGEME|REPLACE_ME|your-.*-here)''',
+    '''(localhost|127\.0\.0\.1|0\.0\.0\.0|example\.com)'''
+]

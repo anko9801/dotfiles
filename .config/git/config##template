@@ -1,0 +1,144 @@
+# Git Configuration Template
+# Personal settings are populated by yadm templates
+# OS-specific configurations are handled via conditionals
+
+[user]
+    name = {{ yadm.user | default("Your Name") }}
+    email = {{ yadm.email | default("your.email@example.com") }}
+    signingkey = {{ yadm.signingkey | default("~/.ssh/id_ed25519.pub") }}
+
+[core]
+  editor = vim
+  autocrlf = false
+  safecrlf = true
+  filemode = false
+  pager = delta
+  hooksPath = ~/.config/git/hooks
+
+[color]
+  ui = auto
+
+[merge]
+  tool = vimdiff
+  conflictstyle = diff3
+
+[diff]
+  renames = true
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  light = false
+  side-by-side = true
+  line-numbers = true
+
+[pull]
+  ff = only
+
+[push]
+  autoSetupRemote = true
+  default = current
+
+[fetch]
+  prune = true
+  fsckobjects = true
+
+[rebase]
+  autostash = true
+
+[init]
+    defaultBranch = main
+
+[commit]
+  verbose = true
+  gpgsign = true
+
+[tag]
+  gpgsign = true
+
+[gpg]
+    format = ssh
+[gpg "ssh"]
+{% if yadm.os == "Darwin" %}
+    program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+{% else %}
+    program = op-ssh-sign
+{% endif %}
+    allowedSignersFile = ~/.config/git/allowed_signers
+
+[help]
+  autocorrect = prompt
+
+[rerere]
+  enabled = true
+
+[branch]
+  autosetupmerge = always
+  autosetuprebase = always
+
+[status]
+  showUntrackedFiles = all
+
+[transfer]
+  fsckobjects = true
+
+[receive]
+  fsckObjects = true
+
+[credential]
+{% if yadm.os == "Darwin" %}
+    helper = osxkeychain
+{% else %}
+    helper = store
+{% endif %}
+
+# Aliases
+[alias]
+  # Status and basic operations
+  st = status -sb
+  co = checkout
+  br = branch
+  sw = switch
+  re = restore
+  
+  # Commit operations
+  c = commit
+  cm = commit -m
+  a = add --all
+  amend = commit --amend --no-edit
+  commend = commit --amend --no-edit
+  undo = reset HEAD~1 --mixed
+  
+  # Push/Pull operations
+  ps = push
+  pl = pull
+  f = fetch --prune
+  please = push --force-with-lease
+  
+  # Log and history
+  lg = log --oneline --graph --decorate
+  la = log --oneline --graph --decorate --all
+  last = log -1 HEAD
+  contributors = shortlog -sn
+  
+  # Diff operations
+  df = diff --color-words
+  staged = diff --staged
+  unstage = reset HEAD --
+  
+  # Branch management
+  cleanup = !git branch --merged | grep -v "\\*\\|main\\|master\\|develop" | xargs -n 1 git branch -d
+  br-prune = !git branch --merged | egrep -v '\\*|master|main' | xargs git branch -d
+  
+  # Utilities
+  visual = !gitk
+  it = !git init && git commit -m 'Initial commit' --allow-empty
+  r = reset
+  
+  # Advanced workflows (from git.md recommendations)
+  contributors = shortlog -sn
+  delete-merged-branches = !git branch --merged | grep -v "\\*\\|main\\|master\\|develop" | xargs -n 1 git branch -d
+  open = !gh browse
+

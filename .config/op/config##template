@@ -1,0 +1,12 @@
+{
+  "latest_signin": "",
+  "device": "{% if yadm.hostname == "" %}unknown{% else %}{{ yadm.hostname }}{% endif %}",
+  "commands": {
+    "biometric_unlock": true
+  },
+  "cache": {
+    "session": {
+      "ttl": 1800
+    }
+  }
+}

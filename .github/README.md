@@ -2,123 +2,74 @@
 
 パパッと楽に理想の環境を手に入れるやつ
 
-XDG Base Directory仕様に準拠したモダンなdotfiles管理。
+```bash
+# インストール
+brew install yadm  # macOS
+sudo apt install -y yadm  # Ubuntu/Debian  
+sudo pacman -S --noconfirm yadm  # Arch Linux
+
+# セットアップ
+yadm clone https://github.com/anko9801/dotfiles
+yadm status && yadm diff  # 既存設定がある場合は競合確認
+yadm reset --hard origin/master  # 必要に応じて既存設定を破棄
+yadm bootstrap
+```
 
 ## 特徴
 
-- 🚀 **ワンコマンド**: `yadm clone` だけで完全な環境構築
-- 📁 **XDG準拠**: 設定ファイルは`.config/`に整理
-- 🎯 **OS自動判定**: yadm alternateでOS別の設定を自動適用
-- 🔐 **暗号化対応**: 機密ファイルの安全な管理
-- 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
-- 🐚 **Zsh最適化**: zsh環境に特化した高速で直接的な設定
-- 🌍 **マルチプラットフォーム**: macOS, Linux (Ubuntu, Debian, Arch)
+### やりたいこと
 
-## インストール
+新しいマシンでもコマンド一発でいつもの環境を再現したい。
 
-```bash
-# macOS
-brew install yadm && yadm clone https://github.com/anko9801/dotfiles
+- **1コマンドで完結** - 複雑な手順や事前準備は不要
+- **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
+- **シークレットの安全管理** - SSH 鍵や API キーは 1Password で管理、ローカルには置かない
+- **クリーンな構成** - XDG Base Directory 準拠で`.config/`以下に整理
+- **冪等性** - 何度実行しても既存の設定を壊さない
 
-# Ubuntu/Debian
-sudo apt install -y yadm && yadm clone https://github.com/anko9801/dotfiles
+### なぜyadm？
 
-# Arch Linux
-sudo pacman -S --noconfirm yadm && yadm clone https://github.com/anko9801/dotfiles
-```
+dotfiles 管理は主に 3 つの方法があります。
 
-## 構成
+1. **シンボリックリンク方式** (GNU Stow など)
+   - 設定ファイルを一箇所にまとめてリンクを張る方法
+   - Windowsでは権限やパスの問題でトラブルが多発
 
-```
-$HOME/
-├── .config/           # 設定ファイル (XDG_CONFIG_HOME)
-│   ├── git/          # Git設定
-│   ├── vim/          # Vim設定とプラグイン定義
-│   ├── tmux/         # tmux設定
-│   ├── zsh/          # Zsh設定
-│   ├── shell/        # 共通シェル設定とエイリアス
-│   └── yadm/         # yadm bootstrap と hooks
-├── .local/           # アプリケーションデータ (XDG_DATA_HOME)
-└── .zshenv           # XDG環境変数の設定（最小限）
-```
+2. **ファイルコピー方式** (chezmoi など)
+   - テンプレート機能が充実
+   - 実際のファイルとテンプレートの二重管理になってしまう
+   - 独自のコマンド体系を覚える必要があり管理が複雑
 
-## 含まれるツール
+3. **Bare Git方式** (yadm など)
+   - ホームディレクトリ自体をGitリポジトリとして扱うシンプルな方法
+   - 余計な仕組みが不要で管理が楽
+   - 素のGitだと既存ファイルの上書きや、誤って機密情報を含むファイルを追跡するリスクあり
 
-- **Base**: git, curl, wget, tmux, tree, jq
-- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, atuin, zoxide, starship, gomi
-- **Shell**: zsh (zinit), .zshenv
-- **Editor**: vim (dein.vim), neovim
-- **Version Manager**: mise (faster asdf alternative)
-- **Languages**: Node.js, Python, Ruby, Go, Rust
-- **macOS**: yabai (window manager), skhd, Raycast, Warp
+**yadm** は Bare Git のシンプルさを保ちながら、既存ファイルの保護やテンプレート機能、環境別の設定切り替えなど、dotfiles 管理に必要な機能を追加したツールです。Git の知識があればすぐに使えて、かつ安全に運用できるのが最大の魅力です。
 
-## 使い方
+### こだわりポイント
 
-```bash
-# 状態確認
-yadm status
+- **1Passwordで認証管理** - SSH 鍵とかをローカルに置かない 詳細は [op/README.md](../.config/op/README.md) を参照してください。
+- **モダンなCLIツール** - `ls`→`eza`、`cat`→`bat`、`sed`→`sd` など使いやすいやつに置き換え
+- **賢い履歴検索** - atuinとmcflyでコマンド履歴を便利に
 
-# 更新
-yadm pull && yadm bootstrap
+## ツール構成
 
-# 設定の追加
-yadm add ~/.config/newapp
-yadm commit -m "Add newapp config"
-yadm push
-```
+**共通ツール**:
+- **バージョン管理**: mise
+- **シェル**: zsh + antidote
+- **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
+- **開発ツール**: git, tmux, gitleaks
+- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, delta, duf, dust, tokei, sd
+- **Python**: uv, ruff
 
-## 初回セットアップ
+**OS別対応**:
+- **macOS**: Homebrew経由でツールインストール
+- **Linux**: apt/pacman/dnf + 最新版は.debファイルから
+- **WSL**: Windows連携ツール (pbcopy/pbpaste, explorer統合)
+- **Windows**: winget経由でツールインストール、Git Bash環境
 
-クローン後に個人設定を行う：
-
-```bash
-# ユーザー情報を設定（重要！）
-yadm config yadm.user "Your Name"
-yadm config yadm.email "your.email@example.com"
-
-# テンプレートを生成して~/.gitconfigを作成
-yadm alt
-
-# SSH署名キーをGitHubに登録
-cat ~/.ssh/id_ed25519.pub
-# ↑をGitHub Settings > SSH and GPG keys > "Signing Key"として追加
-```
-
-## カスタマイズ
-
-新しいパッケージを追加する場合は、OS別のbootstrapファイルを編集：
-- macOS: `.config/yadm/bootstrap##os.Darwin`
-- Ubuntu: `.config/yadm/bootstrap##distro.Ubuntu`
-- Arch: `.config/yadm/bootstrap##distro.Arch`
-
-Git設定のカスタマイズは `.config/git/config` を編集。
-
-## ファイル構成
-
-プロジェクト関連ファイル：
-- `.github/README.md` - プロジェクトドキュメント（ホーム汚染回避）
-- `.pre-commit-config.yaml` - コード品質・セキュリティチェック設定
-
-## セキュリティ
-
-**多層防御**でセキュリティを強化：
-- 🛡️ **ホワイトリスト方式**: 必要なファイルのみを厳選管理
-- 🔐 **SSH署名**: コミットの真正性を暗号学的に保証
-- 🚫 **git-secrets**: シークレット情報の誤コミットを防止
-- 🔍 **pre-commit hooks**: コミット前の自動セキュリティチェック
-- 🎯 **Fine-grained PAT**: 最小権限の原則でAPIアクセス制御
-
-除外される機密データ：
-- 個人データ (Desktop/, Documents/, etc.)
-- 認証情報 (.ssh/id_*, .gitconfig, etc.)  
-- 開発ディレクトリ (workspace/, projects/, etc.)
-
-## AI統合
-
-**モダンなAI開発ツール**を活用：
-- 🤖 **aicommits**: AIによる自動コミットメッセージ生成
-- 🚀 **GitHub Copilot CLI**: ターミナルでのAI支援
-
----
-
-パパッと楽に理想の環境を手に入れよう！ 🚀
+**クラス別構成**:
+- **Personal**: メディアツール (ffmpeg, yt-dlp)、個人アプリ (Obsidian, Spotify)
+- **Work**: クラウド・コンテナツール (AWS CLI, terraform, kubectl, docker)
+- **Server**: 最小構成（基本ツールのみ）
