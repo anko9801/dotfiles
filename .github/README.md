@@ -24,11 +24,12 @@ yadm bootstrap
 - **1コマンドで完結** - 複雑な手順や事前準備は不要
 - **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
 - **シークレットの安全管理** - SSH 鍵や API キーは 1Password で管理、ローカルには置かない
-- **クリーンな構成** - XDG Base Directory 準拠で`.config/`以下に整理
+- **クリーンな構成** - XDG Base Directory 準拠で `.config/` に収納
 - **環境の再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
 - **冪等性** - 何度実行しても既存の設定を壊さない
 
-全てを満たすのは Nix かと思いますがガベコレの運用コストが高いので断念...
+最も条件を満たすのは Nix かと思いますがガベコレの運用コストが高いので断念...
+実装の工夫で冪等性があって宣言的にします。
 
 ### なぜyadm？
 
@@ -53,7 +54,7 @@ dotfiles 管理は主に 3 つの方法があります。
 ### こだわりポイント
 
 - **1Passwordで認証管理** - 詳細は [op/README.md](../.config/op/README.md) を参照
-- **zshもXDG準拠** - `/etc/zsh/zshenv` に設定を書き込むことで .config に収納
+- **シェルもXDG準拠** - `/etc/zsh/zshenv` に設定を書き込むことで .config に収納
 - **モダンなCLIツール** - `ls`→`eza`、`cat`→`bat`、`sed`→`sd` など使いやすいやつに置き換え
 - **賢い履歴検索** - atuinとmcflyでコマンド履歴を便利に
 
