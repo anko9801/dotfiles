@@ -1,0 +1,1 @@
+../../claude-code-spec/.claude/commands/kiro/steering-custom.md
