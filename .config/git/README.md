@@ -2,17 +2,26 @@
 
 ## 設定・ツール
 
-### 基本設定
+### 特徴的な設定
 
 ```gitconfig
-[user]
-    email = 12345678+username@users.noreply.github.com  # GitHub noreply
+[push]
+    autoSetupRemote = true              # push時に自動でupstream設定
     
-[core]
-    pager = delta                                       # 美しい差分表示
+[pull]  
+    ff = only                           # fast-forwardのみ許可（安全）
     
-[commit]
-    gpgsign = true                                      # SSH署名を有効化
+[rebase]
+    autostash = true                    # rebase時に自動stash/pop
+    
+[gpg "ssh"]
+    program = op-ssh-sign               # 1PasswordでSSH署名
+    
+[delta]
+    side-by-side = true                 # 差分を左右並列表示
+    
+[rerere]
+    enabled = true                      # コンフリクト解決を記憶
 ```
 
 ### 便利なツール
