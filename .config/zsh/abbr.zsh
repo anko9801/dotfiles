@@ -34,25 +34,23 @@ abbr -S ..="cd .."
 abbr -S ...="cd ../.."
 abbr -S ....="cd ../../.."
 
-# Git abbreviations
+# Git abbreviations (using actual aliases from gitconfig)
 abbr -S g="git"
-abbr -S ga="git add"
-abbr -S gb="git branch"
-abbr -S gc="git commit"
-abbr -S gca="git commit --amend"
-abbr -S gcm="git commit -m"
-abbr -S gco="git checkout"
-abbr -S gcp="git cherry-pick"
-abbr -S gd="git diff"
-abbr -S gf="git fetch"
-abbr -S gl="git log"
-abbr -S gm="git merge"
-abbr -S gp="git push"
-abbr -S gpl="git pull"
-abbr -S gr="git rebase"
-abbr -S gri="git rebase -i"
-abbr -S gs="git status"
-abbr -S gst="git stash"
+abbr -S gst="git st"         # status -sb
+abbr -S gsw="git sw"         # switch
+abbr -S gf="git f"           # fetch --prune
+abbr -S gpl="git pl"         # pull (ff-only)
+abbr -S gps="git ps"         # push
+abbr -S glg="git lg"         # log --graph
+abbr -S gla="git la"         # log --all
+abbr -S gdf="git df"         # diff --color-words
+abbr -S gstaged="git staged" # diff --staged
+abbr -S gamend="git amend"   # commit --amend --no-edit
+abbr -S gundo="git undo"     # reset HEAD~1 --mixed
+abbr -S gunstage="git unstage" # reset HEAD --
+abbr -S gcleanup="git cleanup" # delete merged branches
+abbr -S gopen="git open"     # gh browse
+abbr -S gcz="czg"            # conventional commits
 
 # Docker abbreviations
 abbr -S d="docker"
@@ -64,13 +62,10 @@ abbr -S drm="docker rm"
 abbr -S drmi="docker rmi"
 
 # System abbreviations
-abbr -S ll="ls -la"
-abbr -S la="ls -A"
-abbr -S l="ls -CF"
-abbr -S ..="cd .."
-abbr -S ...="cd ../.."
-abbr -S ....="cd ../../.."
 abbr -S mkdir="mkdir -p"
+abbr -S df="df -h"
+abbr -S free="free -h"
+abbr -S grep="grep --color=auto"
 
 # Editors
 abbr -S v="vim"
@@ -90,14 +85,32 @@ abbr -S t="tmux"
 abbr -S ta="tmux attach"
 abbr -S tn="tmux new"
 abbr -S tl="tmux list-sessions"
+abbr -S tk="tmux kill-session"
+abbr -S ts="tmux switch"
 
-# Modern CLI replacements
-abbr -S find="fd"
-abbr -S sed="sd"
-abbr -S ps="procs"
-abbr -S top="btm"
-abbr -S htop="btm"
-abbr -S du="dust"
+# Modern CLI replacements (conditional)
+if command -v fd &> /dev/null; then
+    abbr -S find="fd"
+fi
+if command -v sd &> /dev/null; then
+    abbr -S sed="sd"
+fi
+if command -v procs &> /dev/null; then
+    abbr -S ps="procs"
+fi
+if command -v btm &> /dev/null; then
+    abbr -S top="btm"
+    abbr -S htop="btm"
+fi
+if command -v dust &> /dev/null; then
+    abbr -S du="dust"
+fi
+if command -v bat &> /dev/null; then
+    abbr -S cat="bat"
+fi
+if command -v rg &> /dev/null; then
+    abbr -S grep="rg"
+fi
 
 # Tool shortcuts
 abbr -S gu="gitui"
@@ -106,16 +119,35 @@ abbr -S zja="zellij attach"
 abbr -S zjl="zellij list-sessions"
 abbr -S zjk="zellij kill-session"
 
-# HTTP and file tools
-abbr -S http="httpie"
-abbr -S mdview="glow"
-abbr -S mdp="glow -p"
-abbr -S yaml="yq"
+# Development tools
+abbr -S py="python3"
+abbr -S pip="uv pip"
+abbr -S venv="uv venv"
+abbr -S m="mise"
+abbr -S mi="mise install"
+abbr -S mu="mise use"
+abbr -S ml="mise list"
+
+# GitHub CLI
+abbr -S ghpr="gh pr create"
+abbr -S ghpv="gh pr view"
+abbr -S ghpl="gh pr list"
+abbr -S ghrc="gh repo clone"
+abbr -S ghrv="gh repo view --web"
 
 # Shell utilities
 abbr -S reload="source \$ZDOTDIR/.zshrc"
 
-# Kubernetes abbreviations
-abbr -S k="kubectl"
-abbr -S kx="kubectx"
-abbr -S kn="kubens"
+# Project navigation
+if command -v ghq &> /dev/null; then
+    abbr -S gq="ghq get"
+    abbr -S gql="ghq list"
+    abbr -S gqr="ghq root"
+    abbr -S gqcd='cd $(ghq list --full-path | fzf)'
+fi
+
+# Quick directory jumps
+abbr -S dl="cd ~/Downloads"
+abbr -S dt="cd ~/Desktop"
+abbr -S pj="cd ~/workspace/projects"
+abbr -S dot="cd ~/workspace/projects/dotfiles"
