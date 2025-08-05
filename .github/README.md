@@ -28,6 +28,8 @@ yadm bootstrap
 - **環境の再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
 - **冪等性** - 何度実行しても既存の設定を壊さない
 
+全てを満たすのは Nix かと思いますがガベコレの運用コストが高いので断念...
+
 ### なぜyadm？
 
 dotfiles 管理は主に 3 つの方法があります。
@@ -50,7 +52,8 @@ dotfiles 管理は主に 3 つの方法があります。
 
 ### こだわりポイント
 
-- **1Passwordで認証管理** - SSH 鍵とかをローカルに置かない 詳細は [op/README.md](../.config/op/README.md) を参照してください。
+- **1Passwordで認証管理** - 詳細は [op/README.md](../.config/op/README.md) を参照
+- **zshもXDG準拠** - `/etc/zsh/zshenv` に設定を書き込むことで .config に収納
 - **モダンなCLIツール** - `ls`→`eza`、`cat`→`bat`、`sed`→`sd` など使いやすいやつに置き換え
 - **賢い履歴検索** - atuinとmcflyでコマンド履歴を便利に
 
