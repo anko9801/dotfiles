@@ -64,9 +64,12 @@ dotfiles 管理は主に 3 つの方法があります。
 - **バージョン管理**: mise
 - **シェル**: zsh + sheldon
 - **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
-- **開発ツール**: git, tmux, gitleaks
-- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, delta, duf, dust, tokei, sd
+- **ターミナル**: tmux + TPM, zellij
+- **開発ツール**: git + delta, gitui, ghq, gibo, git-lfs, gitleaks
+- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
+- **AI アシスタント**: Claude Code, Gemini CLI
 - **Python**: uv, ruff
+- **その他言語**: Node.js, Go, Rust, Ruby, Deno, Bun（miseで管理）
 
 **OS別対応**:
 - **macOS**: Homebrew経由でツールインストール
@@ -75,6 +78,12 @@ dotfiles 管理は主に 3 つの方法があります。
 - **Windows**: winget経由でツールインストール、Git Bash環境
 
 **クラス別構成**:
-- **Personal**: メディアツール (ffmpeg, yt-dlp)、個人アプリ (Obsidian, Spotify)
-- **Work**: クラウド・コンテナツール (AWS CLI, terraform, kubectl, docker)
+- **Personal**: メディアツール (ffmpeg, yt-dlp, imagemagick, pandoc)、個人アプリ (Obsidian, Spotify)
+- **Work**: クラウド・コンテナツール (AWS CLI, terraform, kubectl, helm, docker-compose)、コミュニケーション (Discord, Slack, Zoom)
 - **Server**: 最小構成（基本ツールのみ）
+
+**macOS 専用**:
+- **Window Manager**: yabai + skhd
+- **ランチャー**: Raycast
+- **ウィンドウ管理**: Rectangle
+- **セキュリティ**: 1Password CLI
