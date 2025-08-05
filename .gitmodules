@@ -1,3 +1,0 @@
-[submodule ".config/claude/kiro"]
-	path = .config/claude/kiro
-	url = https://github.com/gotalab/claude-code-spec.git
