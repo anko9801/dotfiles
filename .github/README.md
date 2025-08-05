@@ -37,6 +37,7 @@ yadm bootstrap
 - **シェルもXDG準拠** - `/etc/zsh/zshenv` に設定を書き込むことで .config に収納
 - **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理。詳細は [op/README.md](../.config/op/README.md) を参照
 - **高速な起動時間** - Sheldon による並列プラグイン読み込みと遅延ロード、不要な処理の削減で zsh 起動を最適化
+- **冪等性を重視** - 中断しても再実行したら同じ環境が構成できる。詳細は [yadm/README.md](../.config/yadm/README.md) 参照
 - **宣言的な依存管理** - mise で言語バージョン、Brewfile でシステムツール、plugins.toml でシェルプラグインを一元管理
 
 ## ツール構成
