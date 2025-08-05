@@ -55,8 +55,9 @@ dotfiles 管理は主に 3 つの方法があります。
 
 - **1Passwordで認証管理** - 詳細は [op/README.md](../.config/op/README.md) を参照
 - **シェルもXDG準拠** - `/etc/zsh/zshenv` に設定を書き込むことで .config に収納
-- **モダンなCLIツール** - `ls`→`eza`、`cat`→`bat`、`sed`→`sd` など使いやすいやつに置き換え
-- **賢い履歴検索** - atuinとmcflyでコマンド履歴を便利に
+- **Claude Code統合** - [kiro](https://github.com/gotalab/claude-code-spec) をサブモジュール化、カスタムコマンドで開発効率化
+- **mise による統一的バージョン管理** - 言語やツールのバージョンを一元管理、チーム開発でも環境を完全一致
+- **YADM テンプレート活用** - OS・環境別の設定を1ファイルで管理、条件分岐で重複を排除
 
 ## ツール構成
 
