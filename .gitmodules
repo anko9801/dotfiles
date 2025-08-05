@@ -1,0 +1,3 @@
+[submodule ".config/claude/commands/kiro"]
+	path = .config/claude/commands/kiro
+	url = https://github.com/gotalab/claude-code-spec.git
