@@ -11,11 +11,9 @@ brew "wget"
 brew "tmux"
 brew "tree"
 brew "jq"
-brew "yq"
 
 # Shell
 brew "zsh"
-brew "fish"
 brew "starship"
 brew "sheldon"
 
