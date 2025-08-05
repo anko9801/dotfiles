@@ -1,8 +1,6 @@
 # gitconfig
 
-## 設定・ツール
-
-### 特徴的な設定
+## 特徴的な設定
 
 ```gitconfig
 [push]
@@ -24,7 +22,7 @@
     enabled = true                      # コンフリクト解決を記憶
 ```
 
-### 便利なツール
+## 便利なツール
 
 - **GitUI** - Rust製の高速TUIクライアント
 - **delta** - 構文ハイライト付きの差分表示
@@ -41,7 +39,7 @@ git f                                          # fetch --prune（最新情報取
 git pl                                         # pull（ff-onlyで安全）
 git sw -c feature/new                          # ブランチ作成
 gitui                                          # 作業しながら差分確認
-czg                                            # 規約に沿ったコミット
+czg                                            # コミット作成
 git ps                                         # push（autoSetupRemote有効）
 gh pr create                                   # プルリクエスト作成
 
@@ -60,8 +58,7 @@ git lg                                         # ログ（グラフ）
 git la                                         # 全ブランチログ
 
 # コミット操作
-git c                                          # commit（verbose有効）
-git cm "message"                               # commit -m
+czg                                            # 規約に沿ったコミット作成
 git amend                                      # --amend --no-edit
 git undo                                       # reset HEAD~1 --mixed
 git unstage <file>                             # reset HEAD --
@@ -71,7 +68,6 @@ git sw <branch>                                # switch
 git sw -                                       # 直前のブランチ
 git cleanup                                    # マージ済み削除
 git please                                     # --force-with-lease
-git contributors                               # 貢献者一覧
 
 # 履歴の編集・取り込み
 git rebase -i HEAD~3                           # 対話的リベース（autostash有効）
