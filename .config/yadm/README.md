@@ -276,3 +276,45 @@ rm -f /tmp/oldfile                         # -f でエラー抑制
 4. **アトミックに操作**：中途半端な状態を避ける
 
 冪等性により「何度実行しても安全」が保証され、信頼性の高い自動化を実現できます。
+
+## yadm 暗号化（オプション）
+
+どうしてもローカルに保存が必要な場合：
+
+```bash
+# 暗号化対象に追加
+echo ".ssh/config" >> ~/.config/yadm/encrypt
+echo ".gitconfig.local" >> ~/.config/yadm/encrypt
+
+# 暗号化
+yadm encrypt
+
+# 復号化
+yadm decrypt
+```
+
+## Git設定での機密情報分離
+
+```toml
+# ~/.config/git/config (公開)
+[user]
+    name = anko9801
+[core]
+    hooksPath = ~/.config/git/hooks  # 全リポジトリで共通のフック
+[gpg "ssh"]
+    program = op-ssh-sign  # 1Password経由で署名
+
+# ~/.config/git/allowed_signers##template (yadmテンプレート)
+# ユーザー固有の署名鍵を管理
+
+# ~/.gitconfig.local (暗号化/gitignore)
+[user]
+    email = private@example.com
+```
+
+## Windows環境での追加考慮事項
+
+- **Git Bash**: Windows環境ではGit Bashを推奨
+- **winget**: パッケージ管理にwingetを使用し、信頼できるソースからのみインストール
+- **パス区切り**: Windowsパスでは`\`を使用、Git Bashでは`/`を使用
+- **改行コード**: `core.autocrlf = input`で統一
