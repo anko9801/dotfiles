@@ -71,21 +71,13 @@ git please                                     # 安全な強制プッシュ
 git lg                                         # グラフ表示
 git la                                         # 全ブランチ
 git rebase -i HEAD~3                           # 履歴整理
-```
 
-## トラブルシューティング
+# トラブル対処
+git stash                                      # 作業を一時保存
+git stash pop                                  # 一時保存を復元
+git rebase --continue                          # コンフリクト解決後に続行
+git rebase --abort                             # リベースを中止
 
-```bash
-# 間違えたブランチで作業
-git stash
-git switch correct-branch
-git stash pop
-
-# コンフリクト解決
-# 1. ファイル編集
-# 2. git add resolved.txt
-# 3. git rebase --continue
-
-# プライバシー保護
-git config user.email "12345678+username@users.noreply.github.com"
+# 設定
+git config user.email "12345678+username@users.noreply.github.com"  # GitHub noreply
 ```
