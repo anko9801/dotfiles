@@ -32,6 +32,7 @@ gh repo create my-project --private --clone   # 新規プロジェクトを作�
 ghq get github.com/username/project           # 既存プロジェクトをクローン
 cd $(ghq list --full-path | fzf)              # プロジェクト間を高速移動
 ghq browse                                     # 現在のリポジトリをブラウザで開く
+gibo dump Python > .gitignore                  # .gitignore テンプレートを生成
 
 # 状態確認
 git st                                         # 短縮表示
