@@ -5,7 +5,7 @@
 [user]
     name = {{ yadm.user | default("Your Name") }}
     email = {{ yadm.email | default("your.email@example.com") }}
-    signingkey = {{ yadm.signingkey | default("~/.ssh/id_ed25519.pub") }}
+    signingkey = ~/.ssh/id_ed25519.pub
 
 [core]
   editor = vim
@@ -93,6 +93,10 @@
 {% else %}
     helper = store
 {% endif %}
+
+# URL rewrites for GitHub SSH
+[url "git@github.com:"]
+    insteadOf = https://github.com/
 
 # Aliases
 [alias]
