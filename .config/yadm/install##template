@@ -360,6 +360,12 @@ setup_shell() {
 setup_1password() {
     command -v op &>/dev/null || return 0
     info "Configuring 1Password integration..."
+    
+    # Fix config permissions if needed
+    if [[ -f "$HOME/.config/op/config" ]]; then
+        chmod 600 "$HOME/.config/op/config" || warning "Failed to fix op config permissions"
+    fi
+    
     [[ -f "$HOME/.config/op/plugins.sh" ]] && bash "$HOME/.config/op/plugins.sh" || true
 }
 
