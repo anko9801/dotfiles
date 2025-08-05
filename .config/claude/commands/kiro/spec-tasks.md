@@ -1,1 +1,0 @@
-../../claude-code-spec/.claude/commands/kiro/spec-tasks.md
