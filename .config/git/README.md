@@ -9,7 +9,6 @@
 3. [セキュリティ](#セキュリティ)
 4. [効率的な Git ワークフロー](#効率的な-git-ワークフロー)
 5. [便利なツール](#便利なツール)
-6. [高度な Git テクニック](#高度な-git-テクニック)
 
 ## ファイル構成
 
@@ -168,11 +167,14 @@ ghq get github.com/username/my-project
 cd $(ghq list --full-path | fzf)
 ```
 
-### 2. コミット作成（gitui + cz-git）
+### 2. コミット作成（gitui / git add -p + cz-git）
 
 ```bash
-# 対話的な差分確認とステージング
+# 対話的な差分確認とステージング（TUI）
 gitui
+
+# または部分的なステージング（コマンドライン）
+git add -p
 
 # 規約に沿ったコミットメッセージ
 git cz
@@ -220,39 +222,6 @@ git config --global alias.cz "!npx cz"
     side-by-side = true
     line-numbers = true
     syntax-theme = Monokai Extended
-```
-
-## 高度な Git テクニック
-
-### git add -p - 部分的なステージング
-
-変更の一部だけをコミット：
-```bash
-git add -p <file>
-
-# 対話コマンド
-y - ステージング
-n - スキップ
-s - 分割
-e - 手動編集
-```
-
-使用例：
-- デバッグコードの除外
-- 機能ごとのコミット分割
-- リファクタリングとバグ修正の分離
-
-### 新しいフックの追加
-
-```bash
-# フック作成
-touch ~/.config/git/hooks/pre-push
-chmod +x ~/.config/git/hooks/pre-push
-
-# よく使うフック
-- pre-commit: コミット前の検証
-- commit-msg: メッセージ形式検証
-- pre-push: プッシュ前のテスト
 ```
 
 ## トラブルシューティング
