@@ -3,8 +3,18 @@ name: Test Installation
 on:
   push:
     branches: [ main, master, yadm-backup ]
+    paths:
+      - '.config/**'
+      - '.github/workflows/test.yml'
+      - '!.config/**/*.md'
+      - '!.config/**/README.*'
   pull_request:
     branches: [ main, master ]
+    paths:
+      - '.config/**'
+      - '.github/workflows/test.yml'
+      - '!.config/**/*.md'
+      - '!.config/**/README.*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
