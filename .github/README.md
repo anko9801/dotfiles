@@ -51,12 +51,12 @@ dotfiles管理の3つのアプローチ：
 ## ツール構成
 
 **共通ツール**:
-- **バージョン管理**: mise (全OS共通でcurl経由インストール)
-- **シェル**: zsh + antidote (プラグイン管理)
+- **バージョン管理**: mise
+- **シェル**: zsh + antidote
 - **エディタ**: Vim (dpp.vim), Neovim (lazy.nvim)
-- **開発ツール**: git (core.hooksPath設定済み), tmux, gitleaks
+- **開発ツール**: git, tmux, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, delta
-- **Python**: uv (パッケージマネージャー), ruff (リンター)
+- **Python**: uv, ruff
 
 **OS別対応**:
 - **macOS**: Homebrew経由でツールインストール
