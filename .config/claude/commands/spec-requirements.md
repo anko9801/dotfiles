@@ -1,1 +1,0 @@
-kiro/.claude/commands/kiro/spec-requirements.md
