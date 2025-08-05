@@ -1,1 +1,0 @@
-kiro/.claude/commands/kiro/spec-status.md
