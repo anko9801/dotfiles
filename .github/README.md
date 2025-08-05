@@ -33,10 +33,10 @@ dotfiles管理の3つのアプローチ：
 
 **このdotfilesでの実装**:
 - **システムワイドZDOTDIR**: `/etc/zsh/zshenv`で`ZDOTDIR=$HOME/.config/zsh`を設定し、`~/.zshenv`を不要に
-- **セキュリティ強化**: `core.hooksPath`による一元的なGitフック管理、gitleaks統合
-- **クリーンな .gitignore**: ホワイトリスト方式で最小限管理
-- **テンプレート化**: yadmテンプレートでOS/クラス別の設定を効率的に管理
-- **Windows対応**: wingetによるパッケージ管理とGit Bashサポート
+- **Git自動化**: `autoSetupRemote`, `ff-only`, `autostash`, `rerere` で安全かつ効率的なワークフロー
+- **モダンCLIの統合**: `sd`でsed、`duf`でdf、`dust`でduを置き換え、直感的なコマンド体験
+- **履歴の知能化**: atuin（同期可能）とmcfly（ニューラルネット）で最適なコマンド候補を提案
+- **1Password統合**: SSH鍵もGPG鍵も不要、全ての認証を1Passwordで一元管理
 
 ### 1Password によるシークレット管理
 
