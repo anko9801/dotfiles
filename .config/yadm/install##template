@@ -250,6 +250,11 @@ setup_mise() {
     
     info "Configuring mise..."
     eval "$(mise activate bash)"
+    
+    # Update mise to avoid version filter warnings
+    info "Updating mise to latest version..."
+    mise self-update -y || warning "Failed to update mise"
+    
     mise trust "$HOME/.config/mise/config.toml" 2>/dev/null || true
     mise install --yes || warning "Some mise tools failed to install"
     success "mise configured"
