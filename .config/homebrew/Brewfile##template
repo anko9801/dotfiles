@@ -33,6 +33,13 @@ brew "dust"
 brew "tokei"
 brew "sd"
 
+# Window Management
+brew "koekeishiya/formulae/yabai"
+brew "koekeishiya/formulae/skhd"
+
+# Terminal
+brew "zellij"
+
 # Development
 brew "vim"
 brew "neovim"
@@ -57,7 +64,6 @@ brew "docker-compose"
 {% if yadm.class != "server" %}
 # Desktop tools
 cask "1password-cli"
-brew "zellij"
 
 # macOS apps
 cask "visual-studio-code"
