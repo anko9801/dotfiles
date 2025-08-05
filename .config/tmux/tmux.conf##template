@@ -29,7 +29,7 @@ set-option -g status-left '#H:[#P]'
 # Wi-Fi、バッテリー残量、現在時刻
 # 最右に表示
 {% if yadm.os == "Darwin" %}
-set-option -g status-right '#(wifi) #(battery --tmux) [%Y-%m-%d(%a) %H:%M]'
+set-option -g status-right '#($HOME/.config/tmux/bin/wifi) #($HOME/.config/tmux/bin/battery --tmux) [%Y-%m-%d(%a) %H:%M]'
 {% else %}
 set-option -g status-right '[%Y-%m-%d(%a) %H:%M]'
 {% endif %}
@@ -180,7 +180,7 @@ set -g @prefix_highlight_show_copy_mode 'on'     # コピーモード時も表�
 set -g @prefix_highlight_copy_mode_attr 'fg=black,bg=yellow,bold' # コピーモード時の色
 
 # Update status bar with plugin info
-set-option -g status-right '#{prefix_highlight} #{cpu_bg_color} CPU: #{cpu_percentage} | #{battery_status_bg} #{battery_icon} #{battery_percentage} | #(wifi) [%Y-%m-%d(%a) %H:%M]'
+set-option -g status-right '#{prefix_highlight} #{cpu_bg_color} CPU: #{cpu_percentage} | #{battery_status_bg} #{battery_icon} #{battery_percentage} | #($HOME/.config/tmux/bin/wifi) [%Y-%m-%d(%a) %H:%M]'
 
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
 run '~/.tmux/plugins/tpm/tpm'
