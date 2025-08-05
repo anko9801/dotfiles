@@ -20,7 +20,7 @@
 - **GitUI** - Rust製の高速TUIクライアント
 - **delta** - 構文ハイライト付きの差分表示
 - **ghq** - リポジトリ管理ツール
-- **cz-git** - Conventional Commits ヘルパー
+- **czg** - Conventional Commits ヘルパー
 - **gitleaks** - シークレット検出（pre-commitフック）
 - **gibo** - .gitignore テンプレート生成ツール
 
@@ -32,7 +32,7 @@ git f                                          # fetch --prune（最新情報取
 git pl                                         # pull（ff-onlyで安全）
 git sw -c feature/new                          # ブランチ作成
 gitui                                          # 作業しながら差分確認
-git cz                                         # 規約に沿ったコミット
+czg                                            # 規約に沿ったコミット
 git ps                                         # push（autoSetupRemote有効）
 gh pr create                                   # プルリクエスト作成
 
