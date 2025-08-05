@@ -25,6 +25,7 @@ yadm bootstrap
 - **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
 - **シークレットの安全管理** - SSH 鍵や API キーは 1Password で管理、ローカルには置かない
 - **クリーンな構成** - XDG Base Directory 準拠で`.config/`以下に整理
+- **宣言的で再現可能なパッケージ管理** - Brewfile/mise/Sheldon で全ての依存関係を明示的に管理
 - **冪等性** - 何度実行しても既存の設定を壊さない
 
 ### なぜyadm？
