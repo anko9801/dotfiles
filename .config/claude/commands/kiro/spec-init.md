@@ -1,0 +1,1 @@
+../../claude-code-spec/.claude/commands/kiro/spec-init.md
