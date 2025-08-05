@@ -43,15 +43,14 @@ yadm bootstrap
 ## ツール構成
 
 **共通ツール**:
-- **バージョン管理**: mise
 - **シェル**: zsh + sheldon
-- **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
 - **ターミナルマルチプレクサ**: tmux + TPM, zellij
-- **開発ツール**: git + delta, gitui, ghq, gibo, git-lfs, gitleaks
+- **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
+- **バージョン管理**: mise（Node.js, Go, Rust, Ruby, Deno, Bun を管理）
+- **Python**: uv, ruff
+- **開発ツール**: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
 - **AI アシスタント**: Claude Code, Gemini CLI
-- **Python**: uv, ruff
-- **その他言語**: Node.js, Go, Rust, Ruby, Deno, Bun（miseで管理）
 
 **OS別対応**:
 - **macOS**: Homebrew経由でツールインストール
