@@ -160,6 +160,12 @@ command -v zoxide &>/dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"
 # fzf（ファジー検索）
 command -v fzf &>/dev/null && eval "$(fzf --zsh)"
 
+# atuin（履歴管理）
+command -v atuin &>/dev/null && eval "$(atuin init zsh)"
+
+# mcfly（スマート履歴検索）
+command -v mcfly &>/dev/null && eval "$(mcfly init zsh)"
+
 # ------------------------------------------------------------------------------
 # プラグイン設定
 # ------------------------------------------------------------------------------

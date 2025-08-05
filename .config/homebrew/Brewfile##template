@@ -27,6 +27,7 @@ brew "eza"
 brew "zoxide"
 brew "gomi"
 brew "atuin"
+brew "mcfly"
 
 # Development
 brew "vim"

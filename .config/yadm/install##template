@@ -140,6 +140,7 @@ install_packages() {
         "eza-community.eza"
         "ajeetdsouza.zoxide"
         "ellie.atuin"
+        "cantino.mcfly"
         "Starship.Starship"
         "AgileBits.1Password.CLI"
         "extrawurst.gitui"
@@ -170,7 +171,7 @@ install_packages() {
             install_modern_tools_debian
             ;;
         arch|manjaro)
-            packages+=(base-devel yq ripgrep fd bat gh eza starship zoxide atuin git-delta)
+            packages+=(base-devel yq ripgrep fd bat gh eza starship zoxide atuin mcfly git-delta)
             sudo pacman -S --needed --noconfirm "${packages[@]}"
             ;;
         fedora)
@@ -412,6 +413,7 @@ install_modern_tools_debian() {
     # Install from scripts
     command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
     command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    command -v mcfly &>/dev/null || curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
     
     # GitHub CLI
     if ! command -v gh &>/dev/null; then
@@ -430,6 +432,7 @@ install_modern_tools_fedora() {
     # Install scripts
     command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
     command -v atuin &>/dev/null || bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)
+    command -v mcfly &>/dev/null || curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
 }
 
 # ============================================================================
