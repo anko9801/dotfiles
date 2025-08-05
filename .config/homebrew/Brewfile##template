@@ -53,6 +53,9 @@ brew "ghq"        # Repository manager
 brew "gibo"       # .gitignore templates
 brew "git-lfs"    # Git Large File Storage
 
+# Security
+cask "1password-cli"
+
 {% if yadm.class == "work" %}
 # Work-specific tools
 brew "awscli"
@@ -64,7 +67,6 @@ brew "docker-compose"
 
 {% if yadm.class != "server" %}
 # Desktop tools
-cask "1password-cli"
 cask "docker"     # Docker Desktop
 
 # macOS apps

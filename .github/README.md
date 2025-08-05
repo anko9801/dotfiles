@@ -65,7 +65,7 @@ dotfiles 管理は主に 3 つの方法があります。
 - **バージョン管理**: mise
 - **シェル**: zsh + sheldon
 - **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
-- **ターミナル**: tmux + TPM, zellij
+- **ターミナルマルチプレクサ**: tmux + TPM, zellij
 - **開発ツール**: git + delta, gitui, ghq, gibo, git-lfs, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
 - **AI アシスタント**: Claude Code, Gemini CLI
@@ -87,4 +87,3 @@ dotfiles 管理は主に 3 つの方法があります。
 - **Window Manager**: yabai + skhd
 - **ランチャー**: Raycast
 - **ウィンドウ管理**: Rectangle
-- **セキュリティ**: 1Password CLI
