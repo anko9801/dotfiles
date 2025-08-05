@@ -53,7 +53,7 @@ dotfiles管理の3つのアプローチ：
 **共通ツール**:
 - **バージョン管理**: mise
 - **シェル**: zsh + antidote
-- **エディタ**: Vim (dpp.vim), Neovim (lazy.nvim)
+- **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
 - **開発ツール**: git, tmux, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, delta
 - **Python**: uv, ruff
