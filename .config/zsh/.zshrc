@@ -46,6 +46,9 @@ export PATH="${(j.:.)path_components}:$PATH"
 # 略語定義
 [[ -f "$XDG_CONFIG_HOME/zsh/abbr.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/abbr.zsh"
 
+# カスタム関数
+[[ -f "$XDG_CONFIG_HOME/zsh/functions.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/functions.zsh"
+
 # ------------------------------------------------------------------------------
 # 履歴設定
 # ------------------------------------------------------------------------------

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Battery status script for tmux
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    if command -v pmset &> /dev/null; then
+        battery_info=$(pmset -g batt)
+        battery_percentage=$(echo "$battery_info" | grep -o "[0-9]\+%" | head -n 1 | tr -d '%')
+        
+        if [[ -n "$battery_percentage" ]]; then
+            if [[ "$battery_info" =~ "AC Power" ]] || [[ "$battery_info" =~ "charged" ]]; then
+                icon="🔌"
+            elif [[ $battery_percentage -gt 80 ]]; then
+                icon="🔋"
+            elif [[ $battery_percentage -gt 60 ]]; then
+                icon="🔋"
+            elif [[ $battery_percentage -gt 40 ]]; then
+                icon="🔋"
+            elif [[ $battery_percentage -gt 20 ]]; then
+                icon="🪫"
+            else
+                icon="🪫"
+            fi
+            
+            if [[ "$1" == "--tmux" ]]; then
+                echo "${icon} ${battery_percentage}%"
+            else
+                echo "Battery: ${battery_percentage}%"
+            fi
+        fi
+    fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux
+    if [[ -e /sys/class/power_supply/BAT0 ]]; then
+        battery_percentage=$(cat /sys/class/power_supply/BAT0/capacity)
+        battery_status=$(cat /sys/class/power_supply/BAT0/status)
+        
+        if [[ "$battery_status" == "Charging" ]] || [[ "$battery_status" == "Full" ]]; then
+            icon="🔌"
+        elif [[ $battery_percentage -gt 80 ]]; then
+            icon="🔋"
+        elif [[ $battery_percentage -gt 60 ]]; then
+            icon="🔋"
+        elif [[ $battery_percentage -gt 40 ]]; then
+            icon="🔋"
+        elif [[ $battery_percentage -gt 20 ]]; then
+            icon="🪫"
+        else
+            icon="🪫"
+        fi
+        
+        if [[ "$1" == "--tmux" ]]; then
+            echo "${icon} ${battery_percentage}%"
+        else
+            echo "Battery: ${battery_percentage}%"
+        fi
+    fi
+fi

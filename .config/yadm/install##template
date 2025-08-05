@@ -313,6 +313,13 @@ setup_shell() {
     # Install Zsh plugin manager
     local antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
     [[ ! -d "$antidote_dir" ]] && git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir"
+    
+    # Install TPM (Tmux Plugin Manager)
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+    if [[ ! -d "$tpm_dir" ]]; then
+        info "Installing Tmux Plugin Manager..."
+        git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
+    fi
 {% endif %}
     
     # SSH config - early return if already configured

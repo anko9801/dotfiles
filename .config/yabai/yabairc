@@ -1,37 +1,53 @@
 #!/usr/bin/env sh
 
-# Yabai configuration
-# Requires SIP to be disabled for some features
+# スクリプトの追加に必要なsudo権限の設定
+# echo "$(whoami) ALL=(root) NOPASSWD: sha256:$(shasum -a 256 $(which yabai) | cut -d " " -f 1) $(which yabai) --load-sa" | sudo tee /private/etc/sudoers.d/yabai
 
-# global settings
-yabai -m config mouse_follows_focus          off
-yabai -m config focus_follows_mouse          off
-yabai -m config window_origin_display        default
-yabai -m config window_placement             second_child
-yabai -m config window_shadow                on
-yabai -m config window_opacity               off
-yabai -m config window_opacity_duration      0.0
-yabai -m config active_window_opacity        1.0
-yabai -m config normal_window_opacity        0.90
-yabai -m config split_ratio                  0.50
-yabai -m config auto_balance                 off
-yabai -m config mouse_modifier               fn
-yabai -m config mouse_action1                move
-yabai -m config mouse_action2                resize
+# スクリプトの自動読み込み
+sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
-# general space settings
-yabai -m config layout                       bsp
-yabai -m config top_padding                  10
-yabai -m config bottom_padding               10
-yabai -m config left_padding                 10
-yabai -m config right_padding                10
-yabai -m config window_gap                   10
+# グローバル設定
+yabai -m config                                 \
+    mouse_follows_focus          off            \
+    focus_follows_mouse          off            \
+    window_origin_display        default        \
+    window_placement             second_child   \
+    window_zoom_persist          on             \
+    window_shadow                on             \
+    window_animation_duration    0.0            \
+    window_animation_frame_rate  120            \
+    window_opacity_duration      0.0            \
+    active_window_opacity        1.0            \
+    normal_window_opacity        0.95           \
+    window_opacity               off            \
+    insert_feedback_color        0xffd75f5f     \
+    split_ratio                  0.50           \
+    split_type                   auto           \
+    auto_balance                 off            \
+    top_padding                  12             \
+    bottom_padding               12             \
+    left_padding                 12             \
+    right_padding                12             \
+    window_gap                   06             \
+    layout                       bsp            \
+    mouse_modifier               fn             \
+    mouse_action1                move           \
+    mouse_action2                resize         \
+    mouse_drop_action            swap
 
-# apps to not manage (ignore)
+# 除外するアプリケーション
 yabai -m rule --add app="^System Settings$" manage=off
-yabai -m rule --add app="^Archive Utility$" manage=off
-yabai -m rule --add app="^Finder$" manage=off
-yabai -m rule --add app="^Raycast$" manage=off
 yabai -m rule --add app="^Calculator$" manage=off
+yabai -m rule --add app="^Finder$" manage=off
+yabai -m rule --add app="^Archive Utility$" manage=off
+yabai -m rule --add app="^Activity Monitor$" manage=off
+yabai -m rule --add app="^Dictionary$" manage=off
+yabai -m rule --add app="^System Information$" manage=off
+yabai -m rule --add app="^1Password$" manage=off
+yabai -m rule --add app="^App Store$" manage=off
+yabai -m rule --add app="^Raycast$" manage=off
+yabai -m rule --add app="^CleanMyMac X$" manage=off
+yabai -m rule --add app="^Logi Options$" manage=off
 
 echo "yabai configuration loaded.."
