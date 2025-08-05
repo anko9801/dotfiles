@@ -1,72 +1,51 @@
-# yadm 設定ディレクトリ
+# yadm 設定
 
-このディレクトリには、dotfiles を管理するための yadm 固有の設定ファイルとスクリプトが含まれています。
+yadmによるdotfiles管理の中核ディレクトリ。
 
-## ファイル構成
+## 主要ファイル
 
 ### `bootstrap`
-`yadm clone` 後に実行されるメインセットアップスクリプト。dotfiles セットアップ全体を統括します：
-- XDG ディレクトリのセットアップ
-- yadm インストールの検証
-- OS/クラス固有のインストールスクリプトの実行
-- インストール後タスクの実行
+`yadm clone`後に自動実行されるセットアップスクリプト。
 
-### `install##template`
-異なる OS やマシンクラスに適応するテンプレートベースのインストーラー：
-- yadm のテンプレートエンジンを使用して OS 固有の設定を生成
-- サポート OS: macOS、Linux (Ubuntu/Debian/Arch)、WSL、Windows (Git Bash)
-- パッケージのインストール、ツールの設定、開発環境のセットアップ
+### `install##template`  
+OS/環境別のインストーラー。yadmのテンプレート機能で差分を吸収。
 
-テンプレート変数:
-- `yadm.os`: オペレーティングシステム (Darwin, Linux, Windows)
-- `yadm.class`: マシンクラス (personal, work, server)
-- `yadm.hostname`: マシンのホスト名
-- `yadm.user`: 現在のユーザー名
-
-### `hooks/`
-さまざまな git 操作に対する yadm フック：
-- `pre_commit`: コミット前に実行（現在はグローバル git フックを使用）
-- `post_checkout`: クローン後のタスクに使用可能
-- `post_merge`: プル後のタスクに使用可能
+対応環境:
+- macOS (`yadm.os == "Darwin"`)
+- Linux (`yadm.os == "Linux"`)
+- WSL (`yadm.os == "WSL"`)
+- Windows Git Bash (`yadm.os == "Windows"`)
 
 ## 使い方
 
-### 手動ブートストラップ
 ```bash
+# 手動でbootstrap実行
 yadm bootstrap
-```
 
-### マシンクラスの設定
-```bash
-yadm config local.class personal  # または work, server
-```
+# マシンクラスを設定（work/personal）
+yadm config local.class work
 
-### テンプレートのテスト
-```bash
-# 実行せずにテンプレート出力を生成
+# テンプレートの確認
 yadm alt
 ```
 
-### 新しい OS サポートの追加
-1. `install##template` に新しい OS 検出を追加
-2. パッケージマネージャーのセットアップを実装
-3. OS 固有のパッケージインストールを追加
-4. テスト: `yadm bootstrap`
-
 ## テンプレート構文
 
-yadm はシンプルなテンプレート構文を使用します：
 ```bash
 {% if yadm.os == "Darwin" %}
-    # macOS 固有のコード
+    # macOS用の設定
 {% endif %}
 
 {% if yadm.class == "work" %}
-    # 仕事用マシン固有のコード
+    # work環境用の設定  
 {% endif %}
 ```
 
-注意: yadm は `elif` をサポートしていません。代わりに個別の `if` ブロックを使用してください。
+利用可能な変数:
+- `yadm.os` - OS種別
+- `yadm.class` - マシンクラス
+- `yadm.hostname` - ホスト名
+- `yadm.user` - ユーザー名
 
 ## 冪等なシェルスクリプトのベストプラクティス
 
@@ -268,18 +247,9 @@ cp -af config.conf /etc/myapp/             # -f で強制上書き
 rm -f /tmp/oldfile                         # -f でエラー抑制
 ```
 
-## 冪等性の原則
+## 暗号化（オプション）
 
-1. **確認してから実行**：現在の状態をチェックしてから変更
-2. **差分のみ適用**：必要な変更だけを実行
-3. **エラーを適切に処理**：既に完了している操作は `|| true` で無視
-4. **アトミックに操作**：中途半端な状態を避ける
-
-冪等性により「何度実行しても安全」が保証され、信頼性の高い自動化を実現できます。
-
-## yadm 暗号化（オプション）
-
-どうしてもローカルに保存が必要な場合：
+機密情報をどうしてもリポジトリに含める必要がある場合：
 
 ```bash
 # 暗号化対象に追加
@@ -293,28 +263,4 @@ yadm encrypt
 yadm decrypt
 ```
 
-## Git設定での機密情報分離
-
-```toml
-# ~/.config/git/config (公開)
-[user]
-    name = anko9801
-[core]
-    hooksPath = ~/.config/git/hooks  # 全リポジトリで共通のフック
-[gpg "ssh"]
-    program = op-ssh-sign  # 1Password経由で署名
-
-# ~/.config/git/allowed_signers##template (yadmテンプレート)
-# ユーザー固有の署名鍵を管理
-
-# ~/.gitconfig.local (暗号化/gitignore)
-[user]
-    email = private@example.com
-```
-
-## Windows環境での追加考慮事項
-
-- **Git Bash**: Windows環境ではGit Bashを推奨
-- **winget**: パッケージ管理にwingetを使用し、信頼できるソースからのみインストール
-- **パス区切り**: Windowsパスでは`\`を使用、Git Bashでは`/`を使用
-- **改行コード**: `core.autocrlf = input`で統一
+※ 基本的には1Passwordなどの外部ツールでの管理を推奨
