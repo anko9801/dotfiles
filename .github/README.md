@@ -24,9 +24,18 @@ yadm bootstrap
 理想のdotfiles管理：
 - **1コマンドで完結** - 複雑な手順はいらない
 - **どのマシンでも動く** - macOS/Linux/WSL/Windows、work/personalを自動判別
-- **秘密情報を守る** - パスワードやSSH鍵はローカルに置かない
+- **シークレットを守る** - パスワードやSSH鍵はローカルに置かない
 - **ホームディレクトリを汚さない** - 設定ファイルは`.config/`以下に整理
-- **何度実行しても安全** - 既存の設定を壊さない
+- **冪等性** - 何度実行しても安全
+
+### なぜyadm？
+
+dotfiles管理の3つのアプローチ：
+1. **シンボリックリンク** (GNU Stow) → Windowsでエッジケースが多い
+2. **ファイルコピー** (chezmoi) → Single Source of Truthじゃない  
+3. **Bare Git** → 管理は最も楽だが誤操作や導入時の上書きが怖い
+
+**yadm** = Bare Gitの良さを保ちつつ、安全機能を追加した最適解
 
 ### こだわりポイント
 
@@ -34,15 +43,6 @@ yadm bootstrap
 - **1Passwordで認証管理** - SSH鍵とかローカルに置かない
 - **モダンなCLIツール** - `ls`→`eza`、`cat`→`bat`、`sed`→`sd` など使いやすいやつに置き換え
 - **賢い履歴検索** - atuinとmcflyでコマンド履歴を便利に
-- **OS/環境別の設定** - macOS/Linux/WSL、work/personalで自動切り替え
-
-### 便利な設定
-
-- Git設定で`push`時に自動でupstream設定（`autoSetupRemote`）
-- コンフリクト解決を記憶する`rerere`
-- `czg`でキレイなコミットメッセージ
-- deltaで見やすいdiff表示（side-by-side）
-- zsh abbreviationsで長いコマンドを短縮
 
 ### 1Password によるシークレット管理
 
