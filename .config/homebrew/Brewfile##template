@@ -17,6 +17,7 @@ brew "yq"
 brew "zsh"
 brew "fish"
 brew "starship"
+brew "sheldon"
 
 # Modern CLI tools
 brew "ripgrep"

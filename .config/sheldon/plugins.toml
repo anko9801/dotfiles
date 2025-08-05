@@ -1,0 +1,161 @@
+# Sheldon plugin configuration
+# https://sheldon.cli.rs/
+
+shell = "zsh"
+
+# Templates for deferred loading
+[templates]
+defer = "{% for file in files %}zsh-defer source \"{{ file }}\"\n{% endfor %}"
+
+[plugins]
+
+# =============================================================================
+# Core
+# =============================================================================
+
+# Deferred loading support
+[plugins.zsh-defer]
+github = "romkatv/zsh-defer"
+
+# Environment variables and PATH setup (OS-specific)
+# Note: Basic env vars are in .zshrc, this is for OS-specific additions
+# [plugins.env]
+# local = "~/.config/zsh/plugins"
+# use = ["env.zsh"]
+
+# =============================================================================
+# Completions
+# =============================================================================
+
+# Initialize completion system (handled in .zshrc)
+# [plugins.compinit]
+# inline = "autoload -Uz compinit && zsh-defer compinit"
+
+# Additional completions
+[plugins.zsh-completions]
+github = "zsh-users/zsh-completions"
+dir = "src"
+apply = ["fpath"]
+
+# Homebrew completions
+[plugins.brew-completions]
+inline = 'if command -v brew &>/dev/null; then FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"; fi'
+
+# =============================================================================
+# Core functionality
+# =============================================================================
+
+# History configuration (handled in .zshrc)
+# [plugins.history]
+# local = "~/.config/zsh/plugins"
+# use = ["history.zsh"]
+
+# Additional shell options
+[plugins.options]
+local = "~/.config/zsh/plugins"
+use = ["options.zsh"]
+
+# Advanced completion styles
+[plugins.completion-styles]
+local = "~/.config/zsh/plugins"
+use = ["completion.zsh"]
+
+# =============================================================================
+# Enhanced functionality
+# =============================================================================
+
+# Abbreviations with zsh-abbr
+[plugins.zsh-abbr]
+github = "olets/zsh-abbr"
+apply = ["defer"]
+
+# Abbreviation definitions (loaded from .zshrc)
+# [plugins.abbreviations]
+# local = "~/.config/zsh/plugins"
+# use = ["abbr.zsh"]
+# apply = ["defer"]
+
+# Custom functions (loaded from .zshrc)
+# [plugins.functions]
+# local = "~/.config/zsh/plugins"
+# use = ["functions.zsh"]
+
+# =============================================================================
+# Visual enhancements
+# =============================================================================
+
+# Fallback prompt configuration
+[plugins.prompt]
+local = "~/.config/zsh/plugins"
+use = ["prompt.zsh"]
+
+# Syntax highlighting (load last)
+[plugins.zsh-syntax-highlighting]
+github = "zsh-users/zsh-syntax-highlighting"
+apply = ["defer"]
+
+# Autosuggestions
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+apply = ["defer"]
+
+# FZF tab completion
+[plugins.fzf-tab]
+github = "Aloxaf/fzf-tab"
+apply = ["defer"]
+
+# FZF tab configuration
+[plugins.fzf-tab-config]
+local = "~/.config/zsh/plugins"
+use = ["fzf-tab.zsh"]
+apply = ["defer"]
+
+# =============================================================================
+# Tool integrations
+# =============================================================================
+
+# mise (handled in .zshrc)
+# [plugins.mise]
+# inline = 'command -v mise &>/dev/null && eval "$(mise activate zsh)"'
+
+# starship (handled in .zshrc)
+# [plugins.starship]
+# inline = 'command -v starship &>/dev/null && eval "$(starship init zsh)"'
+
+# zoxide (handled in .zshrc)
+# [plugins.zoxide]
+# inline = 'command -v zoxide &>/dev/null && eval "$(zoxide init --cmd cd --hook pwd zsh)"'
+
+# fzf (handled in .zshrc)
+# [plugins.fzf]
+# inline = 'command -v fzf &>/dev/null && eval "$(fzf --zsh)"'
+
+# atuin (handled in .zshrc)
+# [plugins.atuin]
+# inline = 'command -v atuin &>/dev/null && eval "$(atuin init zsh)"'
+
+# mcfly (handled in .zshrc)
+# [plugins.mcfly]
+# inline = 'command -v mcfly &>/dev/null && eval "$(mcfly init zsh)"'
+
+# direnv
+[plugins.direnv]
+inline = 'command -v direnv &>/dev/null && eval "$(direnv hook zsh)"'
+
+# gitleaks (handled in .zshrc)
+# [plugins.gitleaks]
+# inline = '[ -f "$XDG_CONFIG_HOME/gitleaks/env.zsh" ] && source "$XDG_CONFIG_HOME/gitleaks/env.zsh"'
+
+# 1Password (handled in .zshrc)
+# [plugins.op]
+# inline = '[ -f "$XDG_CONFIG_HOME/op/plugins.sh" ] && source "$XDG_CONFIG_HOME/op/plugins.sh"'
+
+# =============================================================================
+# Final setup
+# =============================================================================
+
+# Load any machine-specific configuration
+[plugins.local]
+local = "~/.config/zsh"
+use = ["local.zsh"]
+apply = ["defer"]

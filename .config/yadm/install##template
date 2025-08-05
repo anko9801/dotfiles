@@ -317,9 +317,16 @@ setup_shell() {
     info "Setting up shell environment..."
     
 {% if yadm.os != "Windows" %}
-    # Install Zsh plugin manager
+    # Sheldon is installed via package managers (Homebrew/apt/etc)
+    # Just ensure the Zsh plugin directory exists
+    mkdir -p "$HOME/.config/zsh/plugins"
+    
+    # Clean up old antidote if it exists
     local antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
-    [[ ! -d "$antidote_dir" ]] && git clone --depth=1 https://github.com/mattmc3/antidote.git "$antidote_dir"
+    if [[ -d "$antidote_dir" ]]; then
+        info "Removing old antidote installation..."
+        rm -rf "$antidote_dir"
+    fi
     
     # Install TPM (Tmux Plugin Manager)
     local tpm_dir="$HOME/.tmux/plugins/tpm"

@@ -57,7 +57,7 @@ dotfiles 管理は主に 3 つの方法があります。
 
 **共通ツール**:
 - **バージョン管理**: mise
-- **シェル**: zsh + antidote
+- **シェル**: zsh + sheldon
 - **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
 - **開発ツール**: git, tmux, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, delta, duf, dust, tokei, sd
