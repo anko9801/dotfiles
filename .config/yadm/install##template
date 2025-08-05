@@ -142,6 +142,7 @@ install_packages() {
         "ellie.atuin"
         "Starship.Starship"
         "AgileBits.1Password.CLI"
+        "extrawurst.gitui"
     )
     
     for package in "${packages[@]}"; do
@@ -192,12 +193,24 @@ install_packages() {
 
 # Helper function for downloading .deb files
 install_deb_from_github() {
-    local repo="$1" name="$2" pattern="$3"
+    local repo="$1" name="$2" pattern="$3" type="${4:-deb}"
     command -v "$name" &>/dev/null && return 0
     local version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
     local url=$(printf "$pattern" "$version" "$version")
-    curl -LO "$url" && sudo dpkg -i *.deb || sudo apt-get install -f -y
-    rm -f *.deb
+    
+    case "$type" in
+        deb)
+            curl -LO "$url" && sudo dpkg -i *.deb || sudo apt-get install -f -y
+            rm -f *.deb
+            ;;
+        tar)
+            curl -sL "$url" | tar -xz -C "$HOME/.local/bin" "$name" 2>/dev/null || warning "Failed to install $name"
+            ;;
+        zip)
+            curl -sLO "$url" && unzip -j -o "$name*.zip" "$name" -d "$HOME/.local/bin" && chmod +x "$HOME/.local/bin/$name"
+            rm -f "$name*.zip"
+            ;;
+    esac
 }
 
 setup_mise() {
@@ -254,6 +267,38 @@ setup_git_config() {
     
     curl -sL "$gitleaks_url" | tar -xz -C "$HOME/.local/bin" gitleaks 2>/dev/null || warning "Failed to install gitleaks"
 {% endif %}
+}
+
+# Install Git-related tools
+install_git_tools() {
+    info "Installing Git tools..."
+    
+    # Install gitui
+    if ! command -v gitui &>/dev/null; then
+{% if yadm.os == "Windows" %}
+        winget install --id extrawurst.gitui --accept-package-agreements --accept-source-agreements || warning "Failed to install gitui"
+{% else %}
+        info "Installing gitui..."
+        install_deb_from_github "extrawurst/gitui" "gitui" "https://github.com/extrawurst/gitui/releases/download/%s/gitui-linux-musl.tar.gz" "tar"
+{% endif %}
+    fi
+    
+    # Install ghq
+    if ! command -v ghq &>/dev/null; then
+        info "Installing ghq..."
+{% if yadm.os == "Windows" %}
+        scoop install ghq || warning "Failed to install ghq"
+{% else %}
+        install_deb_from_github "x-motemen/ghq" "ghq" "https://github.com/x-motemen/ghq/releases/download/%s/ghq_linux_amd64.zip" "zip"
+{% endif %}
+    fi
+    
+    # Install gibo
+    if ! command -v gibo &>/dev/null; then
+        info "Installing gibo..."
+        curl -L https://raw.githubusercontent.com/simonwhitaker/gibo/main/gibo -o "$HOME/.local/bin/gibo" && \
+        chmod +x "$HOME/.local/bin/gibo" || warning "Failed to install gibo"
+    fi
 }
 
 setup_shell() {
@@ -422,6 +467,7 @@ main() {
     setup_package_manager
     install_packages
     setup_git_config
+    install_git_tools
     setup_shell
     setup_mise
     setup_python_tools
