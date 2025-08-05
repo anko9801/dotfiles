@@ -20,7 +20,7 @@ yadm bootstrap
 理想のdotfiles管理システムの条件：
 - **1コマンドセットアップ・管理** - 低い導入コスト
 - **マシン差分吸収** - OS（macOS/Linux/WSL）・クラス別に環境を整える
-- **シークレット保護** - 1Password にまとめる
+- **シークレット保護** - [1Password でゼロトラスト](.config/op/README.md)
 - **XDG 準拠** - ホームディレクトリをクリーンに
 - **冪等性** - 何度実行しても同じ結果
 
@@ -40,80 +40,13 @@ dotfiles管理の3つのアプローチ：
 
 ### 1Password によるシークレット管理
 
-[ローカル環境からシークレットを削除](https://efcl.info/2023/01/31/remove-secret-from-local/)する設計により、秘密情報を一切ローカルに保存しません：
+詳細は [op/README.md](../.config/op/README.md) を参照してください。
 
-#### SSH鍵管理
-- **1Password SSH Agent**: 全ての SSH 秘密鍵を 1Password で管理
-- **自動設定**: `~/.ssh/config.d/1password` で OS 別のエージェントソケットを自動設定
-  - macOS: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
-  - Linux: `~/.1password/agent.sock`
-  - WSL: npiperelay経由でWindows側の1Passwordと連携
-- **ForwardAgent**: 全ホストで有効化し、リモートサーバーでも 1Password の鍵を使用可能
-
-#### Git コミット署名
-- **SSH 署名**: GPG の代わりに SSH 鍵で Git コミットに署名
-- **op-ssh-sign**: 1Password が提供する署名プログラムを使用
-  - macOS: `/Applications/1Password.app/Contents/MacOS/op-ssh-sign`
-  - Linux/WSL: `op-ssh-sign`
-- **allowed_signers**: `~/.config/git/allowed_signers` で信頼する署名者を管理
-- **自動検証**: 署名されたコミットを自動的に検証
-
-#### CLI ツール認証 (Shell Plugins)
-1Password Shell Plugins により、各種 CLI ツールの認証情報を安全に管理：
-- **GitHub CLI (`gh`)**: Personal Access Token を 1Password で管理
-- **AWS CLI**: Access Key/Secret Key を安全に保存
-- **その他対応ツール**: 
-  - Stripe CLI
-  - Vercel CLI
-  - Netlify CLI
-  - CircleCI CLI
-  - など多数
-
-設定は `~/.config/op/plugins.sh` で自動化され、bootstrap 時に適用されます。
-
-#### 環境変数の安全な管理
-`.env` ファイルで秘密情報を直接記載する代わりに、1Password への参照を使用します：
-
-**従来の危険な方法**:
-```bash
-# .env
-API_KEY=sk_test_1234567890abcdef  # 危険！Git に入ってしまう
-```
-
-**1Password を使った安全な方法**:
-```bash
-# .env
-API_KEY="op://Personal/MyApp/api/key"
-DATABASE_URL="op://Personal/MyApp/database/url"
-AWS_ACCESS_KEY_ID="op://Personal/AWS/access_key_id"
-AWS_SECRET_ACCESS_KEY="op://Personal/AWS/secret_access_key"
-```
-
-**使い方**:
-```bash
-# 1Password が自動的に参照を実際の値に置き換えて実行
-op run --env-file="./.env" -- npm start
-op run --env-file="./.env" -- docker compose up
-```
-
-**1Password でのアイテム作成**:
-```bash
-# 新しいアイテムを作成
-op item create --category=login --title='MyApp' --vault='Personal'
-
-# フィールドを追加・編集
-op item edit 'MyApp' api.key="your-actual-api-key"
-op item edit 'MyApp' database.url="postgresql://..."
-```
-
-
-#### セキュリティ強化
-- **pre-commit hooks**: `.config/git/hooks/pre-commit` で秘密情報の誤コミットを防止
-  - gitleaks による包括的なシークレット検出 (git-secretsから移行)
-  - API キー、トークン、秘密鍵のパターンマッチング
-  - カスタムルール設定 (`~/.config/gitleaks/config.toml`)
-- **ゼロトラスト**: ローカルに秘密情報を一切保存しないアーキテクチャ
-- **監査証跡**: 1Password のアクティビティログで全てのアクセスを追跡可能
+- **SSH Agent**: 全ての SSH 秘密鍵を 1Password で一元管理
+- **Git 署名**: SSH 鍵でコミットに署名（GPG 不要）
+- **CLI 認証**: gh, AWS CLI などの認証情報を安全に管理
+- **環境変数**: `op://` 参照で秘密情報を Git から分離
+- **ゼロトラスト**: ローカルに秘密情報を一切保存しない
 
 ## ツール構成
 
