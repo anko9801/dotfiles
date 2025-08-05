@@ -34,6 +34,8 @@ brew "duf"
 brew "dust"
 brew "tokei"
 brew "sd"
+brew "bottom"    # System monitor
+brew "nyancat"   # Nyan Cat!
 
 # Window Management
 brew "koekeishiya/formulae/yabai"
@@ -52,6 +54,7 @@ brew "git-delta"  # Better git diffs
 brew "gitui"      # Git TUI
 brew "ghq"        # Repository manager
 brew "gibo"       # .gitignore templates
+brew "git-lfs"    # Git Large File Storage
 
 {% if yadm.class == "work" %}
 # Work-specific tools
@@ -59,18 +62,22 @@ brew "awscli"
 brew "terraform"
 brew "kubectl"
 brew "helm"
-brew "docker"
 brew "docker-compose"
 {% endif %}
 
 {% if yadm.class != "server" %}
 # Desktop tools
 cask "1password-cli"
+cask "docker"     # Docker Desktop
 
 # macOS apps
 cask "visual-studio-code"
 cask "iterm2"
 cask "rectangle"
+cask "discord"
+cask "slack"
+cask "raycast"    # Launcher
+cask "zoom"
 {% endif %}
 
 {% if yadm.class == "personal" %}
