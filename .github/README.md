@@ -24,7 +24,7 @@ yadm bootstrap
 - **1コマンドで完結** - 複雑な手順や事前準備は不要
 - **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
 - **シークレットの安全管理** - SSH 鍵や API キーはパスワードマネージャーで管理、ローカルには置かない
-- **クリーンな構成** - XDG Base Directory 準拠で `.config/` に収納
+- **クリーンな構成** - XDG Base Directory 準拠で .config に収納
 - **環境の再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
 - **冪等性** - 何度実行しても既存の設定を壊さない
 
@@ -34,11 +34,10 @@ yadm bootstrap
 
 ### こだわりポイント
 
-- **1Passwordで認証管理** - 詳細は [op/README.md](../.config/op/README.md) を参照
 - **シェルもXDG準拠** - `/etc/zsh/zshenv` に設定を書き込むことで .config に収納
-- **Claude Code統合** - [gotalab/claude-code-spec](https://github.com/gotalab/claude-code-spec) をサブモジュールにしてコマンドに取り入れる
-- **mise による統一的バージョン管理** - 言語やツールのバージョンを一元管理、チーム開発でも環境を完全一致
-- **冪等性** - 中断しても再度実行すれば大丈夫なように設計しました。詳細は [yadm/README.md](../.config/yadm/README.md) 参照
+- **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理。詳細は [op/README.md](../.config/op/README.md) を参照
+- **高速な起動時間** - Sheldon による並列プラグイン読み込みと遅延ロード、不要な処理の削減で zsh 起動を最適化
+- **宣言的な依存管理** - mise で言語バージョン、Brewfile でシステムツール、plugins.toml でシェルプラグインを一元管理
 
 ## ツール構成
 
