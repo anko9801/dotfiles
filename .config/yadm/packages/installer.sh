@@ -72,7 +72,6 @@ install_package() {
     local platform="$2"
     local yaml_file="$3"
     
-    verbose "Checking package: $package"
     
     # Check if package has platform-specific installation
     local has_platform=$(yq eval ".packages.${package}.${platform} // \"none\"" "$yaml_file")
@@ -89,7 +88,6 @@ install_package() {
     elif [[ "$has_all" != "none" && "$has_all" != "null" ]]; then
         install_package_platform "$package" "all" "$yaml_file"
     else
-        verbose "No installation method for $package on $platform"
     fi
     
     # Run post-install commands if any
@@ -109,12 +107,10 @@ run_post_install() {
     local check_cmd=$(yq eval ".packages.${package}.post_install.check // \"\"" "$yaml_file")
     if [[ -n "$check_cmd" && "$check_cmd" != "null" ]]; then
         if eval "$check_cmd" &>/dev/null; then
-            verbose "$package post-install already configured"
             return 0
         fi
     fi
     
-    verbose "Running post-install for $package..."
     
     # Run post-install commands
     local commands=$(yq eval ".packages.${package}.post_install" "$yaml_file")
@@ -471,7 +467,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         success() { echo "✓ $1"; }
         error() { echo "✗ $1" >&2; }
         warning() { echo "! $1"; }
-        verbose() { [[ "${VERBOSE:-false}" == "true" ]] && echo "[VERBOSE] $1"; }
     fi
     
     main "$@"
