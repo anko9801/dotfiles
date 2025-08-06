@@ -34,7 +34,7 @@ yadm bootstrap
 
 - **yadm によるシンプルな管理** - yadm bootstrap を叩くだけ
 - **シェルもXDG準拠** - `/etc/zshenv` (macOS) や `/etc/zsh/zshenv` (Linux) に設定を書き込むことで .config に収納
-- **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理。詳細は [op/README.md](../.config/op/README.md) を参照
+- **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理 (ref: [op/README.md](../.config/op/README.md))
 - **冪等性** - インストールや設定の前にチェック (ref. [yadm/README.md](../.config/yadm/README.md))
 - **宣言的なパッケージ管理** - packages.yaml, Brewfile, mise/config.toml を使う
 
