@@ -126,7 +126,7 @@ command -v mcfly &>/dev/null && eval "$(mcfly init zsh)"
 [[ -f "$XDG_CONFIG_HOME/gitleaks/env.zsh" ]] && source "$XDG_CONFIG_HOME/gitleaks/env.zsh"
 
 # 1Password
-[[ -f "$XDG_CONFIG_HOME/op/plugins.sh" ]] && source "$XDG_CONFIG_HOME/op/plugins.sh"
+# [[ -f "$XDG_CONFIG_HOME/op/plugins.sh" ]] && source "$XDG_CONFIG_HOME/op/plugins.sh"
 
 # ------------------------------------------------------------------------------
 # ローカル設定
