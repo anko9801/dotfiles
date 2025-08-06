@@ -134,7 +134,7 @@ packages:
       - name: sheldon
         script: "curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to ~/.local/bin"
       - name: starship
-        script: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b $HOME/.local/bin"
+        script: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b $HOME/.local/bin || (echo 'Starship install failed, trying cargo...'; cargo install starship --root $HOME/.local 2>/dev/null || echo 'Starship installation skipped')"
       - name: atuin
         script: "bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)"
       - name: mcfly
@@ -273,7 +273,7 @@ packages:
     
     script:
       - name: starship
-        script: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b $HOME/.local/bin"
+        script: "curl -sS https://starship.rs/install.sh | sh -s -- -y -b $HOME/.local/bin || (echo 'Starship install failed, trying cargo...'; cargo install starship --root $HOME/.local 2>/dev/null || echo 'Starship installation skipped')"
       - name: atuin
         script: "bash <(curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh)"
       - name: mcfly
