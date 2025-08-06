@@ -40,9 +40,11 @@ cleanup() {
 detect_platform() {
 {% if yadm.os == "Darwin" %}
     echo "macos"
-{% elif yadm.os == "Windows" %}
+{% endif %}
+{% if yadm.os == "Windows" %}
     echo "windows"
-{% elif yadm.os == "WSL" %}
+{% endif %}
+{% if yadm.os == "WSL" %}
     # WSL is still Linux, but we'll check distribution
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
@@ -55,7 +57,8 @@ detect_platform() {
     else
         echo "linux"
     fi
-{% elif yadm.os == "Linux" %}
+{% endif %}
+{% if yadm.os == "Linux" %}
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
         case "${ID,,}" in
@@ -115,8 +118,9 @@ setup_package_manager() {
     
     # Update Homebrew
     brew update
+{% endif %}
     
-{% elif yadm.os == "Windows" %}
+{% if yadm.os == "Windows" %}
     # Verify winget is available
     if ! command -v winget &>/dev/null; then
         error "winget not found. Please install App Installer from Microsoft Store"
@@ -127,8 +131,9 @@ setup_package_manager() {
     # Update winget sources
     info "Updating winget sources..."
     winget source update
+{% endif %}
     
-{% else %}
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
     # Linux: Update package manager
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
@@ -165,7 +170,6 @@ install_packages() {
         warning "Package installer not found, skipping package installation"
     fi
     
-    # Platform-specific package installation
 {% if yadm.os == "Darwin" %}
     # Install from Brewfile if exists
     local brewfile="$HOME/.config/homebrew/Brewfile"
@@ -184,7 +188,7 @@ show_completion_message() {
     echo "Next steps:"
     echo "  1. Restart your terminal to apply all changes"
     
-{% if yadm.os != "Windows" %}
+{% if yadm.os == "Darwin" or yadm.os == "Linux" or yadm.os == "WSL" %}
     if [[ "$(basename "$SHELL")" != "zsh" ]]; then
         echo "  2. Set Zsh as your default shell:"
         echo "     chsh -s $(which zsh)"
@@ -213,11 +217,14 @@ main() {
     # Show platform information
 {% if yadm.os == "Darwin" %}
     info "Running macOS bootstrap..."
-{% elif yadm.os == "Windows" %}
+{% endif %}
+{% if yadm.os == "Windows" %}
     info "Running Windows bootstrap..."
-{% elif yadm.os == "WSL" %}
+{% endif %}
+{% if yadm.os == "WSL" %}
     info "Running Linux bootstrap (WSL)..."
-{% elif yadm.os == "Linux" %}
+{% endif %}
+{% if yadm.os == "Linux" %}
     info "Running Linux bootstrap..."
 {% endif %}
     
@@ -246,7 +253,8 @@ setup_zdotdir() {
     
 {% if yadm.os == "Darwin" %}
     zshenv_file="/etc/zshenv"
-{% else %}
+{% endif %}
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
     zshenv_file="/etc/zsh/zshenv"
     # Create directory if it doesn't exist
     [[ ! -d /etc/zsh ]] && sudo mkdir -p /etc/zsh
@@ -306,8 +314,8 @@ apply_platform_settings() {
     
     local platform_dir="$HOME/.config/yadm/platforms"
     
-    # Run macOS settings
 {% if yadm.os == "Darwin" %}
+    # Run macOS settings
     if [[ -f "$platform_dir/macos.sh" ]]; then
         chmod +x "$platform_dir/macos.sh"
         
@@ -318,8 +326,8 @@ apply_platform_settings() {
     fi
 {% endif %}
     
-    # Run WSL settings
 {% if yadm.os == "Linux" or yadm.os == "WSL" %}
+    # Run WSL settings
     if [[ -f "$platform_dir/wsl.sh" ]]; then
         chmod +x "$platform_dir/wsl.sh"
         
