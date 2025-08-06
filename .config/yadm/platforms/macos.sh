@@ -13,26 +13,21 @@ if [[ -z "$(type -t info)" ]]; then
     success() { echo "✓ $1"; }
     error() { echo "✗ $1" >&2; }
     warning() { echo "! $1"; }
-    verbose() { [[ "${VERBOSE:-false}" == "true" ]] && echo "[VERBOSE] $1" || true; }
 fi
 
 info "Applying macOS system settings..."
 
 # Show hidden files in Finder
-verbose "Setting: Show hidden files in Finder"
 defaults write com.apple.finder AppleShowAllFiles -bool true
 
 # Enable fast key repeat
-verbose "Setting: Enable fast key repeat"
 defaults write NSGlobalDomain KeyRepeat -int 2
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
 
 # Disable press-and-hold for keys
-verbose "Setting: Disable press-and-hold for keys"
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 # Apply Finder changes
-verbose "Applying Finder changes"
 killall Finder 2>/dev/null || true
 
 success "macOS system settings applied"

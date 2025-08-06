@@ -12,36 +12,28 @@ if [[ -z "$(type -t info)" ]]; then
     success() { echo "✓ $1"; }
     error() { echo "✗ $1" >&2; }
     warning() { echo "! $1"; }
-    verbose() { [[ "${VERBOSE:-false}" == "true" ]] && echo "[VERBOSE] $1" || true; }
 fi
 
 info "Applying WSL integration settings..."
 
 # Disable Windows PATH pollution
 if ! grep -q '\[interop\]' /etc/wsl.conf 2>/dev/null; then
-    verbose "Setting: Disable Windows PATH pollution"
     if [[ ! -f /etc/wsl.conf ]]; then
         echo -e "[interop]\nappendWindowsPath = false" | sudo tee /etc/wsl.conf >/dev/null
     else
         echo -e "\n[interop]\nappendWindowsPath = false" | sudo tee -a /etc/wsl.conf >/dev/null
     fi
-else
-    verbose "Windows PATH pollution already disabled"
 fi
 
 # Create Windows home symlink
 if [[ ! -e "$HOME/winhome" ]]; then
-    verbose "Setting: Create Windows home symlink"
     if command -v wslpath &>/dev/null; then
         WINHOME=$(wslpath "$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r')")
         [[ -d "$WINHOME" ]] && ln -s "$WINHOME" "$HOME/winhome"
     fi
-else
-    verbose "Windows home symlink already exists"
 fi
 
 # Configure Git for WSL
-verbose "Setting: Configure Git for WSL"
 git config --global core.autocrlf input
 git config --global core.filemode false
 

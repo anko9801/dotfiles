@@ -9,9 +9,6 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly HOME="${HOME:-$(eval echo ~)}"
 
-# Script options
-VERBOSE=false
-
 # Colors for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -27,46 +24,6 @@ info() { echo -e "${BLUE}==>${NC} $1"; }
 success() { echo -e "${GREEN}✓${NC} $1"; }
 error() { echo -e "${RED}✗${NC} $1" >&2; }
 warning() { echo -e "${YELLOW}!${NC} $1"; }
-verbose() { [[ "$VERBOSE" == "true" ]] && echo -e "${BLUE}[VERBOSE]${NC} $1" || true; }
-
-# Show usage
-usage() {
-    cat << EOF
-Usage: $0 [options]
-
-Options:
-    --verbose, -v   Show detailed output
-    --help, -h      Show this help message
-
-This script sets up a complete development environment by:
-- Creating necessary directories
-- Installing package managers (Homebrew, etc.)
-- Installing all packages from packages.yaml
-- Configuring shells, tools, and integrations
-- Applying platform-specific settings
-EOF
-}
-
-# Parse command line arguments
-parse_args() {
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --verbose|-v)
-                VERBOSE=true
-                shift
-                ;;
-            --help|-h)
-                usage
-                exit 0
-                ;;
-            *)
-                error "Unknown option: $1"
-                usage
-                exit 1
-                ;;
-        esac
-    done
-}
 
 # Cleanup on exit
 cleanup() {
@@ -194,7 +151,6 @@ install_packages() {
     info "Installing packages..."
     
     local platform=$(detect_platform)
-    verbose "Platform: $platform"
     
     # Run package installer
     local installer="$HOME/.config/yadm/packages/installer.sh"
@@ -202,8 +158,7 @@ install_packages() {
         chmod +x "$installer"
         
         # Export functions for installer
-        export -f info success error warning verbose
-        export VERBOSE
+        export -f info success error warning
         
         "$installer"
     else
@@ -255,9 +210,6 @@ main() {
     # Setup error handling
     trap cleanup EXIT INT TERM
     
-    # Parse arguments
-    parse_args "$@"
-    
     # Show platform information
 {% if yadm.os == "Darwin" %}
     info "Running macOS bootstrap..."
@@ -302,7 +254,7 @@ setup_zdotdir() {
     
     # Check if already configured
     if sudo grep -q 'ZDOTDIR' "$zshenv_file" 2>/dev/null; then
-        verbose "ZDOTDIR already configured"
+        info "ZDOTDIR already configured"
         return
     fi
     
@@ -324,7 +276,7 @@ setup_ssh() {
     
     # Check if already configured
     if grep -q '^Include ~/.ssh/config.d/\*' "$HOME/.ssh/config" 2>/dev/null; then
-        verbose "SSH already configured"
+        info "SSH already configured"
         return
     fi
     
@@ -360,8 +312,7 @@ apply_platform_settings() {
         chmod +x "$platform_dir/macos.sh"
         
         # Export functions for platform script
-        export -f info success error warning verbose
-        export VERBOSE
+        export -f info success error warning
         
         "$platform_dir/macos.sh"
     fi
@@ -373,8 +324,7 @@ apply_platform_settings() {
         chmod +x "$platform_dir/wsl.sh"
         
         # Export functions for platform script
-        export -f info success error warning verbose
-        export VERBOSE
+        export -f info success error warning
         
         "$platform_dir/wsl.sh"
     fi
@@ -382,4 +332,4 @@ apply_platform_settings() {
 }
 
 # Run main function
-main "$@"
+main
