@@ -461,7 +461,8 @@ run_post_install() {
         
         while IFS= read -r cmd; do
             [[ -z "$cmd" || "$cmd" == "null" ]] && continue
-            eval "$cmd"
+            # Execute command in a subshell to avoid syntax issues
+            bash -c "$cmd"
         done <<< "$commands"
     done <<< "$packages"
 }
