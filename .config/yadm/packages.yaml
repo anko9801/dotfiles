@@ -113,10 +113,6 @@ packages:
         repo: bootandy/dust
         file: "dust-vVERSION-x86_64-unknown-linux-gnu.tar.gz"
         type: tar
-      - name: tokei
-        repo: XAMPPRocky/tokei
-        file: "tokei-x86_64-unknown-linux-gnu.tar.gz"
-        type: tar
       - name: sd
         repo: chmln/sd
         file: "sd-vVERSION-x86_64-unknown-linux-gnu"
@@ -154,6 +150,7 @@ packages:
     
     cargo:
       - zoxide
+      - tokei
 
   # ===== Arch Linux =====
   arch:
@@ -257,10 +254,6 @@ packages:
         repo: bootandy/dust
         file: "dust-vVERSION-x86_64-unknown-linux-gnu.tar.gz"
         type: tar
-      - name: tokei
-        repo: XAMPPRocky/tokei
-        file: "tokei-x86_64-unknown-linux-gnu.tar.gz"
-        type: tar
       - name: sd
         repo: chmln/sd
         file: "sd-vVERSION-x86_64-unknown-linux-gnu"
@@ -293,6 +286,9 @@ packages:
         script: "curl -L https://raw.githubusercontent.com/simonwhitaker/gibo/main/gibo -o $HOME/.local/bin/gibo && chmod +x $HOME/.local/bin/gibo"
       - name: tpm
         script: "git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm"
+    
+    cargo:
+      - tokei
 
 # Post-install configurations
 post_install:
