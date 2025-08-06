@@ -83,11 +83,10 @@ install_by_package_manager() {
     info "Installing packages via $pm..."
     
     case "$pm" in
-        homebrew)
-            install_homebrew_packages "$platform" "$yaml_file"
-            ;;
-        homebrew_cask)
-            install_homebrew_cask_packages "$platform" "$yaml_file"
+        homebrew|homebrew_cask)
+            # Homebrewパッケージは.config/yadm/Brewfileで管理
+            warning "Homebrew packages are managed by Brewfile"
+            warning "Run 'brew bundle --file=$HOME/.config/yadm/Brewfile' to install"
             ;;
         apt)
             install_apt_packages "$platform" "$yaml_file"
@@ -135,29 +134,7 @@ install_by_package_manager() {
 }
 
 # Package manager specific installation functions
-install_homebrew_packages() {
-    local platform="$1"
-    local yaml_file="$2"
-    
-    local packages=$(yq eval ".packages.${platform}.homebrew[]" "$yaml_file" 2>/dev/null || true)
-    
-    while IFS= read -r pkg; do
-        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
-        brew list "$pkg" &>/dev/null || brew install "$pkg"
-    done <<< "$packages"
-}
-
-install_homebrew_cask_packages() {
-    local platform="$1"
-    local yaml_file="$2"
-    
-    local packages=$(yq eval ".packages.${platform}.homebrew_cask[]" "$yaml_file" 2>/dev/null || true)
-    
-    while IFS= read -r pkg; do
-        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
-        brew list --cask "$pkg" &>/dev/null || brew install --cask "$pkg"
-    done <<< "$packages"
-}
+# Homebrew packages are now managed via Brewfile
 
 install_apt_packages() {
     local platform="$1"
