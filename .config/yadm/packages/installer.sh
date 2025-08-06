@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Generic package installer that reads from packages.yaml
 
-set -eo pipefail
+set -euo pipefail
 
 # Get the directory of this script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

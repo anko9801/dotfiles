@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # WSL integration and configurations
 
-set -eo pipefail
+set -euo pipefail
 
 # Skip if not WSL
 [[ ! -f /proc/sys/fs/binfmt_misc/WSLInterop ]] && exit 0
