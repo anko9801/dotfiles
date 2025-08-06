@@ -35,6 +35,7 @@ yadm bootstrap
 - **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理 - [op/README.md](../.config/op/README.md)
 - **冪等性** - [冪等なシェルスクリプトのベストプラクティス](../.config/yadm/README.md)
 - **宣言的なパッケージ管理** - [Brewfile](../.config/yadm/Brewfile) [mise](../.config/mise/config.toml) で扱えないものは [packages.yaml](../.config/yadm/packages.yaml) で宣言
+- **顔文字プロンプト** - いつもは `╰─(*'-') ❯` エラーが出たら `╰─(*;-;) ❯`
 
 
 ## Tools
