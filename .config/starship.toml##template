@@ -3,39 +3,26 @@
 # Colors: #707A8C (gray) / #5CCFE6 (cyan) / #73D0FF (blue) / #FFAD66 (orange) 
 #         #87D96C (green) / #F27983 (red) / #F28779 (light red) / #DFBFFF (purple)
 
-{% if yadm.class == "work" %}
-# Work configuration - include hostname
 format = """[╭─](bold green)\
-$username[@](fg:#707A8C)$hostname$directory\
+$username$hostname$directory\
 $git_branch$git_commit$git_state$git_status$hg_branch\
 $docker_context$package$nodejs$python$rust$golang$java$kotlin$scala$swift\
 $cmd_duration
 """
-{% else %}
-# Personal configuration - cleaner prompt
-format = """[╭─](bold green)\
-$directory\
-$git_branch$git_commit$git_state$git_status$hg_branch\
-$docker_context$package$nodejs$python$rust$golang$java$kotlin$scala$swift\
-$cmd_duration
-"""
-{% endif %}
 
 add_newline = true
 
-# Username and hostname (work environment)
-{% if yadm.class == "work" %}
 [username]
-show_always = true
+show_always = false
 style_user = "fg:#DFBFFF"
 style_root = "fg:#F27983"
 format = "[$user]($style)"
 
 [hostname]
-ssh_only = false
-format = "[$hostname]($style)"
+ssh_only = true
+format = "[@$hostname]($style) "
 style = "fg:#DFBFFF"
-{% endif %}
+
 
 [directory]
 style = "fg:#FFAD66"
@@ -44,18 +31,11 @@ read_only_style = "fg:#707A8C"
 format = "[$read_only]($read_only_style)[$path]($style) "
 truncate_to_repo = true
 truncation_length = 3
-{% if yadm.class == "work" %}
-truncation_length = 4
-{% endif %}
 
 [character]
 error_symbol = '''[╰─\(*;-;\)](bold green) [❯](bold red)'''
 success_symbol = '''[╰─\(*'-'\) ❯](bold green)'''
-{% if yadm.class == "work" %}
-vimcmd_symbol = '''[╰─\(*'o'\) ◀](bold cyan)'''
-{% else %}
 vimcmd_symbol = '''[╰─\(*'o'\) ](bold cyan)'''
-{% endif %}
 
 [git_branch]
 format = "[$symbol$branch(:$remote_branch)]($style) "
