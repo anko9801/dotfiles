@@ -563,8 +563,12 @@ finish_bootstrap() {
     echo
     echo "Please restart your terminal to apply all changes."
 {% if yadm.os != "Windows" %}
-    [[ "$(basename "$SHELL")" != "zsh" ]] && echo "Run 'chsh -s $(which zsh)' to set Zsh as your default shell."
+    echo "DEBUG: Current shell is: $(basename "$SHELL")"
+    if [[ "$(basename "$SHELL")" != "zsh" ]]; then
+        echo "Run 'chsh -s $(which zsh)' to set Zsh as your default shell."
+    fi
 {% endif %}
+    return 0
 }
 
 # ============================================================================
