@@ -94,12 +94,6 @@
     helper = store
 {% endif %}
 
-# URL rewrites for GitHub SSH (only on non-CI environments)
-{% if yadm.class != "ci" %}
-[url "git@github.com:"]
-    insteadOf = https://github.com/
-{% endif %}
-
 # Aliases
 [alias]
   # Status and basic operations
