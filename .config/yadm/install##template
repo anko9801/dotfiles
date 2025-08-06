@@ -74,12 +74,6 @@ setup_directories() {
     
     # Set permissions
     chmod 700 "$HOME/.ssh" "$HOME/.ssh/config.d" 2>/dev/null || true
-    
-    # Create symlink for Claude commands
-    if [[ -d "$HOME/.config/claude/commands" && ! -L "$HOME/.claude/commands" ]]; then
-        info "Setting up Claude commands symlink..."
-        ln -sf "$HOME/.config/claude/commands" "$HOME/.claude/commands"
-    fi
 }
 
 setup_package_manager() {
