@@ -377,6 +377,13 @@ setup_python_tools() {
 
 setup_gh_extensions() {
     command -v gh &>/dev/null || return 0
+    
+    # Skip if not authenticated
+    if ! gh auth status &>/dev/null; then
+        info "GitHub CLI not authenticated yet. Skipping extension setup."
+        return 0
+    fi
+    
     gh extension list | grep -q "github/gh-copilot" && return 0
     gh extension install github/gh-copilot || true
 }
