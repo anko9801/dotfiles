@@ -118,8 +118,8 @@ packages:
         file: "sd-vVERSION-x86_64-unknown-linux-gnu.tar.gz"
         type: tar
       - name: gitui
-        repo: extrawurst/gitui
-        file: "gitui-linux-musl.tar.gz"
+        repo: gitui-org/gitui
+        file: "gitui-linux-x86_64.tar.gz"
         type: tar
       - name: ghq
         repo: x-motemen/ghq
@@ -259,8 +259,8 @@ packages:
         file: "sd-vVERSION-x86_64-unknown-linux-gnu.tar.gz"
         type: tar
       - name: gitui
-        repo: extrawurst/gitui
-        file: "gitui-linux-musl.tar.gz"
+        repo: gitui-org/gitui
+        file: "gitui-linux-x86_64.tar.gz"
         type: tar
       - name: ghq
         repo: x-motemen/ghq
