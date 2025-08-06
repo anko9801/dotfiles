@@ -6,12 +6,9 @@ readonly BOOTSTRAP_DIR="$HOME/.config/yadm"
 readonly EXIT_SUCCESS=0 EXIT_ERROR=1
 
 cleanup() {
-    local exit_code=$?
-    if [[ $exit_code -ne $EXIT_SUCCESS && $exit_code -ne 0 ]]; then
-        echo -e "\nBootstrap interrupted. You can safely run it again."
-    fi
+    echo -e "\nBootstrap interrupted. You can safely run it again."
 }
-trap cleanup EXIT INT TERM
+trap cleanup INT TERM
 
 # ============================================================================
 # Helper Functions
@@ -129,3 +126,4 @@ main() {
 
 # Run main function
 main "$@"
+exit 0

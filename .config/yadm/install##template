@@ -47,14 +47,11 @@ error() { echo -e "${RED}✗${NC} $1" >&2; }
 warning() { echo -e "${YELLOW}!${NC} $1"; }
 verbose() { [[ "$VERBOSE" == "true" ]] && echo -e "${BLUE}[VERBOSE]${NC} $1"; }
 
-# Cleanup on exit
+# Cleanup on interrupt only
 cleanup() {
-    local exit_code=$?
-    if [[ $exit_code -ne 0 ]]; then
-        echo -e "\nBootstrap interrupted. You can safely run it again."
-    fi
+    echo -e "\nBootstrap interrupted. You can safely run it again."
 }
-trap cleanup EXIT INT TERM
+trap cleanup INT TERM
 
 # ============================================================================
 # Core Setup Functions
@@ -369,8 +366,8 @@ setup_1password() {
     
     # Initialize plugins
     if [[ -f "$HOME/.config/op/plugins.sh" ]]; then
-        # Suppress export statements from 1Password plugins
-        bash "$HOME/.config/op/plugins.sh" | grep -v "^export" || true
+        # Run in subshell and redirect stdout to capture only stderr messages
+        (bash "$HOME/.config/op/plugins.sh" 2>&1 | grep -v "^export" >&2) || true
     fi
 }
 
