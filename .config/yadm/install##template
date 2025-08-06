@@ -366,7 +366,11 @@ setup_1password() {
         chmod 600 "$HOME/.config/op/config" || warning "Failed to fix op config permissions"
     fi
     
+    # Initialize plugins
     [[ -f "$HOME/.config/op/plugins.sh" ]] && bash "$HOME/.config/op/plugins.sh" || true
+    
+    # Source aliases for current session
+    [[ -f "$HOME/.config/op/plugins-init.zsh" ]] && source "$HOME/.config/op/plugins-init.zsh" || true
 }
 
 setup_python_tools() {
