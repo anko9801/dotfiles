@@ -473,27 +473,10 @@ run_post_install() {
             continue
         fi
         
-        # Check if there's a check command
-        local check_cmd=$(yq eval ".post_install.${pkg}.check // \"\"" "$yaml_file")
-        if [[ -n "$check_cmd" && "$check_cmd" != "null" ]]; then
-            if eval "$check_cmd" &>/dev/null; then
-                continue
-            fi
-        fi
-        
         info "Running post-install for $pkg..."
         
-        # Run post-install commands
-        local commands=$(yq eval ".post_install.${pkg}" "$yaml_file")
-        
-        # Check if it's an array or object
-        if [[ "$commands" == *"commands:"* ]]; then
-            # Object format with check and commands
-            commands=$(yq eval ".post_install.${pkg}.commands[]" "$yaml_file" 2>/dev/null || true)
-        else
-            # Array format
-            commands=$(yq eval ".post_install.${pkg}[]" "$yaml_file" 2>/dev/null || true)
-        fi
+        # Run post-install commands (always array format)
+        local commands=$(yq eval ".post_install.${pkg}[]" "$yaml_file" 2>/dev/null || true)
         
         while IFS= read -r cmd; do
             [[ -z "$cmd" || "$cmd" == "null" ]] && continue
