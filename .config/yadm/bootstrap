@@ -9,6 +9,20 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly HOME="${HOME:-$(eval echo ~)}"
 readonly EXIT_SUCCESS=0 EXIT_ERROR=1
+readonly SYSTEM_TYPE="$(uname -s)"
+
+# Detect platform (Darwin, Linux, WSL)
+if [[ "$SYSTEM_TYPE" == "Darwin" ]]; then
+    readonly PLATFORM="Darwin"
+elif [[ "$SYSTEM_TYPE" == "Linux" ]]; then
+    if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+        readonly PLATFORM="WSL"
+    else
+        readonly PLATFORM="Linux"
+    fi
+else
+    readonly PLATFORM="Unknown"
+fi
 
 # Colors for output
 readonly RED='\033[0;31m'
@@ -105,37 +119,28 @@ configure_encryption() {
 # Platform Detection
 # ============================================================================
 
-detect_platform() {
-{% if yadm.os == "Darwin" %}
-    echo "macos"
-{% endif %}
-{% if yadm.os == "WSL" %}
-    # WSL is still Linux, but we'll check distribution
-    if [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        case "${ID,,}" in
-            ubuntu|debian) echo "debian" ;;
-            arch|manjaro) echo "arch" ;;
-            fedora) echo "fedora" ;;
-            *) echo "linux" ;;
-        esac
-    else
-        echo "linux"
-    fi
-{% endif %}
-{% if yadm.os == "Linux" %}
-    if [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        case "${ID,,}" in
-            ubuntu|debian) echo "debian" ;;
-            arch|manjaro) echo "arch" ;;
-            fedora) echo "fedora" ;;
-            *) echo "linux" ;;
-        esac
-    else
-        echo "linux"
-    fi
-{% endif %}
+detect_distribution() {
+    case "$PLATFORM" in
+        Darwin)
+            echo "macos"
+            ;;
+        WSL|Linux)
+            if [[ -f /etc/os-release ]]; then
+                . /etc/os-release
+                case "${ID,,}" in
+                    ubuntu|debian) echo "debian" ;;
+                    arch|manjaro) echo "arch" ;;
+                    fedora) echo "fedora" ;;
+                    *) echo "linux" ;;
+                esac
+            else
+                echo "linux"
+            fi
+            ;;
+        *)
+            echo "unknown"
+            ;;
+    esac
 }
 
 # ============================================================================
@@ -164,47 +169,48 @@ setup_directories() {
 setup_package_manager() {
     info "Setting up package manager..."
     
-{% if yadm.os == "Darwin" %}
-    # Install Homebrew if not present
-    if ! command -v brew &>/dev/null; then
-        info "Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        # Add Homebrew to PATH
-        if [[ -d "/opt/homebrew" ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        else
-            eval "$(/usr/local/bin/brew shellenv)"
-        fi
-    fi
-    
-    # Update Homebrew
-    brew update
-{% endif %}
-    
-{% if yadm.os == "Linux" or yadm.os == "WSL" %}
-    # Linux: Update package manager
-    if [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        case "${ID,,}" in
-            ubuntu|debian)
-                sudo apt-get update || true
-                ;;
-            arch|manjaro)
-                sudo pacman -Syu --noconfirm
-                ;;
-            fedora)
-                sudo dnf update -y
-                ;;
-        esac
-    fi
-{% endif %}
+    case "$PLATFORM" in
+        Darwin)
+            # Install Homebrew if not present
+            if ! command -v brew &>/dev/null; then
+                info "Installing Homebrew..."
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                
+                # Add Homebrew to PATH
+                if [[ -d "/opt/homebrew" ]]; then
+                    eval "$(/opt/homebrew/bin/brew shellenv)"
+                else
+                    eval "$(/usr/local/bin/brew shellenv)"
+                fi
+            fi
+            
+            # Update Homebrew
+            brew update
+            ;;
+        WSL|Linux)
+            # Linux: Update package manager
+            if [[ -f /etc/os-release ]]; then
+                . /etc/os-release
+                case "${ID,,}" in
+                    ubuntu|debian)
+                        sudo apt-get update || true
+                        ;;
+                    arch|manjaro)
+                        sudo pacman -Syu --noconfirm
+                        ;;
+                    fedora)
+                        sudo dnf update -y
+                        ;;
+                esac
+            fi
+            ;;
+    esac
 }
 
 install_packages() {
     info "Installing packages..."
     
-    local platform=$(detect_platform)
+    local distribution=$(detect_distribution)
     
     # Run package installer
     local installer="$HOME/.config/yadm/installer.sh"
@@ -220,16 +226,16 @@ install_packages() {
         warning "Package installer not found, skipping package installation"
     fi
     
-{% if yadm.os == "Darwin" %}
-    # Install from Brewfile
-    local brewfile="$HOME/.config/yadm/Brewfile"
-    if [[ -f "$brewfile" ]]; then
-        info "Installing Homebrew packages from Brewfile..."
-        brew bundle --file="$brewfile"
-    else
-        warning "Brewfile not found at $brewfile"
+    # Install from Brewfile on macOS
+    if [[ "$PLATFORM" == "Darwin" ]]; then
+        local brewfile="$HOME/.config/yadm/Brewfile"
+        if [[ -f "$brewfile" ]]; then
+            info "Installing Homebrew packages from Brewfile..."
+            brew bundle --file="$brewfile"
+        else
+            warning "Brewfile not found at $brewfile"
+        fi
     fi
-{% endif %}
 }
 
 
@@ -240,12 +246,10 @@ show_completion_message() {
     echo "Next steps:"
     echo "  1. Restart your terminal to apply all changes"
     
-{% if yadm.os == "Darwin" or yadm.os == "Linux" or yadm.os == "WSL" %}
     if [[ "$(basename "$SHELL")" != "zsh" ]]; then
         echo "  2. Set Zsh as your default shell:"
         echo "     chsh -s $(which zsh)"
     fi
-{% endif %}
     
     echo
     echo "For more information, see:"
@@ -263,14 +267,16 @@ setup_zdotdir() {
     local zshenv_file=""
     local zdotdir_line='export ZDOTDIR="$HOME/.config/zsh"'
     
-{% if yadm.os == "Darwin" %}
-    zshenv_file="/etc/zshenv"
-{% endif %}
-{% if yadm.os == "Linux" or yadm.os == "WSL" %}
-    zshenv_file="/etc/zsh/zshenv"
-    # Create directory if it doesn't exist
-    [[ ! -d /etc/zsh ]] && sudo mkdir -p /etc/zsh
-{% endif %}
+    case "$PLATFORM" in
+        Darwin)
+            zshenv_file="/etc/zshenv"
+            ;;
+        WSL|Linux)
+            zshenv_file="/etc/zsh/zshenv"
+            # Create directory if it doesn't exist
+            [[ ! -d /etc/zsh ]] && sudo mkdir -p /etc/zsh
+            ;;
+    esac
     
     # Check if already configured
     if sudo grep -q 'ZDOTDIR' "$zshenv_file" 2>/dev/null; then
@@ -373,15 +379,17 @@ main() {
     yadm alt
     
     # Show platform information
-{% if yadm.os == "Darwin" %}
-    info "Running macOS bootstrap..."
-{% endif %}
-{% if yadm.os == "WSL" %}
-    info "Running WSL bootstrap..."
-{% endif %}
-{% if yadm.os == "Linux" %}
-    info "Running Linux bootstrap..."
-{% endif %}
+    case "$PLATFORM" in
+        Darwin)
+            info "Running macOS bootstrap..."
+            ;;
+        WSL)
+            info "Running WSL bootstrap..."
+            ;;
+        Linux)
+            info "Running Linux bootstrap..."
+            ;;
+    esac
     
     # Execute bootstrap steps
     setup_directories
