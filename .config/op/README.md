@@ -25,6 +25,9 @@
 1Password Shell Plugins により、各種 CLI ツールの認証情報を安全に管理：
 
 - **GitHub CLI (`gh`)**: Personal Access Token を 1Password で管理
+  - 初回実行時は `gh auth login` が必要
+  - 認証方法として「Login with a web browser」を選択
+  - その後、1Password Shell Plugin が自動的に認証情報を管理
 - **AWS CLI**: Access Key/Secret Key を安全に保存
 - **その他対応ツール**: 
   - Stripe CLI
