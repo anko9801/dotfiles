@@ -1,6 +1,6 @@
 {
   "latest_signin": "",
-  "device": "{{ yadm.hostname | default("default") }}",
+  "device": "{{ yadm.hostname }}",
   "commands": {
     "biometric_unlock": true
   },
