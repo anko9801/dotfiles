@@ -1,16 +1,14 @@
 # dotfiles
 
-パパッと楽に理想の環境を手に入れるやつ
-
 ```bash
 # インストール
-brew install yadm  # macOS
-sudo apt install -y yadm  # Ubuntu/Debian  
+brew install yadm                # macOS
+sudo apt install -y yadm         # Ubuntu/Debian  
 sudo pacman -S --noconfirm yadm  # Arch Linux
 
 # セットアップ
 yadm clone https://github.com/anko9801/dotfiles
-yadm status && yadm diff  # 既存設定がある場合は競合確認
+yadm status && yadm diff         # 既存設定がある場合は競合確認
 yadm reset --hard origin/master  # 必要に応じて既存設定を破棄
 yadm bootstrap
 ```
@@ -23,11 +21,11 @@ yadm bootstrap
 - **ミニマル** - .config にすべて収納
 - **シークレット管理** - SSH 鍵や API キーはパスワードマネージャーで管理、ローカルには置かない
 - **マシン差分を吸収** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
-- **環境の再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
+- **再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
 - **冪等性** - 何度実行しても既存の設定を壊さない
 
 最も条件を満たすのは Nix かと思いますがガベコレの運用コストが高いので断念。
-実装の工夫で冪等性を満たし、宣言的で再現可能にします。
+実装の工夫で冪等性を満たして、宣言的で再現可能にしてみました。
 
 
 ### こだわりポイント
