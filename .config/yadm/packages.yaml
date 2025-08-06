@@ -103,8 +103,8 @@ packages:
         type: deb
       - name: eza
         repo: eza-community/eza
-        file: "eza_amd64.deb"
-        type: deb
+        file: "eza_x86_64-unknown-linux-gnu.tar.gz"
+        type: tar
       - name: duf
         repo: muesli/duf
         file: "duf_VERSION_linux_amd64.deb"
