@@ -127,7 +127,7 @@ command -v mcfly &>/dev/null && eval "$(mcfly init zsh)"
 
 # 1Password
 # [[ -f "$XDG_CONFIG_HOME/op/plugins.sh" ]] && source "$XDG_CONFIG_HOME/op/plugins.sh"
-[[ -f "$XDG_CONFIG_HOME/op/plugins-init.zsh" ]] && source "$XDG_CONFIG_HOME/op/plugins-init.zsh"
+[[ -f "$XDG_CONFIG_HOME/op/plugins-init.zsh" ]] && zsh-defer source "$XDG_CONFIG_HOME/op/plugins-init.zsh"
 
 # ------------------------------------------------------------------------------
 # ローカル設定
