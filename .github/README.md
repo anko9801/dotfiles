@@ -40,21 +40,20 @@ yadm bootstrap
 - **冪等性を重視** - 中断しても再実行したら同じ環境が構成できる。詳細は [yadm/README.md](../.config/yadm/README.md) 参照
 - **宣言的な依存管理** - mise で言語バージョン、Brewfile でシステムツール、plugins.toml でシェルプラグインを一元管理
 
-## ツール構成
+## Tools
 
-**共通ツール**:
-- **シェル**: zsh + sheldon
-- **ターミナルマルチプレクサ**: tmux + TPM
-- **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
-- **バージョン管理**: mise（Node.js, Go, Rust, Ruby, Deno, Bun を管理）
+- **Shell**: zsh + sheldon
+- **Terminal Multiplexer**: tmux + TPM
+- **Editor**: Vim + dpp.vim, Neovim + lazy.nvim
+- **Version Management**: mise (Node.js, Go, Rust, Ruby, Deno, Bun)
 - **Python**: uv, ruff
-- **開発ツール**: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
+- **Development**: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
-- **AI アシスタント**: Claude Code, Gemini CLI
+- **AI Assistant**: Claude Code, Gemini CLI
 
 
 
-**macOS 専用**:
+**macOS Specific**:
 - **Window Manager**: yabai + skhd
-- **ランチャー**: Raycast
-- **ウィンドウ管理**: Rectangle
+- **Launcher**: Raycast
+- **Window Management**: Rectangle
