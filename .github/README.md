@@ -44,7 +44,7 @@ yadm bootstrap
 
 **共通ツール**:
 - **シェル**: zsh + sheldon
-- **ターミナルマルチプレクサ**: tmux + TPM, zellij
+- **ターミナルマルチプレクサ**: tmux + TPM
 - **エディタ**: Vim + dpp.vim, Neovim + lazy.nvim
 - **バージョン管理**: mise（Node.js, Go, Rust, Ruby, Deno, Bun を管理）
 - **Python**: uv, ruff
@@ -53,10 +53,6 @@ yadm bootstrap
 - **AI アシスタント**: Claude Code, Gemini CLI
 
 
-**クラス別構成**:
-- **Personal**: メディアツール (ffmpeg, yt-dlp, imagemagick, pandoc)、個人アプリ (Obsidian, Spotify)
-- **Work**: クラウド・コンテナツール (AWS CLI, terraform, kubectl, helm, docker-compose)、コミュニケーション (Discord, Slack, Zoom)
-- **Server**: 最小構成（基本ツールのみ）
 
 **macOS 専用**:
 - **Window Manager**: yabai + skhd
