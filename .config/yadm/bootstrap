@@ -127,6 +127,4 @@ main() {
 
 # Run main function
 main "$@"
-MAIN_EXIT=$?
-echo "DEBUG: bootstrap main returned $MAIN_EXIT"
 exit 0

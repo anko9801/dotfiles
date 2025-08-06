@@ -2,8 +2,6 @@
 # Bootstrap installation script
 set -euo pipefail
 
-# Ensure clean exit
-trap - EXIT
 
 # Script options
 VERBOSE=false
@@ -563,7 +561,6 @@ finish_bootstrap() {
     echo
     echo "Please restart your terminal to apply all changes."
 {% if yadm.os != "Windows" %}
-    echo "DEBUG: Current shell is: $(basename "$SHELL")"
     if [[ "$(basename "$SHELL")" != "zsh" ]]; then
         echo "Run 'chsh -s $(which zsh)' to set Zsh as your default shell."
     fi
@@ -607,7 +604,5 @@ main() {
 }
 
 main "$@"
-MAIN_EXIT=$?
-echo "DEBUG: main function returned $MAIN_EXIT"
 exit 0
 
