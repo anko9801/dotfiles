@@ -50,8 +50,9 @@ verbose() { [[ "$VERBOSE" == "true" ]] && echo -e "${BLUE}[VERBOSE]${NC} $1"; }
 # Cleanup on exit
 cleanup() {
     local exit_code=$?
-    [[ $exit_code -ne 0 ]] && echo -e "\nBootstrap interrupted. You can safely run it again."
-    exit $exit_code
+    if [[ $exit_code -ne 0 ]]; then
+        echo -e "\nBootstrap interrupted. You can safely run it again."
+    fi
 }
 trap cleanup EXIT INT TERM
 
