@@ -512,6 +512,41 @@ install_modern_tools_fedora() {
 }
 
 # ============================================================================
+# System ZDOTDIR Setup
+# ============================================================================
+
+setup_system_zdotdir() {
+    info "Setting up system-wide ZDOTDIR..."
+    
+    # Determine the correct zshenv path based on OS
+{% if yadm.os == "Darwin" %}
+    local zshenv_file="/etc/zshenv"
+{% else %}
+    local zshenv_file="/etc/zsh/zshenv"
+{% endif %}
+    
+    # Check if already configured
+    if sudo grep -q "ZDOTDIR=" "$zshenv_file" 2>/dev/null; then
+        success "ZDOTDIR already configured in $zshenv_file"
+        return
+    fi
+    
+    # Ask for confirmation
+    echo "This will configure system-wide ZDOTDIR in $zshenv_file (requires sudo)"
+    read -rp "Continue? (y/N): " -n 1 && echo
+    [[ ! $REPLY =~ ^[Yy]$ ]] && { info "Skipping ZDOTDIR setup"; return; }
+    
+    # Create directory if needed (Linux only)
+{% if yadm.os != "Darwin" %}
+    [[ ! -d "/etc/zsh" ]] && sudo mkdir -p /etc/zsh
+{% endif %}
+    
+    # Add ZDOTDIR configuration
+    echo 'export ZDOTDIR="$HOME/.config/zsh"' | sudo tee -a "$zshenv_file" >/dev/null
+    success "Added ZDOTDIR to $zshenv_file"
+}
+
+# ============================================================================
 # Summary
 # ============================================================================
 
@@ -543,6 +578,7 @@ main() {
 {% endif %}
     
     setup_directories
+    setup_system_zdotdir
     setup_package_manager
     install_packages
     setup_git_config
