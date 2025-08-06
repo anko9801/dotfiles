@@ -9,20 +9,23 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly HOME="${HOME:-$(eval echo ~)}"
 readonly EXIT_SUCCESS=0 EXIT_ERROR=1
-readonly SYSTEM_TYPE="$(uname -s)"
 
 # Detect platform (Darwin, Linux, WSL)
-if [[ "$SYSTEM_TYPE" == "Darwin" ]]; then
-    readonly PLATFORM="Darwin"
-elif [[ "$SYSTEM_TYPE" == "Linux" ]]; then
-    if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
-        readonly PLATFORM="WSL"
-    else
-        readonly PLATFORM="Linux"
-    fi
-else
-    readonly PLATFORM="Unknown"
-fi
+case "$(uname -s)" in
+    Darwin)
+        readonly PLATFORM="Darwin"
+        ;;
+    Linux)
+        if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+            readonly PLATFORM="WSL"
+        else
+            readonly PLATFORM="Linux"
+        fi
+        ;;
+    *)
+        readonly PLATFORM="Unknown"
+        ;;
+esac
 
 # Colors for output
 readonly RED='\033[0;31m'
