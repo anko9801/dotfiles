@@ -364,8 +364,9 @@ install_github_releases() {
         
         info "Installing $name from GitHub..."
         
-        # Get latest version
-        local version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*' | sed 's/^v//')
+        # Get latest version (tag_name might start with 'v' or not)
+        local tag_name=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
+        local version=$(echo "$tag_name" | sed 's/^v//')
         local url=$(echo "$file" | sed "s/VERSION/$version/g")
         
         local tmp_dir=$(mktemp -d)
@@ -373,24 +374,30 @@ install_github_releases() {
         
         case "$type" in
             deb)
-                curl -LO "https://github.com/$repo/releases/download/v$version/$url"
+                # Use the actual tag name for the download URL
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fLO "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 sudo dpkg -i *.deb || sudo apt-get install -f -y
                 ;;
             rpm)
-                curl -LO "https://github.com/$repo/releases/download/v$version/$url"
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fLO "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 sudo rpm -i *.rpm
                 ;;
             tar)
-                curl -sL "https://github.com/$repo/releases/download/v$version/$url" | tar -xz
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fL "$download_url" | tar -xz || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 find . -type f -executable -name "$name" -exec sudo mv {} /usr/local/bin/ \;
                 ;;
             zip)
-                curl -sLO "https://github.com/$repo/releases/download/v$version/$url"
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fLO "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 unzip -j -o *.zip
                 find . -type f -name "$name" -exec sudo mv {} /usr/local/bin/ \;
                 ;;
             binary)
-                curl -sL "https://github.com/$repo/releases/download/v$version/$url" -o "$name"
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fL "$download_url" -o "$name" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 chmod +x "$name"
                 sudo mv "$name" /usr/local/bin/
                 ;;
