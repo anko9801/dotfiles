@@ -303,6 +303,7 @@ post_install:
     - mise install --yes || warning "Some mise tools failed to install"
   
   1password-cli:
+    - "[[ -d $HOME/.config/op ]] && chmod 700 $HOME/.config/op || true"
     - "[[ -f $HOME/.config/op/config ]] && chmod 600 $HOME/.config/op/config || true"
     - "[[ -f $HOME/.config/op/plugins.sh ]] && bash $HOME/.config/op/plugins.sh || true"
   
