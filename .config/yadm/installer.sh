@@ -17,7 +17,7 @@ install_packages() {
         error "yq is required to parse packages.yaml"
         info "Installing yq..."
         
-        case "$platform" in
+        case "$distro" in
             macos)
                 brew install yq
                 ;;
@@ -70,46 +70,46 @@ install_by_package_manager() {
             warning "Run 'brew bundle --file=$HOME/.config/yadm/Brewfile' to install"
             ;;
         apt)
-            install_apt_packages "$platform" "$yaml_file"
+            install_apt_packages "$distro" "$yaml_file"
             ;;
         pacman)
-            install_pacman_packages "$platform" "$yaml_file"
+            install_pacman_packages "$distro" "$yaml_file"
             ;;
         dnf)
-            install_dnf_packages "$platform" "$yaml_file"
+            install_dnf_packages "$distro" "$yaml_file"
             ;;
         winget)
-            install_winget_packages "$platform" "$yaml_file"
+            install_winget_packages "$distro" "$yaml_file"
             ;;
         scoop)
-            install_scoop_packages "$platform" "$yaml_file"
+            install_scoop_packages "$distro" "$yaml_file"
             ;;
         aur)
-            install_aur_packages "$platform" "$yaml_file"
+            install_aur_packages "$distro" "$yaml_file"
             ;;
         cargo)
-            install_cargo_packages "$platform" "$yaml_file"
+            install_cargo_packages "$distro" "$yaml_file"
             ;;
         git_clone)
             install_git_clone_packages "$distro" "$yaml_file"
             ;;
         apt_repository)
-            install_apt_repositories "$platform" "$yaml_file"
+            install_apt_repositories "$distro" "$yaml_file"
             ;;
         rpm_repository)
-            install_rpm_repositories "$platform" "$yaml_file"
+            install_rpm_repositories "$distro" "$yaml_file"
             ;;
         copr)
-            install_copr_packages "$platform" "$yaml_file"
+            install_copr_packages "$distro" "$yaml_file"
             ;;
         github_release)
-            install_github_releases "$platform" "$yaml_file"
+            install_github_releases "$distro" "$yaml_file"
             ;;
         script)
-            install_scripts "$platform" "$yaml_file"
+            install_scripts "$distro" "$yaml_file"
             ;;
         powershell)
-            install_powershell_scripts "$platform" "$yaml_file"
+            install_powershell_scripts "$distro" "$yaml_file"
             ;;
     esac
 }
