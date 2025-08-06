@@ -369,8 +369,8 @@ setup_1password() {
     # Initialize plugins
     [[ -f "$HOME/.config/op/plugins.sh" ]] && bash "$HOME/.config/op/plugins.sh" || true
     
-    # Source aliases for current session
-    [[ -f "$HOME/.config/op/plugins-init.zsh" ]] && source "$HOME/.config/op/plugins-init.zsh" || true
+    # Source aliases for current session (bash)
+    [[ -f "$HOME/.config/op/plugins-init.sh" ]] && source "$HOME/.config/op/plugins-init.sh" || true
 }
 
 setup_python_tools() {
