@@ -51,6 +51,16 @@ configure_class() {
     fi
 }
 
+configure_hostname() {
+    local current=$(yadm config local.hostname 2>/dev/null || echo "")
+    if [[ -z "$current" ]]; then
+        local system_hostname=$(hostname -s)
+        set_config local.hostname "$system_hostname"
+    else
+        echo "Current hostname: $current"
+    fi
+}
+
 configure_auto_commit() {
     echo "Current: $(yadm config yadm.auto-commit 2>/dev/null || echo 'false')"
     read -rp "Enable auto-commit? (y/N): " -n 1 && echo
@@ -86,6 +96,7 @@ main() {
         echo
         
         configure_class
+        configure_hostname
         show_header "Git Configuration"
         configure_if_empty "yadm.email" "Git email"
         configure_if_empty "yadm.user" "Git name"
