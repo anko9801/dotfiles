@@ -48,12 +48,14 @@ error() { echo -e "${RED}✗${NC} $1" >&2; }
 warning() { echo -e "${YELLOW}!${NC} $1"; }
 verbose() { [[ "$VERBOSE" == "true" ]] && echo -e "${BLUE}[VERBOSE]${NC} $1"; }
 
-# Cleanup on interrupt only  
+# Cleanup on exit
 cleanup() {
-    echo -e "\nBootstrap interrupted. You can safely run it again."
-    exit 1
+    local exit_code=$?
+    if [[ $exit_code -ne 0 ]]; then
+        echo -e "\nBootstrap interrupted. You can safely run it again."
+    fi
 }
-trap cleanup INT TERM
+trap cleanup EXIT INT TERM
 
 # ============================================================================
 # Core Setup Functions
