@@ -1,3 +1,0 @@
-[submodule ".config/claude/claude-code-spec"]
-	path = .config/claude/claude-code-spec
-	url = https://github.com/gotalab/claude-code-spec.git
