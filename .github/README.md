@@ -47,7 +47,7 @@ yadm bootstrap
 - **Editor**: Vim + dpp.vim, Neovim + lazy.nvim
 - **Version Management**: mise (Node.js, Go, Rust, Ruby, Deno, Bun)
 - **Python**: uv, ruff
-- **Development**: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
+- **Git**: git + delta, gitui, ghq, gibo, git-lfs, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
 - **AI Assistant**: Claude Code, Gemini CLI
 
