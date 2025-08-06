@@ -52,11 +52,6 @@ yadm bootstrap
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
 - **AI アシスタント**: Claude Code, Gemini CLI
 
-**OS別対応**:
-- **macOS**: Homebrew経由でツールインストール
-- **Linux**: apt/pacman/dnf + 最新版は.debファイルから
-- **WSL**: Windows連携ツール (pbcopy/pbpaste, explorer統合)
-- **Windows**: winget経由でツールインストール、Git Bash環境
 
 **クラス別構成**:
 - **Personal**: メディアツール (ffmpeg, yt-dlp, imagemagick, pandoc)、個人アプリ (Obsidian, Spotify)
