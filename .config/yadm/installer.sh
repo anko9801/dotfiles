@@ -290,8 +290,8 @@ install_apt_repositories() {
             local keyring_path="/usr/share/keyrings/${name}-archive-keyring.gpg"
             curl -fsSL "$key" | sudo gpg --dearmor -o "$keyring_path"
             
-            # Add repository
-            echo "$repo" | sudo tee "/etc/apt/sources.list.d/${name}.list" > /dev/null
+            # Add repository (evaluate shell expansions)
+            eval "echo \"$repo\"" | sudo tee "/etc/apt/sources.list.d/${name}.list" > /dev/null
             
             # Run extra setup if needed
             if [[ -n "$setup" && "$setup" != "null" ]]; then
