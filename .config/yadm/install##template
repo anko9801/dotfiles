@@ -168,11 +168,8 @@ install_packages() {
         info "Installing mise..."
         powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://mise.run | iex"
     fi
-{% else %}
-{% if yadm.os == "Darwin" %}
-    # macOS uses Homebrew, skip package manager installation
-    verbose "Package installation handled by Homebrew"
-{% else %}
+{% endif %}
+{% if yadm.os == "Linux" or yadm.os == "WSL" %}
     info "Installing base packages..."
     
     # Common packages
@@ -201,9 +198,6 @@ install_packages() {
             ;;
     esac
 {% endif %}
-{% endif %}
-    # Fallback for unknown OS
-    :
 }
 
 # ============================================================================
