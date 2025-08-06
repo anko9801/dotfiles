@@ -367,10 +367,7 @@ setup_1password() {
     fi
     
     # Initialize plugins
-    if [[ -f "$HOME/.config/op/plugins.sh" ]]; then
-        # Run in subshell and redirect stdout to capture only stderr messages
-        (bash "$HOME/.config/op/plugins.sh" 2>&1 | grep -v "^export" >&2) || true
-    fi
+    [[ -f "$HOME/.config/op/plugins.sh" ]] && bash "$HOME/.config/op/plugins.sh" || true
 }
 
 setup_python_tools() {
