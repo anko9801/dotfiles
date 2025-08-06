@@ -20,7 +20,7 @@ yadm bootstrap
 新しいマシンでもコマンド一発でいつもの環境を再現したい。理想としてはこんな感じ:
 
 - **1コマンドで完結** - 複雑な手順や事前準備は不要
-- **最もシンプルな構成** - XDG Base Directory 準拠で .config に収納
+- **XDG Base Directory 準拠** - 全ての設定を .config 内に収納
 - **シークレットの安全管理** - SSH 鍵や API キーはパスワードマネージャーで管理、ローカルには置かない
 - **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
 - **環境の再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
@@ -32,11 +32,12 @@ yadm bootstrap
 
 ### こだわりポイント
 
+- **yadm によるシンプルな管理** - yadm bootstrap を叩くだけ
 - **シェルもXDG準拠** - `/etc/zshenv` (macOS) や `/etc/zsh/zshenv` (Linux) に設定を書き込むことで .config に収納
 - **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理。詳細は [op/README.md](../.config/op/README.md) を参照
-- **高速な起動時間** - Sheldon による並列プラグイン読み込みと遅延ロード、不要な処理の削減で zsh 起動を最適化
-- **冪等性を重視** - 中断しても再実行したら同じ環境が構成できる。詳細は [yadm/README.md](../.config/yadm/README.md) 参照
-- **宣言的な依存管理** - mise で言語バージョン、Brewfile でシステムツール、plugins.toml でシェルプラグインを一元管理
+- **冪等性** - インストールや設定の前にチェック (ref. [yadm/README.md](../.config/yadm/README.md))
+- **宣言的なパッケージ管理** - packages.yaml, Brewfile, mise/config.toml を使う
+
 
 ## Tools
 
