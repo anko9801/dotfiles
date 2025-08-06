@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # macOS system settings and configurations
 
-set -eo pipefail
+set -euo pipefail
 
 # Skip if not macOS or disabled
 [[ "$(uname)" != "Darwin" ]] && exit 0
