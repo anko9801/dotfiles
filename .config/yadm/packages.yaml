@@ -304,10 +304,7 @@ post_install:
     - "[[ -f $HOME/.config/op/plugins.sh ]] && bash $HOME/.config/op/plugins.sh || true"
   
   gh:
-    - |
-      if command -v gh && command -v op && ! op plugin run -- gh extension list | grep -q github/gh-copilot; then
-        op plugin run -- gh extension install github/gh-copilot || true
-      fi
+    - "command -v gh && command -v op && ! op plugin run -- gh extension list | grep -q github/gh-copilot && op plugin run -- gh extension install github/gh-copilot || true"
   
   uv:
     - uv tool install ruff@latest || true
