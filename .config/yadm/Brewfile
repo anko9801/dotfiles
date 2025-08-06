@@ -1,0 +1,80 @@
+# Homebrew Bundle file
+# https://github.com/Homebrew/homebrew-bundle
+
+# Taps
+tap "koekeishiya/formulae"
+
+# Essential tools
+brew "git"
+brew "curl"
+brew "wget"
+brew "tmux"
+brew "tree"
+brew "jq"
+brew "yq"         # YAML processor
+
+# Shell
+brew "zsh"
+brew "starship"
+brew "sheldon"
+
+# Modern CLI tools
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "fzf"
+brew "gh"
+brew "eza"
+brew "zoxide"
+brew "gomi"
+brew "atuin"
+brew "mcfly"
+brew "duf"
+brew "dust"
+brew "tokei"
+brew "sd"
+brew "bottom"    # System monitor
+
+# Window Management
+brew "koekeishiya/formulae/yabai"
+brew "koekeishiya/formulae/skhd"
+
+# Terminal
+brew "zellij"
+
+# Development
+brew "vim"
+brew "neovim"
+brew "mise"       # Runtime version manager
+brew "uv"         # Fast Python package and project manager
+brew "gitleaks"
+brew "git-delta"  # Better git diffs
+brew "gitui"      # Git TUI
+brew "ghq"        # Repository manager
+brew "gibo"       # .gitignore templates
+brew "git-lfs"    # Git Large File Storage
+
+# Security
+cask "1password-cli"
+
+# Desktop tools
+cask "docker"     # Docker Desktop
+
+# macOS apps
+cask "visual-studio-code"
+cask "iterm2"
+cask "rectangle"
+cask "discord"
+cask "slack"
+cask "raycast"    # Launcher
+cask "zoom"
+
+# Personal tools
+brew "ffmpeg"
+brew "imagemagick"
+brew "pandoc"
+brew "yt-dlp"
+
+# Personal apps
+cask "obsidian"
+cask "spotify"
