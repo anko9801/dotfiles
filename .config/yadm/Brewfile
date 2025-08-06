@@ -45,7 +45,7 @@ brew "zellij"
 # Development
 brew "vim"
 brew "neovim"
-brew "mise"       # Runtime version manager
+brew "mise"       # Development environment manager
 brew "uv"         # Fast Python package and project manager
 brew "gitleaks"
 brew "git-delta"  # Better git diffs
