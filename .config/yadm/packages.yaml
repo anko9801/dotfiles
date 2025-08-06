@@ -3,55 +3,7 @@
 packages:
   # ===== macOS =====
   macos:
-    homebrew:
-      # Core tools
-      - git
-      - curl
-      - wget
-      - tree
-      - jq
-      - yq
-      
-      # Shell & Terminal
-      - zsh
-      - tmux
-      - sheldon
-      - starship
-      
-      # Development
-      - neovim
-      - mise
-      - uv
-      - ruff
-      
-      # Git tools
-      - gh
-      - git-delta
-      - gitui
-      - ghq
-      - gibo
-      - gitleaks
-      - git-lfs
-      
-      # Modern CLI
-      - ripgrep
-      - fd
-      - bat
-      - eza
-      - fzf
-      - zoxide
-      - atuin
-      - mcfly
-      - duf
-      - dust
-      - tokei
-      - sd
-      - bottom
-      - gomi
-    
-    homebrew_cask:
-      - 1password-cli
-    
+    # Homebrewパッケージは.config/yadm/Brewfileで管理
     git_clone:
       - name: tpm
         repo: "https://github.com/tmux-plugins/tpm"
