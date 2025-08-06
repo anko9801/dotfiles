@@ -7,28 +7,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PACKAGES_FILE="$SCRIPT_DIR/packages.yaml"
 
-# Detect OS and distribution
-detect_platform() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "macos"
-    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
-        echo "windows"
-    elif [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        case "${ID,,}" in
-            ubuntu|debian) echo "debian" ;;
-            arch|manjaro) echo "arch" ;;
-            fedora) echo "fedora" ;;
-            *) echo "linux" ;;
-        esac
-    else
-        echo "linux"
-    fi
-}
-
 # Install packages from YAML
 install_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
     # Check if yq is available
@@ -57,26 +38,26 @@ install_packages() {
         esac
     fi
     
-    # Check if platform exists in packages
-    local has_platform=$(yq eval ".packages.${platform} // \"none\"" "$yaml_file")
-    if [[ "$has_platform" == "none" || "$has_platform" == "null" ]]; then
-        warning "No packages defined for platform: $platform"
+    # Check if distro exists in packages
+    local has_distro=$(yq eval ".packages.${distro} // \"none\"" "$yaml_file")
+    if [[ "$has_distro" == "none" || "$has_distro" == "null" ]]; then
+        warning "No packages defined for distro: $distro"
         return 0
     fi
     
     # Get all package managers for this platform
-    local package_managers=$(yq eval ".packages.${platform} | keys | .[]" "$yaml_file" 2>/dev/null || true)
+    local package_managers=$(yq eval ".packages.${distro} | keys | .[]" "$yaml_file" 2>/dev/null || true)
     
     # Install packages for each package manager
     while IFS= read -r pm; do
         [[ -z "$pm" ]] && continue
-        install_by_package_manager "$platform" "$pm" "$yaml_file"
+        install_by_package_manager "$distro" "$pm" "$yaml_file"
     done <<< "$package_managers"
 }
 
 # Install packages using specific package manager
 install_by_package_manager() {
-    local platform="$1"
+    local distro="$1"
     local pm="$2"
     local yaml_file="$3"
     
@@ -110,7 +91,7 @@ install_by_package_manager() {
             install_cargo_packages "$platform" "$yaml_file"
             ;;
         git_clone)
-            install_git_clone_packages "$platform" "$yaml_file"
+            install_git_clone_packages "$distro" "$yaml_file"
             ;;
         apt_repository)
             install_apt_repositories "$platform" "$yaml_file"
@@ -137,10 +118,10 @@ install_by_package_manager() {
 # Homebrew packages are now managed via Brewfile
 
 install_apt_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local packages=$(yq eval ".packages.${platform}.apt[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${distro}.apt[]" "$yaml_file" 2>/dev/null || true)
     
     local pkgs_to_install=""
     while IFS= read -r pkg; do
@@ -154,10 +135,10 @@ install_apt_packages() {
 }
 
 install_pacman_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local packages=$(yq eval ".packages.${platform}.pacman[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${distro}.pacman[]" "$yaml_file" 2>/dev/null || true)
     
     local pkgs_to_install=""
     while IFS= read -r pkg; do
@@ -171,10 +152,10 @@ install_pacman_packages() {
 }
 
 install_dnf_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local packages=$(yq eval ".packages.${platform}.dnf[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${distro}.dnf[]" "$yaml_file" 2>/dev/null || true)
     
     local pkgs_to_install=""
     while IFS= read -r pkg; do
@@ -188,10 +169,10 @@ install_dnf_packages() {
 }
 
 install_winget_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local packages=$(yq eval ".packages.${platform}.winget[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${distro}.winget[]" "$yaml_file" 2>/dev/null || true)
     
     while IFS= read -r pkg; do
         [[ -z "$pkg" || "$pkg" == "null" ]] && continue
@@ -200,10 +181,10 @@ install_winget_packages() {
 }
 
 install_scoop_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local packages=$(yq eval ".packages.${platform}.scoop[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${distro}.scoop[]" "$yaml_file" 2>/dev/null || true)
     
     while IFS= read -r pkg; do
         [[ -z "$pkg" || "$pkg" == "null" ]] && continue
@@ -212,7 +193,7 @@ install_scoop_packages() {
 }
 
 install_aur_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
     # Determine AUR helper
@@ -226,7 +207,7 @@ install_aur_packages() {
         return
     fi
     
-    local packages=$(yq eval ".packages.${platform}.aur[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${distro}.aur[]" "$yaml_file" 2>/dev/null || true)
     
     while IFS= read -r pkg; do
         [[ -z "$pkg" || "$pkg" == "null" ]] && continue
@@ -235,7 +216,7 @@ install_aur_packages() {
 }
 
 install_cargo_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
     if ! command -v cargo &>/dev/null; then
@@ -243,7 +224,7 @@ install_cargo_packages() {
         return
     fi
     
-    local packages=$(yq eval ".packages.${platform}.cargo[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${distro}.cargo[]" "$yaml_file" 2>/dev/null || true)
     
     while IFS= read -r pkg; do
         [[ -z "$pkg" || "$pkg" == "null" ]] && continue
@@ -252,15 +233,15 @@ install_cargo_packages() {
 }
 
 install_git_clone_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local count=$(yq eval ".packages.${platform}.git_clone | length" "$yaml_file" 2>/dev/null || echo "0")
+    local count=$(yq eval ".packages.${distro}.git_clone | length" "$yaml_file" 2>/dev/null || echo "0")
     
     for i in $(seq 0 $((count - 1))); do
-        local name=$(yq eval ".packages.${platform}.git_clone[$i].name" "$yaml_file")
-        local repo=$(yq eval ".packages.${platform}.git_clone[$i].repo" "$yaml_file")
-        local dest=$(eval echo $(yq eval ".packages.${platform}.git_clone[$i].dest" "$yaml_file"))
+        local name=$(yq eval ".packages.${distro}.git_clone[$i].name" "$yaml_file")
+        local repo=$(yq eval ".packages.${distro}.git_clone[$i].repo" "$yaml_file")
+        local dest=$(eval echo $(yq eval ".packages.${distro}.git_clone[$i].dest" "$yaml_file"))
         
         if [[ ! -d "$dest" ]]; then
             info "Cloning $name..."
@@ -270,17 +251,17 @@ install_git_clone_packages() {
 }
 
 install_apt_repositories() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local count=$(yq eval ".packages.${platform}.apt_repository | length" "$yaml_file" 2>/dev/null || echo "0")
+    local count=$(yq eval ".packages.${distro}.apt_repository | length" "$yaml_file" 2>/dev/null || echo "0")
     
     for i in $(seq 0 $((count - 1))); do
-        local name=$(yq eval ".packages.${platform}.apt_repository[$i].name" "$yaml_file")
-        local key=$(yq eval ".packages.${platform}.apt_repository[$i].key" "$yaml_file")
-        local repo=$(yq eval ".packages.${platform}.apt_repository[$i].repo" "$yaml_file")
-        local package=$(yq eval ".packages.${platform}.apt_repository[$i].package" "$yaml_file")
-        local setup=$(yq eval ".packages.${platform}.apt_repository[$i].setup // \"\"" "$yaml_file")
+        local name=$(yq eval ".packages.${distro}.apt_repository[$i].name" "$yaml_file")
+        local key=$(yq eval ".packages.${distro}.apt_repository[$i].key" "$yaml_file")
+        local repo=$(yq eval ".packages.${distro}.apt_repository[$i].repo" "$yaml_file")
+        local package=$(yq eval ".packages.${distro}.apt_repository[$i].package" "$yaml_file")
+        local setup=$(yq eval ".packages.${distro}.apt_repository[$i].setup // \"\"" "$yaml_file")
         
         # Add repository if package not installed
         if ! dpkg -l "$package" &>/dev/null 2>&1; then
@@ -305,16 +286,16 @@ install_apt_repositories() {
 }
 
 install_rpm_repositories() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local count=$(yq eval ".packages.${platform}.rpm_repository | length" "$yaml_file" 2>/dev/null || echo "0")
+    local count=$(yq eval ".packages.${distro}.rpm_repository | length" "$yaml_file" 2>/dev/null || echo "0")
     
     for i in $(seq 0 $((count - 1))); do
-        local name=$(yq eval ".packages.${platform}.rpm_repository[$i].name" "$yaml_file")
-        local key=$(yq eval ".packages.${platform}.rpm_repository[$i].key" "$yaml_file")
-        local repo=$(yq eval ".packages.${platform}.rpm_repository[$i].repo" "$yaml_file")
-        local package=$(yq eval ".packages.${platform}.rpm_repository[$i].package" "$yaml_file")
+        local name=$(yq eval ".packages.${distro}.rpm_repository[$i].name" "$yaml_file")
+        local key=$(yq eval ".packages.${distro}.rpm_repository[$i].key" "$yaml_file")
+        local repo=$(yq eval ".packages.${distro}.rpm_repository[$i].repo" "$yaml_file")
+        local package=$(yq eval ".packages.${distro}.rpm_repository[$i].package" "$yaml_file")
         
         if ! rpm -q "$package" &>/dev/null 2>&1; then
             info "Adding RPM repository for $name..."
@@ -331,14 +312,14 @@ install_rpm_repositories() {
 }
 
 install_copr_packages() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local count=$(yq eval ".packages.${platform}.copr | length" "$yaml_file" 2>/dev/null || echo "0")
+    local count=$(yq eval ".packages.${distro}.copr | length" "$yaml_file" 2>/dev/null || echo "0")
     
     for i in $(seq 0 $((count - 1))); do
-        local repo=$(yq eval ".packages.${platform}.copr[$i].repo" "$yaml_file")
-        local package=$(yq eval ".packages.${platform}.copr[$i].package" "$yaml_file")
+        local repo=$(yq eval ".packages.${distro}.copr[$i].repo" "$yaml_file")
+        local package=$(yq eval ".packages.${distro}.copr[$i].package" "$yaml_file")
         
         if ! command -v "$package" &>/dev/null; then
             sudo dnf copr enable -y "$repo"
@@ -348,16 +329,16 @@ install_copr_packages() {
 }
 
 install_github_releases() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local count=$(yq eval ".packages.${platform}.github_release | length" "$yaml_file" 2>/dev/null || echo "0")
+    local count=$(yq eval ".packages.${distro}.github_release | length" "$yaml_file" 2>/dev/null || echo "0")
     
     for i in $(seq 0 $((count - 1))); do
-        local name=$(yq eval ".packages.${platform}.github_release[$i].name" "$yaml_file")
-        local repo=$(yq eval ".packages.${platform}.github_release[$i].repo" "$yaml_file")
-        local file=$(yq eval ".packages.${platform}.github_release[$i].file" "$yaml_file")
-        local type=$(yq eval ".packages.${platform}.github_release[$i].type" "$yaml_file")
+        local name=$(yq eval ".packages.${distro}.github_release[$i].name" "$yaml_file")
+        local repo=$(yq eval ".packages.${distro}.github_release[$i].repo" "$yaml_file")
+        local file=$(yq eval ".packages.${distro}.github_release[$i].file" "$yaml_file")
+        local type=$(yq eval ".packages.${distro}.github_release[$i].type" "$yaml_file")
         
         # Skip if already installed
         command -v "$name" &>/dev/null && continue
@@ -409,14 +390,14 @@ install_github_releases() {
 }
 
 install_scripts() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local count=$(yq eval ".packages.${platform}.script | length" "$yaml_file" 2>/dev/null || echo "0")
+    local count=$(yq eval ".packages.${distro}.script | length" "$yaml_file" 2>/dev/null || echo "0")
     
     for i in $(seq 0 $((count - 1))); do
-        local name=$(yq eval ".packages.${platform}.script[$i].name" "$yaml_file")
-        local script=$(yq eval ".packages.${platform}.script[$i].script" "$yaml_file")
+        local name=$(yq eval ".packages.${distro}.script[$i].name" "$yaml_file")
+        local script=$(yq eval ".packages.${distro}.script[$i].script" "$yaml_file")
         
         # Skip if already installed (except for git clone scripts)
         if [[ "$name" != "tpm" ]] && command -v "$name" &>/dev/null; then
@@ -434,14 +415,14 @@ install_scripts() {
 }
 
 install_powershell_scripts() {
-    local platform="$1"
+    local distro="$1"
     local yaml_file="$2"
     
-    local count=$(yq eval ".packages.${platform}.powershell | length" "$yaml_file" 2>/dev/null || echo "0")
+    local count=$(yq eval ".packages.${distro}.powershell | length" "$yaml_file" 2>/dev/null || echo "0")
     
     for i in $(seq 0 $((count - 1))); do
-        local name=$(yq eval ".packages.${platform}.powershell[$i].name" "$yaml_file")
-        local script=$(yq eval ".packages.${platform}.powershell[$i].script" "$yaml_file")
+        local name=$(yq eval ".packages.${distro}.powershell[$i].name" "$yaml_file")
+        local script=$(yq eval ".packages.${distro}.powershell[$i].script" "$yaml_file")
         
         # Skip if already installed
         command -v "$name" &>/dev/null && continue
@@ -487,8 +468,7 @@ run_post_install() {
 
 # Main function
 main() {
-    local platform=$(detect_platform)
-    info "Detected platform: $platform"
+    info "Platform: $PLATFORM / Distribution: $DISTRO"
     
     # Check if packages.yaml exists
     if [[ ! -f "$PACKAGES_FILE" ]]; then
@@ -497,7 +477,7 @@ main() {
     fi
     
     # Install packages
-    install_packages "$platform" "$PACKAGES_FILE"
+    install_packages "$DISTRO" "$PACKAGES_FILE"
     
     # Run post-install
     run_post_install "$PACKAGES_FILE"
