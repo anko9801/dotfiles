@@ -346,7 +346,24 @@ install_github_releases() {
         info "Installing $name from GitHub..."
         
         # Get latest version (tag_name might start with 'v' or not)
-        local tag_name=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*')
+        # Use User-Agent header to avoid rate limiting
+        local api_response=$(curl -sSL -H "User-Agent: Mozilla/5.0" "https://api.github.com/repos/$repo/releases/latest" 2>/dev/null)
+        
+        # Check if we got a valid response
+        if [[ -z "$api_response" ]] || echo "$api_response" | grep -q '"message".*"rate limit"'; then
+            warning "GitHub API rate limit or connection issue. Trying alternative method..."
+            # Try to get version from tags endpoint as fallback
+            local tag_name=$(curl -sSL -H "User-Agent: Mozilla/5.0" "https://api.github.com/repos/$repo/tags" 2>/dev/null | grep -Po '"name": "\K[^"]*' | head -1)
+        else
+            local tag_name=$(echo "$api_response" | grep -Po '"tag_name": "\K[^"]*')
+        fi
+        
+        # Validate we got a version
+        if [[ -z "$tag_name" ]]; then
+            error "Failed to get version for $name from GitHub API"
+            continue
+        fi
+        
         local version=$(echo "$tag_name" | sed 's/^v//')
         local url=$(echo "$file" | sed "s/VERSION/$version/g")
         
@@ -357,28 +374,28 @@ install_github_releases() {
             deb)
                 # Use the actual tag name for the download URL
                 local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
-                curl -fLO "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                curl -fLO -H "User-Agent: Mozilla/5.0" "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 sudo dpkg -i *.deb || sudo apt-get install -f -y
                 ;;
             rpm)
                 local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
-                curl -fLO "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                curl -fLO -H "User-Agent: Mozilla/5.0" "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 sudo rpm -i *.rpm
                 ;;
             tar)
                 local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
-                curl -fL "$download_url" | tar -xz || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                curl -fL -H "User-Agent: Mozilla/5.0" "$download_url" | tar -xz || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 find . -type f -executable -name "$name" -exec sudo mv {} /usr/local/bin/ \;
                 ;;
             zip)
                 local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
-                curl -fLO "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                curl -fLO -H "User-Agent: Mozilla/5.0" "$download_url" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 unzip -j -o *.zip
                 find . -type f -name "$name" -exec sudo mv {} /usr/local/bin/ \;
                 ;;
             binary)
                 local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
-                curl -fL "$download_url" -o "$name" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                curl -fL -H "User-Agent: Mozilla/5.0" "$download_url" -o "$name" || { error "Failed to download $name from $download_url"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
                 chmod +x "$name"
                 sudo mv "$name" /usr/local/bin/
                 ;;
