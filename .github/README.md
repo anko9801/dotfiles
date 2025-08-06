@@ -15,16 +15,14 @@ yadm reset --hard origin/master  # 必要に応じて既存設定を破棄
 yadm bootstrap
 ```
 
-## 特徴
-
-### やりたいこと
+## コンセプト
 
 新しいマシンでもコマンド一発でいつもの環境を再現したい。理想としてはこんな感じ:
 
 - **1コマンドで完結** - 複雑な手順や事前準備は不要
-- **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
+- **最もシンプルな構成** - XDG Base Directory 準拠で .config に収納
 - **シークレットの安全管理** - SSH 鍵や API キーはパスワードマネージャーで管理、ローカルには置かない
-- **クリーンな構成** - XDG Base Directory 準拠で .config に収納
+- **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
 - **環境の再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
 - **冪等性** - 何度実行しても既存の設定を壊さない
 
@@ -50,7 +48,6 @@ yadm bootstrap
 - **Git**: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
 - **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
 - **AI Assistant**: Claude Code, Gemini CLI
-
 
 
 **macOS Specific**:
