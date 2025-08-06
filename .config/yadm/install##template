@@ -2,6 +2,9 @@
 # Bootstrap installation script
 set -euo pipefail
 
+# Ensure clean exit
+trap - EXIT
+
 # Script options
 VERBOSE=false
 
@@ -600,5 +603,7 @@ main() {
 }
 
 main "$@"
+MAIN_EXIT=$?
+echo "DEBUG: main function returned $MAIN_EXIT"
 exit 0
 
