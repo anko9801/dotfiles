@@ -32,11 +32,11 @@ yadm bootstrap
 
 ### こだわりポイント
 
-- **yadm によるシンプルな管理** - yadm bootstrap を叩くだけ (ref. [なぜyadm？](../.config/yadm/README.md))
+- **yadm によるシンプルな管理** - yadm bootstrap を叩くだけ - [なぜyadm？](../.config/yadm/README.md)
 - **シェルもXDG準拠** - `/etc/zshenv` (macOS) や `/etc/zsh/zshenv` (Linux) に設定を書き込むことで .config に収納
-- **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理 (ref: [op/README.md](../.config/op/README.md))
-- **冪等性** - インストールや設定の前にチェック (ref. [冪等なシェルスクリプトのベストプラクティス](../.config/yadm/README.md))
-- **宣言的なパッケージ管理** - [packages.yaml](../.config/yadm/packages.yaml), [Brewfile](../.config/yadm/Brewfile), [mise/config.toml](../.config/mise/config.toml) を使う
+- **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理 - [op/README.md](../.config/op/README.md)
+- **冪等性** - インストールや設定の前にチェック - [冪等なシェルスクリプトのベストプラクティス](../.config/yadm/README.md)
+- **宣言的なパッケージ管理** - [packages.yaml](../.config/yadm/packages.yaml) [Brewfile](../.config/yadm/Brewfile) [mise/config.toml](../.config/mise/config.toml) を使う
 
 
 ## Tools
