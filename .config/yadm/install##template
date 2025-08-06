@@ -50,6 +50,7 @@ verbose() { [[ "$VERBOSE" == "true" ]] && echo -e "${BLUE}[VERBOSE]${NC} $1"; }
 # Cleanup on exit
 cleanup() {
     local exit_code=$?
+    echo "DEBUG: Cleanup called with exit code = $exit_code"
     if [[ $exit_code -ne 0 ]]; then
         echo -e "\nBootstrap interrupted. You can safely run it again."
     fi
@@ -606,5 +607,8 @@ EXIT_CODE=$?
 if [[ $VERBOSE == "true" ]]; then
     echo "Main function exit code: $EXIT_CODE"
 fi
+
+# Disable error exit before cleanup
+set +e
 exit 0
 
