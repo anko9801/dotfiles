@@ -368,7 +368,10 @@ setup_1password() {
     fi
     
     # Initialize plugins
-    [[ -f "$HOME/.config/op/plugins.sh" ]] && bash "$HOME/.config/op/plugins.sh" || true
+    if [[ -f "$HOME/.config/op/plugins.sh" ]]; then
+        # Suppress export statements from 1Password plugins
+        bash "$HOME/.config/op/plugins.sh" | grep -v "^export" || true
+    fi
 }
 
 setup_python_tools() {
@@ -599,5 +602,7 @@ main() {
 }
 
 main "$@"
+EXIT_CODE=$?
+[[ $VERBOSE == "true" ]] && echo "Main function exit code: $EXIT_CODE"
 exit 0
 
