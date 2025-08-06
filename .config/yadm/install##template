@@ -368,9 +368,6 @@ setup_1password() {
     
     # Initialize plugins
     [[ -f "$HOME/.config/op/plugins.sh" ]] && bash "$HOME/.config/op/plugins.sh" || true
-    
-    # Source aliases for current session (bash)
-    [[ -f "$HOME/.config/op/plugins-init.sh" ]] && source "$HOME/.config/op/plugins-init.sh" || true
 }
 
 setup_python_tools() {
@@ -381,8 +378,10 @@ setup_python_tools() {
 
 setup_gh_extensions() {
     command -v gh &>/dev/null || return 0
-    gh extension list | grep -q "github/gh-copilot" && return 0
-    gh extension install github/gh-copilot || true
+    command -v op &>/dev/null || return 0
+    
+    op plugin run -- gh extension list | grep -q "github/gh-copilot" && return 0
+    op plugin run -- gh extension install github/gh-copilot || true
 }
 
 setup_macos_settings() {
