@@ -19,31 +19,35 @@ A generic installer that:
 
 ```yaml
 packages:
-  package_name:
-    description: "Package description"
-    macos:
-      homebrew: package-name        # or homebrew: { cask: package-name }
-    debian:
-      apt: package-name
-      github:                       # GitHub release
+  # Organized by OS -> Package Manager
+  macos:
+    homebrew:
+      - package-name1
+      - package-name2
+    homebrew_cask:
+      - cask-package
+    git_clone:
+      - name: tool-name
+        repo: "https://github.com/owner/repo"
+        dest: "$HOME/.path/to/dest"
+  
+  debian:
+    apt:
+      - package1
+      - package2
+    apt_repository:
+      - name: repo-name
+        key: "https://example.com/key.gpg"
+        repo: "deb [arch=...] https://example.com/repo stable main"
+        package: package-name
+    github_release:
+      - name: tool-name
         repo: owner/repo
-        asset_pattern: "file_%s.deb"
+        file: "filename_VERSION.deb"
         type: deb
-      script: "curl ... | sh"
-    arch:
-      pacman: package-name
-      aur: package-name
-    windows:
-      winget: Publisher.Package
-    post_install:                   # Post-installation setup
-      - command1
-      - command2
-    # or with check:
-    post_install:
-      check: "command to check if configured"
-      commands:
-        - command1
-        - command2
+    script:
+      - name: tool-name
+        script: "curl ... | sh"
 ```
 
 ## Execution Order
