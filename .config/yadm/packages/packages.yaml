@@ -1,10 +1,9 @@
 # Declarative package management
 
-# OS-specific package definitions
-os:
+packages:
   # ===== macOS =====
   macos:
-    packages:
+    homebrew:
       # Core tools
       - git
       - curl
@@ -50,18 +49,17 @@ os:
       - bottom
       - gomi
     
-    casks:
+    homebrew_cask:
       - 1password-cli
     
-    special:
-      tpm:
-        type: git_clone
+    git_clone:
+      - name: tpm
         repo: "https://github.com/tmux-plugins/tpm"
         dest: "$HOME/.tmux/plugins/tpm"
 
   # ===== Windows =====
   windows:
-    packages:
+    winget:
       # System
       - Git.Git
       - Microsoft.PowerShell
@@ -97,14 +95,13 @@ os:
     scoop:
       - ghq
     
-    special:
-      mise:
-        type: powershell
+    powershell:
+      - name: mise
         script: "irm https://mise.run | iex"
 
   # ===== Debian/Ubuntu =====
   debian:
-    packages:
+    apt:
       # Core
       - git
       - curl
@@ -119,16 +116,13 @@ os:
       - software-properties-common
       - git-lfs
     
-    # External repositories
-    repositories:
-      github-cli:
-        type: apt
+    apt_repository:
+      - name: github-cli
         key: "https://cli.github.com/packages/githubcli-archive-keyring.gpg"
         repo: "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
         package: gh
       
-      1password:
-        type: apt
+      - name: 1password
         key: "https://downloads.1password.com/linux/keys/1password.asc"
         repo: "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main"
         package: 1password-cli
@@ -138,47 +132,57 @@ os:
           sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
           curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
     
-    # GitHub releases
-    github_releases:
+    github_release:
       - name: ripgrep
         repo: BurntSushi/ripgrep
         file: "ripgrep_VERSION-1_amd64.deb"
+        type: deb
       - name: fd
         repo: sharkdp/fd
         file: "fd_VERSION_amd64.deb"
+        type: deb
       - name: bat
         repo: sharkdp/bat
         file: "bat_VERSION_amd64.deb"
+        type: deb
       - name: delta
         repo: dandavison/delta
         file: "git-delta_VERSION_amd64.deb"
+        type: deb
       - name: eza
         repo: eza-community/eza
         file: "eza_amd64.deb"
+        type: deb
       - name: duf
         repo: muesli/duf
         file: "duf_VERSION_linux_amd64.deb"
+        type: deb
       - name: dust
         repo: bootandy/dust
         file: "dust-vVERSION-x86_64-unknown-linux-gnu.tar.gz"
+        type: tar
       - name: tokei
         repo: XAMPPRocky/tokei
         file: "tokei-x86_64-unknown-linux-gnu.tar.gz"
+        type: tar
       - name: sd
         repo: chmln/sd
         file: "sd-vVERSION-x86_64-unknown-linux-gnu"
+        type: binary
       - name: gitui
         repo: extrawurst/gitui
         file: "gitui-linux-musl.tar.gz"
+        type: tar
       - name: ghq
         repo: x-motemen/ghq
         file: "ghq_linux_amd64.zip"
+        type: zip
       - name: gitleaks
         repo: gitleaks/gitleaks
         file: "gitleaks_VERSION_linux_x64.tar.gz"
+        type: tar
     
-    # Install scripts
-    scripts:
+    script:
       - name: sheldon
         script: "curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to ~/.local/bin"
       - name: starship
@@ -196,13 +200,12 @@ os:
       - name: tpm
         script: "git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm"
     
-    # Cargo packages
     cargo:
       - zoxide
 
   # ===== Arch Linux =====
   arch:
-    packages:
+    pacman:
       # Core
       - git
       - curl
@@ -245,15 +248,14 @@ os:
       - mise
       - uv
     
-    special:
-      tpm:
-        type: git_clone
+    git_clone:
+      - name: tpm
         repo: "https://github.com/tmux-plugins/tpm"
         dest: "$HOME/.tmux/plugins/tpm"
 
   # ===== Fedora =====
   fedora:
-    packages:
+    dnf:
       # Core
       - git
       - curl
@@ -275,17 +277,14 @@ os:
       - git-lfs
       - sheldon
     
-    # COPR repos
     copr:
       - repo: atim/eza
         package: eza
       - repo: atim/zoxide
         package: zoxide
     
-    # External repos
-    repositories:
-      1password:
-        type: rpm
+    rpm_repository:
+      - name: 1password
         key: "https://downloads.1password.com/linux/keys/1password.asc"
         repo: |
           [1password]
@@ -297,35 +296,37 @@ os:
           gpgkey="https://downloads.1password.com/linux/keys/1password.asc"
         package: 1password-cli
     
-    # RPM downloads
-    github_releases:
+    github_release:
       - name: duf
         repo: muesli/duf
         file: "duf_VERSION_linux_amd64.rpm"
-    
-    # Same binaries as Debian
-    binaries:
+        type: rpm
       - name: dust
         repo: bootandy/dust
         file: "dust-vVERSION-x86_64-unknown-linux-gnu.tar.gz"
+        type: tar
       - name: tokei
         repo: XAMPPRocky/tokei
         file: "tokei-x86_64-unknown-linux-gnu.tar.gz"
+        type: tar
       - name: sd
         repo: chmln/sd
         file: "sd-vVERSION-x86_64-unknown-linux-gnu"
+        type: binary
       - name: gitui
         repo: extrawurst/gitui
         file: "gitui-linux-musl.tar.gz"
+        type: tar
       - name: ghq
         repo: x-motemen/ghq
         file: "ghq_linux_amd64.zip"
+        type: zip
       - name: gitleaks
         repo: gitleaks/gitleaks
         file: "gitleaks_VERSION_linux_x64.tar.gz"
+        type: tar
     
-    # Install scripts
-    scripts:
+    script:
       - name: starship
         script: "curl -sS https://starship.rs/install.sh | sh -s -- -y"
       - name: atuin

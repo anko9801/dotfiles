@@ -26,8 +26,8 @@ detect_platform() {
     fi
 }
 
-# Parse YAML and install packages
-install_from_yaml() {
+# Install packages from YAML
+install_packages() {
     local platform="$1"
     local yaml_file="$2"
     
@@ -57,196 +57,186 @@ install_from_yaml() {
         esac
     fi
     
-    # Get all package names
-    local packages=$(yq eval '.packages | keys | .[]' "$yaml_file")
+    # Check if platform exists in packages
+    local has_platform=$(yq eval ".packages.${platform} // \"none\"" "$yaml_file")
+    if [[ "$has_platform" == "none" || "$has_platform" == "null" ]]; then
+        warning "No packages defined for platform: $platform"
+        return 0
+    fi
     
-    # Install each package
+    # Get all package managers for this platform
+    local package_managers=$(yq eval ".packages.${platform} | keys | .[]" "$yaml_file" 2>/dev/null || true)
+    
+    # Install packages for each package manager
+    while IFS= read -r pm; do
+        [[ -z "$pm" ]] && continue
+        install_by_package_manager "$platform" "$pm" "$yaml_file"
+    done <<< "$package_managers"
+}
+
+# Install packages using specific package manager
+install_by_package_manager() {
+    local platform="$1"
+    local pm="$2"
+    local yaml_file="$3"
+    
+    info "Installing packages via $pm..."
+    
+    case "$pm" in
+        homebrew)
+            install_homebrew_packages "$platform" "$yaml_file"
+            ;;
+        homebrew_cask)
+            install_homebrew_cask_packages "$platform" "$yaml_file"
+            ;;
+        apt)
+            install_apt_packages "$platform" "$yaml_file"
+            ;;
+        pacman)
+            install_pacman_packages "$platform" "$yaml_file"
+            ;;
+        dnf)
+            install_dnf_packages "$platform" "$yaml_file"
+            ;;
+        winget)
+            install_winget_packages "$platform" "$yaml_file"
+            ;;
+        scoop)
+            install_scoop_packages "$platform" "$yaml_file"
+            ;;
+        aur)
+            install_aur_packages "$platform" "$yaml_file"
+            ;;
+        cargo)
+            install_cargo_packages "$platform" "$yaml_file"
+            ;;
+        git_clone)
+            install_git_clone_packages "$platform" "$yaml_file"
+            ;;
+        apt_repository)
+            install_apt_repositories "$platform" "$yaml_file"
+            ;;
+        rpm_repository)
+            install_rpm_repositories "$platform" "$yaml_file"
+            ;;
+        copr)
+            install_copr_packages "$platform" "$yaml_file"
+            ;;
+        github_release)
+            install_github_releases "$platform" "$yaml_file"
+            ;;
+        script)
+            install_scripts "$platform" "$yaml_file"
+            ;;
+        powershell)
+            install_powershell_scripts "$platform" "$yaml_file"
+            ;;
+    esac
+}
+
+# Package manager specific installation functions
+install_homebrew_packages() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local packages=$(yq eval ".packages.${platform}.homebrew[]" "$yaml_file" 2>/dev/null || true)
+    
     while IFS= read -r pkg; do
-        install_package "$pkg" "$platform" "$yaml_file"
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        brew list "$pkg" &>/dev/null || brew install "$pkg"
     done <<< "$packages"
 }
 
-# Install a single package based on platform
-install_package() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    
-    # Check if package has platform-specific installation
-    local has_platform=$(yq eval ".packages.${package}.${platform} // \"none\"" "$yaml_file")
-    local has_all=$(yq eval ".packages.${package}.all // \"none\"" "$yaml_file")
-    local has_linux=$(yq eval ".packages.${package}.linux // \"none\"" "$yaml_file")
-    
-    # Try platform-specific first
-    if [[ "$has_platform" != "none" && "$has_platform" != "null" ]]; then
-        install_package_platform "$package" "$platform" "$yaml_file"
-    # Try linux-wide installation for linux platforms
-    elif [[ "$platform" != "macos" && "$platform" != "windows" && "$has_linux" != "none" && "$has_linux" != "null" ]]; then
-        install_package_platform "$package" "linux" "$yaml_file"
-    # Try all-platform installation
-    elif [[ "$has_all" != "none" && "$has_all" != "null" ]]; then
-        install_package_platform "$package" "all" "$yaml_file"
-    else
-    fi
-    
-    # Run post-install commands if any
-    run_post_install "$package" "$yaml_file"
-}
-
-# Run post-install commands for a package
-run_post_install() {
-    local package="$1"
+install_homebrew_cask_packages() {
+    local platform="$1"
     local yaml_file="$2"
     
-    # Check if package has post_install
-    local has_post_install=$(yq eval ".packages.${package}.post_install // \"none\"" "$yaml_file")
-    [[ "$has_post_install" == "none" || "$has_post_install" == "null" ]] && return 0
+    local packages=$(yq eval ".packages.${platform}.homebrew_cask[]" "$yaml_file" 2>/dev/null || true)
     
-    # Check if there's a check command
-    local check_cmd=$(yq eval ".packages.${package}.post_install.check // \"\"" "$yaml_file")
-    if [[ -n "$check_cmd" && "$check_cmd" != "null" ]]; then
-        if eval "$check_cmd" &>/dev/null; then
-            return 0
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        brew list --cask "$pkg" &>/dev/null || brew install --cask "$pkg"
+    done <<< "$packages"
+}
+
+install_apt_packages() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local packages=$(yq eval ".packages.${platform}.apt[]" "$yaml_file" 2>/dev/null || true)
+    
+    local pkgs_to_install=""
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! dpkg -l "$pkg" &>/dev/null 2>&1; then
+            pkgs_to_install="$pkgs_to_install $pkg"
         fi
-    fi
+    done <<< "$packages"
     
-    
-    # Run post-install commands
-    local commands=$(yq eval ".packages.${package}.post_install" "$yaml_file")
-    
-    # Check if it's an array or object
-    if [[ "$commands" == *"commands:"* ]]; then
-        # Object format with check and commands
-        commands=$(yq eval ".packages.${package}.post_install.commands[]" "$yaml_file" 2>/dev/null || true)
-    else
-        # Array format
-        commands=$(yq eval ".packages.${package}.post_install[]" "$yaml_file" 2>/dev/null || true)
-    fi
-    
-    while IFS= read -r cmd; do
-        [[ -z "$cmd" || "$cmd" == "null" ]] && continue
-        eval "$cmd"
-    done <<< "$commands"
+    [[ -n "$pkgs_to_install" ]] && sudo apt-get install -y $pkgs_to_install
 }
 
-# Install package using platform-specific method
-install_package_platform() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
+install_pacman_packages() {
+    local platform="$1"
+    local yaml_file="$2"
     
-    # Get installation methods for this platform
-    local methods=$(yq eval ".packages.${package}.${platform} | keys | .[]" "$yaml_file" 2>/dev/null || true)
+    local packages=$(yq eval ".packages.${platform}.pacman[]" "$yaml_file" 2>/dev/null || true)
     
-    while IFS= read -r method; do
-        [[ -z "$method" ]] && continue
-        
-        case "$method" in
-            homebrew)
-                install_homebrew "$package" "$platform" "$yaml_file"
-                ;;
-            apt)
-                install_apt "$package" "$platform" "$yaml_file"
-                ;;
-            pacman)
-                install_pacman "$package" "$platform" "$yaml_file"
-                ;;
-            dnf)
-                install_dnf "$package" "$platform" "$yaml_file"
-                ;;
-            winget)
-                install_winget "$package" "$platform" "$yaml_file"
-                ;;
-            aur)
-                install_aur "$package" "$platform" "$yaml_file"
-                ;;
-            script)
-                install_script "$package" "$platform" "$yaml_file"
-                ;;
-            github)
-                install_github "$package" "$platform" "$yaml_file"
-                ;;
-            cargo)
-                install_cargo "$package" "$platform" "$yaml_file"
-                ;;
-            git_clone)
-                install_git_clone "$package" "$platform" "$yaml_file"
-                ;;
-            apt_repository)
-                install_apt_repository "$package" "$platform" "$yaml_file"
-                ;;
-            rpm_repository)
-                install_rpm_repository "$package" "$platform" "$yaml_file"
-                ;;
-            copr)
-                install_copr "$package" "$platform" "$yaml_file"
-                ;;
-            python)
-                install_python "$package" "$platform" "$yaml_file"
-                ;;
-        esac
-    done <<< "$methods"
+    local pkgs_to_install=""
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! pacman -Q "$pkg" &>/dev/null 2>&1; then
+            pkgs_to_install="$pkgs_to_install $pkg"
+        fi
+    done <<< "$packages"
+    
+    [[ -n "$pkgs_to_install" ]] && sudo pacman -S --needed --noconfirm $pkgs_to_install
 }
 
-# Installation method implementations
-install_homebrew() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
+install_dnf_packages() {
+    local platform="$1"
+    local yaml_file="$2"
     
-    # Check if it's a cask
-    local brew_package=$(yq eval ".packages.${package}.${platform}.homebrew" "$yaml_file")
-    if [[ "$brew_package" == *"cask:"* ]]; then
-        local cask_name=$(yq eval ".packages.${package}.${platform}.homebrew.cask" "$yaml_file")
-        brew list --cask "$cask_name" &>/dev/null || brew install --cask "$cask_name"
-    else
-        brew list "$brew_package" &>/dev/null || brew install "$brew_package"
-    fi
+    local packages=$(yq eval ".packages.${platform}.dnf[]" "$yaml_file" 2>/dev/null || true)
+    
+    local pkgs_to_install=""
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! rpm -q "${pkg#@}" &>/dev/null 2>&1; then
+            pkgs_to_install="$pkgs_to_install $pkg"
+        fi
+    done <<< "$packages"
+    
+    [[ -n "$pkgs_to_install" ]] && sudo dnf install -y $pkgs_to_install
 }
 
-install_apt() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
+install_winget_packages() {
+    local platform="$1"
+    local yaml_file="$2"
     
-    local apt_package=$(yq eval ".packages.${package}.${platform}.apt" "$yaml_file")
-    dpkg -l "$apt_package" &>/dev/null || sudo apt install -y "$apt_package"
+    local packages=$(yq eval ".packages.${platform}.winget[]" "$yaml_file" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        winget list --id "$pkg" &>/dev/null || winget install --id "$pkg" --accept-package-agreements --accept-source-agreements
+    done <<< "$packages"
 }
 
-install_pacman() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
+install_scoop_packages() {
+    local platform="$1"
+    local yaml_file="$2"
     
-    local pacman_package=$(yq eval ".packages.${package}.${platform}.pacman" "$yaml_file")
-    pacman -Q "$pacman_package" &>/dev/null || sudo pacman -S --needed --noconfirm "$pacman_package"
+    local packages=$(yq eval ".packages.${platform}.scoop[]" "$yaml_file" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        scoop list "$pkg" &>/dev/null || scoop install "$pkg"
+    done <<< "$packages"
 }
 
-install_dnf() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    local dnf_package=$(yq eval ".packages.${package}.${platform}.dnf" "$yaml_file")
-    rpm -q "${dnf_package#@}" &>/dev/null || sudo dnf install -y "$dnf_package"
-}
-
-install_winget() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    local winget_package=$(yq eval ".packages.${package}.${platform}.winget" "$yaml_file")
-    winget list --id "$winget_package" &>/dev/null || winget install --id "$winget_package" --accept-package-agreements --accept-source-agreements
-}
-
-install_aur() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    local aur_package=$(yq eval ".packages.${package}.${platform}.aur" "$yaml_file")
+install_aur_packages() {
+    local platform="$1"
+    local yaml_file="$2"
     
     # Determine AUR helper
     local aur_helper=""
@@ -255,192 +245,278 @@ install_aur() {
     elif command -v paru &>/dev/null; then
         aur_helper="paru"
     else
-        warning "No AUR helper found, skipping $aur_package"
+        warning "No AUR helper found, skipping AUR packages"
         return
     fi
     
-    "$aur_helper" -Q "$aur_package" &>/dev/null || "$aur_helper" -S --needed --noconfirm "$aur_package"
+    local packages=$(yq eval ".packages.${platform}.aur[]" "$yaml_file" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        "$aur_helper" -Q "$pkg" &>/dev/null || "$aur_helper" -S --needed --noconfirm "$pkg"
+    done <<< "$packages"
 }
 
-install_script() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
+install_cargo_packages() {
+    local platform="$1"
+    local yaml_file="$2"
     
-    # Skip if already installed
-    command -v "$package" &>/dev/null && return 0
+    if ! command -v cargo &>/dev/null; then
+        warning "Cargo not found, skipping cargo packages"
+        return
+    fi
     
-    local script=$(yq eval ".packages.${package}.${platform}.script" "$yaml_file")
-    info "Installing $package via script..."
-    eval "$script"
+    local packages=$(yq eval ".packages.${platform}.cargo[]" "$yaml_file" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        command -v "$pkg" &>/dev/null || cargo install "$pkg"
+    done <<< "$packages"
 }
 
-install_github() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
+install_git_clone_packages() {
+    local platform="$1"
+    local yaml_file="$2"
     
-    # Skip if already installed
-    command -v "$package" &>/dev/null && return 0
+    local count=$(yq eval ".packages.${platform}.git_clone | length" "$yaml_file" 2>/dev/null || echo "0")
     
-    local repo=$(yq eval ".packages.${package}.${platform}.github.repo" "$yaml_file")
-    local pattern=$(yq eval ".packages.${package}.${platform}.github.asset_pattern" "$yaml_file")
-    local type=$(yq eval ".packages.${package}.${platform}.github.type" "$yaml_file")
-    local binary=$(yq eval ".packages.${package}.${platform}.github.binary // \"$package\"" "$yaml_file")
-    
-    info "Installing $package from GitHub..."
-    
-    # Get latest version
-    local version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*' | sed 's/^v//')
-    local url=$(printf "$pattern" "$version" "$version")
-    
-    local tmp_dir=$(mktemp -d)
-    cd "$tmp_dir"
-    
-    case "$type" in
-        deb)
-            curl -LO "https://github.com/$repo/releases/download/$version/$url"
-            sudo dpkg -i *.deb || sudo apt-get install -f -y
-            ;;
-        rpm)
-            curl -LO "https://github.com/$repo/releases/download/$version/$url"
-            sudo rpm -i *.rpm
-            ;;
-        tar)
-            curl -sL "https://github.com/$repo/releases/download/$version/$url" | tar -xz
-            [[ -f "$binary" ]] && sudo mv "$binary" "/usr/local/bin/$binary"
-            ;;
-        zip)
-            curl -sLO "https://github.com/$repo/releases/download/$version/$url"
-            unzip -j -o *.zip "$binary" || unzip -o *.zip
-            [[ -f "$binary" ]] && sudo mv "$binary" "/usr/local/bin/$binary"
-            ;;
-        binary)
-            curl -sL "https://github.com/$repo/releases/download/$version/$url" -o "$binary"
-            chmod +x "$binary"
-            sudo mv "$binary" "/usr/local/bin/$binary"
-            ;;
-    esac
-    
-    cd - >/dev/null
-    rm -rf "$tmp_dir"
-}
-
-install_cargo() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    command -v "$package" &>/dev/null && return 0
-    
-    local cargo_package=$(yq eval ".packages.${package}.${platform}.cargo" "$yaml_file")
-    info "Installing $cargo_package via cargo..."
-    cargo install "$cargo_package"
-}
-
-install_git_clone() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    local repo=$(yq eval ".packages.${package}.${platform}.git_clone.repo" "$yaml_file")
-    local dest=$(eval echo $(yq eval ".packages.${package}.${platform}.git_clone.dest" "$yaml_file"))
-    
-    [[ -d "$dest" ]] && return 0
-    
-    info "Cloning $repo to $dest..."
-    git clone "$repo" "$dest"
-}
-
-install_apt_repository() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    local key_url=$(yq eval ".packages.${package}.${platform}.apt_repository.key_url" "$yaml_file")
-    local repo=$(yq eval ".packages.${package}.${platform}.apt_repository.repo" "$yaml_file")
-    local apt_package=$(yq eval ".packages.${package}.${platform}.apt_repository.package" "$yaml_file")
-    local extra_setup=$(yq eval ".packages.${package}.${platform}.apt_repository.extra_setup // \"\"" "$yaml_file")
-    
-    # Add repository if package not installed
-    if ! dpkg -l "$apt_package" &>/dev/null 2>&1; then
-        info "Adding APT repository for $package..."
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${platform}.git_clone[$i].name" "$yaml_file")
+        local repo=$(yq eval ".packages.${platform}.git_clone[$i].repo" "$yaml_file")
+        local dest=$(eval echo $(yq eval ".packages.${platform}.git_clone[$i].dest" "$yaml_file"))
         
-        # Add GPG key
-        local keyring_path="/usr/share/keyrings/${package}-archive-keyring.gpg"
-        curl -fsSL "$key_url" | sudo gpg --dearmor -o "$keyring_path"
+        if [[ ! -d "$dest" ]]; then
+            info "Cloning $name..."
+            git clone "$repo" "$dest"
+        fi
+    done
+}
+
+install_apt_repositories() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local count=$(yq eval ".packages.${platform}.apt_repository | length" "$yaml_file" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${platform}.apt_repository[$i].name" "$yaml_file")
+        local key=$(yq eval ".packages.${platform}.apt_repository[$i].key" "$yaml_file")
+        local repo=$(yq eval ".packages.${platform}.apt_repository[$i].repo" "$yaml_file")
+        local package=$(yq eval ".packages.${platform}.apt_repository[$i].package" "$yaml_file")
+        local setup=$(yq eval ".packages.${platform}.apt_repository[$i].setup // \"\"" "$yaml_file")
         
-        # Add repository
-        echo "$repo" | sudo tee "/etc/apt/sources.list.d/${package}.list" > /dev/null
+        # Add repository if package not installed
+        if ! dpkg -l "$package" &>/dev/null 2>&1; then
+            info "Adding APT repository for $name..."
+            
+            # Add GPG key
+            local keyring_path="/usr/share/keyrings/${name}-archive-keyring.gpg"
+            curl -fsSL "$key" | sudo gpg --dearmor -o "$keyring_path"
+            
+            # Add repository
+            echo "$repo" | sudo tee "/etc/apt/sources.list.d/${name}.list" > /dev/null
+            
+            # Run extra setup if needed
+            if [[ -n "$setup" && "$setup" != "null" ]]; then
+                eval "$setup"
+            fi
+            
+            sudo apt update
+            sudo apt install -y "$package"
+        fi
+    done
+}
+
+install_rpm_repositories() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local count=$(yq eval ".packages.${platform}.rpm_repository | length" "$yaml_file" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${platform}.rpm_repository[$i].name" "$yaml_file")
+        local key=$(yq eval ".packages.${platform}.rpm_repository[$i].key" "$yaml_file")
+        local repo=$(yq eval ".packages.${platform}.rpm_repository[$i].repo" "$yaml_file")
+        local package=$(yq eval ".packages.${platform}.rpm_repository[$i].package" "$yaml_file")
         
-        # Run extra setup if needed
-        if [[ -n "$extra_setup" && "$extra_setup" != "null" ]]; then
-            eval "$extra_setup"
+        if ! rpm -q "$package" &>/dev/null 2>&1; then
+            info "Adding RPM repository for $name..."
+            
+            # Import GPG key
+            sudo rpm --import "$key"
+            
+            # Add repository
+            echo "$repo" | sudo tee "/etc/yum.repos.d/${name}.repo" > /dev/null
+            
+            sudo dnf install -y "$package"
+        fi
+    done
+}
+
+install_copr_packages() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local count=$(yq eval ".packages.${platform}.copr | length" "$yaml_file" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local repo=$(yq eval ".packages.${platform}.copr[$i].repo" "$yaml_file")
+        local package=$(yq eval ".packages.${platform}.copr[$i].package" "$yaml_file")
+        
+        if ! command -v "$package" &>/dev/null; then
+            sudo dnf copr enable -y "$repo"
+            sudo dnf install -y "$package"
+        fi
+    done
+}
+
+install_github_releases() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local count=$(yq eval ".packages.${platform}.github_release | length" "$yaml_file" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${platform}.github_release[$i].name" "$yaml_file")
+        local repo=$(yq eval ".packages.${platform}.github_release[$i].repo" "$yaml_file")
+        local file=$(yq eval ".packages.${platform}.github_release[$i].file" "$yaml_file")
+        local type=$(yq eval ".packages.${platform}.github_release[$i].type" "$yaml_file")
+        
+        # Skip if already installed
+        command -v "$name" &>/dev/null && continue
+        
+        info "Installing $name from GitHub..."
+        
+        # Get latest version
+        local version=$(curl -s "https://api.github.com/repos/$repo/releases/latest" | grep -Po '"tag_name": "\K[^"]*' | sed 's/^v//')
+        local url=$(echo "$file" | sed "s/VERSION/$version/g")
+        
+        local tmp_dir=$(mktemp -d)
+        cd "$tmp_dir"
+        
+        case "$type" in
+            deb)
+                curl -LO "https://github.com/$repo/releases/download/v$version/$url"
+                sudo dpkg -i *.deb || sudo apt-get install -f -y
+                ;;
+            rpm)
+                curl -LO "https://github.com/$repo/releases/download/v$version/$url"
+                sudo rpm -i *.rpm
+                ;;
+            tar)
+                curl -sL "https://github.com/$repo/releases/download/v$version/$url" | tar -xz
+                find . -type f -executable -name "$name" -exec sudo mv {} /usr/local/bin/ \;
+                ;;
+            zip)
+                curl -sLO "https://github.com/$repo/releases/download/v$version/$url"
+                unzip -j -o *.zip
+                find . -type f -name "$name" -exec sudo mv {} /usr/local/bin/ \;
+                ;;
+            binary)
+                curl -sL "https://github.com/$repo/releases/download/v$version/$url" -o "$name"
+                chmod +x "$name"
+                sudo mv "$name" /usr/local/bin/
+                ;;
+        esac
+        
+        cd - >/dev/null
+        rm -rf "$tmp_dir"
+    done
+}
+
+install_scripts() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local count=$(yq eval ".packages.${platform}.script | length" "$yaml_file" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${platform}.script[$i].name" "$yaml_file")
+        local script=$(yq eval ".packages.${platform}.script[$i].script" "$yaml_file")
+        
+        # Skip if already installed (except for git clone scripts)
+        if [[ "$name" != "tpm" ]] && command -v "$name" &>/dev/null; then
+            continue
         fi
         
-        sudo apt update
-        sudo apt install -y "$apt_package"
-    fi
-}
-
-install_rpm_repository() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    local key_url=$(yq eval ".packages.${package}.${platform}.rpm_repository.key_url" "$yaml_file")
-    local repo_config=$(yq eval ".packages.${package}.${platform}.rpm_repository.repo_config" "$yaml_file")
-    local rpm_package=$(yq eval ".packages.${package}.${platform}.rpm_repository.package" "$yaml_file")
-    
-    if ! rpm -q "$rpm_package" &>/dev/null 2>&1; then
-        info "Adding RPM repository for $package..."
+        # Skip tpm if already installed
+        if [[ "$name" == "tpm" ]] && [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
+            continue
+        fi
         
-        # Import GPG key
-        sudo rpm --import "$key_url"
+        info "Installing $name via script..."
+        eval "$script"
+    done
+}
+
+install_powershell_scripts() {
+    local platform="$1"
+    local yaml_file="$2"
+    
+    local count=$(yq eval ".packages.${platform}.powershell | length" "$yaml_file" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${platform}.powershell[$i].name" "$yaml_file")
+        local script=$(yq eval ".packages.${platform}.powershell[$i].script" "$yaml_file")
         
-        # Add repository
-        echo "$repo_config" | sudo tee "/etc/yum.repos.d/${package}.repo" > /dev/null
+        # Skip if already installed
+        command -v "$name" &>/dev/null && continue
         
-        sudo dnf install -y "$rpm_package"
-    fi
+        info "Installing $name via PowerShell..."
+        powershell -Command "$script"
+    done
 }
 
-install_copr() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
+# Run post-install commands
+run_post_install() {
+    local yaml_file="$1"
     
-    local copr_repo=$(yq eval ".packages.${package}.${platform}.copr.repo" "$yaml_file")
-    local copr_package=$(yq eval ".packages.${package}.${platform}.copr.package" "$yaml_file")
+    info "Running post-install configurations..."
     
-    if ! command -v "$copr_package" &>/dev/null; then
-        sudo dnf copr enable -y "$copr_repo"
-        sudo dnf install -y "$copr_package"
-    fi
+    # Get all post-install packages
+    local packages=$(yq eval '.post_install | keys | .[]' "$yaml_file" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" ]] && continue
+        
+        # Check if package is installed
+        if ! command -v "$pkg" &>/dev/null && [[ "$pkg" != "1password-cli" ]]; then
+            continue
+        fi
+        
+        # Special case for 1password-cli
+        if [[ "$pkg" == "1password-cli" ]] && ! command -v op &>/dev/null; then
+            continue
+        fi
+        
+        # Check if there's a check command
+        local check_cmd=$(yq eval ".post_install.${pkg}.check // \"\"" "$yaml_file")
+        if [[ -n "$check_cmd" && "$check_cmd" != "null" ]]; then
+            if eval "$check_cmd" &>/dev/null; then
+                continue
+            fi
+        fi
+        
+        info "Running post-install for $pkg..."
+        
+        # Run post-install commands
+        local commands=$(yq eval ".post_install.${pkg}" "$yaml_file")
+        
+        # Check if it's an array or object
+        if [[ "$commands" == *"commands:"* ]]; then
+            # Object format with check and commands
+            commands=$(yq eval ".post_install.${pkg}.commands[]" "$yaml_file" 2>/dev/null || true)
+        else
+            # Array format
+            commands=$(yq eval ".post_install.${pkg}[]" "$yaml_file" 2>/dev/null || true)
+        fi
+        
+        while IFS= read -r cmd; do
+            [[ -z "$cmd" || "$cmd" == "null" ]] && continue
+            eval "$cmd"
+        done <<< "$commands"
+    done <<< "$packages"
 }
-
-install_python() {
-    local package="$1"
-    local platform="$2"
-    local yaml_file="$3"
-    
-    command -v "$package" &>/dev/null && return 0
-    
-    local method=$(yq eval ".packages.${package}.python | keys | .[0]" "$yaml_file")
-    local pkg_name=$(yq eval ".packages.${package}.python.${method}" "$yaml_file")
-    
-    case "$method" in
-        uv)
-            command -v uv &>/dev/null || return 1
-            uv tool install "$pkg_name"
-            ;;
-        pip)
-            pip install --user "$pkg_name"
-            ;;
-    esac
-}
-
-
 
 # Main function
 main() {
@@ -454,9 +530,12 @@ main() {
     fi
     
     # Install packages
-    install_from_yaml "$platform" "$PACKAGES_FILE"
+    install_packages "$platform" "$PACKAGES_FILE"
     
-    success "Installation and configuration complete!"
+    # Run post-install
+    run_post_install "$PACKAGES_FILE"
+    
+    success "Installation complete!"
 }
 
 # Only run main if this script is executed directly
