@@ -10,10 +10,11 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly HOME="${HOME:-$(eval echo ~)}"
 readonly EXIT_SUCCESS=0 EXIT_ERROR=1
 
-# Detect platform (Darwin, Linux, WSL)
+# Detect platform (Darwin, Linux, WSL, Windows)
 case "$(uname -s)" in
     Darwin)
         readonly PLATFORM="Darwin"
+        readonly DISTRO="macos"
         ;;
     Linux)
         if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
@@ -21,9 +22,35 @@ case "$(uname -s)" in
         else
             readonly PLATFORM="Linux"
         fi
+        
+        # Detect Linux distribution
+        if [[ -f /etc/os-release ]]; then
+            . /etc/os-release
+            case "${ID,,}" in
+                ubuntu|debian)
+                    readonly DISTRO="debian"
+                    ;;
+                arch|manjaro)
+                    readonly DISTRO="arch"
+                    ;;
+                fedora)
+                    readonly DISTRO="fedora"
+                    ;;
+                *)
+                    readonly DISTRO="unknown"
+                    ;;
+            esac
+        else
+            readonly DISTRO="unknown"
+        fi
+        ;;
+    MINGW*|CYGWIN*|MSYS*)
+        readonly PLATFORM="Windows"
+        readonly DISTRO="windows"
         ;;
     *)
         readonly PLATFORM="Unknown"
+        readonly DISTRO="unknown"
         ;;
 esac
 
@@ -119,34 +146,6 @@ configure_encryption() {
 }
 
 # ============================================================================
-# Platform Detection
-# ============================================================================
-
-detect_distribution() {
-    case "$PLATFORM" in
-        Darwin)
-            echo "macos"
-            ;;
-        WSL|Linux)
-            if [[ -f /etc/os-release ]]; then
-                . /etc/os-release
-                case "${ID,,}" in
-                    ubuntu|debian) echo "debian" ;;
-                    arch|manjaro) echo "arch" ;;
-                    fedora) echo "fedora" ;;
-                    *) echo "linux" ;;
-                esac
-            else
-                echo "linux"
-            fi
-            ;;
-        *)
-            echo "unknown"
-            ;;
-    esac
-}
-
-# ============================================================================
 # Setup Functions
 # ============================================================================
 
@@ -194,19 +193,28 @@ setup_package_manager() {
             ;;
         WSL|Linux)
             # Linux: Update package manager
-            if [[ -f /etc/os-release ]]; then
-                . /etc/os-release
-                case "${ID,,}" in
-                    ubuntu|debian)
-                        sudo apt-get update || true
-                        ;;
-                    arch|manjaro)
-                        sudo pacman -Syu --noconfirm
-                        ;;
-                    fedora)
-                        sudo dnf update -y
-                        ;;
-                esac
+            case "$DISTRO" in
+                debian)
+                    sudo apt-get update || true
+                    ;;
+                arch)
+                    sudo pacman -Syu --noconfirm
+                    ;;
+                fedora)
+                    sudo dnf update -y
+                    ;;
+            esac
+            ;;
+        Windows)
+            # Windows: Check for package managers
+            if ! command -v winget &>/dev/null; then
+                warning "Winget not found. Please install Windows Package Manager"
+            fi
+            
+            if ! command -v scoop &>/dev/null; then
+                info "Installing Scoop..."
+                powershell -Command "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force"
+                powershell -Command "irm get.scoop.sh | iex"
             fi
             ;;
     esac
@@ -215,16 +223,15 @@ setup_package_manager() {
 install_packages() {
     info "Installing packages..."
     
-    local distribution=$(detect_distribution)
-    
     # Run package installer
     local installer="$HOME/.config/yadm/installer.sh"
     if [[ -f "$installer" ]]; then
         chmod +x "$installer"
         
-        # Export functions for installer
+        # Export functions and variables for installer
         export -f info success error warning
         export RED GREEN BLUE YELLOW NC
+        export PLATFORM DISTRO
         
         "$installer"
     else
@@ -251,15 +258,18 @@ show_completion_message() {
     echo "Next steps:"
     echo "  1. Restart your terminal to apply all changes"
     
-    if [[ "$(basename "$SHELL")" != "zsh" ]]; then
-        echo "  2. Set Zsh as your default shell:"
-        echo "     chsh -s $(which zsh)"
-    fi
-    
-    echo
-    echo "For more information, see:"
-    echo "  - README: https://github.com/$(git config --get remote.origin.url | sed 's/.*://;s/.git$//')"
-    echo "  - Issues: https://github.com/$(git config --get remote.origin.url | sed 's/.*://;s/.git$//')/issues"
+    # Platform-specific next steps
+    case "$PLATFORM" in
+        Darwin|WSL|Linux)
+            if [[ "$(basename "$SHELL")" != "zsh" ]]; then
+                echo "  2. Set Zsh as your default shell:"
+                echo "     chsh -s $(which zsh)"
+            fi
+            ;;
+        Windows)
+            echo "  2. Restart Git Bash or your terminal emulator"
+            ;;
+    esac
 }
 
 # ============================================================================
@@ -268,6 +278,12 @@ show_completion_message() {
 
 setup_zdotdir() {
     info "Configuring ZDOTDIR..."
+    
+    # Skip on Windows (Git Bash doesn't use Zsh)
+    if [[ "$PLATFORM" == "Windows" ]]; then
+        info "Skipping ZDOTDIR configuration on Windows"
+        return
+    fi
     
     local zshenv_file=""
     local zdotdir_line='export ZDOTDIR="$HOME/.config/zsh"'
@@ -384,17 +400,7 @@ main() {
     yadm alt
     
     # Show platform information
-    case "$PLATFORM" in
-        Darwin)
-            info "Running macOS bootstrap..."
-            ;;
-        WSL)
-            info "Running WSL bootstrap..."
-            ;;
-        Linux)
-            info "Running Linux bootstrap..."
-            ;;
-    esac
+    info "Platform: $PLATFORM / Distribution: $DISTRO"
     
     # Execute bootstrap steps
     setup_directories
