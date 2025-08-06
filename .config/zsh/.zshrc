@@ -98,8 +98,8 @@ eval "$(sheldon source)"
 # カスタム関数
 [[ -f "$XDG_CONFIG_HOME/zsh/functions.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/functions.zsh"
 
-# 略語定義
-[[ -f "$XDG_CONFIG_HOME/zsh/abbr.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/abbr.zsh"
+# 略語定義 (loaded after shell plugins via zsh-defer)
+[[ -f "$XDG_CONFIG_HOME/zsh/abbr.zsh" ]] && zsh-defer source "$XDG_CONFIG_HOME/zsh/abbr.zsh"
 
 # ------------------------------------------------------------------------------
 # ツール初期化
