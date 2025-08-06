@@ -158,6 +158,7 @@ setup_directories() {
         "$HOME/.local/share"
         "$HOME/.cache"
         "$HOME/.claude"
+        "$HOME/.config/op"
     )
     
     for dir in "${dirs[@]}"; do
@@ -166,6 +167,7 @@ setup_directories() {
     
     # Set secure permissions
     chmod 700 "$HOME/.ssh" "$HOME/.ssh/config.d" 2>/dev/null || true
+    [[ -d "$HOME/.config/op" ]] && chmod 700 "$HOME/.config/op"
     [[ -f "$HOME/.config/op/config" ]] && chmod 600 "$HOME/.config/op/config"
 }
 
