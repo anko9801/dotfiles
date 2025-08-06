@@ -19,10 +19,10 @@ yadm bootstrap
 
 新しいマシンでもコマンド一発でいつもの環境を再現したい。理想としてはこんな感じ:
 
-- **1コマンドで完結** - 複雑な手順や事前準備は不要
-- **XDG Base Directory 準拠** - 全ての設定を .config 内に収納
-- **シークレットの安全管理** - SSH 鍵や API キーはパスワードマネージャーで管理、ローカルには置かない
-- **環境を自動判別** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
+- **らくちん** - 1コマンドでセットアップ&管理
+- **ミニマル** - .config にすべて収納
+- **シークレット管理** - SSH 鍵や API キーはパスワードマネージャーで管理、ローカルには置かない
+- **マシン差分を吸収** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
 - **環境の再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
 - **冪等性** - 何度実行しても既存の設定を壊さない
 
@@ -32,11 +32,11 @@ yadm bootstrap
 
 ### こだわりポイント
 
-- **yadm によるシンプルな管理** - yadm bootstrap を叩くだけ - [なぜyadm？](../.config/yadm/README.md)
-- **シェルもXDG準拠** - `/etc/zshenv` (macOS) や `/etc/zsh/zshenv` (Linux) に設定を書き込むことで .config に収納
+- **yadm によるシンプルな管理** - [なぜyadm？](../.config/yadm/README.md)
+- **シェルも収納** - `/etc/zsh/zshenv` で XDG Base Directory 準拠することで .zshrc も .config に収納
 - **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理 - [op/README.md](../.config/op/README.md)
-- **冪等性** - インストールや設定の前にチェック - [冪等なシェルスクリプトのベストプラクティス](../.config/yadm/README.md)
-- **宣言的なパッケージ管理** - [packages.yaml](../.config/yadm/packages.yaml) [Brewfile](../.config/yadm/Brewfile) [mise/config.toml](../.config/mise/config.toml) を使う
+- **冪等性** - [冪等なシェルスクリプトのベストプラクティス](../.config/yadm/README.md)
+- **宣言的なパッケージ管理** - [Brewfile](../.config/yadm/Brewfile) [mise/config.toml](../.config/mise/config.toml) で扱えないものは [packages.yaml](../.config/yadm/packages.yaml) で宣言する
 
 
 ## Tools
