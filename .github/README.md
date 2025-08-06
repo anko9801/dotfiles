@@ -56,4 +56,3 @@ yadm bootstrap
 **macOS Specific**:
 - **Window Manager**: yabai + skhd
 - **Launcher**: Raycast
-- **Window Management**: Rectangle
