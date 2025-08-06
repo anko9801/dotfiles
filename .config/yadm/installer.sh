@@ -461,8 +461,12 @@ run_post_install() {
         
         while IFS= read -r cmd; do
             [[ -z "$cmd" || "$cmd" == "null" ]] && continue
+            # Skip empty lines and comments
+            [[ "$cmd" =~ ^[[:space:]]*$ ]] && continue
+            [[ "$cmd" =~ ^[[:space:]]*# ]] && continue
+            
             # Execute command in a subshell to avoid syntax issues
-            bash -c "$cmd"
+            bash -c "$cmd" || warning "Failed to execute: $cmd"
         done <<< "$commands"
     done <<< "$packages"
 }
