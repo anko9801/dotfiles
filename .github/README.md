@@ -43,7 +43,7 @@ yadm bootstrap
 ## Tools
 
 - **Shell**: zsh + sheldon
-- **Terminal Multiplexer**: tmux + TPM
+- **Multiplexer**: tmux + TPM
 - **Editor**: Vim + dpp.vim, Neovim + lazy.nvim
 - **Version Management**: mise (Node.js, Go, Rust, Ruby, Deno, Bun)
 - **Python**: uv, ruff
