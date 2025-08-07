@@ -3,7 +3,89 @@
 packages:
   # ===== macOS =====
   macos:
-    # Homebrewパッケージは.config/yadm/Brewfileで管理
+    # Homebrewのtap（カスタムリポジトリ）
+    homebrew_tap:
+      - "koekeishiya/formulae"
+    
+    # Homebrewパッケージ（formulae）
+    homebrew:
+      # Essential tools
+      - git
+      - curl
+      - wget
+      - tmux
+      - tree
+      - jq
+      - yq         # YAML processor
+      
+      # Shell
+      - zsh
+      - starship
+      - sheldon
+      
+      # Modern CLI tools
+      - ripgrep
+      - fd
+      - bat
+      - fzf
+      - gh
+      - eza
+      - zoxide
+      - gomi
+      - atuin
+      - mcfly
+      - duf
+      - dust
+      - tokei
+      - sd
+      - bottom    # System monitor
+      
+      # Window Management
+      - koekeishiya/formulae/yabai
+      - koekeishiya/formulae/skhd
+      
+      # Terminal
+      - zellij
+      
+      # Development
+      - vim
+      - neovim
+      - mise       # Development environment manager
+      - uv         # Fast Python package and project manager
+      - gitleaks
+      - git-delta  # Better git diffs
+      - gitui      # Git TUI
+      - ghq        # Repository manager
+      - gibo       # .gitignore templates
+      - git-lfs    # Git Large File Storage
+      
+      # Personal tools
+      - ffmpeg
+      - imagemagick
+      - pandoc
+      - yt-dlp
+    
+    # Homebrew Cask（GUIアプリケーション）
+    homebrew_cask:
+      # Security
+      - 1password-cli
+      
+      # Desktop tools
+      - docker     # Docker Desktop
+      
+      # macOS apps
+      - visual-studio-code
+      - iterm2
+      - rectangle
+      - discord
+      - slack
+      - raycast    # Launcher
+      - zoom
+      
+      # Personal apps
+      - obsidian
+      - spotify
+    
     git_clone:
       - name: tpm
         repo: "https://github.com/tmux-plugins/tpm"

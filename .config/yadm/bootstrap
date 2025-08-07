@@ -238,16 +238,7 @@ install_packages() {
         warning "Package installer not found, skipping package installation"
     fi
     
-    # Install from Brewfile on macOS
-    if [[ "$PLATFORM" == "Darwin" ]]; then
-        local brewfile="$HOME/.config/yadm/Brewfile"
-        if [[ -f "$brewfile" ]]; then
-            info "Installing Homebrew packages from Brewfile..."
-            brew bundle --file="$brewfile"
-        else
-            warning "Brewfile not found at $brewfile"
-        fi
-    fi
+    # Note: Homebrew packages are now installed via packages.yaml
 }
 
 
