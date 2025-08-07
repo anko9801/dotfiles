@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # DNF package provider
 
+# Setup DNF
+dnf_setup() {
+    info "Updating DNF..."
+    sudo dnf update -y
+}
+
 # Install DNF packages
 dnf_install() {
     local packages=("$@")

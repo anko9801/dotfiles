@@ -96,6 +96,11 @@ install_by_package_manager() {
         homebrew_tap|homebrew|homebrew_cask|apt|pacman|aur|dnf|winget|scoop|cargo)
             # Load provider
             if load_provider "${pm%_*}"; then
+                # Setup package manager if needed
+                if type -t "${pm%_*}_setup" &>/dev/null; then
+                    "${pm%_*}_setup"
+                fi
+                
                 # Get packages from YAML
                 local packages=$(yq eval ".packages.${distro}.${pm}[]" "$PACKAGES_FILE" 2>/dev/null || true)
                 

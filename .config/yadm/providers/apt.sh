@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # APT package provider
 
+# Setup APT
+apt_setup() {
+    info "Updating APT package lists..."
+    sudo apt-get update || true
+}
+
 # Install APT packages
 apt_install() {
     local packages=("$@")
@@ -14,7 +20,6 @@ apt_install() {
     
     if [[ ${#pkgs_to_install[@]} -gt 0 ]]; then
         info "Installing APT packages..."
-        sudo apt-get update
         sudo apt-get install -y "${pkgs_to_install[@]}"
     else
         info "All APT packages already installed"

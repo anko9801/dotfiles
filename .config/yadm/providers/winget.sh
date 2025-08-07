@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 # Winget package provider
 
+# Setup package managers
+winget_setup() {
+    if ! command -v winget &>/dev/null; then
+        warning "Winget not found. Please install Windows Package Manager"
+    fi
+}
+
+scoop_setup() {
+    if ! command -v scoop &>/dev/null; then
+        info "Installing Scoop..."
+        powershell -Command "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force"
+        powershell -Command "irm get.scoop.sh | iex"
+    fi
+}
+
 # Install Winget packages
 winget_install() {
     local packages=("$@")
