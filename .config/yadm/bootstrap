@@ -154,7 +154,10 @@ fast_setup_ssh() {
     local ssh_key="$ssh_dir/id_ed25519"
     
     # Create SSH directory with proper permissions
-    [[ ! -d "$ssh_dir" ]] && { mkdir -p "$ssh_dir" && chmod 700 "$ssh_dir"; } || true
+    if [[ ! -d "$ssh_dir" ]]; then
+        mkdir -p "$ssh_dir" || return 0
+        chmod 700 "$ssh_dir" || return 0
+    fi
     
     # Generate SSH key if needed
     if [[ ! -f "$ssh_key" ]]; then
