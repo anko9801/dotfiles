@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Get the directory of this script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES_FILE="$SCRIPT_DIR/packages.yaml"
+PACKAGES_FILE="$HOME/.config/packages.yaml"
 
 # Install packages from YAML
 install_packages() {
