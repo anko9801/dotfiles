@@ -1,0 +1,941 @@
+#!/usr/bin/env bash
+# Universal package bundle manager for packages.yaml
+# Works like brew bundle but for all platforms
+
+set -euo pipefail
+
+# Configuration
+readonly PACKAGES_FILE="${PACKAGES_FILE:-$HOME/.config/packages.yaml}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Colors
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly BLUE='\033[0;34m'
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m'
+
+info() { echo -e "${BLUE}==>${NC} $1"; }
+success() { echo -e "${GREEN}✓${NC} $1"; }
+error() { echo -e "${RED}✗${NC} $1" >&2; }
+warning() { echo -e "${YELLOW}!${NC} $1"; }
+
+# Detect platform and distro
+detect_platform() {
+    case "$(uname -s)" in
+        Darwin)
+            echo "macos"
+            ;;
+        Linux)
+            if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+                # WSL uses same packages as Linux
+                detect_linux_distro
+            else
+                detect_linux_distro
+            fi
+            ;;
+        MINGW*|CYGWIN*|MSYS*)
+            echo "windows"
+            ;;
+        *)
+            echo "unknown"
+            ;;
+    esac
+}
+
+detect_linux_distro() {
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        case "${ID,,}" in
+            ubuntu|debian)
+                echo "debian"
+                ;;
+            arch|manjaro)
+                echo "arch"
+                ;;
+            fedora)
+                echo "fedora"
+                ;;
+            *)
+                echo "unknown"
+                ;;
+        esac
+    else
+        echo "unknown"
+    fi
+}
+
+# Check dependencies
+check_dependencies() {
+    if ! command -v yq &>/dev/null; then
+        error "yq is required"
+        info "Installing yq..."
+        
+        local distro=$(detect_platform)
+        case "$distro" in
+            macos)
+                brew install yq
+                ;;
+            debian)
+                sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+                sudo chmod +x /usr/local/bin/yq
+                ;;
+            arch)
+                sudo pacman -S --needed --noconfirm yq
+                ;;
+            fedora)
+                sudo dnf install -y yq
+                ;;
+            windows)
+                scoop install yq || winget install --id MikeFarah.yq
+                ;;
+            *)
+                error "Please install yq manually"
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+# Universal bundle command
+bundle() {
+    local command="${1:-install}"
+    local distro=$(detect_platform)
+    
+    if [[ "$distro" == "unknown" ]]; then
+        error "Unknown platform"
+        exit 1
+    fi
+    
+    info "Platform: $distro"
+    
+    case "$command" in
+        install|"")
+            bundle_install "$distro"
+            ;;
+        check)
+            bundle_check "$distro"
+            ;;
+        list)
+            bundle_list "$distro"
+            ;;
+        cleanup)
+            bundle_cleanup "$distro"
+            ;;
+        dump)
+            bundle_dump "$distro"
+            ;;
+        *)
+            error "Unknown command: $command"
+            echo "Usage: $0 [install|check|list|cleanup|dump]"
+            exit 1
+            ;;
+    esac
+}
+
+# Install all packages for the platform
+bundle_install() {
+    local distro="$1"
+    info "Installing packages for $distro..."
+    
+    # Get all package managers for this platform
+    local package_managers=$(yq eval ".packages.${distro} | keys | .[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    if [[ -z "$package_managers" ]]; then
+        warning "No packages defined for $distro"
+        return 0
+    fi
+    
+    # Install packages for each package manager
+    while IFS= read -r pm; do
+        [[ -z "$pm" ]] && continue
+        install_by_package_manager "$distro" "$pm"
+    done <<< "$package_managers"
+    
+    # Run post-install hooks
+    run_post_install_hooks
+    
+    success "Installation complete for $distro"
+}
+
+# Install packages using specific package manager
+install_by_package_manager() {
+    local distro="$1"
+    local pm="$2"
+    
+    info "Installing packages via $pm..."
+    
+    case "$pm" in
+        # macOS
+        homebrew_tap)
+            install_homebrew_taps "$distro"
+            ;;
+        homebrew)
+            install_homebrew_packages "$distro"
+            ;;
+        homebrew_cask)
+            install_homebrew_casks "$distro"
+            ;;
+        
+        # Linux
+        apt)
+            install_apt_packages "$distro"
+            ;;
+        apt_repository)
+            install_apt_repositories "$distro"
+            ;;
+        pacman)
+            install_pacman_packages "$distro"
+            ;;
+        aur)
+            install_aur_packages "$distro"
+            ;;
+        dnf)
+            install_dnf_packages "$distro"
+            ;;
+        rpm_repository)
+            install_rpm_repositories "$distro"
+            ;;
+        copr)
+            install_copr_packages "$distro"
+            ;;
+        
+        # Windows
+        winget)
+            install_winget_packages "$distro"
+            ;;
+        scoop)
+            install_scoop_packages "$distro"
+            ;;
+        powershell)
+            install_powershell_scripts "$distro"
+            ;;
+        
+        # Cross-platform
+        cargo)
+            install_cargo_packages "$distro"
+            ;;
+        git_clone)
+            install_git_clone_packages "$distro"
+            ;;
+        github_release)
+            install_github_releases "$distro"
+            ;;
+        script)
+            install_scripts "$distro"
+            ;;
+    esac
+}
+
+# Missing functions implementation
+install_git_clone_packages() {
+    local distro="$1"
+    local count=$(yq eval ".packages.${distro}.git_clone | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${distro}.git_clone[$i].name" "$PACKAGES_FILE")
+        local repo=$(yq eval ".packages.${distro}.git_clone[$i].repo" "$PACKAGES_FILE")
+        local dest=$(eval echo $(yq eval ".packages.${distro}.git_clone[$i].dest" "$PACKAGES_FILE"))
+        
+        if [[ ! -d "$dest" ]]; then
+            info "Cloning $name..."
+            git clone "$repo" "$dest"
+        else
+            info "$name already cloned"
+        fi
+    done
+}
+
+install_powershell_scripts() {
+    local distro="$1"
+    local count=$(yq eval ".packages.${distro}.powershell | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${distro}.powershell[$i].name" "$PACKAGES_FILE")
+        local script=$(yq eval ".packages.${distro}.powershell[$i].script" "$PACKAGES_FILE")
+        
+        # Skip if already installed
+        if command -v "$name" &>/dev/null; then
+            continue
+        fi
+        
+        info "Installing $name via PowerShell..."
+        powershell -Command "$script"
+    done
+}
+
+install_rpm_repositories() {
+    local distro="$1"
+    local count=$(yq eval ".packages.${distro}.rpm_repository | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${distro}.rpm_repository[$i].name" "$PACKAGES_FILE")
+        local key=$(yq eval ".packages.${distro}.rpm_repository[$i].key" "$PACKAGES_FILE")
+        local repo=$(yq eval ".packages.${distro}.rpm_repository[$i].repo" "$PACKAGES_FILE")
+        local package=$(yq eval ".packages.${distro}.rpm_repository[$i].package" "$PACKAGES_FILE")
+        
+        info "Setting up $name repository..."
+        
+        # Add RPM key
+        sudo rpm --import "$key"
+        
+        # Add repository
+        echo "$repo" | sudo tee "/etc/yum.repos.d/${name}.repo" > /dev/null
+        
+        # Install package
+        sudo dnf install -y "$package"
+    done
+}
+
+install_copr_packages() {
+    local distro="$1"
+    local count=$(yq eval ".packages.${distro}.copr | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local repo=$(yq eval ".packages.${distro}.copr[$i].repo" "$PACKAGES_FILE")
+        local package=$(yq eval ".packages.${distro}.copr[$i].package" "$PACKAGES_FILE")
+        
+        info "Enabling COPR repository $repo..."
+        sudo dnf copr enable -y "$repo"
+        
+        info "Installing $package from COPR..."
+        sudo dnf install -y "$package"
+    done
+}
+
+cleanup_apt() {
+    local installed=$(dpkg-query -W -f='${Status} ${Package}\n' | grep "^install ok installed" | awk '{print $4}')
+    local expected=$(yq eval '.packages.debian.apt[]' "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local pkgs_to_remove=()
+    while IFS= read -r pkg; do
+        if ! echo "$expected" | grep -q "^$pkg\$"; then
+            pkgs_to_remove+=("$pkg")
+        fi
+    done <<< "$installed"
+    
+    if [[ ${#pkgs_to_remove[@]} -gt 0 ]]; then
+        info "Removing ${#pkgs_to_remove[@]} packages..."
+        sudo apt-get remove --purge -y "${pkgs_to_remove[@]}"
+        sudo apt-get autoremove -y
+    fi
+}
+
+cleanup_pacman() {
+    local installed=$(pacman -Qe | awk '{print $1}')
+    local expected=$(yq eval '.packages.arch.pacman[]' "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local pkgs_to_remove=()
+    while IFS= read -r pkg; do
+        if ! echo "$expected" | grep -q "^$pkg\$"; then
+            pkgs_to_remove+=("$pkg")
+        fi
+    done <<< "$installed"
+    
+    if [[ ${#pkgs_to_remove[@]} -gt 0 ]]; then
+        info "Removing ${#pkgs_to_remove[@]} packages..."
+        sudo pacman -Rns --noconfirm "${pkgs_to_remove[@]}"
+    fi
+}
+
+cleanup_dnf() {
+    local installed=$(dnf history userinstalled | tail -n +2)
+    local expected=$(yq eval '.packages.fedora.dnf[]' "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local pkgs_to_remove=()
+    while IFS= read -r pkg; do
+        if ! echo "$expected" | grep -q "^$pkg\$"; then
+            pkgs_to_remove+=("$pkg")
+        fi
+    done <<< "$installed"
+    
+    if [[ ${#pkgs_to_remove[@]} -gt 0 ]]; then
+        info "Removing ${#pkgs_to_remove[@]} packages..."
+        sudo dnf remove -y "${pkgs_to_remove[@]}"
+    fi
+}
+
+cleanup_windows() {
+    warning "Windows cleanup not implemented yet"
+    info "Please manually uninstall packages via winget or scoop"
+}
+
+# macOS/Homebrew functions
+install_homebrew_taps() {
+    local distro="$1"
+    
+    if ! command -v brew &>/dev/null; then
+        error "Homebrew is not installed"
+        return 1
+    fi
+    
+    local taps=$(yq eval ".packages.${distro}.homebrew_tap[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r tap; do
+        [[ -z "$tap" || "$tap" == "null" ]] && continue
+        if ! brew tap | grep -q "^$tap\$"; then
+            info "Tapping $tap..."
+            brew tap "$tap"
+        fi
+    done <<< "$taps"
+}
+
+install_homebrew_packages() {
+    local distro="$1"
+    
+    if ! command -v brew &>/dev/null; then
+        error "Homebrew is not installed"
+        return 1
+    fi
+    
+    local packages=$(yq eval ".packages.${distro}.homebrew[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local pkgs_to_install=()
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! brew list --formula "$pkg" &>/dev/null 2>&1; then
+            pkgs_to_install+=("$pkg")
+        fi
+    done <<< "$packages"
+    
+    if [[ ${#pkgs_to_install[@]} -gt 0 ]]; then
+        info "Installing ${#pkgs_to_install[@]} formulae..."
+        brew install --formula "${pkgs_to_install[@]}"
+    fi
+}
+
+install_homebrew_casks() {
+    local distro="$1"
+    
+    if ! command -v brew &>/dev/null; then
+        error "Homebrew is not installed"
+        return 1
+    fi
+    
+    local casks=$(yq eval ".packages.${distro}.homebrew_cask[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local casks_to_install=()
+    while IFS= read -r cask; do
+        [[ -z "$cask" || "$cask" == "null" ]] && continue
+        if ! brew list --cask "$cask" &>/dev/null 2>&1; then
+            casks_to_install+=("$cask")
+        fi
+    done <<< "$casks"
+    
+    if [[ ${#casks_to_install[@]} -gt 0 ]]; then
+        info "Installing ${#casks_to_install[@]} casks..."
+        brew install --cask "${casks_to_install[@]}"
+    fi
+}
+
+# Linux/APT functions
+install_apt_packages() {
+    local distro="$1"
+    
+    local packages=$(yq eval ".packages.${distro}.apt[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local pkgs_to_install=""
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! dpkg -l "$pkg" &>/dev/null 2>&1; then
+            pkgs_to_install="$pkgs_to_install $pkg"
+        fi
+    done <<< "$packages"
+    
+    if [[ -n "$pkgs_to_install" ]]; then
+        info "Installing APT packages..."
+        sudo apt-get update
+        sudo apt-get install -y $pkgs_to_install
+    fi
+}
+
+install_apt_repositories() {
+    local distro="$1"
+    local count=$(yq eval ".packages.${distro}.apt_repository | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${distro}.apt_repository[$i].name" "$PACKAGES_FILE")
+        local key=$(yq eval ".packages.${distro}.apt_repository[$i].key" "$PACKAGES_FILE")
+        local repo=$(yq eval ".packages.${distro}.apt_repository[$i].repo" "$PACKAGES_FILE")
+        local package=$(yq eval ".packages.${distro}.apt_repository[$i].package" "$PACKAGES_FILE")
+        
+        info "Setting up $name repository..."
+        
+        # Download and add GPG key
+        curl -fsSL "$key" | sudo gpg --dearmor -o "/usr/share/keyrings/${name}-archive-keyring.gpg"
+        
+        # Add repository
+        echo "$repo" | sudo tee "/etc/apt/sources.list.d/${name}.list" > /dev/null
+        
+        # Update and install package
+        sudo apt-get update
+        sudo apt-get install -y "$package"
+    done
+}
+
+# Linux/Pacman functions
+install_pacman_packages() {
+    local distro="$1"
+    
+    local packages=$(yq eval ".packages.${distro}.pacman[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local pkgs_to_install=""
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! pacman -Q "$pkg" &>/dev/null 2>&1; then
+            pkgs_to_install="$pkgs_to_install $pkg"
+        fi
+    done <<< "$packages"
+    
+    if [[ -n "$pkgs_to_install" ]]; then
+        info "Installing Pacman packages..."
+        sudo pacman -Syu --needed --noconfirm $pkgs_to_install
+    fi
+}
+
+install_aur_packages() {
+    local distro="$1"
+    
+    # Determine AUR helper
+    local aur_helper=""
+    if command -v yay &>/dev/null; then
+        aur_helper="yay"
+    elif command -v paru &>/dev/null; then
+        aur_helper="paru"
+    else
+        warning "No AUR helper found, skipping AUR packages"
+        return
+    fi
+    
+    local packages=$(yq eval ".packages.${distro}.aur[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! "$aur_helper" -Q "$pkg" &>/dev/null; then
+            info "Installing $pkg from AUR..."
+            "$aur_helper" -S --needed --noconfirm "$pkg"
+        fi
+    done <<< "$packages"
+}
+
+# Linux/DNF functions
+install_dnf_packages() {
+    local distro="$1"
+    
+    local packages=$(yq eval ".packages.${distro}.dnf[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local pkgs_to_install=""
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! rpm -q "${pkg#@}" &>/dev/null 2>&1; then
+            pkgs_to_install="$pkgs_to_install $pkg"
+        fi
+    done <<< "$packages"
+    
+    if [[ -n "$pkgs_to_install" ]]; then
+        info "Installing DNF packages..."
+        sudo dnf install -y $pkgs_to_install
+    fi
+}
+
+# Windows functions
+install_winget_packages() {
+    local distro="$1"
+    
+    local packages=$(yq eval ".packages.${distro}.winget[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! winget list --id "$pkg" &>/dev/null; then
+            info "Installing $pkg via winget..."
+            winget install --id "$pkg" --accept-package-agreements --accept-source-agreements
+        fi
+    done <<< "$packages"
+}
+
+install_scoop_packages() {
+    local distro="$1"
+    
+    local packages=$(yq eval ".packages.${distro}.scoop[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! scoop list "$pkg" &>/dev/null; then
+            info "Installing $pkg via scoop..."
+            scoop install "$pkg"
+        fi
+    done <<< "$packages"
+}
+
+# Cross-platform functions
+install_cargo_packages() {
+    local distro="$1"
+    
+    if ! command -v cargo &>/dev/null; then
+        warning "Cargo not found, skipping cargo packages"
+        return
+    fi
+    
+    local packages=$(yq eval ".packages.${distro}.cargo[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        if ! command -v "$pkg" &>/dev/null; then
+            info "Installing $pkg via cargo..."
+            cargo install "$pkg"
+        fi
+    done <<< "$packages"
+}
+
+install_scripts() {
+    local distro="$1"
+    local count=$(yq eval ".packages.${distro}.script | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${distro}.script[$i].name" "$PACKAGES_FILE")
+        local script=$(yq eval ".packages.${distro}.script[$i].script" "$PACKAGES_FILE")
+        
+        # Skip if already installed
+        if command -v "$name" &>/dev/null; then
+            continue
+        fi
+        
+        info "Installing $name via script..."
+        eval "$script"
+    done
+}
+
+install_github_releases() {
+    local distro="$1"
+    local count=$(yq eval ".packages.${distro}.github_release | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+    
+    for i in $(seq 0 $((count - 1))); do
+        local name=$(yq eval ".packages.${distro}.github_release[$i].name" "$PACKAGES_FILE")
+        local repo=$(yq eval ".packages.${distro}.github_release[$i].repo" "$PACKAGES_FILE")
+        local file=$(yq eval ".packages.${distro}.github_release[$i].file" "$PACKAGES_FILE")
+        local type=$(yq eval ".packages.${distro}.github_release[$i].type" "$PACKAGES_FILE")
+        
+        # Skip if already installed
+        command -v "$name" &>/dev/null && continue
+        
+        info "Installing $name from GitHub..."
+        
+        # Get latest version with User-Agent header
+        local api_response=$(curl -sSL -H "User-Agent: Mozilla/5.0" "https://api.github.com/repos/$repo/releases/latest" 2>/dev/null)
+        
+        if [[ -z "$api_response" ]] || echo "$api_response" | grep -q '"message".*"rate limit"'; then
+            warning "GitHub API rate limit or connection issue. Trying alternative method..."
+            local tag_name=$(curl -sSL -H "User-Agent: Mozilla/5.0" "https://api.github.com/repos/$repo/tags" 2>/dev/null | grep -Po '"name": "\K[^"]*' | head -1)
+        else
+            local tag_name=$(echo "$api_response" | grep -Po '"tag_name": "\K[^"]*')
+        fi
+        
+        if [[ -z "$tag_name" ]]; then
+            error "Failed to get version for $name from GitHub API"
+            continue
+        fi
+        
+        local version=$(echo "$tag_name" | sed 's/^v//')
+        local url=$(echo "$file" | sed "s/VERSION/$version/g")
+        
+        local tmp_dir=$(mktemp -d)
+        cd "$tmp_dir"
+        
+        case "$type" in
+            deb)
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fLO -H "User-Agent: Mozilla/5.0" "$download_url" || { error "Failed to download $name"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                sudo dpkg -i *.deb || sudo apt-get install -f -y
+                ;;
+            rpm)
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fLO -H "User-Agent: Mozilla/5.0" "$download_url" || { error "Failed to download $name"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                sudo rpm -i *.rpm
+                ;;
+            tar)
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fL -H "User-Agent: Mozilla/5.0" "$download_url" | tar -xz || { error "Failed to download $name"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                find . -type f -executable -name "$name" -exec sudo mv {} /usr/local/bin/ \;
+                ;;
+            zip)
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fLO -H "User-Agent: Mozilla/5.0" "$download_url" || { error "Failed to download $name"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                unzip -j -o *.zip
+                find . -type f -name "$name" -exec sudo mv {} /usr/local/bin/ \;
+                ;;
+            binary)
+                local download_url="https://github.com/$repo/releases/download/$tag_name/$url"
+                curl -fL -H "User-Agent: Mozilla/5.0" "$download_url" -o "$name" || { error "Failed to download $name"; cd - >/dev/null; rm -rf "$tmp_dir"; continue; }
+                chmod +x "$name"
+                sudo mv "$name" /usr/local/bin/
+                ;;
+        esac
+        
+        cd - >/dev/null
+        rm -rf "$tmp_dir"
+        
+        success "Installed $name"
+    done
+}
+
+# Check if all packages are installed
+bundle_check() {
+    local distro="$1"
+    info "Checking packages for $distro..."
+    local all_installed=true
+    
+    # Get all package managers
+    local package_managers=$(yq eval ".packages.${distro} | keys | .[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r pm; do
+        [[ -z "$pm" ]] && continue
+        check_package_manager "$distro" "$pm" || all_installed=false
+    done <<< "$package_managers"
+    
+    if [[ "$all_installed" == "true" ]]; then
+        success "All packages are installed"
+    else
+        error "Some packages are missing"
+        exit 1
+    fi
+}
+
+check_package_manager() {
+    local distro="$1"
+    local pm="$2"
+    local all_installed=true
+    
+    case "$pm" in
+        homebrew)
+            local packages=$(yq eval ".packages.${distro}.homebrew[]" "$PACKAGES_FILE" 2>/dev/null || true)
+            while IFS= read -r pkg; do
+                [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+                if ! brew list --formula "$pkg" &>/dev/null 2>&1; then
+                    error "Missing formula: $pkg"
+                    all_installed=false
+                fi
+            done <<< "$packages"
+            ;;
+        apt)
+            local packages=$(yq eval ".packages.${distro}.apt[]" "$PACKAGES_FILE" 2>/dev/null || true)
+            while IFS= read -r pkg; do
+                [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+                if ! dpkg -l "$pkg" &>/dev/null 2>&1; then
+                    error "Missing APT package: $pkg"
+                    all_installed=false
+                fi
+            done <<< "$packages"
+            ;;
+        pacman)
+            local packages=$(yq eval ".packages.${distro}.pacman[]" "$PACKAGES_FILE" 2>/dev/null || true)
+            while IFS= read -r pkg; do
+                [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+                if ! pacman -Q "$pkg" &>/dev/null 2>&1; then
+                    error "Missing Pacman package: $pkg"
+                    all_installed=false
+                fi
+            done <<< "$packages"
+            ;;
+        # ... other package managers
+    esac
+    
+    [[ "$all_installed" == "true" ]]
+}
+
+# List all packages
+bundle_list() {
+    local distro="$1"
+    info "Packages defined for $distro in $PACKAGES_FILE:"
+    
+    # Get all package managers
+    local package_managers=$(yq eval ".packages.${distro} | keys | .[]" "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r pm; do
+        [[ -z "$pm" ]] && continue
+        echo -e "\n${GREEN}${pm}:${NC}"
+        
+        case "$pm" in
+            apt_repository|rpm_repository|copr|git_clone|script|powershell|github_release)
+                # Complex structures - show names only
+                local count=$(yq eval ".packages.${distro}.${pm} | length" "$PACKAGES_FILE" 2>/dev/null || echo "0")
+                for i in $(seq 0 $((count - 1))); do
+                    local name=$(yq eval ".packages.${distro}.${pm}[$i].name" "$PACKAGES_FILE" 2>/dev/null || echo "")
+                    [[ -n "$name" && "$name" != "null" ]] && echo "  - $name"
+                done
+                ;;
+            *)
+                # Simple arrays
+                yq eval ".packages.${distro}.${pm}[]" "$PACKAGES_FILE" 2>/dev/null | sed 's/^/  - /'
+                ;;
+        esac
+    done <<< "$package_managers"
+}
+
+# Clean up packages not in packages.yaml
+bundle_cleanup() {
+    local distro="$1"
+    warning "This will remove packages not defined in packages.yaml for $distro"
+    read -rp "Continue? (y/N): " -n 1 && echo
+    [[ ! $REPLY =~ ^[Yy]$ ]] && exit 0
+    
+    case "$distro" in
+        macos)
+            cleanup_homebrew
+            ;;
+        debian)
+            cleanup_apt
+            ;;
+        arch)
+            cleanup_pacman
+            ;;
+        fedora)
+            cleanup_dnf
+            ;;
+        windows)
+            cleanup_windows
+            ;;
+    esac
+    
+    success "Cleanup complete"
+}
+
+cleanup_homebrew() {
+    # Similar to brew bundle cleanup
+    local installed_formulae=$(brew list --formula)
+    local expected_formulae=$(yq eval '.packages.macos.homebrew[]' "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    local formulae_to_remove=()
+    while IFS= read -r formula; do
+        if ! echo "$expected_formulae" | grep -q "^$formula\$"; then
+            formulae_to_remove+=("$formula")
+        fi
+    done <<< "$installed_formulae"
+    
+    if [[ ${#formulae_to_remove[@]} -gt 0 ]]; then
+        info "Removing ${#formulae_to_remove[@]} formulae..."
+        brew uninstall --formula "${formulae_to_remove[@]}"
+    fi
+}
+
+# Dump current installation state
+bundle_dump() {
+    local distro="$1"
+    info "Generating package list for $distro..."
+    
+    case "$distro" in
+        macos)
+            dump_homebrew
+            ;;
+        debian)
+            dump_apt
+            ;;
+        arch)
+            dump_pacman
+            ;;
+        fedora)
+            dump_dnf
+            ;;
+        windows)
+            dump_windows
+            ;;
+    esac
+}
+
+dump_homebrew() {
+    echo "packages:"
+    echo "  macos:"
+    
+    # Dump taps
+    local taps=$(brew tap)
+    if [[ -n "$taps" ]]; then
+        echo "    homebrew_tap:"
+        echo "$taps" | sed 's/^/      - /'
+    fi
+    
+    # Dump formulae
+    local formulae=$(brew list --formula)
+    if [[ -n "$formulae" ]]; then
+        echo "    homebrew:"
+        echo "$formulae" | sed 's/^/      - /'
+    fi
+    
+    # Dump casks
+    local casks=$(brew list --cask)
+    if [[ -n "$casks" ]]; then
+        echo "    homebrew_cask:"
+        echo "$casks" | sed 's/^/      - /'
+    fi
+}
+
+dump_apt() {
+    echo "packages:"
+    echo "  debian:"
+    echo "    apt:"
+    
+    # List manually installed packages (not dependencies)
+    dpkg-query -W -f='${Status} ${Package}\n' | grep "^install ok installed" | grep -v "deinstall" | awk '{print $4}' | sort | sed 's/^/      - /'
+}
+
+dump_pacman() {
+    echo "packages:"
+    echo "  arch:"
+    echo "    pacman:"
+    
+    # List explicitly installed packages
+    pacman -Qe | awk '{print $1}' | sort | sed 's/^/      - /'
+}
+
+dump_dnf() {
+    echo "packages:"
+    echo "  fedora:"
+    echo "    dnf:"
+    
+    # List user installed packages
+    dnf history userinstalled | tail -n +2 | sort | sed 's/^/      - /'
+}
+
+dump_windows() {
+    echo "packages:"
+    echo "  windows:"
+    
+    # Dump winget packages
+    echo "    winget:"
+    winget list | tail -n +5 | awk '{print $1}' | sort | sed 's/^/      - /'
+    
+    # Dump scoop packages if available
+    if command -v scoop &>/dev/null; then
+        echo "    scoop:"
+        scoop list | tail -n +3 | awk '{print $1}' | sort | sed 's/^/      - /'
+    fi
+}
+
+# Post-install hooks
+run_post_install_hooks() {
+    info "Running post-install hooks..."
+    
+    # Get all post-install sections
+    local hooks=$(yq eval '.post_install | keys | .[]' "$PACKAGES_FILE" 2>/dev/null || true)
+    
+    while IFS= read -r hook; do
+        [[ -z "$hook" || "$hook" == "null" ]] && continue
+        
+        # Check if the command exists
+        if command -v "$hook" &>/dev/null || [[ -f "$HOME/.local/bin/$hook" ]]; then
+            info "Running post-install for $hook..."
+            
+            local commands=$(yq eval ".post_install.${hook}[]" "$PACKAGES_FILE" 2>/dev/null || true)
+            while IFS= read -r cmd; do
+                [[ -z "$cmd" || "$cmd" == "null" ]] && continue
+                bash -c "$cmd" || warning "Failed to execute: $cmd"
+            done <<< "$commands"
+        fi
+    done <<< "$hooks"
+}
+
+# Main
+main() {
+    check_dependencies
+    bundle "$@"
+}
+
+main "$@"
