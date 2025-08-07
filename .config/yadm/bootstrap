@@ -114,7 +114,8 @@ fast_install_tool() {
 fast_setup_git() {
     log_info "Configuring Git..."
     
-    local git_name="${GIT_USER_NAME:-}" git_email="${GIT_USER_EMAIL:-}"
+    local git_name="${GIT_USER_NAME:-}"
+    local git_email="${GIT_USER_EMAIL:-}"
     
     # Batch git config operations
     {
@@ -140,7 +141,9 @@ fast_setup_git() {
 fast_setup_ssh() {
     log_info "Setting up SSH..."
     
-    local ssh_dir="$HOME/.ssh" ssh_config="$ssh_dir/config" ssh_key="$ssh_dir/id_ed25519"
+    local ssh_dir="$HOME/.ssh"
+    local ssh_config="$ssh_dir/config"
+    local ssh_key="$ssh_dir/id_ed25519"
     
     # Create SSH directory with proper permissions
     [[ ! -d "$ssh_dir" ]] && { mkdir -p "$ssh_dir" && chmod 700 "$ssh_dir"; }
