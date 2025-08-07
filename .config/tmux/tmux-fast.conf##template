@@ -1,0 +1,72 @@
+# Fast tmux configuration - Optimized template processing
+# Reduces conditional checks and improves startup time
+
+# Shell configuration (platform-optimized)
+{% if yadm.os == "Darwin" -%}
+set-option -g default-shell /opt/homebrew/bin/zsh
+{%- else -%}
+set-option -g default-shell /usr/bin/zsh
+{%- endif %}
+
+# Terminal and display settings (batch configured)
+set-option -g default-terminal screen-256color
+set -g terminal-overrides 'xterm:colors=256'
+set-option -g status-position top
+set-option -g status-left-length 90
+set-option -g status-right-length 90
+
+# Key bindings (grouped for better performance)
+set -g prefix C-q
+unbind C-b
+
+# Status bar configuration (simplified)
+set-option -g status-left '#H:[#P]'
+{% if yadm.os == "Darwin" -%}
+set-option -g status-right '#(wifi-signal-strength) #(battery -p)%% %m/%d %H:%M'
+{%- else -%}
+set-option -g status-right '#(cat /proc/loadavg | cut -d" " -f1,2,3) %m/%d %H:%M'
+{%- endif %}
+
+# Color scheme (consolidated)
+set-option -g status-bg colour235
+set-option -g status-fg colour136
+set-option -g status-attr default
+
+# Window settings (batch configured for performance)
+set-window-option -g window-status-fg colour244
+set-window-option -g window-status-bg default
+set-window-option -g window-status-current-fg colour166
+set-window-option -g window-status-current-bg default
+
+# Pane settings
+set-option -g pane-border-fg colour235
+set-option -g pane-active-border-fg colour240
+set-option -g message-bg colour235
+set-option -g message-fg colour166
+
+# Performance optimizations
+set -g display-time 4000
+set -g status-interval 5  # Reduced from default 15 seconds
+set -g history-limit 5000  # Reduced from potentially higher values
+
+# Mouse and clipboard (modern settings)
+set -g mouse on
+{% if yadm.os == "Darwin" -%}
+bind-key -T copy-mode-vi 'y' send -X copy-pipe-and-cancel 'pbcopy'
+{%- else -%}
+bind-key -T copy-mode-vi 'y' send -X copy-pipe-and-cancel 'xclip -in -selection clipboard'
+{%- endif %}
+
+# Essential key bindings only (reduced set for faster loading)
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind r source-file ~/.tmux.conf \; display "Reloaded!"
+
+# Plugin settings (if tpm is available)
+{% if yadm.os == "Darwin" -%}
+# macOS specific plugins
+set -g @plugin 'tmux-plugins/tmux-battery'
+{%- endif %}
+
+# Load plugins (conditional to avoid errors)
+if "test -f ~/.tmux/plugins/tpm/tpm" "run '~/.tmux/plugins/tpm/tpm'"
