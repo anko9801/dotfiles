@@ -120,13 +120,21 @@ fast_setup_git() {
     # Batch git config operations
     {
         [[ -z "$(git config --global user.name 2>/dev/null)" ]] && {
-            [[ -n "$git_name" ]] || read -p "Git user name: " git_name
-            [[ -n "$git_name" ]] && git config --global user.name "$git_name"
+            if [[ -n "$git_name" ]]; then
+                git config --global user.name "$git_name"
+            elif [[ -z "${CI:-}" ]]; then
+                read -p "Git user name: " git_name
+                [[ -n "$git_name" ]] && git config --global user.name "$git_name"
+            fi
         }
         
         [[ -z "$(git config --global user.email 2>/dev/null)" ]] && {
-            [[ -n "$git_email" ]] || read -p "Git user email: " git_email
-            [[ -n "$git_email" ]] && git config --global user.email "$git_email"
+            if [[ -n "$git_email" ]]; then
+                git config --global user.email "$git_email"
+            elif [[ -z "${CI:-}" ]]; then
+                read -p "Git user email: " git_email
+                [[ -n "$git_email" ]] && git config --global user.email "$git_email"
+            fi
         }
         
         # Set all configs at once
@@ -151,7 +159,9 @@ fast_setup_ssh() {
     # Generate SSH key if needed
     if [[ ! -f "$ssh_key" ]]; then
         local email="${GIT_USER_EMAIL:-$(git config --global user.email 2>/dev/null || echo '')}"
-        [[ -z "$email" ]] && read -p "Email for SSH key: " email
+        if [[ -z "$email" ]] && [[ -z "${CI:-}" ]]; then
+            read -p "Email for SSH key: " email
+        fi
         
         if [[ -n "$email" ]]; then
             ssh-keygen -t ed25519 -C "$email" -f "$ssh_key" -N "" >/dev/null 2>&1
@@ -416,7 +426,7 @@ fast_setup_environment() {
     log_info "Setting up environment variables..."
     
     # YADM_CLASS configuration
-    if [[ -z "${YADM_CLASS:-}" ]]; then
+    if [[ -z "${YADM_CLASS:-}" ]] && [[ -z "${CI:-}" ]]; then
         printf "YADM_CLASS is used for conditional configurations (work, personal, server, etc.)\n"
         read -p "Enter YADM_CLASS (or press Enter to skip): " yadm_class
         [[ -n "$yadm_class" ]] && {

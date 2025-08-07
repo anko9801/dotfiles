@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Install deno if not available
 if ! command -v deno &>/dev/null; then
-    echo "Installing Deno..."
+    [[ -z "${CI:-}" ]] && echo "Installing Deno..."
     
     # Try to install via mise if available
     if command -v mise &>/dev/null; then
