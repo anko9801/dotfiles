@@ -154,30 +154,44 @@ fast_setup_ssh() {
     local ssh_key="$ssh_dir/id_ed25519"
     
     # Create SSH directory with proper permissions
-    [[ ! -d "$ssh_dir" ]] && { mkdir -p "$ssh_dir" && chmod 700 "$ssh_dir"; }
+    [[ ! -d "$ssh_dir" ]] && { mkdir -p "$ssh_dir" && chmod 700 "$ssh_dir"; } || true
     
     # Generate SSH key if needed
     if [[ ! -f "$ssh_key" ]]; then
         local email="${GIT_USER_EMAIL:-$(git config --global user.email 2>/dev/null || echo '')}"
-        if [[ -z "$email" ]] && [[ -z "${CI:-}" ]]; then
-            read -p "Email for SSH key: " email
+        
+        # In CI, use a default email if none is set
+        if [[ -z "$email" ]]; then
+            if [[ -n "${CI:-}" ]]; then
+                email="ci@example.com"
+                log_info "Using default email for SSH key in CI environment"
+            else
+                read -p "Email for SSH key: " email
+            fi
         fi
         
         if [[ -n "$email" ]]; then
-            ssh-keygen -t ed25519 -C "$email" -f "$ssh_key" -N "" >/dev/null 2>&1
-            log_success "SSH key generated"
-            
-            # Add to ssh-agent if available
-            command_exists ssh-add && {
-                eval "$(ssh-agent -s)" >/dev/null 2>&1
-                ssh-add "$ssh_key" >/dev/null 2>&1 && log_success "SSH key added to agent"
-            }
+            if ssh-keygen -t ed25519 -C "$email" -f "$ssh_key" -N "" >/dev/null 2>&1; then
+                log_success "SSH key generated"
+                
+                # Add to ssh-agent if available
+                if command_exists ssh-add; then
+                    eval "$(ssh-agent -s)" >/dev/null 2>&1
+                    ssh-add "$ssh_key" >/dev/null 2>&1 && log_success "SSH key added to agent"
+                fi
+            else
+                log_warn "SSH key generation failed, but continuing"
+            fi
+        else
+            log_info "Skipping SSH key generation (no email provided)"
         fi
+    else
+        log_info "SSH key already exists"
     fi
     
     # Create SSH config if needed
-    [[ ! -f "$ssh_config" ]] && {
-        cat > "$ssh_config" << 'EOF'
+    if [[ ! -f "$ssh_config" ]]; then
+        if cat > "$ssh_config" << 'EOF'
 Host github.com
     HostName github.com
     User git
@@ -190,9 +204,18 @@ Host *
     ServerAliveInterval 60
     ServerAliveCountMax 3
 EOF
-        chmod 600 "$ssh_config"
-        log_success "SSH config created"
-    }
+        then
+            chmod 600 "$ssh_config" 2>/dev/null || true
+            log_success "SSH config created"
+        else
+            log_warn "Failed to create SSH config, but continuing"
+        fi
+    else
+        log_info "SSH config already exists"
+    fi
+    
+    # Return success even if some steps failed
+    return 0
 }
 
 fast_add_to_shell_config() {
@@ -449,8 +472,9 @@ main() {
     log_info "Starting optimized YADM bootstrap (Platform: $PLATFORM)..."
     
     # Skip config setup if requested
-    if [[ -z "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]]; then
-        fast_setup_git && fast_setup_ssh || { log_error "Configuration setup failed"; return 1; }
+    if [[ -z "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]] && [[ -z "${YADM_SKIP_CONFIG:-}" ]]; then
+        fast_setup_git || log_warn "Git setup had issues"
+        fast_setup_ssh || log_warn "SSH setup had issues"
     fi
     
     # Core tool installation
@@ -460,7 +484,9 @@ main() {
     fast_setup_platform || { log_error "Platform setup failed"; return 1; }
     
     # Shell configuration
-    [[ -z "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]] && fast_setup_shell_configs
+    if [[ -z "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]] && [[ -z "${YADM_SKIP_CONFIG:-}" ]]; then
+        fast_setup_shell_configs
+    fi
     
     # Environment setup
     fast_setup_environment
