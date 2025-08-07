@@ -303,10 +303,21 @@ fast_setup_platform() {
 fast_install_dev_tools() {
     log_info "Setting up development environment..."
     
+    # Find bundle.sh in the correct location
+    local bundle_script=""
+    if [[ -f "$HOME/.config/yadm/bundle.sh" ]]; then
+        bundle_script="$HOME/.config/yadm/bundle.sh"
+    elif [[ -f "$(dirname "$0")/bundle.sh" ]]; then
+        bundle_script="$(dirname "$0")/bundle.sh"
+    fi
+    
     # Check if bundle.sh is available for package management
-    if command_exists deno && [[ -f bundle.sh ]]; then
+    # Note: bundle.sh will install deno if needed, so we don't check for it first
+    if [[ -n "$bundle_script" && -f "$bundle_script" ]]; then
         log_info "Using bundle.sh for comprehensive package management..."
-        if ./bundle.sh install >/dev/null 2>&1; then
+        # Make sure bundle.sh is executable
+        chmod +x "$bundle_script" 2>/dev/null || true
+        if "$bundle_script" install; then
             log_success "Packages installed via bundle (includes mise + post_install)"
             
             # Bundle already handles:
@@ -324,15 +335,18 @@ fast_install_dev_tools() {
             fi
             return 0
         else
-            log_warn "Bundle installation had issues, falling back to manual installation"
+            log_warn "Bundle installation had issues, trying fallback installation"
         fi
+    else
+        log_info "Bundle script not found, using fallback installation"
     fi
     
-    # Fallback: manual installation only if bundle is not available
+    # Fallback: manual installation if bundle is not available or failed
     local tools_installed=0
     
-    # Only install mise manually if not already managed by packages.yaml
-    if ! command_exists mise && ! command_exists brew; then
+    # Install mise manually if not available
+    if ! command_exists mise; then
+        log_info "Installing mise directly..."
         fast_install_tool "mise" "https://mise.run" "mise" 'export PATH="$HOME/.local/bin:$PATH"' && ((tools_installed++))
     fi
     
