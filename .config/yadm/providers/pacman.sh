@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Pacman package provider
 
+# Setup Pacman
+pacman_setup() {
+    info "Updating Pacman database..."
+    sudo pacman -Syu --noconfirm
+}
+
 # Install Pacman packages
 pacman_install() {
     local packages=("$@")

@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
 # Homebrew package provider
 
+# Setup Homebrew
+homebrew_setup() {
+    if ! command -v brew &>/dev/null; then
+        info "Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        
+        # Add Homebrew to PATH
+        if [[ -d "/opt/homebrew" ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        else
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+    fi
+    
+    # Update Homebrew
+    brew update
+}
+
 # Install Homebrew taps
 homebrew_tap_install() {
     local taps=("$@")

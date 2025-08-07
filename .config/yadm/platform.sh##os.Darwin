@@ -3,19 +3,6 @@
 
 info "Applying macOS specific settings..."
 
-# Homebrew installation check
-if ! command -v brew &>/dev/null; then
-    info "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Add Homebrew to PATH
-    if [[ -d "/opt/homebrew" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
-fi
-
 # macOS defaults
 if [[ -z "${YADM_SKIP_MACOS_DEFAULTS:-}" ]]; then
     info "Setting macOS defaults..."
