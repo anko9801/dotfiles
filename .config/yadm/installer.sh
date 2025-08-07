@@ -64,10 +64,14 @@ install_by_package_manager() {
     info "Installing packages via $pm..."
     
     case "$pm" in
-        homebrew|homebrew_cask)
-            # Homebrewパッケージは.config/yadm/Brewfileで管理
-            warning "Homebrew packages are managed by Brewfile"
-            warning "Run 'brew bundle --file=$HOME/.config/yadm/Brewfile' to install"
+        homebrew_tap)
+            install_homebrew_taps "$distro" "$yaml_file"
+            ;;
+        homebrew)
+            install_homebrew_packages "$distro" "$yaml_file"
+            ;;
+        homebrew_cask)
+            install_homebrew_casks "$distro" "$yaml_file"
             ;;
         apt)
             install_apt_packages "$distro" "$yaml_file"
@@ -115,7 +119,87 @@ install_by_package_manager() {
 }
 
 # Package manager specific installation functions
-# Homebrew packages are now managed via Brewfile
+
+# Homebrew functions
+install_homebrew_taps() {
+    local distro="$1"
+    local yaml_file="$2"
+    
+    if ! command -v brew &>/dev/null; then
+        error "Homebrew is not installed"
+        return 1
+    fi
+    
+    local taps=$(yq eval ".packages.${distro}.homebrew_tap[]" "$yaml_file" 2>/dev/null || true)
+    
+    while IFS= read -r tap; do
+        [[ -z "$tap" || "$tap" == "null" ]] && continue
+        info "Tapping $tap..."
+        brew tap "$tap"
+    done <<< "$taps"
+}
+
+install_homebrew_packages() {
+    local distro="$1"
+    local yaml_file="$2"
+    
+    if ! command -v brew &>/dev/null; then
+        error "Homebrew is not installed"
+        return 1
+    fi
+    
+    local packages=$(yq eval ".packages.${distro}.homebrew[]" "$yaml_file" 2>/dev/null || true)
+    
+    # Collect packages to install
+    local pkgs_to_install=()
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" || "$pkg" == "null" ]] && continue
+        
+        # Check if already installed
+        if ! brew list --formula "$pkg" &>/dev/null 2>&1; then
+            pkgs_to_install+=("$pkg")
+        fi
+    done <<< "$packages"
+    
+    # Install packages in batch for efficiency
+    if [[ ${#pkgs_to_install[@]} -gt 0 ]]; then
+        info "Installing ${#pkgs_to_install[@]} formulae..."
+        brew install --formula "${pkgs_to_install[@]}"
+    else
+        info "All formulae already installed"
+    fi
+}
+
+install_homebrew_casks() {
+    local distro="$1"
+    local yaml_file="$2"
+    
+    if ! command -v brew &>/dev/null; then
+        error "Homebrew is not installed"
+        return 1
+    fi
+    
+    local casks=$(yq eval ".packages.${distro}.homebrew_cask[]" "$yaml_file" 2>/dev/null || true)
+    
+    # Collect casks to install
+    local casks_to_install=()
+    while IFS= read -r cask; do
+        [[ -z "$cask" || "$cask" == "null" ]] && continue
+        
+        # Check if already installed
+        if ! brew list --cask "$cask" &>/dev/null 2>&1; then
+            casks_to_install+=("$cask")
+        fi
+    done <<< "$casks"
+    
+    # Install casks in batch
+    if [[ ${#casks_to_install[@]} -gt 0 ]]; then
+        info "Installing ${#casks_to_install[@]} casks..."
+        brew install --cask "${casks_to_install[@]}"
+    else
+        info "All casks already installed"
+    fi
+}
 
 install_apt_packages() {
     local distro="$1"
