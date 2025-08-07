@@ -16,7 +16,6 @@ packages:
       - tmux
       - tree
       - jq
-      - yq         # YAML processor
       
       # Shell
       - zsh
