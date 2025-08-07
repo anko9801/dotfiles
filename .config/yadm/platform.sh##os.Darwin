@@ -1,33 +1,50 @@
 #!/usr/bin/env bash
-# macOS system settings and configurations
+# macOS specific settings
 
-set -euo pipefail
+info "Applying macOS specific settings..."
 
-# Skip if not macOS or disabled
-[[ "$(uname)" != "Darwin" ]] && exit 0
-[[ "${YADM_BOOTSTRAP_MACOS_SETTINGS:-true}" != "true" ]] && exit 0
-
-# Source logging functions if available
-if [[ -z "$(type -t info)" ]]; then
-    info() { echo "===> $1"; }
-    success() { echo "✓ $1"; }
-    error() { echo "✗ $1" >&2; }
-    warning() { echo "! $1"; }
+# Homebrew installation check
+if ! command -v brew &>/dev/null; then
+    info "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # Add Homebrew to PATH
+    if [[ -d "/opt/homebrew" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    else
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
 fi
 
-info "Applying macOS system settings..."
-
-# Show hidden files in Finder
-defaults write com.apple.finder AppleShowAllFiles -bool true
-
-# Enable fast key repeat
-defaults write NSGlobalDomain KeyRepeat -int 2
-defaults write NSGlobalDomain InitialKeyRepeat -int 15
-
-# Disable press-and-hold for keys
-defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-
-# Apply Finder changes
-killall Finder 2>/dev/null || true
-
-success "macOS system settings applied"
+# macOS defaults
+if [[ -z "${YADM_SKIP_MACOS_DEFAULTS:-}" ]]; then
+    info "Setting macOS defaults..."
+    
+    # Dock
+    defaults write com.apple.dock autohide -bool true
+    defaults write com.apple.dock minimize-to-application -bool true
+    defaults write com.apple.dock show-recents -bool false
+    
+    # Finder
+    defaults write com.apple.finder ShowPathbar -bool true
+    defaults write com.apple.finder ShowStatusBar -bool true
+    defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+    defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+    
+    # Keyboard
+    defaults write NSGlobalDomain KeyRepeat -int 2
+    defaults write NSGlobalDomain InitialKeyRepeat -int 15
+    
+    # Trackpad
+    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool true
+    
+    # Screenshots
+    defaults write com.apple.screencapture location -string "${HOME}/Desktop"
+    defaults write com.apple.screencapture type -string "png"
+    defaults write com.apple.screencapture disable-shadow -bool true
+    
+    killall Dock Finder
+    
+    success "macOS defaults configured"
+fi

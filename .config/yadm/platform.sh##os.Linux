@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Linux specific settings
+
+info "Applying Linux specific settings..."
+
+# Nothing specific for general Linux yet
+# Distro-specific settings are handled in bootstrap
