@@ -3,8 +3,8 @@
 # OS-specific configurations are handled via conditionals
 
 [user]
-    name = {{ YADM_USER }}
-    email = {{ YADM_EMAIL }}
+    name = {{ yadm.user }}
+    email = {{ yadm.email }}
     signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M
 
 [core]
