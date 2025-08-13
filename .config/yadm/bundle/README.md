@@ -4,9 +4,9 @@ A minimal, idempotent package management system built with Deno.
 
 ## Design Principles
 
-1. **Idempotent**: All operations can be run multiple times safely
-2. **Simple**: Minimal abstraction, easy to understand
-3. **Declarative**: Define desired state in YAML
+1. Idempotent: All operations can be run multiple times safely
+2. Simple: Minimal abstraction, easy to understand
+3. Declarative: Define desired state in YAML
 
 ## Architecture
 
@@ -105,9 +105,9 @@ linux:
 
 Every operation checks the current state before making changes:
 
-1. **install**: Only installs if not already installed
-2. **remove**: Only removes if currently installed
-3. **check**: Read-only operation, always safe
+1. install: Only installs if not already installed
+2. remove: Only removes if currently installed
+3. check: Read-only operation, always safe
 
 The `changed` field in Result tracks whether any actual changes were made.
 

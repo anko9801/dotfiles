@@ -37,19 +37,19 @@ end
 ## 主なプラグイン
 
 ### UI・エディタ
-- **nvim-tree**: ファイルエクスプローラー（`<leader>e`）
-- **telescope.nvim**: ファジーファインダー
-- **bufferline.nvim**: バッファタブライン
-- **lualine.nvim**: ステータスライン
+- nvim-tree: ファイルエクスプローラー（`<leader>e`）
+- telescope.nvim: ファジーファインダー
+- bufferline.nvim: バッファタブライン
+- lualine.nvim: ステータスライン
 
 ### コーディング支援
-- **nvim-treesitter**: 高度なシンタックスハイライト
-- **nvim-lspconfig**: Language Server Protocol
-- **nvim-cmp**: 自動補完
-- **gitsigns.nvim**: Git 統合
+- nvim-treesitter: 高度なシンタックスハイライト
+- nvim-lspconfig: Language Server Protocol
+- nvim-cmp: 自動補完
+- gitsigns.nvim: Git 統合
 
 ### ターミナル
-- **toggleterm.nvim**: ターミナル統合
+- toggleterm.nvim: ターミナル統合
 
 ## キーマップ
 
