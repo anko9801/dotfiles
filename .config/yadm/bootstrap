@@ -486,6 +486,14 @@ main() {
     # Platform-specific setup
     fast_setup_platform || { log_error "Platform setup failed"; return 1; }
     
+    # WSL-specific setup
+    if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+        log_info "Configuring WSL-specific settings..."
+        if [[ -x "$HOME/.config/wsl/setup-xdg-open.sh" ]]; then
+            "$HOME/.config/wsl/setup-xdg-open.sh"
+        fi
+    fi
+    
     # Shell configuration
     if [[ -z "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]] && [[ -z "${YADM_SKIP_CONFIG:-}" ]]; then
         fast_setup_shell_configs
