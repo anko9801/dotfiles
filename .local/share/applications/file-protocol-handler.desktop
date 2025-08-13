@@ -1,6 +1,0 @@
-[Desktop Entry]
-Type=Application
-Version=1.0
-Name=File Protocol Handler
-NoDisplay=true
-Exec=rundll32.exe url.dll,FileProtocolHandler

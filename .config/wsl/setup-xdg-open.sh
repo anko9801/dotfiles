@@ -12,9 +12,8 @@ echo "Setting up xdg-open for WSL..."
 # Create applications directory
 mkdir -p ~/.local/share/applications
 
-# Create desktop entry file if it doesn't exist
-if [[ ! -f ~/.local/share/applications/file-protocol-handler.desktop ]]; then
-    cat > ~/.local/share/applications/file-protocol-handler.desktop << 'EOF'
+# Create desktop entry file (always recreate to ensure it's up to date)
+cat > ~/.local/share/applications/file-protocol-handler.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Version=1.0
@@ -22,7 +21,6 @@ Name=File Protocol Handler
 NoDisplay=true
 Exec=rundll32.exe url.dll,FileProtocolHandler
 EOF
-fi
 
 # Set as default web browser
 xdg-settings set default-web-browser file-protocol-handler.desktop
