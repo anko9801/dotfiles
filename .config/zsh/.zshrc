@@ -132,4 +132,4 @@ command -v mcfly &>/dev/null && eval "$(mcfly init zsh)"
 # ------------------------------------------------------------------------------
 # ローカル設定
 # ------------------------------------------------------------------------------
-[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"export PATH="$HOME/.local/bin:$PATH"
