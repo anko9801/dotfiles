@@ -40,16 +40,16 @@ yadm bootstrap
 
 ## Tools
 
-- **Shell**: zsh + sheldon
-- **Multiplexer**: tmux + TPM
-- **Editor**: Vim + dpp.vim, Neovim + lazy.nvim
-- **dev env**: mise (Node.js, Go, Rust, Ruby, Deno, Bun)
-- **Python**: uv, ruff
-- **Git**: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
-- **Modern CLI**: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
-- **AI Assistant**: Claude Code, Gemini CLI
+- Shell: zsh + sheldon
+- Multiplexer: tmux + TPM
+- Editor: Vim + dpp.vim, Neovim + lazy.nvim
+- dev env: mise (Node.js, Go, Rust, Ruby, Deno, Bun)
+- Python: uv, ruff
+- Git: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
+- Modern CLI: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
+- AI Assistant: Claude Code, Gemini CLI
 
 
-**macOS Specific**:
-- **Window Manager**: yabai + skhd
-- **Launcher**: Raycast
+macOS Specific:
+- Window Manager: yabai + skhd
+- Launcher: Raycast
