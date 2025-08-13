@@ -3,9 +3,9 @@
 # OS-specific configurations are handled via conditionals
 
 [user]
-    name = {{ yadm.user | default("Your Name") }}
-    email = {{ yadm.email | default("your.email@example.com") }}
-    signingkey = ~/.ssh/id_ed25519.pub
+    name = {{ YADM_USER }}
+    email = {{ YADM_EMAIL }}
+    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M
 
 [core]
   editor = vim
@@ -61,11 +61,7 @@
 [gpg]
     format = ssh
 [gpg "ssh"]
-{% if yadm.os == "Darwin" %}
     program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
-{% else %}
-    program = op-ssh-sign
-{% endif %}
     allowedSignersFile = ~/.config/git/allowed_signers
 
 [help]
@@ -88,11 +84,7 @@
   fsckObjects = true
 
 [credential]
-{% if yadm.os == "Darwin" %}
     helper = osxkeychain
-{% else %}
-    helper = store
-{% endif %}
 
 # Aliases
 [alias]
