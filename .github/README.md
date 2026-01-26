@@ -9,17 +9,17 @@ Pure Nix Home Manager ベースの dotfiles。
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
 # 2. dotfiles クローン
-git clone https://github.com/anko9801/dotfiles ~/dotfiles
+git clone https://github.com/anko9801/dotfiles ~/.config/home-manager
 
 # 3. Home Manager 適用
-nix run home-manager -- switch --flake ~/dotfiles#anko@wsl    # Linux/WSL
-nix run nix-darwin -- switch --flake ~/dotfiles#anko-mac      # macOS
+nix run home-manager -- switch --flake ~/.config/home-manager#anko@wsl    # Linux/WSL
+nix run nix-darwin -- switch --flake ~/.config/home-manager#anko-mac      # macOS
 ```
 
 ## 構成
 
 ```
-~/dotfiles
+~/.config/home-manager
 ├── flake.nix       # Flake definition
 ├── home.nix        # Common configuration
 ├── darwin/         # macOS (nix-darwin)
@@ -35,8 +35,8 @@ nix run nix-darwin -- switch --flake ~/dotfiles#anko-mac      # macOS
 
 ```bash
 # 設定を更新
-home-manager switch --flake ~/dotfiles#anko@wsl    # Linux/WSL
-darwin-rebuild switch --flake ~/dotfiles#anko-mac  # macOS
+home-manager switch --flake ~/.config/home-manager#anko@wsl    # Linux/WSL
+darwin-rebuild switch --flake ~/.config/home-manager#anko-mac  # macOS
 
 # flake 更新
 nix flake update
