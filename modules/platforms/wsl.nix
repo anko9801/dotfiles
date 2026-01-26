@@ -11,7 +11,7 @@
   targets.genericLinux.enable = true;
 
   # WSL-specific configuration
-  home.homeDirectory = lib.mkForce "/home/anko";
+  home.homeDirectory = lib.mkDefault "/home/anko";
 
   home.sessionVariables = {
     # WSL display settings
@@ -33,29 +33,10 @@
     socat # For 1Password SSH agent forwarding
   ];
 
-  # SSH configuration for WSL
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
-    extraConfig = ''
-      # 1Password SSH Agent for WSL
-      IdentityAgent ~/.1password/agent.sock
-    '';
-    matchBlocks = {
-      "*" = {
-        forwardAgent = true;
-        addKeysToAgent = "yes";
-      };
-      "github.com" = {
-        hostname = "github.com";
-        user = "git";
-      };
-      "gitlab.com" = {
-        hostname = "gitlab.com";
-        user = "git";
-      };
-    };
-  };
+  # SSH configuration for WSL (1Password agent)
+  programs.ssh.extraConfig = ''
+    IdentityAgent ~/.1password/agent.sock
+  '';
 
   # Git SSH signing program for WSL (1Password)
   programs.git.settings = {

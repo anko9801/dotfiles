@@ -7,7 +7,7 @@
 
 {
   # Linux-specific configuration
-  home.homeDirectory = lib.mkForce "/home/anko";
+  home.homeDirectory = lib.mkDefault "/home/anko";
 
   home.sessionVariables = {
     # Wayland/X11 support
@@ -25,29 +25,10 @@
     wl-clipboard # Wayland clipboard
   ];
 
-  # SSH configuration for Linux
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
-    extraConfig = ''
-      # 1Password SSH Agent for Linux
-      IdentityAgent ~/.1password/agent.sock
-    '';
-    matchBlocks = {
-      "*" = {
-        forwardAgent = true;
-        addKeysToAgent = "yes";
-      };
-      "github.com" = {
-        hostname = "github.com";
-        user = "git";
-      };
-      "gitlab.com" = {
-        hostname = "gitlab.com";
-        user = "git";
-      };
-    };
-  };
+  # SSH configuration for Linux (1Password agent)
+  programs.ssh.extraConfig = ''
+    IdentityAgent ~/.1password/agent.sock
+  '';
 
   # Git SSH signing program for Linux (1Password)
   programs.git.settings = {

@@ -11,6 +11,7 @@
     ./dev.nix
     ./linters.nix
     ./git.nix
+    ./ssh.nix
     ./terminal.nix
     ./neovim.nix
     ./vscode.nix

@@ -7,7 +7,7 @@
 
 {
   # macOS-specific configuration
-  home.homeDirectory = lib.mkForce "/Users/anko";
+  home.homeDirectory = lib.mkDefault "/Users/anko";
 
   home.sessionVariables = {
     # 1Password SSH Agent (macOS path)
@@ -27,29 +27,10 @@
     terminal-notifier # macOS notifications
   ];
 
-  # SSH configuration for macOS
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
-    extraConfig = ''
-      # 1Password SSH Agent for macOS
-      IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-    '';
-    matchBlocks = {
-      "*" = {
-        forwardAgent = true;
-        addKeysToAgent = "yes";
-      };
-      "github.com" = {
-        hostname = "github.com";
-        user = "git";
-      };
-      "gitlab.com" = {
-        hostname = "gitlab.com";
-        user = "git";
-      };
-    };
-  };
+  # SSH configuration for macOS (1Password agent)
+  programs.ssh.extraConfig = ''
+    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+  '';
 
   # Git SSH signing program for macOS (1Password)
   programs.git.settings = {
