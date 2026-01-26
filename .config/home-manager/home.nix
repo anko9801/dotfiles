@@ -71,6 +71,26 @@
     };
   };
 
+  # Config files managed by Home Manager
+  xdg.configFile = {
+    "nvim" = {
+      source = ./configs/nvim;
+      recursive = true;
+    };
+    "vim" = {
+      source = ./configs/vim;
+      recursive = true;
+    };
+    "claude" = {
+      source = ./configs/claude;
+      recursive = true;
+    };
+    "wsl" = {
+      source = ./configs/wsl;
+      recursive = true;
+    };
+  };
+
   # Let Home Manager manage itself
   programs.home-manager.enable = true;
 

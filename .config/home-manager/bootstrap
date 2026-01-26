@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# YADM Bootstrap - Home Manager based setup
-# All configuration is managed by Nix Home Manager
+# Dotfiles Bootstrap - Pure Nix Home Manager
+# All configuration is managed declaratively via Nix
 
 # Colors
 readonly RED='\033[0;31m' GREEN='\033[0;32m' BLUE='\033[0;34m' NC='\033[0m'
