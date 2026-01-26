@@ -36,10 +36,8 @@ nix run nix-darwin -- switch --flake ~/.config/home-manager#anko-mac      # macO
 
 ```bash
 # 設定を更新
-home-manager switch --flake ~/.config/home-manager
-
-# macOS
-darwin-rebuild switch --flake ~/.config/home-manager
+home-manager switch --flake ~/.config/home-manager#anko@wsl    # Linux/WSL
+darwin-rebuild switch --flake ~/.config/home-manager#anko-mac  # macOS
 
 # flake 更新
 nix flake update
