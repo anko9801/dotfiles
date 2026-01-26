@@ -1,9 +1,4 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+_:
 
 {
   # Homebrew configuration (managed by nix-darwin)

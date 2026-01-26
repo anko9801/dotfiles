@@ -1,9 +1,4 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+_:
 
 # Common SSH configuration for 1Password integration
 # Platform-specific settings (identityAgent, gpg.ssh.program) are in platforms/*.nix

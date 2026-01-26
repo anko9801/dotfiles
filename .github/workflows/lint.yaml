@@ -13,12 +13,17 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@main
 
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
       - name: Check Nix flake
         run: nix flake check --no-build
 
-      - name: Format check
+      - name: Format check (nixfmt)
         run: |
-          nix run nixpkgs#nixfmt -- --check *.nix **/*.nix || {
-            echo "Run 'nixfmt' to fix formatting"
-            exit 1
-          }
+          nix shell nixpkgs#nixfmt -c sh -c 'find . -name "*.nix" -exec nixfmt --check {} +'
+
+      - name: Lint check (statix)
+        run: nix shell nixpkgs#statix -c statix check .
+
+      - name: Dead code check (deadnix)
+        run: nix shell nixpkgs#deadnix -c deadnix --fail .

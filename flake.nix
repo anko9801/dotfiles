@@ -55,7 +55,7 @@
 
       # nix-darwin configuration (for macOS)
       mkDarwin =
-        { system, hostname }:
+        { system }:
         nix-darwin.lib.darwinSystem {
           inherit system;
           specialArgs = { inherit self; };
@@ -80,7 +80,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 users.anko =
-                  { pkgs, ... }:
+                  { ... }:
                   {
                     imports = commonHomeModules ++ [ ./modules/platforms/darwin.nix ];
                   };
@@ -88,8 +88,39 @@
             }
           ];
         };
+      # Supported systems
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+
+      # Helper to generate per-system outputs
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
     in
     {
+      # Formatter for `nix fmt`
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
+
+      # Development shell for working on this config
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = pkgs.mkShell {
+            packages = with pkgs; [
+              nixfmt
+              statix
+              deadnix
+              nil
+            ];
+          };
+        }
+      );
+
       # Standalone Home Manager configurations (Linux/WSL)
       homeConfigurations = {
         "anko@wsl" = mkHome {
@@ -108,13 +139,11 @@
         # Apple Silicon Mac
         "anko-mac" = mkDarwin {
           system = "aarch64-darwin";
-          hostname = "anko-mac";
         };
 
         # Intel Mac
         "anko-mac-intel" = mkDarwin {
           system = "x86_64-darwin";
-          hostname = "anko-mac-intel";
         };
       };
     };

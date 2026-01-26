@@ -1,6 +1,4 @@
 {
-  config,
-  pkgs,
   lib,
   ...
 }:
@@ -26,12 +24,6 @@
       VISUAL = lib.mkDefault "vim";
       PAGER = "less";
       LESSHISTFILE = "-";
-
-      # XDG Base Directory
-      XDG_CONFIG_HOME = "$HOME/.config";
-      XDG_DATA_HOME = "$HOME/.local/share";
-      XDG_STATE_HOME = "$HOME/.local/state";
-      XDG_CACHE_HOME = "$HOME/.cache";
 
       # Vim XDG support
       VIMINIT = ''let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC'';
@@ -65,15 +57,26 @@
     '';
   };
 
-  xdg.configFile = {
-    "nvim".source = ./configs/nvim;
-    "nvim".recursive = true;
-    "vim".source = ./configs/vim;
-    "vim".recursive = true;
-    "claude".source = ./configs/claude;
-    "claude".recursive = true;
-    "wsl".source = ./configs/wsl;
-    "wsl".recursive = true;
+  xdg = {
+    enable = true;
+    configFile = {
+      nvim = {
+        source = ./configs/nvim;
+        recursive = true;
+      };
+      vim = {
+        source = ./configs/vim;
+        recursive = true;
+      };
+      claude = {
+        source = ./configs/claude;
+        recursive = true;
+      };
+      wsl = {
+        source = ./configs/wsl;
+        recursive = true;
+      };
+    };
   };
 
   programs = {

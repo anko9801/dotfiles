@@ -17,7 +17,7 @@
     cache.session.ttl = 1800;
   };
 
-  services.gpg-agent = lib.mkIf (!config.targets.genericLinux.enable or false) {
+  services.gpg-agent = lib.mkIf (!(config.targets.genericLinux.enable or false)) {
     enable = true;
     enableSshSupport = false;
     enableZshIntegration = true;

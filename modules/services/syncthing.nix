@@ -8,7 +8,7 @@
 {
   # Syncthing - file synchronization
   # Note: Only enable on non-WSL Linux (WSL should use Windows Syncthing)
-  services.syncthing = lib.mkIf (!config.targets.genericLinux.enable or false) {
+  services.syncthing = lib.mkIf (!(config.targets.genericLinux.enable or false)) {
     enable = true;
 
     # Sync configuration

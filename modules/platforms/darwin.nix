@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   ...
@@ -7,7 +6,8 @@
 
 {
   home = {
-    homeDirectory = lib.mkDefault "/Users/anko";
+    username = lib.mkForce "anko";
+    homeDirectory = lib.mkForce "/Users/anko";
 
     sessionVariables.SSH_AUTH_SOCK = "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
 
