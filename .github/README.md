@@ -1,41 +1,44 @@
 # dotfiles
 
-Nix Home Manager ベースの dotfiles 管理。
+Pure Nix Home Manager ベースの dotfiles。
 
 ## セットアップ
 
 ```bash
-# yadm インストール
-brew install yadm                # macOS
-sudo apt install -y yadm         # Ubuntu/Debian
+# 1. Nix インストール
+sh <(curl -L https://nixos.org/nix/install) --daemon
 
-# dotfiles クローン
-yadm clone https://github.com/anko9801/dotfiles
+# 2. Flakes 有効化
+mkdir -p ~/.config/nix
+echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf
 
-# セットアップ (Nix + Home Manager をインストール)
-yadm bootstrap
+# 3. dotfiles クローン
+git clone https://github.com/anko9801/dotfiles ~/.config/home-manager
+
+# 4. Home Manager 適用
+nix run home-manager -- switch --flake ~/.config/home-manager#anko@wsl
+```
+
+macOS の場合:
+```bash
+nix run nix-darwin -- switch --flake ~/.config/home-manager#anko-mac
 ```
 
 ## 構成
 
 ```
-.config/
-├── home-manager/    # Nix Home Manager (メイン設定)
-│   ├── flake.nix    # Flake definition
-│   ├── home.nix     # Common configuration
-│   ├── darwin/      # macOS (nix-darwin)
-│   └── modules/     # Shell, tools, platforms
-├── nvim/            # Neovim configuration
-├── vim/             # Vim configuration
-└── yadm/            # Bootstrap script
+~/dotfiles (= ~/.config/home-manager)
+├── flake.nix       # Flake definition
+├── home.nix        # Common configuration
+├── darwin/         # macOS (nix-darwin)
+├── modules/
+│   ├── shell/      # zsh, starship
+│   ├── tools/      # cli, git, dev, linters
+│   ├── services/   # syncthing
+│   └── platforms/  # wsl, darwin, linux
+├── configs/        # Raw config files (nvim, vim, claude)
+└── overlays/
 ```
-
-## コンセプト
-
-- **宣言的** - Nix Flakes で再現可能な環境
-- **シンプル** - yadm + Home Manager の組み合わせ
-- **マルチプラットフォーム** - macOS, Linux, WSL をサポート
-- **セキュア** - 1Password で SSH/GPG 鍵を管理
 
 ## コマンド
 
@@ -43,12 +46,19 @@ yadm bootstrap
 # 設定を更新
 home-manager switch --flake ~/.config/home-manager
 
-# macOS の場合
+# macOS
 darwin-rebuild switch --flake ~/.config/home-manager
 
-# flake を更新
-cd ~/.config/home-manager && nix flake update
+# flake 更新
+nix flake update
 ```
+
+## コンセプト
+
+- **Pure Nix** - 全て Nix で宣言的に管理
+- **再現可能** - Flakes でロックされた依存関係
+- **マルチプラットフォーム** - macOS, Linux, WSL
+- **1Password** - SSH/GPG 鍵管理
 
 ## Tools
 
@@ -62,4 +72,4 @@ cd ~/.config/home-manager && nix flake update
 
 **Dev**: Node.js, Python, Go, Rust, Ruby
 
-**macOS**: yabai + skhd, Raycast
+**macOS**: yabai + skhd, Homebrew (via nix-darwin)
