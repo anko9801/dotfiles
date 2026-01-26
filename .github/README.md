@@ -12,12 +12,8 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 git clone https://github.com/anko9801/dotfiles ~/.config/home-manager
 
 # 3. Home Manager 適用
-nix run home-manager -- switch --flake ~/.config/home-manager#anko@wsl
-```
-
-macOS の場合:
-```bash
-nix run nix-darwin -- switch --flake ~/.config/home-manager#anko-mac
+nix run home-manager -- switch --flake ~/.config/home-manager#anko@wsl    # Linux/WSL
+nix run nix-darwin -- switch --flake ~/.config/home-manager#anko-mac      # macOS
 ```
 
 ## 構成
