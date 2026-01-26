@@ -123,10 +123,5 @@
       };
     };
 
-    # Activation script to apply settings
-    activationScripts.postUserActivation.text = ''
-      # Restart affected applications
-      /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-    '';
   };
 }
