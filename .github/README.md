@@ -72,4 +72,4 @@ nix flake update
 
 **Dev**: Node.js, Python, Go, Rust, Ruby
 
-**macOS**: yabai + skhd, Homebrew (via nix-darwin)
+**macOS**: yabai + skhd, Raycast, Homebrew (via nix-darwin)
