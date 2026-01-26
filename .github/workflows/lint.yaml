@@ -14,11 +14,10 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
 
       - name: Check Nix flake
-        run: nix flake check .config/home-manager --no-build
+        run: nix flake check --no-build
 
       - name: Format check
         run: |
-          cd .config/home-manager
           nix run nixpkgs#nixfmt -- --check *.nix **/*.nix || {
             echo "Run 'nixfmt' to fix formatting"
             exit 1

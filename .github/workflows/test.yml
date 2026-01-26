@@ -4,11 +4,13 @@ on:
   push:
     branches: [master]
     paths:
-      - '.config/home-manager/**'
+      - '**.nix'
+      - 'flake.lock'
       - '.github/workflows/test.yml'
   pull_request:
     paths:
-      - '.config/home-manager/**'
+      - '**.nix'
+      - 'flake.lock'
       - '.github/workflows/test.yml'
 
 concurrency:
@@ -30,12 +32,10 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
 
       - name: Build Home Manager configuration
-        run: |
-          cd .config/home-manager
-          nix build .#homeConfigurations."${{ matrix.config }}".activationPackage
+        run: nix build .#homeConfigurations."${{ matrix.config }}".activationPackage
 
       - name: Show result
-        run: ls -la .config/home-manager/result/
+        run: ls -la result/
 
   build-macos:
     runs-on: macos-latest
@@ -47,9 +47,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
 
       - name: Build nix-darwin configuration
-        run: |
-          cd .config/home-manager
-          nix build .#darwinConfigurations.anko-mac.system
+        run: nix build .#darwinConfigurations.anko-mac.system
 
       - name: Show result
-        run: ls -la .config/home-manager/result/
+        run: ls -la result/
