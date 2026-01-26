@@ -5,17 +5,13 @@ Pure Nix Home Manager ベースの dotfiles。
 ## セットアップ
 
 ```bash
-# 1. Nix インストール
-sh <(curl -L https://nixos.org/nix/install) --daemon
+# 1. Nix インストール (flakes 有効)
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
-# 2. Flakes 有効化
-mkdir -p ~/.config/nix
-echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf
-
-# 3. dotfiles クローン
+# 2. dotfiles クローン
 git clone https://github.com/anko9801/dotfiles ~/.config/home-manager
 
-# 4. Home Manager 適用
+# 3. Home Manager 適用
 nix run home-manager -- switch --flake ~/.config/home-manager#anko@wsl
 ```
 
