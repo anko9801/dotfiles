@@ -23,7 +23,7 @@ nix run nix-darwin -- switch --flake ~/.config/home-manager#anko-mac
 ## 構成
 
 ```
-~/dotfiles (= ~/.config/home-manager)
+~/.config/home-manager
 ├── flake.nix       # Flake definition
 ├── home.nix        # Common configuration
 ├── darwin/         # macOS (nix-darwin)
