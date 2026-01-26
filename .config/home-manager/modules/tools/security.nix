@@ -55,7 +55,7 @@
     enableZshIntegration = true;
     defaultCacheTtl = 3600;
     maxCacheTtl = 7200;
-    pinentryPackage = pkgs.pinentry-curses;
+    pinentry.package = pkgs.pinentry-curses;
   };
 
   # Password store (pass)

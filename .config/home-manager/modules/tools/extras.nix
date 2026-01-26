@@ -51,36 +51,40 @@
   };
 
   # Additional packages
-  home.packages = with pkgs; [
-    # System info
-    neofetch # System info display
-    onefetch # Git repository info
+  home.packages =
+    with pkgs;
+    [
+      # System info
+      neofetch # System info display
+      onefetch # Git repository info
 
-    # Development
-    just # Command runner (like make but simpler)
-    direnv # Per-directory environment
+      # Development
+      just # Command runner (like make but simpler)
+      direnv # Per-directory environment
 
-    # Productivity
-    taskwarrior3 # Task management
-    timewarrior # Time tracking
+      # Productivity
+      taskwarrior3 # Task management
+      timewarrior # Time tracking
 
-    # Network
-    mtr # Network diagnostic tool
-    nmap # Network scanner
-    doggo # DNS client (dig replacement)
+      # Network
+      mtr # Network diagnostic tool
+      nmap # Network scanner
+      doggo # DNS client (dig replacement)
 
-    # File management
-    trashy # Trash CLI
-    ouch # Compression tool
+      # File management
+      ouch # Compression tool
 
-    # JSON/Data
-    fx # JSON viewer
-    dasel # Query/modify data formats
+      # JSON/Data
+      fx # JSON viewer
+      dasel # Query/modify data formats
 
-    # Git extras
-    git-absorb # Auto-fixup commits
-    git-branchless # Stacked diffs workflow
-  ];
+      # Git extras
+      git-absorb # Auto-fixup commits
+      git-branchless # Stacked diffs workflow
+    ]
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      trashy # Trash CLI (Linux only)
+    ];
 
   # Taskwarrior configuration
   home.file.".taskrc".text = ''
