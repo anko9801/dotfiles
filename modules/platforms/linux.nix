@@ -6,43 +6,34 @@
 }:
 
 {
-  # Linux-specific configuration
-  home.homeDirectory = lib.mkDefault "/home/anko";
+  home = {
+    homeDirectory = lib.mkDefault "/home/anko";
 
-  home.sessionVariables = {
-    # Wayland/X11 support
-    MOZ_ENABLE_WAYLAND = "1";
-    QT_QPA_PLATFORM = "wayland;xcb";
+    sessionVariables = {
+      MOZ_ENABLE_WAYLAND = "1";
+      QT_QPA_PLATFORM = "wayland;xcb";
+      SSH_AUTH_SOCK = "$HOME/.1password/agent.sock";
+    };
 
-    # 1Password SSH Agent (Linux path)
-    SSH_AUTH_SOCK = "$HOME/.1password/agent.sock";
+    packages = with pkgs; [
+      xdg-utils
+      xclip
+      wl-clipboard
+    ];
   };
 
-  # Linux-specific packages
-  home.packages = with pkgs; [
-    xdg-utils # xdg-open, etc.
-    xclip # X clipboard
-    wl-clipboard # Wayland clipboard
-  ];
+  programs = {
+    ssh.extraConfig = ''
+      IdentityAgent ~/.1password/agent.sock
+    '';
 
-  # SSH configuration for Linux (1Password agent)
-  programs.ssh.extraConfig = ''
-    IdentityAgent ~/.1password/agent.sock
-  '';
+    git.settings.gpg.ssh.program = "op-ssh-sign";
 
-  # Git SSH signing program for Linux (1Password)
-  programs.git.settings = {
-    gpg.ssh.program = "op-ssh-sign";
+    zsh.initContent = lib.mkAfter ''
+      # Linux-Specific Configuration
+
+      [[ -d "/snap/bin" ]] && export PATH="/snap/bin:$PATH"
+      [[ -d "/var/lib/flatpak/exports/bin" ]] && export PATH="/var/lib/flatpak/exports/bin:$PATH"
+    '';
   };
-
-  # Linux-specific zsh configuration
-  programs.zsh.initContent = lib.mkAfter ''
-    # ==============================================================================
-    # Linux-Specific Configuration
-    # ==============================================================================
-
-    # Snap/Flatpak support
-    [[ -d "/snap/bin" ]] && export PATH="/snap/bin:$PATH"
-    [[ -d "/var/lib/flatpak/exports/bin" ]] && export PATH="/var/lib/flatpak/exports/bin:$PATH"
-  '';
 }

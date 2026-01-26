@@ -17,9 +17,11 @@
     homeDirectory = lib.mkDefault "/home/anko";
     stateVersion = "24.11";
 
-    # Environment variables
     sessionVariables = {
+      # Locale
       LANG = "ja_JP.UTF-8";
+
+      # Editors
       EDITOR = lib.mkDefault "vim";
       VISUAL = lib.mkDefault "vim";
       PAGER = "less";
@@ -37,23 +39,18 @@
 
       # Development
       GOPATH = "$HOME/go";
+      NODE_OPTIONS = "--max-old-space-size=4096";
+      PYTHONUNBUFFERED = "1";
 
       # FZF
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
       FZF_DEFAULT_OPTS = "--height 40% --layout=reverse --border";
       FZF_CTRL_T_COMMAND = "fd --type f --hidden --follow --exclude .git";
 
-      # Node.js
-      NODE_OPTIONS = "--max-old-space-size=4096";
-
-      # Python
-      PYTHONUNBUFFERED = "1";
-
       # Suppress zoxide doctor warning
       _ZO_DOCTOR = "0";
     };
 
-    # PATH
     sessionPath = [
       "$HOME/.local/bin"
       "$HOME/go/bin"
@@ -61,58 +58,44 @@
       "$HOME/.npm-global/bin"
     ];
 
-    # npm global packages installation via activation script
-    activation = {
-      installNpmPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        if command -v npm &>/dev/null; then
-          $DRY_RUN_CMD npm install -g @antfu/ni @anthropic-ai/claude-code @google/gemini-cli czg cz-git 2>/dev/null || true
-        fi
-      '';
-    };
+    activation.installNpmPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      if command -v npm &>/dev/null; then
+        $DRY_RUN_CMD npm install -g @antfu/ni @anthropic-ai/claude-code @google/gemini-cli czg cz-git 2>/dev/null || true
+      fi
+    '';
   };
 
-  # Config files managed by Home Manager
   xdg.configFile = {
-    "nvim" = {
-      source = ./configs/nvim;
-      recursive = true;
-    };
-    "vim" = {
-      source = ./configs/vim;
-      recursive = true;
-    };
-    "claude" = {
-      source = ./configs/claude;
-      recursive = true;
-    };
-    "wsl" = {
-      source = ./configs/wsl;
-      recursive = true;
-    };
+    "nvim".source = ./configs/nvim;
+    "nvim".recursive = true;
+    "vim".source = ./configs/vim;
+    "vim".recursive = true;
+    "claude".source = ./configs/claude;
+    "claude".recursive = true;
+    "wsl".source = ./configs/wsl;
+    "wsl".recursive = true;
   };
 
-  # Let Home Manager manage itself
-  programs.home-manager.enable = true;
+  programs = {
+    home-manager.enable = true;
 
-  # Enable nix-direnv for better direnv integration
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
 
-  # zoxide - smarter cd command
-  programs.zoxide = {
-    enable = true;
-    enableZshIntegration = true;
-    options = [
-      "--cmd"
-      "cd"
-    ];
-  };
+    zoxide = {
+      enable = true;
+      enableZshIntegration = true;
+      options = [
+        "--cmd"
+        "cd"
+      ];
+    };
 
-  # fzf - fuzzy finder
-  programs.fzf = {
-    enable = true;
-    enableZshIntegration = true;
+    fzf = {
+      enable = true;
+      enableZshIntegration = true;
+    };
   };
 }
