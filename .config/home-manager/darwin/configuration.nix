@@ -56,6 +56,9 @@
   # Create /etc/zshrc that loads nix-darwin environment
   programs.zsh.enable = true;
 
+  # Primary user for system defaults
+  system.primaryUser = "anko";
+
   # Used for backwards compatibility
   system.stateVersion = 5;
 
