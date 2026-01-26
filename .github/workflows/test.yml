@@ -1,143 +1,57 @@
-name: Test Installation
+name: Build
 
 on:
   push:
-    branches: [ main, master, yadm-backup ]
+    branches: [master]
     paths:
-      - '.config/**'
+      - '.config/home-manager/**'
       - '.github/workflows/test.yml'
-      - '!.config/**/*.md'
-      - '!.config/**/README.*'
   pull_request:
-    branches: [ main, master ]
     paths:
-      - '.config/**'
+      - '.config/home-manager/**'
       - '.github/workflows/test.yml'
-      - '!.config/**/*.md'
-      - '!.config/**/README.*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
+  build:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            config: anko@wsl
+          - os: ubuntu-latest
+            config: anko@linux
+          - os: macos-latest
+            config: anko-mac
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    
+
     steps:
-      - name: Install yadm
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build Home Manager configuration
         run: |
-          if [[ "${{ runner.os }}" == "macOS" ]]; then
-            brew install yadm
+          cd .config/home-manager
+
+          if [[ "${{ matrix.config }}" == "anko-mac" ]]; then
+            # For macOS, build darwin configuration
+            nix build .#darwinConfigurations.${{ matrix.config }}.system
           else
-            sudo apt-get update
-            sudo apt-get install -y curl
-            
-            # Install newer yadm from GitHub
-            curl -fLo /tmp/yadm https://github.com/yadm-dev/yadm/raw/master/yadm
-            sudo mv /tmp/yadm /usr/local/bin/yadm
-            sudo chmod a+x /usr/local/bin/yadm
+            # For Linux/WSL, build home-manager configuration
+            nix build .#homeConfigurations."${{ matrix.config }}".activationPackage
           fi
-          
-      - name: Clone dotfiles
+
+      - name: Show build output
         run: |
-          # Remove any existing git config that might cause issues
-          rm -f "$HOME/.config/git/config"
-          
-          # Set HOME to avoid permission issues
-          cd "$HOME"
-          
-          # Clone dotfiles with branch
-          yadm clone https://github.com/${{ github.repository }}.git --no-bootstrap -f -b ${{ github.ref_name }} || {
-            echo "Failed to clone ${{ github.ref_name }}, trying default"
-            yadm clone https://github.com/${{ github.repository }}.git --no-bootstrap -f
-          }
-          
-          # Checkout specific commit
-          yadm checkout ${{ github.sha }} || true
-          
-      - name: Set yadm config
-        run: |
-          # Set class for CI
-          yadm config local.class ci
-          
-          # Debug: Show current status
-          echo "=== YADM status ==="
-          yadm status || true
-          
-      - name: Run yadm alt
-        run: |
-          cd "$HOME"
-          yadm alt
-          
-          # Debug: Show what files were created
-          echo "=== Files in .config/yadm ==="
-          ls -la "$HOME/.config/yadm/" || true
-          
-      - name: Make scripts executable
-        run: |
-          # Ensure bootstrap scripts are executable
-          chmod +x "$HOME/.config/yadm/bootstrap" || true
-          find "$HOME/.config/yadm" -name "install*" -type f -exec chmod +x {} \; || true
-          
-      - name: Test bootstrap
-        run: |
-          cd "$HOME"
-          
-          # Set environment for non-interactive execution
-          export YADM_BOOTSTRAP=1
-          export YADM_SKIP_CONFIG=1
-          export YADM_CLASS=ci
-          export YADM_BOOTSTRAP_MACOS_SETTINGS=false
-          
-          # Run bootstrap
-          if [[ -f "$HOME/.config/yadm/bootstrap" ]]; then
-            echo "=== Running bootstrap ==="
-            "$HOME/.config/yadm/bootstrap" || {
-              code=$?
-              echo "Bootstrap failed with exit code: $code"
-              exit $code
-            }
-          else
-            echo "ERROR: bootstrap not found"
-            ls -la "$HOME/.config/yadm/"
-            exit 1
-          fi
-          
-      - name: Verify installation
-        run: |
-          echo "=== Verification ==="
-          
-          # Check key files
-          echo "Checking .zshrc..."
-          if [[ -f "$HOME/.config/zsh/.zshrc" ]]; then
-            echo "✓ .zshrc exists"
-            head -5 "$HOME/.config/zsh/.zshrc"
-          else
-            echo "✗ .zshrc not found"
-          fi
-          
-          echo ""
-          echo "Checking mise config..."
-          if [[ -f "$HOME/.config/mise/config.toml" ]]; then
-            echo "✓ mise config exists"
-          else
-            echo "✗ mise config not found"
-          fi
-          
-          echo ""
-          echo "Checking for mise binary..."
-          if [[ -f "$HOME/.local/bin/mise" ]]; then
-            echo "✓ mise binary exists"
-            "$HOME/.local/bin/mise" --version || true
-          elif command -v mise >/dev/null 2>&1; then
-            echo "✓ mise in PATH"
-            mise --version || true
-          else
-            echo "✗ mise not found"
-          fi
+          echo "Build successful for ${{ matrix.config }}"
+          ls -la .config/home-manager/result/

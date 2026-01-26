@@ -2,49 +2,25 @@ name: Lint
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 
 jobs:
-  lint:
+  nix-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Validate JSON files
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Check Nix flake
+        run: nix flake check .config/home-manager --no-build
+
+      - name: Format check
         run: |
-          echo "Validating JSON files..."
-          FAILED=0
-          for file in $(find . -name "*.json" -not -path "./.git/*"); do
-            if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
-              echo "Invalid JSON: $file"
-              FAILED=1
-            fi
-          done
-          exit $FAILED
-      
-      - name: Validate YAML files
-        run: |
-          echo "Validating YAML files..."
-          pip install -q pyyaml
-          FAILED=0
-          for file in $(find . -name "*.yaml" -o -name "*.yml" -not -path "./.git/*"); do
-            if ! python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
-              echo "Invalid YAML: $file"
-              FAILED=1
-            fi
-          done
-          exit $FAILED
-      
-      - name: Validate TOML files
-        run: |
-          echo "Validating TOML files..."
-          pip install -q toml
-          FAILED=0
-          for file in $(find . -name "*.toml" -not -path "./.git/*"); do
-            if ! python3 -c "import toml; toml.load('$file')" 2>/dev/null; then
-              echo "Invalid TOML: $file"
-              FAILED=1
-            fi
-          done
-          exit $FAILED
+          nix run nixpkgs#nixfmt -- --check .config/home-manager/*.nix .config/home-manager/**/*.nix || {
+            echo "Run 'nixfmt' to fix formatting"
+            exit 1
+          }

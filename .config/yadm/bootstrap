@@ -1,518 +1,107 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Fast YADM Bootstrap Script - Optimized version
-# Reduces function calls, uses built-in operations, and minimizes external dependencies
+# YADM Bootstrap - Home Manager based setup
+# All configuration is managed by Nix Home Manager
 
-# ============================================================================
-# CONSTANTS AND OPTIMIZED UTILITIES
-# ============================================================================
+# Colors
+readonly RED='\033[0;31m' GREEN='\033[0;32m' BLUE='\033[0;34m' NC='\033[0m'
+info() { printf "${BLUE}==>${NC} %s\n" "$1"; }
+success() { printf "${GREEN}==>${NC} %s\n" "$1"; }
+error() { printf "${RED}==>${NC} %s\n" "$1" >&2; }
 
-readonly RED=$'\033[0;31m' GREEN=$'\033[0;32m' YELLOW=$'\033[1;33m' BLUE=$'\033[0;34m' NC=$'\033[0m'
-
-# Fast logging with printf (faster than echo -e)
-log_info() { printf "${BLUE}[INFO]${NC} %s\n" "$1"; }
-log_success() { printf "${GREEN}[SUCCESS]${NC} %s\n" "$1"; }
-log_warn() { printf "${YELLOW}[WARNING]${NC} %s\n" "$1"; }
-log_error() { printf "${RED}[ERROR]${NC} %s\n" "$1"; }
-
-# Optimized command existence check
-command_exists() { command -v "$1" >/dev/null 2>&1; }
-
-# Fast file sourcing with error suppression
-safe_source() { [[ -f "$1" ]] && { source "$1" 2>/dev/null || log_warn "Failed to source $1"; }; }
-
-# ============================================================================
-# CACHED PLATFORM DETECTION
-# ============================================================================
-
+# Platform detection
 detect_platform() {
     case "$(uname -s)" in
         Darwin*) echo "darwin" ;;
-        Linux*) 
-            if [[ -f /proc/version ]] && grep -q Microsoft /proc/version; then
-                echo "wsl"
-            else
-                echo "linux"
-            fi
+        Linux*)
+            grep -q Microsoft /proc/version 2>/dev/null && echo "wsl" || echo "linux"
             ;;
-        MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
         *) echo "unknown" ;;
     esac
 }
 
-readonly PLATFORM=$(detect_platform)
-
-readonly DISTRO=$(if [[ "$PLATFORM" == "linux" || "$PLATFORM" == "wsl" ]]; then
-    if [[ -f /etc/os-release ]]; then
-        source /etc/os-release 2>/dev/null && echo "${ID:-unknown}"
-    else
-        echo "unknown"
-    fi
-else
-    echo ""
-fi)
-
-# ============================================================================
-# FAST INSTALLATION FUNCTIONS
-# ============================================================================
-
-fast_install_homebrew() {
-    command_exists brew && { log_info "Homebrew already installed"; return 0; }
-    
-    log_info "Installing Homebrew..."
-    if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
-        log_success "Homebrew installed"
-        [[ -f "/opt/homebrew/bin/brew" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+# Install Nix
+install_nix() {
+    if command -v nix &>/dev/null; then
+        info "Nix already installed"
         return 0
-    else
-        log_error "Homebrew installation failed"
-        return 1
     fi
+
+    info "Installing Nix..."
+    sh <(curl -L https://nixos.org/nix/install) --daemon
+
+    # Source nix
+    [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ] && \
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 }
 
-fast_install_packages() {
-    local distro="$1"
-    
-    case "$distro" in
-        ubuntu|debian)
-            log_info "Installing essential packages..."
-            local packages=(curl git unzip build-essential ca-certificates)
-            if ! sudo apt update >/dev/null 2>&1; then
-                log_error "Package list update failed"
-                return 1
-            fi
-            sudo apt install -y "${packages[@]}" >/dev/null 2>&1 || { log_error "Package installation failed"; return 1; }
-            ;;
-        *)
-            log_warn "Unsupported distribution: $distro"
-            return 1
-            ;;
-    esac
-}
-
-fast_install_tool() {
-    local name="$1" url="$2" check_cmd="$3" post_action="${4:-}"
-    
-    command_exists "$check_cmd" && { log_info "$name already installed"; return 0; }
-    
-    log_info "Installing $name..."
-    if curl -fsSL "$url" | sh >/dev/null 2>&1; then
-        log_success "$name installed"
-        [[ -n "$post_action" ]] && eval "$post_action"
+# Enable flakes
+enable_flakes() {
+    local nix_conf="$HOME/.config/nix/nix.conf"
+    if grep -q "experimental-features.*flakes" "$nix_conf" 2>/dev/null; then
         return 0
-    else
-        log_error "$name installation failed"
-        return 1
     fi
+
+    info "Enabling Nix flakes..."
+    mkdir -p "$(dirname "$nix_conf")"
+    echo 'experimental-features = nix-command flakes' >> "$nix_conf"
 }
 
-# ============================================================================
-# OPTIMIZED CONFIGURATION FUNCTIONS
-# ============================================================================
+# Run Home Manager
+run_home_manager() {
+    local platform="$1"
+    local hm_dir="$HOME/.config/home-manager"
 
-fast_setup_git() {
-    log_info "Configuring Git..."
-    
-    local git_name="${GIT_USER_NAME:-}"
-    local git_email="${GIT_USER_EMAIL:-}"
-    
-    # Batch git config operations
-    {
-        [[ -z "$(git config --global user.name 2>/dev/null)" ]] && {
-            if [[ -n "$git_name" ]]; then
-                git config --global user.name "$git_name"
-            elif [[ -z "${CI:-}" ]]; then
-                read -p "Git user name: " git_name
-                [[ -n "$git_name" ]] && git config --global user.name "$git_name"
-            fi
-        }
-        
-        [[ -z "$(git config --global user.email 2>/dev/null)" ]] && {
-            if [[ -n "$git_email" ]]; then
-                git config --global user.email "$git_email"
-            elif [[ -z "${CI:-}" ]]; then
-                read -p "Git user email: " git_email
-                [[ -n "$git_email" ]] && git config --global user.email "$git_email"
-            fi
-        }
-        
-        # Set all configs at once
-        git config --global init.defaultBranch main
-        git config --global pull.rebase false
-        git config --global push.default simple
-    } 2>/dev/null
-    
-    log_success "Git configured"
-}
-
-fast_setup_ssh() {
-    log_info "Setting up SSH..."
-    
-    local ssh_dir="$HOME/.ssh"
-    local ssh_config="$ssh_dir/config"
-    local ssh_key="$ssh_dir/id_ed25519"
-    
-    # Create SSH directory with proper permissions
-    if [[ ! -d "$ssh_dir" ]]; then
-        mkdir -p "$ssh_dir" || return 0
-        chmod 700 "$ssh_dir" || return 0
-    fi
-    
-    # Generate SSH key if needed
-    if [[ ! -f "$ssh_key" ]]; then
-        local email="${GIT_USER_EMAIL:-$(git config --global user.email 2>/dev/null || echo '')}"
-        
-        # In CI, use a default email if none is set
-        if [[ -z "$email" ]]; then
-            if [[ -n "${CI:-}" ]]; then
-                email="ci@example.com"
-                log_info "Using default email for SSH key in CI environment"
-            else
-                read -p "Email for SSH key: " email
-            fi
-        fi
-        
-        if [[ -n "$email" ]]; then
-            if ssh-keygen -t ed25519 -C "$email" -f "$ssh_key" -N "" >/dev/null 2>&1; then
-                log_success "SSH key generated"
-                
-                # Add to ssh-agent if available
-                if command_exists ssh-add; then
-                    eval "$(ssh-agent -s)" >/dev/null 2>&1
-                    ssh-add "$ssh_key" >/dev/null 2>&1 && log_success "SSH key added to agent"
-                fi
-            else
-                log_warn "SSH key generation failed, but continuing"
-            fi
-        else
-            log_info "Skipping SSH key generation (no email provided)"
-        fi
-    else
-        log_info "SSH key already exists"
-    fi
-    
-    # Create SSH config if needed
-    if [[ ! -f "$ssh_config" ]]; then
-        if cat > "$ssh_config" << 'EOF'
-Host github.com
-    HostName github.com
-    User git
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
-
-Host *
-    AddKeysToAgent yes
-    UseKeychain yes
-    ServerAliveInterval 60
-    ServerAliveCountMax 3
-EOF
-        then
-            chmod 600 "$ssh_config" 2>/dev/null || true
-            log_success "SSH config created"
-        else
-            log_warn "Failed to create SSH config, but continuing"
-        fi
-    else
-        log_info "SSH config already exists"
-    fi
-    
-    # Return success even if some steps failed
-    return 0
-}
-
-fast_add_to_shell_config() {
-    local shell_config="$1" content="$2" marker="$3"
-    
-    [[ ! -f "$shell_config" ]] && touch "$shell_config"
-    
-    if ! grep -q "$marker" "$shell_config" 2>/dev/null; then
-        printf '\n%s\n' "$content" >> "$shell_config"
-        return 0  # Added
-    fi
-    return 1  # Already exists
-}
-
-fast_setup_shell_configs() {
-    log_info "Configuring shell environments..."
-    
-    local configs_added=0
-    
-    # Batch all shell configurations
-    local shell_configs=(
-        "$HOME/.bashrc:bash"
-        "$HOME/.zshrc:zsh" 
-        "$HOME/.config/fish/config.fish:fish"
-    )
-    
-    for config_info in "${shell_configs[@]}"; do
-        IFS=':' read -r config_file shell_type <<< "$config_info"
-        
-        # Skip if shell doesn't exist
-        command_exists "$shell_type" || continue
-        
-        # Create config directory if needed
-        local config_dir
-        config_dir=$(dirname "$config_file")
-        [[ ! -d "$config_dir" ]] && mkdir -p "$config_dir"
-        
-        # Add configurations in batch
-        local added_any=false
-        
-        # mise configuration
-        if command_exists mise; then
-            local mise_config
-            case "$shell_type" in
-                fish) mise_config='mise activate fish | source' ;;
-                *) mise_config='eval "$(mise activate '$shell_type')"' ;;
-            esac
-            fast_add_to_shell_config "$config_file" "$mise_config" "mise activate" && added_any=true
-        fi
-        
-        # Deno configuration
-        if [[ -d "$HOME/.deno" ]]; then
-            local deno_config
-            case "$shell_type" in
-                fish) deno_config='set -gx PATH $HOME/.deno/bin $PATH' ;;
-                *) deno_config='export PATH="$HOME/.deno/bin:$PATH"' ;;
-            esac
-            fast_add_to_shell_config "$config_file" "$deno_config" "deno/bin" && added_any=true
-        fi
-        
-        # Homebrew configuration
-        if [[ -f "/opt/homebrew/bin/brew" ]]; then
-            local brew_config='eval "$(/opt/homebrew/bin/brew shellenv)"'
-            fast_add_to_shell_config "$config_file" "$brew_config" "homebrew/bin/brew" && added_any=true
-        fi
-        
-        $added_any && ((configs_added++))
-    done
-    
-    # Handle bash_profile
-    local bash_profile="$HOME/.bash_profile"
-    if command_exists bash && [[ -f "$HOME/.bashrc" ]]; then
-        fast_add_to_shell_config "$bash_profile" '[[ -f ~/.bashrc ]] && source ~/.bashrc' "bashrc" && ((configs_added++))
-    fi
-    
-    [[ $configs_added -gt 0 ]] && log_success "Updated $configs_added shell configurations"
-}
-
-# ============================================================================
-# OPTIMIZED PLATFORM SETUP
-# ============================================================================
-
-fast_setup_platform() {
-    case "$PLATFORM" in
-        darwin)
-            log_info "Setting up macOS..."
-            fast_install_homebrew || return 1
-            # Install essential packages via bundle if available
-            if command_exists deno && [[ -f bundle.sh ]]; then
-                log_info "Installing packages via bundle..."
-                ./bundle.sh install >/dev/null 2>&1 || log_warn "Bundle installation partially failed"
-            fi
-            ;;
-        linux|wsl)
-            log_info "Setting up Linux ($DISTRO)..."
-            fast_install_packages "$DISTRO" || return 1
-            [[ "$PLATFORM" == "wsl" ]] && log_info "WSL environment detected"
-            ;;
-        windows)
-            log_info "Setting up Windows..."
-            command_exists pacman && {
-                pacman -S --needed --noconfirm curl git unzip >/dev/null 2>&1 || true
-            }
-            ;;
-        *)
-            log_warn "Unknown platform: $PLATFORM"
-            return 1
-            ;;
+    # Determine configuration name
+    local config_name
+    case "$platform" in
+        darwin) config_name="anko-mac" ;;
+        wsl)    config_name="anko@wsl" ;;
+        linux)  config_name="anko@linux" ;;
+        *)      error "Unsupported platform: $platform"; return 1 ;;
     esac
-    
-    log_success "Platform setup completed for $PLATFORM"
-}
 
-# ============================================================================
-# FAST TOOL INSTALLATION
-# ============================================================================
+    info "Activating Home Manager ($config_name)..."
 
-fast_install_dev_tools() {
-    log_info "Setting up development environment..."
-    
-    # Find bundle.sh in the correct location
-    local bundle_script=""
-    if [[ -f "$HOME/.config/yadm/bundle.sh" ]]; then
-        bundle_script="$HOME/.config/yadm/bundle.sh"
-    elif [[ -f "$(dirname "$0")/bundle.sh" ]]; then
-        bundle_script="$(dirname "$0")/bundle.sh"
-    fi
-    
-    # Check if bundle.sh is available for package management
-    # Note: bundle.sh will install deno if needed, so we don't check for it first
-    if [[ -n "$bundle_script" && -f "$bundle_script" ]]; then
-        log_info "Using bundle.sh for comprehensive package management..."
-        # Make sure bundle.sh is executable
-        chmod +x "$bundle_script" 2>/dev/null || true
-        if "$bundle_script" install; then
-            log_success "Packages installed via bundle (includes mise + post_install)"
-            
-            # Bundle already handles:
-            # - mise installation via Homebrew/package manager
-            # - mise trust + install via post_install hooks
-            # - PATH setup and activation
-            
-            # Just verify mise is working
-            if command_exists mise; then
-                local tool_count
-                tool_count=$(mise list --installed 2>/dev/null | wc -l | tr -d ' ')
-                log_success "Development environment ready ($tool_count tools via mise)"
-            else
-                log_warn "Bundle completed but mise not available - may need manual setup"
-            fi
-            return 0
-        else
-            log_warn "Bundle installation had issues, trying fallback installation"
-        fi
+    if [[ "$platform" == "darwin" ]]; then
+        # Use nix-darwin for macOS
+        nix run nix-darwin -- switch --flake "$hm_dir#$config_name"
     else
-        log_info "Bundle script not found, using fallback installation"
-    fi
-    
-    # Fallback: manual installation if bundle is not available or failed
-    local tools_installed=0
-    
-    # Install mise manually if not available
-    if ! command_exists mise; then
-        log_info "Installing mise directly..."
-        fast_install_tool "mise" "https://mise.run" "mise" 'export PATH="$HOME/.local/bin:$PATH"' && ((tools_installed++))
-    fi
-    
-    # Skip deno installation - it should be managed by mise
-    command_exists mise && {
-        log_info "Deno will be managed by mise (check ~/.config/mise/config.toml)"
-    }
-    
-    [[ $tools_installed -gt 0 ]] && log_success "Installed $tools_installed development tools"
-    
-    # Ensure mise is properly configured if available
-    command_exists mise && fast_optimize_mise
-}
-
-# Optimize mise configuration (avoid duplicating existing settings)
-fast_optimize_mise() {
-    log_info "Checking mise configuration..."
-    
-    local mise_config="$HOME/.config/mise/config.toml"
-    
-    if [[ -f "$mise_config" ]]; then
-        log_info "Using existing mise configuration"
-        
-        # Just trust and install - don't recreate existing config
-        {
-            mise trust "$mise_config"
-            mise install --yes
-        } >/dev/null 2>&1 || log_warn "Some mise tools failed to install"
-        
-        # Show what's available (helpful info)
-        local tool_count
-        tool_count=$(mise list --installed 2>/dev/null | wc -l | tr -d ' ')
-        log_success "Mise ready with $tool_count tools installed"
-        
-    else
-        log_info "Creating minimal mise configuration..."
-        mkdir -p "$(dirname "$mise_config")"
-        
-        # Create minimal config only if none exists
-        cat > "$mise_config" << 'EOF'
-[settings]
-experimental = true
-jobs = 4
-
-[tools]
-node = "lts"
-deno = "latest"
-EOF
-        
-        log_success "Created minimal mise configuration"
-        
-        # Install the minimal set
-        {
-            mise trust "$mise_config"
-            mise install --yes
-        } >/dev/null 2>&1 || log_warn "Initial mise installation completed with warnings"
-        
-        log_success "Basic development tools ready via mise"
+        # Use home-manager for Linux/WSL
+        nix run home-manager -- switch --flake "$hm_dir#$config_name" -b backup
     fi
 }
 
-# ============================================================================
-# OPTIMIZED ENVIRONMENT SETUP
-# ============================================================================
-
-fast_setup_environment() {
-    log_info "Setting up environment variables..."
-    
-    # YADM_CLASS configuration
-    if [[ -z "${YADM_CLASS:-}" ]] && [[ -z "${CI:-}" ]]; then
-        printf "YADM_CLASS is used for conditional configurations (work, personal, server, etc.)\n"
-        read -p "Enter YADM_CLASS (or press Enter to skip): " yadm_class
-        [[ -n "$yadm_class" ]] && {
-            export YADM_CLASS="$yadm_class"
-            log_success "YADM_CLASS set to: $yadm_class"
-        }
-    else
-        log_info "YADM_CLASS: $YADM_CLASS"
+# WSL setup
+setup_wsl() {
+    local wsl_conf="$HOME/.config/wsl/wsl.conf"
+    if [[ -f "$wsl_conf" ]] && [[ ! -f /etc/wsl.conf ]]; then
+        info "Installing wsl.conf (requires sudo)..."
+        sudo cp "$wsl_conf" /etc/wsl.conf
+        success "wsl.conf installed - restart WSL to apply"
     fi
-    
-    [[ -n "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]] && 
-        log_info "YADM_BOOTSTRAP_SKIP_CONFIG is set, skipping some configurations"
 }
 
-# ============================================================================
-# OPTIMIZED MAIN EXECUTION
-# ============================================================================
-
+# Main
 main() {
-    log_info "Starting optimized YADM bootstrap (Platform: $PLATFORM)..."
-    
-    # Skip config setup if requested
-    if [[ -z "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]] && [[ -z "${YADM_SKIP_CONFIG:-}" ]]; then
-        fast_setup_git || log_warn "Git setup had issues"
-        fast_setup_ssh || log_warn "SSH setup had issues"
-    fi
-    
-    # Core tool installation
-    fast_install_dev_tools || { log_error "Development tools installation failed"; return 1; }
-    
-    # Platform-specific setup
-    fast_setup_platform || { log_error "Platform setup failed"; return 1; }
-    
-    # WSL-specific setup
-    if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
-        log_info "Configuring WSL-specific settings..."
-        if [[ -x "$HOME/.config/wsl/setup-xdg-open.sh" ]]; then
-            "$HOME/.config/wsl/setup-xdg-open.sh"
-        fi
-    fi
-    
-    # Shell configuration
-    if [[ -z "${YADM_BOOTSTRAP_SKIP_CONFIG:-}" ]] && [[ -z "${YADM_SKIP_CONFIG:-}" ]]; then
-        fast_setup_shell_configs
-    fi
-    
-    # Environment setup
-    fast_setup_environment
-    
-    log_success "Bootstrap completed successfully!"
-    printf "\nNext steps:\n"
-    printf "  - Restart shell: exec \$SHELL\n"
-    printf "  - Check Git config: git config --global --list\n"
-    printf "  - View SSH key: cat ~/.ssh/id_ed25519.pub\n"
-    
-    command_exists mise && {
-        printf "  - Install Node.js: mise install node@lts\n"
-        printf "  - Install Python: mise install python@latest\n"
-    }
+    local platform
+    platform=$(detect_platform)
+
+    info "Bootstrap starting (platform: $platform)"
+
+    install_nix
+    enable_flakes
+    run_home_manager "$platform"
+
+    # Platform-specific post-setup
+    [[ "$platform" == "wsl" ]] && setup_wsl
+
+    success "Bootstrap complete!"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Restart your shell: exec \$SHELL"
+    echo "  2. Update config: home-manager switch --flake ~/.config/home-manager"
 }
 
-# Execute with error handling
-main "$@" || { log_error "Bootstrap process failed"; exit 1; }
+main "$@"

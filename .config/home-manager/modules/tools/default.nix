@@ -1,0 +1,15 @@
+{ config, pkgs, lib, ... }:
+
+{
+  imports = [
+    ./cli.nix
+    ./dev.nix
+    ./linters.nix
+    ./git.nix
+    ./terminal.nix
+    ./neovim.nix
+    ./vscode.nix
+    ./security.nix
+    ./extras.nix
+  ];
+}

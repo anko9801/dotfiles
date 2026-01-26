@@ -1,55 +1,65 @@
 # dotfiles
 
-```bash
-# インストール
-brew install yadm                # macOS
-sudo apt install -y yadm         # Ubuntu/Debian  
-sudo pacman -S --noconfirm yadm  # Arch Linux
+Nix Home Manager ベースの dotfiles 管理。
 
-# セットアップ
+## セットアップ
+
+```bash
+# yadm インストール
+brew install yadm                # macOS
+sudo apt install -y yadm         # Ubuntu/Debian
+
+# dotfiles クローン
 yadm clone https://github.com/anko9801/dotfiles
-yadm status && yadm diff         # 既存設定がある場合は競合確認
-yadm reset --hard origin/master  # 必要に応じて既存設定を破棄
+
+# セットアップ (Nix + Home Manager をインストール)
 yadm bootstrap
+```
+
+## 構成
+
+```
+.config/
+├── home-manager/    # Nix Home Manager (メイン設定)
+│   ├── flake.nix    # Flake definition
+│   ├── home.nix     # Common configuration
+│   ├── darwin/      # macOS (nix-darwin)
+│   └── modules/     # Shell, tools, platforms
+├── nvim/            # Neovim configuration
+├── vim/             # Vim configuration
+└── yadm/            # Bootstrap script
 ```
 
 ## コンセプト
 
-新しいマシンでもコマンド一発でいつもの環境を再現したい。理想としてはこんな感じ:
+- **宣言的** - Nix Flakes で再現可能な環境
+- **シンプル** - yadm + Home Manager の組み合わせ
+- **マルチプラットフォーム** - macOS, Linux, WSL をサポート
+- **セキュア** - 1Password で SSH/GPG 鍵を管理
 
-- **らくちん** - 1コマンドでセットアップ&管理
-- **ミニマル** - .config にすべて収納
-- **シークレット管理** - SSH 鍵や API キーはパスワードマネージャーで管理、ローカルには置かない
-- **マシン差分を吸収** - OS (macOS/Linux/WSL/Windows) やコンテキスト (work/personal) に応じた設定
-- **再現性** - 必要なツールはすべて宣言的に管理、どこでも同じ環境を構築
-- **冪等性** - 何度実行しても既存の設定を壊さない
+## コマンド
 
-最も条件を満たすのは Nix かと思いますがガベコレの運用コストが高いので断念。
-実装の工夫で冪等性を満たして、宣言的で再現可能にしてみました。
+```bash
+# 設定を更新
+home-manager switch --flake ~/.config/home-manager
 
+# macOS の場合
+darwin-rebuild switch --flake ~/.config/home-manager
 
-### こだわりポイント
-
-- **yadm によるシンプルな管理** - [なぜyadm？](../.config/yadm/README.md)
-- **シェルも収納** - `/etc/zsh/zshenv` で XDG Base Directory 準拠することで .zshrc も .config に収納
-- **1Passwordで認証管理** - SSH 鍵、GPG 鍵、API トークンを安全に管理 - [op/README.md](../.config/op/README.md)
-- **冪等性** - [冪等なシェルスクリプトのベストプラクティス](../.config/yadm/README.md)
-- **宣言的なパッケージ管理** - [packages.yaml](../.config/packages.yaml) と [mise](../.config/mise/config.toml) で全プラットフォーム統一管理
-- **顔文字プロンプト** - いつもは `╰─(*'-') ❯` エラーが出たら `╰─(*;-;) ❯`
-
+# flake を更新
+cd ~/.config/home-manager && nix flake update
+```
 
 ## Tools
 
-- Shell: zsh + sheldon
-- Multiplexer: tmux + TPM
-- Editor: Vim + dpp.vim, Neovim + lazy.nvim
-- dev env: mise (Node.js, Go, Rust, Ruby, Deno, Bun)
-- Python: uv, ruff
-- Git: git, delta, gitui, ghq, gibo, git-lfs, gitleaks
-- Modern CLI: bat, eza, ripgrep, fd, fzf, gh, starship, zoxide, atuin, mcfly, duf, dust, tokei, sd, bottom, gomi
-- AI Assistant: Claude Code, Gemini CLI
+**Shell**: zsh + starship + fzf + zoxide + atuin
 
+**Editor**: Neovim + lazy.nvim, Vim
 
-macOS Specific:
-- Window Manager: yabai + skhd
-- Launcher: Raycast
+**Git**: delta, gitui, ghq, gibo, lazygit, gitleaks
+
+**Modern CLI**: bat, eza, ripgrep, fd, dust, bottom, procs, sd
+
+**Dev**: Node.js, Python, Go, Rust, Ruby
+
+**macOS**: yabai + skhd, Raycast
