@@ -22,7 +22,16 @@
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, nix-index-database, nix-homebrew, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      nix-darwin,
+      nix-index-database,
+      nix-homebrew,
+      ...
+    }:
     let
       # Common modules for home-manager
       commonHomeModules = [
@@ -31,7 +40,11 @@
       ];
 
       # Standalone home-manager configuration (for Linux/WSL)
-      mkHome = { system, extraModules ? [] }:
+      mkHome =
+        {
+          system,
+          extraModules ? [ ],
+        }:
         home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
             inherit system;
@@ -41,7 +54,8 @@
         };
 
       # nix-darwin configuration (for macOS)
-      mkDarwin = { system, hostname }:
+      mkDarwin =
+        { system, hostname }:
         nix-darwin.lib.darwinSystem {
           inherit system;
           specialArgs = { inherit self; };
@@ -65,9 +79,11 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                users.anko = { pkgs, ... }: {
-                  imports = commonHomeModules ++ [ ./modules/platforms/darwin.nix ];
-                };
+                users.anko =
+                  { pkgs, ... }:
+                  {
+                    imports = commonHomeModules ++ [ ./modules/platforms/darwin.nix ];
+                  };
               };
             }
           ];

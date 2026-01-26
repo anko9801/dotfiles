@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Syncthing - file synchronization
@@ -8,7 +13,7 @@
 
     # Sync configuration
     tray = {
-      enable = false;  # No tray on headless
+      enable = false; # No tray on headless
     };
   };
 

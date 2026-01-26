@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Mark this as a generic Linux target (includes WSL)
@@ -24,8 +29,8 @@
 
   # WSL-specific packages
   home.packages = with pkgs; [
-    wslu            # WSL utilities (wslview, etc.)
-    socat           # For 1Password SSH agent forwarding
+    wslu # WSL utilities (wslview, etc.)
+    socat # For 1Password SSH agent forwarding
   ];
 
   # SSH configuration for WSL
@@ -67,19 +72,19 @@
 
     # Setup xdg-open to use Windows browser
     setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
-        $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
-        cat > $HOME/.local/share/applications/wslview.desktop << 'DESKTOP'
-[Desktop Entry]
-Type=Application
-Version=1.0
-Name=WSL Browser
-NoDisplay=true
-Exec=wslview %u
-MimeType=x-scheme-handler/http;x-scheme-handler/https;
-DESKTOP
-        $DRY_RUN_CMD xdg-settings set default-web-browser wslview.desktop 2>/dev/null || true
-      fi
+            if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+              $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
+              cat > $HOME/.local/share/applications/wslview.desktop << 'DESKTOP'
+      [Desktop Entry]
+      Type=Application
+      Version=1.0
+      Name=WSL Browser
+      NoDisplay=true
+      Exec=wslview %u
+      MimeType=x-scheme-handler/http;x-scheme-handler/https;
+      DESKTOP
+              $DRY_RUN_CMD xdg-settings set default-web-browser wslview.desktop 2>/dev/null || true
+            fi
     '';
   };
 

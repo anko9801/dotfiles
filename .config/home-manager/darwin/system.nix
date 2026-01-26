@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # macOS system preferences
@@ -19,7 +24,7 @@
         show-recents = false;
         tilesize = 48;
         minimize-to-application = true;
-        mru-spaces = false;  # Don't rearrange spaces based on most recent use
+        mru-spaces = false; # Don't rearrange spaces based on most recent use
       };
 
       # Finder settings
@@ -27,7 +32,7 @@
         AppleShowAllExtensions = true;
         AppleShowAllFiles = true;
         FXEnableExtensionChangeWarning = false;
-        FXPreferredViewStyle = "Nlsv";  # List view
+        FXPreferredViewStyle = "Nlsv"; # List view
         ShowPathbar = true;
         ShowStatusBar = true;
         _FXShowPosixPathInTitle = true;
@@ -36,7 +41,7 @@
       # Global settings
       NSGlobalDomain = {
         # Keyboard
-        ApplePressAndHoldEnabled = false;  # Enable key repeat
+        ApplePressAndHoldEnabled = false; # Enable key repeat
         InitialKeyRepeat = 15;
         KeyRepeat = 2;
 
@@ -50,7 +55,7 @@
         NSAutomaticSpellingCorrectionEnabled = false;
 
         # Mouse/Trackpad
-        "com.apple.mouse.tapBehavior" = 1;  # Tap to click
+        "com.apple.mouse.tapBehavior" = 1; # Tap to click
         "com.apple.trackpad.scaling" = 2.0;
 
         # Behavior

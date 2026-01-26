@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # macOS-specific configuration
@@ -12,14 +17,14 @@
   # macOS-specific packages
   home.packages = with pkgs; [
     # macOS utilities
-    coreutils       # GNU coreutils
-    findutils       # GNU find
-    gnugrep         # GNU grep
-    gnutar          # GNU tar
+    coreutils # GNU coreutils
+    findutils # GNU find
+    gnugrep # GNU grep
+    gnutar # GNU tar
 
     # macOS-specific tools
-    darwin.trash    # Move to trash
-    terminal-notifier  # macOS notifications
+    darwin.trash # Move to trash
+    terminal-notifier # macOS notifications
   ];
 
   # SSH configuration for macOS

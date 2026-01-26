@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Additional useful programs
@@ -48,33 +53,33 @@
   # Additional packages
   home.packages = with pkgs; [
     # System info
-    neofetch         # System info display
-    onefetch         # Git repository info
+    neofetch # System info display
+    onefetch # Git repository info
 
     # Development
-    just             # Command runner (like make but simpler)
-    direnv           # Per-directory environment
+    just # Command runner (like make but simpler)
+    direnv # Per-directory environment
 
     # Productivity
-    taskwarrior3     # Task management
-    timewarrior      # Time tracking
+    taskwarrior3 # Task management
+    timewarrior # Time tracking
 
     # Network
-    mtr              # Network diagnostic tool
-    nmap             # Network scanner
-    doggo            # DNS client (dig replacement)
+    mtr # Network diagnostic tool
+    nmap # Network scanner
+    doggo # DNS client (dig replacement)
 
     # File management
-    trashy           # Trash CLI
-    ouch             # Compression tool
+    trashy # Trash CLI
+    ouch # Compression tool
 
     # JSON/Data
-    fx               # JSON viewer
-    dasel            # Query/modify data formats
+    fx # JSON viewer
+    dasel # Query/modify data formats
 
     # Git extras
-    git-absorb       # Auto-fixup commits
-    git-branchless   # Stacked diffs workflow
+    git-absorb # Auto-fixup commits
+    git-branchless # Stacked diffs workflow
   ];
 
   # Taskwarrior configuration

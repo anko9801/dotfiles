@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Linux-specific configuration
@@ -15,9 +20,9 @@
 
   # Linux-specific packages
   home.packages = with pkgs; [
-    xdg-utils       # xdg-open, etc.
-    xclip           # X clipboard
-    wl-clipboard    # Wayland clipboard
+    xdg-utils # xdg-open, etc.
+    xclip # X clipboard
+    wl-clipboard # Wayland clipboard
   ];
 
   # SSH configuration for Linux

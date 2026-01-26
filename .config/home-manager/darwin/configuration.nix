@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -11,12 +16,19 @@
   # Nix configuration
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       auto-optimise-store = true;
     };
     gc = {
       automatic = true;
-      interval = { Weekday = 0; Hour = 3; Minute = 0; };
+      interval = {
+        Weekday = 0;
+        Hour = 3;
+        Minute = 0;
+      };
       options = "--delete-older-than 30d";
     };
   };

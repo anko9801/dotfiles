@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Homebrew configuration (managed by nix-darwin)
@@ -8,7 +13,7 @@
     # Automatically remove unlisted packages
     onActivation = {
       autoUpdate = true;
-      cleanup = "zap";  # Remove all unlisted packages
+      cleanup = "zap"; # Remove all unlisted packages
       upgrade = true;
     };
 

@@ -1,29 +1,34 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   home.packages = with pkgs; [
     # Modern CLI replacements
-    ripgrep          # grep replacement (rg)
-    fd               # find replacement
-    eza              # ls replacement
-    sd               # sed replacement
-    dust             # du replacement
-    duf              # df replacement
-    bottom           # top replacement (btm)
-    procs            # ps replacement
-    tokei            # code statistics
-    hyperfine        # benchmarking tool
+    ripgrep # grep replacement (rg)
+    fd # find replacement
+    eza # ls replacement
+    sd # sed replacement
+    dust # du replacement
+    duf # df replacement
+    bottom # top replacement (btm)
+    procs # ps replacement
+    tokei # code statistics
+    hyperfine # benchmarking tool
 
     # File operations
     tree
-    jq               # JSON processor
-    yq-go            # YAML processor
-    hexyl            # hex viewer
+    jq # JSON processor
+    yq-go # YAML processor
+    hexyl # hex viewer
 
     # Networking
     curl
     wget
-    httpie           # HTTP client
+    httpie # HTTP client
 
     # Archives
     unzip
@@ -34,21 +39,21 @@
     gnused
 
     # Documentation
-    tealdeer         # tldr - simplified man pages
-    man-db           # man pages
+    tealdeer # tldr - simplified man pages
+    man-db # man pages
 
     # Media
-    ffmpeg           # video/audio processing
-    imagemagick      # image processing
-    yt-dlp           # video downloader
-    pandoc           # document converter
+    ffmpeg # video/audio processing
+    imagemagick # image processing
+    yt-dlp # video downloader
+    pandoc # document converter
 
     # Misc
-    yadm             # dotfiles manager
-    watchexec        # file watcher
-    entr             # run commands on file changes
-    gomi             # trash command (safer rm)
-    mcfly            # shell history search
+    yadm # dotfiles manager
+    watchexec # file watcher
+    entr # run commands on file changes
+    gomi # trash command (safer rm)
+    mcfly # shell history search
   ];
 
   # Tealdeer (tldr) - simplified man pages
@@ -61,7 +66,7 @@
       };
       updates = {
         auto_update = true;
-        auto_update_interval_hours = 720;  # 30 days
+        auto_update_interval_hours = 720; # 30 days
       };
     };
   };

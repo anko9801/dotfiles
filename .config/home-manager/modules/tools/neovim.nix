@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   programs.neovim = {
@@ -17,18 +22,18 @@
     extraPackages = with pkgs; [
       # LSP servers
       lua-language-server
-      nil  # Nix LSP
+      nil # Nix LSP
 
       # Formatters
       stylua
       nixfmt
 
       # Linters (additional)
-      selene  # Lua linter
+      selene # Lua linter
 
       # Tools for plugins
       tree-sitter
-      nodejs  # For some plugins
+      nodejs # For some plugins
     ];
   };
 }

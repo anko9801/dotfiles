@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   programs.starship = {
@@ -82,16 +87,16 @@
         format = "[\\[$all_status$ahead_behind\\] ]($style)";
         style = "fg:#5CCFE6";
         conflicted = "=";
-        ahead = ''⇡''${count}'';
-        behind = ''⇣''${count}'';
-        diverged = ''⇕⇡''${ahead_count}⇣''${behind_count}'';
+        ahead = "⇡\${count}";
+        behind = "⇣\${count}";
+        diverged = "⇕⇡\${ahead_count}⇣\${behind_count}";
         up_to_date = "";
-        untracked = ''?''${count}'';
+        untracked = "?\${count}";
         stashed = ''\\$''${count}'';
-        modified = ''!''${count}'';
-        staged = ''+''${count}'';
-        renamed = ''»''${count}'';
-        deleted = ''✘''${count}'';
+        modified = "!\${count}";
+        staged = "+\${count}";
+        renamed = "»\${count}";
+        deleted = "✘\${count}";
       };
 
       cmd_duration = {
@@ -111,7 +116,14 @@
         format = "[$symbol($version )]($style)";
         symbol = " ";
         style = "fg:#87D96C";
-        detect_extensions = [ "js" "mjs" "cjs" "ts" "mts" "cts" ];
+        detect_extensions = [
+          "js"
+          "mjs"
+          "cjs"
+          "ts"
+          "mts"
+          "cts"
+        ];
       };
 
       python = {
@@ -147,7 +159,7 @@
       memory_usage = {
         disabled = true;
         threshold = -1;
-        format = ''[󰍛 ''${ram_pct}]($style) '';
+        format = "[󰍛 \${ram_pct}]($style) ";
         style = "fg:#707A8C";
       };
 

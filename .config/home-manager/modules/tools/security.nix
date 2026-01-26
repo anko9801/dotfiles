@@ -1,8 +1,13 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   home.packages = with pkgs; [
-    _1password-cli   # 1Password CLI (op)
+    _1password-cli # 1Password CLI (op)
   ];
 
   # 1Password CLI configuration
@@ -46,7 +51,7 @@
   # GPG Agent (Linux only - not on WSL typically)
   services.gpg-agent = lib.mkIf (!config.targets.genericLinux.enable or false) {
     enable = true;
-    enableSshSupport = false;  # Using 1Password for SSH
+    enableSshSupport = false; # Using 1Password for SSH
     enableZshIntegration = true;
     defaultCacheTtl = 3600;
     maxCacheTtl = 7200;

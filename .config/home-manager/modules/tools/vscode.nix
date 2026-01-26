@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # VSCode - Only enable on non-WSL/non-genericLinux platforms
@@ -7,44 +12,47 @@
     enable = true;
 
     # Extensions from nixpkgs
-    profiles.default.extensions = with pkgs.vscode-extensions; [
-      # Vim
-      vscodevim.vim
+    profiles.default.extensions =
+      with pkgs.vscode-extensions;
+      [
+        # Vim
+        vscodevim.vim
 
-      # Languages
-      ms-python.python
-      ms-python.vscode-pylance
-      rust-lang.rust-analyzer
-      golang.go
+        # Languages
+        ms-python.python
+        ms-python.vscode-pylance
+        rust-lang.rust-analyzer
+        golang.go
 
-      # Web
-      dbaeumer.vscode-eslint
-      esbenp.prettier-vscode
-      bradlc.vscode-tailwindcss
+        # Web
+        dbaeumer.vscode-eslint
+        esbenp.prettier-vscode
+        bradlc.vscode-tailwindcss
 
-      # Git
-      eamodio.gitlens
-      github.vscode-pull-request-github
+        # Git
+        eamodio.gitlens
+        github.vscode-pull-request-github
 
-      # Utilities
-      editorconfig.editorconfig
-      streetsidesoftware.code-spell-checker
-      usernamehw.errorlens
-      christian-kohler.path-intellisense
+        # Utilities
+        editorconfig.editorconfig
+        streetsidesoftware.code-spell-checker
+        usernamehw.errorlens
+        christian-kohler.path-intellisense
 
-      # Themes
-      pkief.material-icon-theme
+        # Themes
+        pkief.material-icon-theme
 
-      # Remote
-      ms-vscode-remote.remote-ssh
-    ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-      {
-        name = "ayu";
-        publisher = "teabyii";
-        version = "1.0.5";
-        sha256 = "sha256-+IFqgWliKr+qjBLmQlzF44XNbN7Br5a119v9WAnZOu4=";
-      }
-    ];
+        # Remote
+        ms-vscode-remote.remote-ssh
+      ]
+      ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+        {
+          name = "ayu";
+          publisher = "teabyii";
+          version = "1.0.5";
+          sha256 = "sha256-+IFqgWliKr+qjBLmQlzF44XNbN7Br5a119v9WAnZOu4=";
+        }
+      ];
 
     # User settings
     profiles.default.userSettings = {
@@ -62,7 +70,10 @@
     };
 
     profiles.default.keybindings = [
-      { key = "ctrl+`"; command = "workbench.action.terminal.toggleTerminal"; }
+      {
+        key = "ctrl+`";
+        command = "workbench.action.terminal.toggleTerminal";
+      }
     ];
   };
 }

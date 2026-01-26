@@ -1,20 +1,25 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   home.packages = with pkgs; [
     # Languages - matching mise config
-    nodejs_22        # Node.js LTS (was: node = "lts")
-    python312        # Python (was: python = "latest")
-    ruby_3_3         # Ruby (was: ruby = "latest")
-    go               # Go (was: go = "latest")
-    rustup           # Rust toolchain manager (was: rust = "latest")
+    nodejs_22 # Node.js LTS (was: node = "lts")
+    python312 # Python (was: python = "latest")
+    ruby_3_3 # Ruby (was: ruby = "latest")
+    go # Go (was: go = "latest")
+    rustup # Rust toolchain manager (was: rust = "latest")
 
     # Package managers
-    pnpm             # Fast npm alternative
-    deno             # JavaScript/TypeScript runtime
-    bun              # Fast JavaScript runtime
-    lua              # Lua scripting language
-    uv               # Fast Python package manager
+    pnpm # Fast npm alternative
+    deno # JavaScript/TypeScript runtime
+    bun # Fast JavaScript runtime
+    lua # Lua scripting language
+    uv # Fast Python package manager
 
     # Build tools
     gnumake
@@ -28,11 +33,11 @@
     # Note: rust-analyzer is provided by rustup
 
     # Additional dev tools
-    ghq              # Git repository manager
+    ghq # Git repository manager
     # delta is installed via programs.delta in git.nix
-    gitui            # Git TUI
-    gibo             # .gitignore templates
-    git-lfs          # Git Large File Storage
+    gitui # Git TUI
+    gibo # .gitignore templates
+    git-lfs # Git Large File Storage
 
     # Cloud/DevOps (optional - uncomment if needed)
     # awscli2        # AWS CLI
@@ -68,7 +73,10 @@
         showIcons = true;
         theme = {
           lightTheme = false;
-          activeBorderColor = [ "green" "bold" ];
+          activeBorderColor = [
+            "green"
+            "bold"
+          ];
           inactiveBorderColor = [ "white" ];
           selectedLineBgColor = [ "reverse" ];
         };
