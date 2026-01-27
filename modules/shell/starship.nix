@@ -14,10 +14,12 @@
       #         #87D96C (green) / #F27983 (red) / #F28779 (light red) / #DFBFFF (purple)
 
       format = lib.concatStrings [
-        "[╭─](bold green)"
-        "$username$hostname$directory"
-        "$git_branch$git_commit$git_state$git_status$hg_branch"
-        "$docker_context$package$nodejs$python$rust$golang$java$kotlin$scala$swift"
+        "[╭─](bold green) "
+        "$directory"
+        "[on](white) $git_branch$git_commit$git_state$git_status"
+        "[via](white) $nodejs$python$rust$golang$java$kotlin$scala$swift"
+        "[on](white) $aws$gcloud$azure"
+        "$docker_context$package"
         "$cmd_duration"
         "\n$character"
       ];
@@ -152,6 +154,22 @@
         format = "[$symbol$version]($style) ";
         symbol = "󰏗 ";
         style = "fg:#FFAD66";
+      };
+
+      aws = {
+        format = "[☁️  ($profile )(\\($region\\) )]($style)";
+        style = "fg:#FFAD66";
+        symbol = "☁️ ";
+      };
+
+      gcloud = {
+        format = "[☁️  ($project )(\\($region\\) )]($style)";
+        style = "fg:#73D0FF";
+      };
+
+      azure = {
+        format = "[☁️  ($subscription )]($style)";
+        style = "fg:#73D0FF";
       };
 
       memory_usage = {
