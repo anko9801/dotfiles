@@ -5,35 +5,6 @@
 }:
 
 {
-  # mise - polyglot tool version manager
-  # Runtimes are managed by mise for latest versions
-  programs.mise = {
-    enable = true;
-    enableZshIntegration = true;
-    globalConfig = {
-      settings = {
-        experimental = true;
-        legacy_version_file = true;
-        jobs = 4;
-        task_output = "prefix";
-      };
-      tools = {
-        # Runtimes - managed by mise for latest versions
-        node = "latest";
-        python = "latest";
-        go = "latest";
-        deno = "latest";
-        bun = "latest";
-        java = "openjdk-21";
-        # npm tools
-        "npm:@antfu/ni" = "latest";
-        "npm:pnpm" = "latest";
-        "npm:yarn" = "latest";
-        "npm:zenn-cli" = "latest";
-      };
-    };
-  };
-
   home.packages = with pkgs; [
     # Rust toolchain manager (special case - needs rustup for toolchain management)
     rustup
@@ -86,65 +57,6 @@
     age # Modern encryption tool
   ];
 
-  # GitHub CLI
-  programs.gh = {
-    enable = true;
-    settings = {
-      git_protocol = "ssh";
-      prompt = "enabled";
-      aliases = {
-        co = "pr checkout";
-        pv = "pr view";
-        pc = "pr create";
-        pm = "pr merge";
-        il = "issue list";
-        ic = "issue create";
-        iv = "issue view";
-      };
-    };
-  };
-
-  # Lazygit - Terminal UI for git
-  programs.lazygit = {
-    enable = true;
-    settings = {
-      gui = {
-        showIcons = true;
-        theme = {
-          lightTheme = false;
-          activeBorderColor = [
-            "green"
-            "bold"
-          ];
-          inactiveBorderColor = [ "white" ];
-          selectedLineBgColor = [ "reverse" ];
-        };
-      };
-      git = {
-        paging = {
-          colorArg = "always";
-          pager = "delta --dark --paging=never";
-        };
-        commit = {
-          signOff = false;
-        };
-        merging = {
-          manualCommit = false;
-          args = "";
-        };
-      };
-      keybinding = {
-        universal = {
-          quit = "q";
-          quit-alt1 = "<c-c>";
-        };
-      };
-      os = {
-        editPreset = "nvim";
-      };
-    };
-  };
-
   # ghq configuration
   xdg.configFile."ghq/config".text = ''
     [general]
@@ -164,5 +76,95 @@
         fi
       fi
     '';
+  };
+
+  programs = {
+    # mise - polyglot tool version manager
+    # Runtimes are managed by mise for latest versions
+    mise = {
+      enable = true;
+      enableZshIntegration = true;
+      globalConfig = {
+        settings = {
+          experimental = true;
+          legacy_version_file = true;
+          jobs = 4;
+          task_output = "prefix";
+        };
+        tools = {
+          # Runtimes - managed by mise for latest versions
+          node = "latest";
+          python = "latest";
+          go = "latest";
+          deno = "latest";
+          bun = "latest";
+          java = "openjdk-21";
+          # npm tools
+          "npm:@antfu/ni" = "latest";
+          "npm:pnpm" = "latest";
+          "npm:yarn" = "latest";
+          "npm:zenn-cli" = "latest";
+        };
+      };
+    };
+
+    # GitHub CLI
+    gh = {
+      enable = true;
+      settings = {
+        git_protocol = "ssh";
+        prompt = "enabled";
+        aliases = {
+          co = "pr checkout";
+          pv = "pr view";
+          pc = "pr create";
+          pm = "pr merge";
+          il = "issue list";
+          ic = "issue create";
+          iv = "issue view";
+        };
+      };
+    };
+
+    # Lazygit - Terminal UI for git
+    lazygit = {
+      enable = true;
+      settings = {
+        gui = {
+          showIcons = true;
+          theme = {
+            lightTheme = false;
+            activeBorderColor = [
+              "green"
+              "bold"
+            ];
+            inactiveBorderColor = [ "white" ];
+            selectedLineBgColor = [ "reverse" ];
+          };
+        };
+        git = {
+          paging = {
+            colorArg = "always";
+            pager = "delta --dark --paging=never";
+          };
+          commit = {
+            signOff = false;
+          };
+          merging = {
+            manualCommit = false;
+            args = "";
+          };
+        };
+        keybinding = {
+          universal = {
+            quit = "q";
+            quit-alt1 = "<c-c>";
+          };
+        };
+        os = {
+          editPreset = "nvim";
+        };
+      };
+    };
   };
 }
