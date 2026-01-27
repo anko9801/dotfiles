@@ -14,11 +14,11 @@
       #         #87D96C (green) / #F27983 (red) / #F28779 (light red) / #DFBFFF (purple)
 
       format = lib.concatStrings [
-        "[╭─](bold green) "
+        "[╭─ ](bold green)"
         "$directory"
-        "[on](white) $git_branch$git_commit$git_state$git_status"
-        "[via](white) $nodejs$python$rust$golang$java$kotlin$scala$swift"
-        "[on](white) $aws$gcloud$azure"
+        "$git_branch$git_commit$git_state$git_status"
+        "$nodejs$python$rust$golang$java$kotlin$scala$swift"
+        "$aws$gcloud$azure"
         "$docker_context$package"
         "$cmd_duration"
         "\n$character"
@@ -55,7 +55,7 @@
       };
 
       git_branch = {
-        format = "[$symbol$branch(:$remote_branch)]($style) ";
+        format = "[on](white) [$symbol$branch(:$remote_branch)]($style) ";
         symbol = " ";
         style = "fg:#5CCFE6";
         truncation_length = 20;
@@ -113,7 +113,7 @@
       };
 
       nodejs = {
-        format = "[$symbol($version )]($style)";
+        format = "[via](white) [$symbol($version )]($style)";
         symbol = " ";
         style = "fg:#87D96C";
         detect_extensions = [
@@ -127,25 +127,25 @@
       };
 
       python = {
-        format = ''[''${symbol}''${pyenv_prefix}($version )(\($virtualenv\) )]($style)'';
+        format = ''[via](white) [''${symbol}''${pyenv_prefix}($version )(\($virtualenv\) )]($style)'';
         symbol = " ";
         style = "fg:#73D0FF";
       };
 
       rust = {
-        format = "[$symbol($version )]($style)";
+        format = "[via](white) [$symbol($version )]($style)";
         symbol = " ";
         style = "fg:#F28779";
       };
 
       golang = {
-        format = "[$symbol($version )]($style)";
-        symbol = " ";
+        format = "[via](white) [$symbol($version )]($style)";
+        symbol = "🐹 ";
         style = "fg:#5CCFE6";
       };
 
       java = {
-        format = "[$symbol($version )]($style)";
+        format = "[via](white) [$symbol($version )]($style)";
         symbol = " ";
         style = "fg:#F28779";
       };
@@ -157,18 +157,18 @@
       };
 
       aws = {
-        format = "[☁️  ($profile )(\\($region\\) )]($style)";
+        format = "[on](white) [☁️  ($profile )(\\($region\\))]($style) ";
         style = "fg:#FFAD66";
-        symbol = "☁️ ";
+        symbol = " ";
       };
 
       gcloud = {
-        format = "[☁️  ($project )(\\($region\\) )]($style)";
+        format = "[on](white) [☁️  ($project )(\\($region\\))]($style) ";
         style = "fg:#73D0FF";
       };
 
       azure = {
-        format = "[☁️  ($subscription )]($style)";
+        format = "[on](white) [☁️  ($subscription)]($style) ";
         style = "fg:#73D0FF";
       };
 
