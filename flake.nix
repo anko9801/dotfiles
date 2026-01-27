@@ -24,6 +24,11 @@
     };
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -42,6 +47,7 @@
       commonHomeModules = [
         ./home.nix
         nix-index-database.homeModules.nix-index
+        inputs.nixvim.homeModules.nixvim
       ];
 
       # Standalone home-manager configuration (for Linux/WSL)
