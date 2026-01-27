@@ -14,7 +14,21 @@
     # Colorscheme
     colorschemes.tokyonight = {
       enable = true;
-      settings.style = "night";
+      settings = {
+        style = "night";
+        transparent = false;
+        terminal_colors = true;
+        styles = {
+          comments = {
+            italic = true;
+          };
+          keywords = {
+            italic = true;
+          };
+          sidebars = "dark";
+          floats = "dark";
+        };
+      };
     };
 
     # Global options
@@ -82,6 +96,110 @@
       mapleader = " ";
       maplocalleader = " ";
     };
+
+    # Autocommands
+    autoGroups = {
+      YankHighlight = {
+        clear = true;
+      };
+      TrimWhitespace = {
+        clear = true;
+      };
+      AutoCreateDir = {
+        clear = true;
+      };
+      LastLocation = {
+        clear = true;
+      };
+      CloseWithQ = {
+        clear = true;
+      };
+      WrapSpell = {
+        clear = true;
+      };
+    };
+
+    autoCmd = [
+      # Highlight on yank
+      {
+        event = "TextYankPost";
+        group = "YankHighlight";
+        callback.__raw = ''
+          function()
+            vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+          end
+        '';
+      }
+      # Remove trailing whitespace on save
+      {
+        event = "BufWritePre";
+        group = "TrimWhitespace";
+        pattern = "*";
+        command = "%s/\\s\\+$//e";
+      }
+      # Auto create dir when saving a file
+      {
+        event = "BufWritePre";
+        group = "AutoCreateDir";
+        callback.__raw = ''
+          function(event)
+            if event.match:match("^%w%w+://") then
+              return
+            end
+            local file = vim.loop.fs_realpath(event.match) or event.match
+            vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+          end
+        '';
+      }
+      # Go to last location when opening a buffer
+      {
+        event = "BufReadPost";
+        group = "LastLocation";
+        callback.__raw = ''
+          function()
+            local mark = vim.api.nvim_buf_get_mark(0, '"')
+            local lcount = vim.api.nvim_buf_line_count(0)
+            if mark[1] > 0 and mark[1] <= lcount then
+              pcall(vim.api.nvim_win_set_cursor, 0, mark)
+            end
+          end
+        '';
+      }
+      # Close some filetypes with <q>
+      {
+        event = "FileType";
+        group = "CloseWithQ";
+        pattern = [
+          "help"
+          "lspinfo"
+          "man"
+          "notify"
+          "qf"
+          "checkhealth"
+        ];
+        callback.__raw = ''
+          function(event)
+            vim.bo[event.buf].buflisted = false
+            vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+          end
+        '';
+      }
+      # Wrap and check for spell in text filetypes
+      {
+        event = "FileType";
+        group = "WrapSpell";
+        pattern = [
+          "gitcommit"
+          "markdown"
+        ];
+        callback.__raw = ''
+          function()
+            vim.opt_local.wrap = true
+            vim.opt_local.spell = true
+          end
+        '';
+      }
+    ];
 
     # Keymaps
     keymaps = [
@@ -282,20 +400,6 @@
         options.desc = "Go to previous tab";
       }
 
-      # Terminal
-      {
-        mode = "n";
-        key = "<leader>tt";
-        action = "<cmd>terminal<CR>";
-        options.desc = "Open terminal";
-      }
-      {
-        mode = "t";
-        key = "<Esc><Esc>";
-        action = "<C-\\><C-n>";
-        options.desc = "Exit terminal mode";
-      }
-
       # File explorer
       {
         mode = "n";
@@ -311,11 +415,28 @@
         action = "<cmd>lua require('conform').format()<CR>";
         options.desc = "Format file";
       }
+
+      # Lazygit
+      {
+        mode = "n";
+        key = "<leader>gg";
+        action.__raw = ''
+          function()
+            require("toggleterm.terminal").Terminal:new({
+              cmd = "lazygit",
+              dir = "git_dir",
+              direction = "float",
+              float_opts = { border = "double" },
+            }):toggle()
+          end
+        '';
+        options.desc = "Lazygit";
+      }
     ];
 
     # Plugins
     plugins = {
-      # UI
+      # UI (load immediately)
       web-devicons.enable = true;
 
       lualine = {
@@ -359,7 +480,7 @@
       noice.enable = true;
       notify.enable = true;
 
-      # Dashboard
+      # Dashboard (load on VimEnter)
       alpha = {
         enable = true;
         theme = null;
@@ -462,15 +583,17 @@
         ];
       };
 
-      # File explorer
+      # File explorer (lazy: on command)
       neo-tree = {
         enable = true;
+        lazyLoad.settings.cmd = [ "Neotree" ];
         settings.window.width = 30;
       };
 
-      # Fuzzy finder
+      # Fuzzy finder (lazy: on keymap)
       telescope = {
         enable = true;
+        lazyLoad.settings.cmd = [ "Telescope" ];
         extensions = {
           fzf-native.enable = true;
         };
@@ -512,9 +635,13 @@
         };
       };
 
-      # Treesitter
+      # Treesitter (lazy: on BufRead)
       treesitter = {
         enable = true;
+        lazyLoad.settings.event = [
+          "BufReadPost"
+          "BufNewFile"
+        ];
         settings = {
           highlight.enable = true;
           indent.enable = true;
@@ -530,7 +657,7 @@
         };
       };
 
-      # LSP
+      # LSP (lazy: on BufRead)
       lsp = {
         enable = true;
         servers = {
@@ -574,11 +701,15 @@
       };
 
       # LSP progress indicator
-      fidget.enable = true;
+      fidget = {
+        enable = true;
+        lazyLoad.settings.event = [ "LspAttach" ];
+      };
 
-      # Formatter
+      # Formatter (lazy: on BufRead)
       conform-nvim = {
         enable = true;
+        lazyLoad.settings.event = [ "BufWritePre" ];
         settings = {
           formatters_by_ft = {
             lua = [ "stylua" ];
@@ -604,10 +735,11 @@
         };
       };
 
-      # Completion
+      # Completion (lazy: on InsertEnter)
       cmp = {
         enable = true;
         autoEnableSources = true;
+        lazyLoad.settings.event = [ "InsertEnter" ];
         settings = {
           sources = [
             { name = "nvim_lsp"; }
@@ -640,16 +772,21 @@
         };
       };
 
-      # Snippets
+      # Snippets (lazy: on InsertEnter)
       luasnip = {
         enable = true;
+        lazyLoad.settings.event = [ "InsertEnter" ];
         fromVscode = [ { } ];
       };
       friendly-snippets.enable = true;
 
-      # Git
+      # Git (lazy: on BufRead)
       gitsigns = {
         enable = true;
+        lazyLoad.settings.event = [
+          "BufReadPost"
+          "BufNewFile"
+        ];
         settings = {
           signs = {
             add.text = "│";
@@ -700,20 +837,59 @@
         };
       };
 
-      # Auto pairs
-      nvim-autopairs.enable = true;
+      # Auto pairs (lazy: on InsertEnter)
+      nvim-autopairs = {
+        enable = true;
+        lazyLoad.settings.event = [ "InsertEnter" ];
+      };
 
-      # Comments
-      comment.enable = true;
+      # Comments (lazy: on VeryLazy)
+      comment = {
+        enable = true;
+        lazyLoad.settings.event = [ "VeryLazy" ];
+      };
 
-      # Todo comments
-      todo-comments.enable = true;
+      # Todo comments (lazy: on BufRead)
+      todo-comments = {
+        enable = true;
+        lazyLoad.settings.event = [
+          "BufReadPost"
+          "BufNewFile"
+        ];
+      };
 
-      # Surround
-      nvim-surround.enable = true;
+      # Surround (lazy: on VeryLazy)
+      nvim-surround = {
+        enable = true;
+        lazyLoad.settings.event = [ "VeryLazy" ];
+      };
 
-      # Which key
-      which-key.enable = true;
+      # Which key (lazy: on VeryLazy)
+      which-key = {
+        enable = true;
+        lazyLoad.settings.event = [ "VeryLazy" ];
+      };
+
+      # Terminal (lazy: on command/keymap)
+      toggleterm = {
+        enable = true;
+        lazyLoad.settings.cmd = [ "ToggleTerm" ];
+        settings = {
+          size = 20;
+          open_mapping = "<c-\\>";
+          hide_numbers = true;
+          shade_terminals = true;
+          shading_factor = 2;
+          start_in_insert = true;
+          insert_mappings = true;
+          persist_size = true;
+          direction = "float";
+          close_on_exit = true;
+          float_opts = {
+            border = "curved";
+          };
+        };
+      };
     };
 
     # Extra packages
@@ -728,6 +904,7 @@
       # Tools
       ripgrep
       fd
+      lazygit
     ];
   };
 }
