@@ -56,7 +56,7 @@
 
       git_branch = {
         format = "[on](white) [$symbol$branch(:$remote_branch)]($style) ";
-        symbol = " ";
+        symbol = " ";
         style = "fg:#5CCFE6";
         truncation_length = 20;
         truncation_symbol = "…";
