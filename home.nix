@@ -19,14 +19,11 @@
       # Locale
       LANG = "ja_JP.UTF-8";
 
-      # Editors
-      EDITOR = lib.mkDefault "vim";
-      VISUAL = lib.mkDefault "vim";
+      # Editors (nixvim sets EDITOR via defaultEditor)
       PAGER = "less";
       LESSHISTFILE = "-";
 
-      # Vim XDG support
-      VIMINIT = ''let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC'';
+      # Readline config
       INPUTRC = "$XDG_CONFIG_HOME/readline/inputrc";
 
       # Development

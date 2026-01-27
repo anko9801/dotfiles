@@ -7,9 +7,18 @@
   programs.nixvim = {
     enable = true;
     defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-    vimdiffAlias = true;
+    # Disable aliases to avoid conflict with vim
+    viAlias = false;
+    vimAlias = false;
+    vimdiffAlias = false;
+
+    # Performance: byte compilation
+    performance.byteCompileLua = {
+      enable = true;
+      nvimRuntime = true;
+      configs = true;
+      plugins = true;
+    };
 
     # Colorscheme
     colorschemes.tokyonight = {
@@ -85,9 +94,9 @@
       completeopt = "menuone,noselect,noinsert";
       pumheight = 10;
 
-      # Fold (treesitter-based)
+      # Fold (native treesitter - Neovim 0.10+)
       foldmethod = "expr";
-      foldexpr = "nvim_treesitter#foldexpr()";
+      foldexpr = "v:lua.vim.treesitter.foldexpr()";
       foldenable = false;
     };
 
@@ -99,24 +108,12 @@
 
     # Autocommands
     autoGroups = {
-      YankHighlight = {
-        clear = true;
-      };
-      TrimWhitespace = {
-        clear = true;
-      };
-      AutoCreateDir = {
-        clear = true;
-      };
-      LastLocation = {
-        clear = true;
-      };
-      CloseWithQ = {
-        clear = true;
-      };
-      WrapSpell = {
-        clear = true;
-      };
+      YankHighlight.clear = true;
+      TrimWhitespace.clear = true;
+      AutoCreateDir.clear = true;
+      LastLocation.clear = true;
+      CloseWithQ.clear = true;
+      WrapSpell.clear = true;
     };
 
     autoCmd = [
@@ -176,6 +173,7 @@
           "notify"
           "qf"
           "checkhealth"
+          "oil"
         ];
         callback.__raw = ''
           function(event)
@@ -205,19 +203,13 @@
     keymaps = [
       # Better j/k navigation (wrapped lines)
       {
-        mode = [
-          "n"
-          "v"
-        ];
+        mode = [ "n" "v" ];
         key = "j";
         action = "gj";
         options.silent = true;
       }
       {
-        mode = [
-          "n"
-          "v"
-        ];
+        mode = [ "n" "v" ];
         key = "k";
         action = "gk";
         options.silent = true;
@@ -275,38 +267,16 @@
       }
       {
         mode = "n";
-        key = "<leader>co";
+        key = "<leader>xq";
         action = "<cmd>copen<CR>";
         options.desc = "Open quickfix";
       }
-      {
-        mode = "n";
-        key = "<leader>cc";
-        action = "<cmd>cclose<CR>";
-        options.desc = "Close quickfix";
-      }
 
       # Command-line navigation (Emacs style)
-      {
-        mode = "c";
-        key = "<C-a>";
-        action = "<Home>";
-      }
-      {
-        mode = "c";
-        key = "<C-e>";
-        action = "<End>";
-      }
-      {
-        mode = "c";
-        key = "<C-b>";
-        action = "<Left>";
-      }
-      {
-        mode = "c";
-        key = "<C-f>";
-        action = "<Right>";
-      }
+      { mode = "c"; key = "<C-a>"; action = "<Home>"; }
+      { mode = "c"; key = "<C-e>"; action = "<End>"; }
+      { mode = "c"; key = "<C-b>"; action = "<Left>"; }
+      { mode = "c"; key = "<C-f>"; action = "<Right>"; }
 
       # Window navigation
       {
@@ -369,18 +339,10 @@
       }
 
       # Better indenting
-      {
-        mode = "v";
-        key = "<";
-        action = "<gv";
-      }
-      {
-        mode = "v";
-        key = ">";
-        action = ">gv";
-      }
+      { mode = "v"; key = "<"; action = "<gv"; }
+      { mode = "v"; key = ">"; action = ">gv"; }
 
-      # Move lines (normal mode)
+      # Move lines
       {
         mode = "n";
         key = "<A-j>";
@@ -393,7 +355,6 @@
         action = "<cmd>m .-2<CR>==";
         options.desc = "Move line up";
       }
-      # Move lines (visual mode)
       {
         mode = "v";
         key = "<A-j>";
@@ -403,18 +364,6 @@
       {
         mode = "v";
         key = "<A-k>";
-        action = ":m '<-2<CR>gv=gv";
-        options.desc = "Move selection up";
-      }
-      {
-        mode = "v";
-        key = "J";
-        action = ":m '>+1<CR>gv=gv";
-        options.desc = "Move selection down";
-      }
-      {
-        mode = "v";
-        key = "K";
         action = ":m '<-2<CR>gv=gv";
         options.desc = "Move selection up";
       }
@@ -505,12 +454,20 @@
         options.desc = "Go to previous tab";
       }
 
-      # File explorer
+      # File explorer (neo-tree)
       {
         mode = "n";
         key = "<leader>e";
         action = "<cmd>Neotree toggle<CR>";
         options.desc = "Toggle file explorer";
+      }
+
+      # Oil.nvim (edit filesystem like buffer)
+      {
+        mode = "n";
+        key = "-";
+        action = "<cmd>Oil<CR>";
+        options.desc = "Open parent directory";
       }
 
       # Format
@@ -537,27 +494,138 @@
         '';
         options.desc = "Lazygit";
       }
+
+      # Diffview
+      {
+        mode = "n";
+        key = "<leader>gd";
+        action = "<cmd>DiffviewOpen<CR>";
+        options.desc = "Git diff";
+      }
+      {
+        mode = "n";
+        key = "<leader>gD";
+        action = "<cmd>DiffviewClose<CR>";
+        options.desc = "Close diff";
+      }
+
+      # Harpoon
+      {
+        mode = "n";
+        key = "<leader>a";
+        action.__raw = "function() require('harpoon'):list():add() end";
+        options.desc = "Harpoon add file";
+      }
+      {
+        mode = "n";
+        key = "<leader>h";
+        action.__raw = "function() require('harpoon').ui:toggle_quick_menu(require('harpoon'):list()) end";
+        options.desc = "Harpoon menu";
+      }
+      {
+        mode = "n";
+        key = "<leader>1";
+        action.__raw = "function() require('harpoon'):list():select(1) end";
+        options.desc = "Harpoon file 1";
+      }
+      {
+        mode = "n";
+        key = "<leader>2";
+        action.__raw = "function() require('harpoon'):list():select(2) end";
+        options.desc = "Harpoon file 2";
+      }
+      {
+        mode = "n";
+        key = "<leader>3";
+        action.__raw = "function() require('harpoon'):list():select(3) end";
+        options.desc = "Harpoon file 3";
+      }
+      {
+        mode = "n";
+        key = "<leader>4";
+        action.__raw = "function() require('harpoon'):list():select(4) end";
+        options.desc = "Harpoon file 4";
+      }
+
+      # fzf-lua keymaps
+      {
+        mode = "n";
+        key = "<leader>ff";
+        action = "<cmd>FzfLua files<CR>";
+        options.desc = "Find files";
+      }
+      {
+        mode = "n";
+        key = "<leader>fg";
+        action = "<cmd>FzfLua live_grep<CR>";
+        options.desc = "Live grep";
+      }
+      {
+        mode = "n";
+        key = "<leader>fb";
+        action = "<cmd>FzfLua buffers<CR>";
+        options.desc = "Buffers";
+      }
+      {
+        mode = "n";
+        key = "<leader>fh";
+        action = "<cmd>FzfLua help_tags<CR>";
+        options.desc = "Help tags";
+      }
+      {
+        mode = "n";
+        key = "<leader>fr";
+        action = "<cmd>FzfLua oldfiles<CR>";
+        options.desc = "Recent files";
+      }
+      {
+        mode = "n";
+        key = "<leader>gc";
+        action = "<cmd>FzfLua git_commits<CR>";
+        options.desc = "Git commits";
+      }
+      {
+        mode = "n";
+        key = "<leader>gs";
+        action = "<cmd>FzfLua git_status<CR>";
+        options.desc = "Git status";
+      }
+
+      # Flash keymaps
+      {
+        mode = [ "n" "x" "o" ];
+        key = "s";
+        action.__raw = "function() require('flash').jump() end";
+        options.desc = "Flash jump";
+      }
+      {
+        mode = [ "n" "x" "o" ];
+        key = "S";
+        action.__raw = "function() require('flash').treesitter() end";
+        options.desc = "Flash treesitter";
+      }
+      {
+        mode = "o";
+        key = "r";
+        action.__raw = "function() require('flash').remote() end";
+        options.desc = "Flash remote";
+      }
     ];
 
     # Plugins
     plugins = {
+      # Lazy loading with lz.n
+      lz-n.enable = true;
+
       # UI (load immediately)
       web-devicons.enable = true;
 
       lualine = {
         enable = true;
-        settings = {
-          options = {
-            theme = "tokyonight";
-            component_separators = {
-              left = "";
-              right = "";
-            };
-            section_separators = {
-              left = "";
-              right = "";
-            };
-          };
+        settings.options = {
+          theme = "tokyonight";
+          component_separators = { left = ""; right = ""; };
+          section_separators = { left = ""; right = ""; };
         };
       };
 
@@ -574,10 +642,7 @@
       indent-blankline = {
         enable = true;
         settings = {
-          indent = {
-            char = "│";
-            tab_char = "│";
-          };
+          indent = { char = "│"; tab_char = "│"; };
           scope.enabled = false;
         };
       };
@@ -585,15 +650,12 @@
       noice.enable = true;
       notify.enable = true;
 
-      # Dashboard (load on VimEnter)
+      # Dashboard
       alpha = {
         enable = true;
         theme = null;
         settings.layout = [
-          {
-            type = "padding";
-            val = 2;
-          }
+          { type = "padding"; val = 2; }
           {
             type = "text";
             val = [
@@ -606,22 +668,16 @@
               "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝"
               "                                                     "
             ];
-            opts = {
-              position = "center";
-              hl = "Type";
-            };
+            opts = { position = "center"; hl = "Type"; };
           }
-          {
-            type = "padding";
-            val = 2;
-          }
+          { type = "padding"; val = 2; }
           {
             type = "group";
             val = [
               {
                 type = "button";
                 val = "  Find file";
-                on_press.__raw = "function() require('telescope.builtin').find_files() end";
+                on_press.__raw = "function() vim.cmd('FzfLua files') end";
                 opts = {
                   shortcut = "f";
                   position = "center";
@@ -647,7 +703,7 @@
               {
                 type = "button";
                 val = "  Recent files";
-                on_press.__raw = "function() require('telescope.builtin').oldfiles() end";
+                on_press.__raw = "function() vim.cmd('FzfLua oldfiles') end";
                 opts = {
                   shortcut = "r";
                   position = "center";
@@ -660,7 +716,7 @@
               {
                 type = "button";
                 val = "  Find text";
-                on_press.__raw = "function() require('telescope.builtin').live_grep() end";
+                on_press.__raw = "function() vim.cmd('FzfLua live_grep') end";
                 opts = {
                   shortcut = "t";
                   position = "center";
@@ -688,65 +744,88 @@
         ];
       };
 
-      # File explorer (lazy: on command)
+      # File explorer: neo-tree + oil.nvim
       neo-tree = {
         enable = true;
         lazyLoad.settings.cmd = [ "Neotree" ];
-        settings.window.width = 30;
+        settings = {
+          window.width = 30;
+          filesystem.filtered_items.visible = true;
+        };
       };
 
-      # Fuzzy finder (lazy: on keymap)
-      telescope = {
+      oil = {
         enable = true;
-        lazyLoad.settings.cmd = [ "Telescope" ];
-        extensions = {
-          fzf-native.enable = true;
-        };
-        settings.defaults.mappings.i = {
-          "<C-k>".__raw = "require('telescope.actions').move_selection_previous";
-          "<C-j>".__raw = "require('telescope.actions').move_selection_next";
-          "<C-q>".__raw =
-            "require('telescope.actions').send_selected_to_qflist + require('telescope.actions').open_qflist";
-        };
-        keymaps = {
-          "<leader>ff" = {
-            action = "find_files";
-            options.desc = "Find files";
-          };
-          "<leader>fg" = {
-            action = "live_grep";
-            options.desc = "Live grep";
-          };
-          "<leader>fb" = {
-            action = "buffers";
-            options.desc = "Buffers";
-          };
-          "<leader>fh" = {
-            action = "help_tags";
-            options.desc = "Help tags";
-          };
-          "<leader>fr" = {
-            action = "oldfiles";
-            options.desc = "Recent files";
-          };
-          "<leader>gc" = {
-            action = "git_commits";
-            options.desc = "Git commits";
-          };
-          "<leader>gs" = {
-            action = "git_status";
-            options.desc = "Git status";
+        lazyLoad.settings.cmd = [ "Oil" ];
+        settings = {
+          view_options.show_hidden = true;
+          keymaps = {
+            "g?" = "actions.show_help";
+            "<CR>" = "actions.select";
+            "<C-v>" = "actions.select_vsplit";
+            "<C-s>" = "actions.select_split";
+            "<C-p>" = "actions.preview";
+            "<C-c>" = "actions.close";
+            "-" = "actions.parent";
+            "_" = "actions.open_cwd";
+            "`" = "actions.cd";
+            "~" = "actions.tcd";
+            "gs" = "actions.change_sort";
+            "gx" = "actions.open_external";
+            "g." = "actions.toggle_hidden";
           };
         };
       };
 
-      # Treesitter (lazy: on BufRead)
+      # Fuzzy finder: fzf-lua (faster than telescope)
+      fzf-lua = {
+        enable = true;
+        lazyLoad.settings.cmd = [ "FzfLua" ];
+        settings = {
+          winopts = {
+            height = 0.85;
+            width = 0.80;
+            preview = {
+              layout = "flex";
+              flip_columns = 120;
+            };
+          };
+          keymap.fzf = {
+            "ctrl-q" = "select-all+accept";
+          };
+          files = {
+            fd_opts = "--type f --hidden --follow --exclude .git";
+          };
+          grep = {
+            rg_opts = "--column --line-number --no-heading --color=always --smart-case";
+          };
+        };
+      };
+
+      # Motion: flash.nvim (better than leap/hop)
+      flash = {
+        enable = true;
+        settings = {
+          labels = "asdfghjklqwertyuiopzxcvbnm";
+          search.mode = "fuzzy";
+          label.after = true;
+          modes = {
+            search.enabled = true;
+            char.enabled = true;
+          };
+        };
+      };
+
+      # Harpoon: quick file navigation
+      harpoon = {
+        enable = true;
+        enableTelescope = false;
+      };
+
+      # Treesitter with explicit grammars (required for NixOS)
       treesitter = {
         enable = true;
-        lazyLoad.settings.event = [
-          "BufReadPost"
-          "BufNewFile"
-        ];
+        nixvimInjections = true;
         settings = {
           highlight.enable = true;
           indent.enable = true;
@@ -760,31 +839,110 @@
             };
           };
         };
+        grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
+          bash
+          c
+          cpp
+          css
+          diff
+          dockerfile
+          fish
+          git_rebase
+          gitcommit
+          go
+          gomod
+          html
+          javascript
+          json
+          lua
+          luadoc
+          make
+          markdown
+          markdown_inline
+          nix
+          python
+          query
+          regex
+          rust
+          sql
+          toml
+          tsx
+          typescript
+          vim
+          vimdoc
+          yaml
+        ];
       };
 
-      # LSP (lazy: on BufRead)
+      # Treesitter extensions
+      treesitter-textobjects = {
+        enable = true;
+        settings = {
+          select = {
+            enable = true;
+            lookahead = true;
+            keymaps = {
+              "af" = "@function.outer";
+              "if" = "@function.inner";
+              "ac" = "@class.outer";
+              "ic" = "@class.inner";
+              "aa" = "@parameter.outer";
+              "ia" = "@parameter.inner";
+            };
+          };
+          move = {
+            enable = true;
+            set_jumps = true;
+            goto_next_start = {
+              "]f" = "@function.outer";
+              "]c" = "@class.outer";
+            };
+            goto_previous_start = {
+              "[f" = "@function.outer";
+              "[c" = "@class.outer";
+            };
+          };
+        };
+      };
+
+      treesitter-context = {
+        enable = true;
+        settings.max_lines = 3;
+      };
+
+      ts-autotag.enable = true;
+      rainbow-delimiters.enable = true;
+
+      # LSP
       lsp = {
         enable = true;
         servers = {
-          lua_ls = {
+          # Nix: nixd (preferred over nil_ls in 2025)
+          nixd = {
             enable = true;
-            settings = {
-              Lua = {
-                runtime.version = "LuaJIT";
-                diagnostics.globals = [ "vim" ];
-                workspace.checkThirdParty = false;
-                telemetry.enable = false;
-              };
+            settings.nixd = {
+              nixpkgs.expr = "import (builtins.getFlake \"nixpkgs\") { }";
+              formatting.command = [ "nixfmt" ];
             };
           };
-          nil_ls.enable = true;
+          lua_ls = {
+            enable = true;
+            settings.Lua = {
+              runtime.version = "LuaJIT";
+              diagnostics.globals = [ "vim" ];
+              workspace.checkThirdParty = false;
+              telemetry.enable = false;
+            };
+          };
           ts_ls.enable = true;
           rust_analyzer = {
             enable = true;
             installCargo = false;
             installRustc = false;
+            settings.rust-analyzer.check.command = "clippy";
           };
-          pyright.enable = true;
+          basedpyright.enable = true;
+          ruff.enable = true;
           gopls.enable = true;
         };
         keymaps = {
@@ -811,17 +969,25 @@
         lazyLoad.settings.event = [ "LspAttach" ];
       };
 
-      # Formatter (lazy: on BufRead)
+      # Linting (separate from formatting)
+      lint = {
+        enable = true;
+        lintersByFt = {
+          python = [ "ruff" ];
+          javascript = [ "eslint_d" ];
+          typescript = [ "eslint_d" ];
+          nix = [ "statix" ];
+        };
+      };
+
+      # Formatter
       conform-nvim = {
         enable = true;
         lazyLoad.settings.event = [ "BufWritePre" ];
         settings = {
           formatters_by_ft = {
             lua = [ "stylua" ];
-            python = [
-              "black"
-              "isort"
-            ];
+            python = [ "ruff_format" "ruff_organize_imports" ];
             javascript = [ "prettierd" ];
             typescript = [ "prettierd" ];
             javascriptreact = [ "prettierd" ];
@@ -835,63 +1001,39 @@
           };
           format_on_save = {
             timeout_ms = 500;
-            lsp_fallback = true;
+            lsp_format = "fallback";
           };
         };
       };
 
-      # Completion (lazy: on InsertEnter)
-      cmp = {
+      # Completion: blink.cmp (replaces nvim-cmp in 2025)
+      blink-cmp = {
         enable = true;
-        autoEnableSources = true;
-        lazyLoad.settings.event = [ "InsertEnter" ];
         settings = {
-          sources = [
-            { name = "nvim_lsp"; }
-            { name = "luasnip"; }
-            { name = "buffer"; }
-            { name = "path"; }
-          ];
-          formatting.format.__raw = ''
-            function(entry, vim_item)
-              vim_item.menu = ({
-                nvim_lsp = "[LSP]",
-                luasnip = "[Snippet]",
-                buffer = "[Buffer]",
-                path = "[Path]",
-              })[entry.source.name]
-              return vim_item
-            end
-          '';
-          mapping = {
-            "<C-k>" = "cmp.mapping.select_prev_item()";
-            "<C-j>" = "cmp.mapping.select_next_item()";
-            "<C-b>" = "cmp.mapping.scroll_docs(-4)";
-            "<C-f>" = "cmp.mapping.scroll_docs(4)";
-            "<C-Space>" = "cmp.mapping.complete()";
-            "<C-e>" = "cmp.mapping.abort()";
-            "<CR>" = "cmp.mapping.confirm({ select = true })";
-            "<Tab>" = "cmp.mapping(cmp.mapping.select_next_item(), {'i', 's'})";
-            "<S-Tab>" = "cmp.mapping(cmp.mapping.select_prev_item(), {'i', 's'})";
+          keymap.preset = "default";
+          appearance.nerd_font_variant = "mono";
+          completion = {
+            documentation.auto_show = true;
+            ghost_text.enabled = true;
+            menu.draw.treesitter = [ "lsp" ];
           };
+          sources = {
+            default = [ "lsp" "path" "snippets" "buffer" ];
+          };
+          signature.enabled = true;
         };
       };
 
-      # Snippets (lazy: on InsertEnter)
+      # Snippets
       luasnip = {
         enable = true;
-        lazyLoad.settings.event = [ "InsertEnter" ];
         fromVscode = [ { } ];
       };
       friendly-snippets.enable = true;
 
-      # Git (lazy: on BufRead)
+      # Git
       gitsigns = {
         enable = true;
-        lazyLoad.settings.event = [
-          "BufReadPost"
-          "BufNewFile"
-        ];
         settings = {
           signs = {
             add.text = "│";
@@ -901,6 +1043,8 @@
             changedelete.text = "~";
             untracked.text = "┆";
           };
+          signs_staged_enable = true;
+          current_line_blame = true;
           on_attach.__raw = ''
             function(bufnr)
               local gs = package.loaded.gitsigns
@@ -942,46 +1086,54 @@
         };
       };
 
-      # Auto pairs (lazy: on InsertEnter)
+      diffview = {
+        enable = true;
+        lazyLoad.settings.cmd = [ "DiffviewOpen" "DiffviewFileHistory" ];
+      };
+
+      # Git conflict resolution
+      git-conflict = {
+        enable = true;
+        settings.default_mappings = true;
+      };
+
+      # Auto pairs
       nvim-autopairs = {
         enable = true;
         lazyLoad.settings.event = [ "InsertEnter" ];
       };
 
-      # Comments (lazy: on VeryLazy)
-      comment = {
+      # Comments: use ts-comments for proper treesitter detection
+      # (Neovim 0.10+ has native gc/gcc, ts-comments adds commentstring)
+      ts-comments = {
         enable = true;
-        lazyLoad.settings.event = [ "VeryLazy" ];
       };
 
-      # Todo comments (lazy: on BufRead)
+      # Todo comments
       todo-comments = {
         enable = true;
-        lazyLoad.settings.event = [
-          "BufReadPost"
-          "BufNewFile"
-        ];
+        lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
       };
 
-      # Surround (lazy: on VeryLazy)
+      # Surround
       nvim-surround = {
         enable = true;
         lazyLoad.settings.event = [ "VeryLazy" ];
       };
 
-      # Which key (lazy: on VeryLazy)
+      # Which key
       which-key = {
         enable = true;
-        lazyLoad.settings.event = [ "VeryLazy" ];
+        settings.delay = 200;
       };
 
-      # Terminal (lazy: on command/keymap)
+      # Terminal
       toggleterm = {
         enable = true;
         lazyLoad.settings.cmd = [ "ToggleTerm" ];
         settings = {
           size = 20;
-          open_mapping = "<c-\\>";
+          open_mapping.__raw = "[[<c-\\>]]";
           hide_numbers = true;
           shade_terminals = true;
           shading_factor = 2;
@@ -990,9 +1142,7 @@
           persist_size = true;
           direction = "float";
           close_on_exit = true;
-          float_opts = {
-            border = "curved";
-          };
+          float_opts.border = "curved";
         };
       };
     };
@@ -1001,15 +1151,20 @@
     extraPackages = with pkgs; [
       # Formatters
       stylua
-      nixfmt
+      nixfmt-rfc-style
       prettierd
-      black
-      isort
+      ruff
+
+      # Linters
+      statix
+      eslint_d
 
       # Tools
       ripgrep
       fd
+      fzf
       lazygit
+      bat
     ];
   };
 }
