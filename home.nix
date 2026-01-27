@@ -60,14 +60,6 @@
   xdg = {
     enable = true;
     configFile = {
-      nvim = {
-        source = ./configs/nvim;
-        recursive = true;
-      };
-      vim = {
-        source = ./configs/vim;
-        recursive = true;
-      };
       claude = {
         source = ./configs/claude;
         recursive = true;

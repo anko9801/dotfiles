@@ -203,6 +203,111 @@
 
     # Keymaps
     keymaps = [
+      # Better j/k navigation (wrapped lines)
+      {
+        mode = [
+          "n"
+          "v"
+        ];
+        key = "j";
+        action = "gj";
+        options.silent = true;
+      }
+      {
+        mode = [
+          "n"
+          "v"
+        ];
+        key = "k";
+        action = "gk";
+        options.silent = true;
+      }
+
+      # Yank to end of line (consistent with D and C)
+      {
+        mode = "n";
+        key = "Y";
+        action = "y$";
+      }
+
+      # Keep cursor centered when searching
+      {
+        mode = "n";
+        key = "n";
+        action = "nzzzv";
+        options.desc = "Next search result (centered)";
+      }
+      {
+        mode = "n";
+        key = "N";
+        action = "Nzzzv";
+        options.desc = "Previous search result (centered)";
+      }
+
+      # Keep cursor centered when joining lines
+      {
+        mode = "n";
+        key = "J";
+        action = "mzJ`z";
+        options.desc = "Join lines (keep cursor)";
+      }
+
+      # Quick escape from insert mode
+      {
+        mode = "i";
+        key = "jk";
+        action = "<Esc>";
+        options.desc = "Escape";
+      }
+
+      # QuickFix navigation
+      {
+        mode = "n";
+        key = "]q";
+        action = "<cmd>cnext<CR>zz";
+        options.desc = "Next quickfix";
+      }
+      {
+        mode = "n";
+        key = "[q";
+        action = "<cmd>cprevious<CR>zz";
+        options.desc = "Previous quickfix";
+      }
+      {
+        mode = "n";
+        key = "<leader>co";
+        action = "<cmd>copen<CR>";
+        options.desc = "Open quickfix";
+      }
+      {
+        mode = "n";
+        key = "<leader>cc";
+        action = "<cmd>cclose<CR>";
+        options.desc = "Close quickfix";
+      }
+
+      # Command-line navigation (Emacs style)
+      {
+        mode = "c";
+        key = "<C-a>";
+        action = "<Home>";
+      }
+      {
+        mode = "c";
+        key = "<C-e>";
+        action = "<End>";
+      }
+      {
+        mode = "c";
+        key = "<C-b>";
+        action = "<Left>";
+      }
+      {
+        mode = "c";
+        key = "<C-f>";
+        action = "<Right>";
+      }
+
       # Window navigation
       {
         mode = "n";
