@@ -203,13 +203,19 @@
     keymaps = [
       # Better j/k navigation (wrapped lines)
       {
-        mode = [ "n" "v" ];
+        mode = [
+          "n"
+          "v"
+        ];
         key = "j";
         action = "gj";
         options.silent = true;
       }
       {
-        mode = [ "n" "v" ];
+        mode = [
+          "n"
+          "v"
+        ];
         key = "k";
         action = "gk";
         options.silent = true;
@@ -273,10 +279,26 @@
       }
 
       # Command-line navigation (Emacs style)
-      { mode = "c"; key = "<C-a>"; action = "<Home>"; }
-      { mode = "c"; key = "<C-e>"; action = "<End>"; }
-      { mode = "c"; key = "<C-b>"; action = "<Left>"; }
-      { mode = "c"; key = "<C-f>"; action = "<Right>"; }
+      {
+        mode = "c";
+        key = "<C-a>";
+        action = "<Home>";
+      }
+      {
+        mode = "c";
+        key = "<C-e>";
+        action = "<End>";
+      }
+      {
+        mode = "c";
+        key = "<C-b>";
+        action = "<Left>";
+      }
+      {
+        mode = "c";
+        key = "<C-f>";
+        action = "<Right>";
+      }
 
       # Window navigation
       {
@@ -339,8 +361,16 @@
       }
 
       # Better indenting
-      { mode = "v"; key = "<"; action = "<gv"; }
-      { mode = "v"; key = ">"; action = ">gv"; }
+      {
+        mode = "v";
+        key = "<";
+        action = "<gv";
+      }
+      {
+        mode = "v";
+        key = ">";
+        action = ">gv";
+      }
 
       # Move lines
       {
@@ -593,13 +623,21 @@
 
       # Flash keymaps
       {
-        mode = [ "n" "x" "o" ];
+        mode = [
+          "n"
+          "x"
+          "o"
+        ];
         key = "s";
         action.__raw = "function() require('flash').jump() end";
         options.desc = "Flash jump";
       }
       {
-        mode = [ "n" "x" "o" ];
+        mode = [
+          "n"
+          "x"
+          "o"
+        ];
         key = "S";
         action.__raw = "function() require('flash').treesitter() end";
         options.desc = "Flash treesitter";
@@ -624,8 +662,14 @@
         enable = true;
         settings.options = {
           theme = "tokyonight";
-          component_separators = { left = ""; right = ""; };
-          section_separators = { left = ""; right = ""; };
+          component_separators = {
+            left = "";
+            right = "";
+          };
+          section_separators = {
+            left = "";
+            right = "";
+          };
         };
       };
 
@@ -642,7 +686,10 @@
       indent-blankline = {
         enable = true;
         settings = {
-          indent = { char = "│"; tab_char = "│"; };
+          indent = {
+            char = "│";
+            tab_char = "│";
+          };
           scope.enabled = false;
         };
       };
@@ -655,7 +702,10 @@
         enable = true;
         theme = null;
         settings.layout = [
-          { type = "padding"; val = 2; }
+          {
+            type = "padding";
+            val = 2;
+          }
           {
             type = "text";
             val = [
@@ -668,9 +718,15 @@
               "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝"
               "                                                     "
             ];
-            opts = { position = "center"; hl = "Type"; };
+            opts = {
+              position = "center";
+              hl = "Type";
+            };
           }
-          { type = "padding"; val = 2; }
+          {
+            type = "padding";
+            val = 2;
+          }
           {
             type = "group";
             val = [
@@ -991,7 +1047,10 @@
         settings = {
           formatters_by_ft = {
             lua = [ "stylua" ];
-            python = [ "ruff_format" "ruff_organize_imports" ];
+            python = [
+              "ruff_format"
+              "ruff_organize_imports"
+            ];
             javascript = [ "prettierd" ];
             typescript = [ "prettierd" ];
             javascriptreact = [ "prettierd" ];
@@ -1022,7 +1081,12 @@
             menu.draw.treesitter = [ "lsp" ];
           };
           sources = {
-            default = [ "lsp" "path" "snippets" "buffer" ];
+            default = [
+              "lsp"
+              "path"
+              "snippets"
+              "buffer"
+            ];
           };
           signature.enabled = true;
         };
@@ -1092,7 +1156,10 @@
 
       diffview = {
         enable = true;
-        lazyLoad.settings.cmd = [ "DiffviewOpen" "DiffviewFileHistory" ];
+        lazyLoad.settings.cmd = [
+          "DiffviewOpen"
+          "DiffviewFileHistory"
+        ];
       };
 
       # Git conflict resolution
@@ -1116,7 +1183,10 @@
       # Todo comments
       todo-comments = {
         enable = true;
-        lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
+        lazyLoad.settings.event = [
+          "BufReadPost"
+          "BufNewFile"
+        ];
       };
 
       # Surround
