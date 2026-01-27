@@ -92,8 +92,8 @@
           src = pkgs.fetchFromGitHub {
             owner = "0rax";
             repo = "fish-bd";
-            rev = "v1.4.2";
-            hash = "sha256-4cnOGQR5cCCRVqKX+3B3ghPIG5O8kY8Ny8B+PwXBnBE=";
+            rev = "v1.3.3";
+            hash = "sha256-GeWjoakXa0t2TsMC/wpLEmsSVGhHFhBVK3v9eyQdzv0=";
           };
         }
         # Done - notification when long command finishes
