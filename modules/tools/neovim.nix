@@ -918,11 +918,15 @@
         enable = true;
         servers = {
           # Nix: nixd (preferred over nil_ls in 2025)
+          # Provides full NixOS/Home Manager option completion
           nixd = {
             enable = true;
             settings.nixd = {
               nixpkgs.expr = "import (builtins.getFlake \"nixpkgs\") { }";
               formatting.command = [ "nixfmt" ];
+              options = {
+                home_manager.expr = ''(builtins.getFlake ("git+file://" + builtins.getEnv "HOME" + "/dotfiles")).homeConfigurations."anko@wsl".options'';
+              };
             };
           };
           lua_ls = {

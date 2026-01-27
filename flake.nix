@@ -29,6 +29,16 @@
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    haumea = {
+      url = "github:nix-community/haumea";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -48,6 +58,7 @@
         ./home.nix
         nix-index-database.homeModules.nix-index
         inputs.nixvim.homeModules.nixvim
+        inputs.sops-nix.homeModules.sops
       ];
 
       # Standalone home-manager configuration (for Linux/WSL)
@@ -128,9 +139,17 @@
           # Development shell for working on this config
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
+              # Linters
               statix
               deadnix
-              nil
+              # LSP
+              nixd
+              # Debugging & navigation
+              nix-tree
+              nix-du
+              manix
+              nix-diff
+              nvd
             ];
           };
         };

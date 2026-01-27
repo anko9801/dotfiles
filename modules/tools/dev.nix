@@ -5,20 +5,44 @@
 }:
 
 {
-  home.packages = with pkgs; [
-    # Languages - matching mise config
-    nodejs_22 # Node.js LTS (was: node = "lts")
-    python312 # Python (was: python = "latest")
-    ruby_3_3 # Ruby (was: ruby = "latest")
-    go # Go (was: go = "latest")
-    rustup # Rust toolchain manager (was: rust = "latest")
+  # mise - polyglot tool version manager
+  # Runtimes are managed by mise for latest versions
+  programs.mise = {
+    enable = true;
+    enableZshIntegration = true;
+    globalConfig = {
+      settings = {
+        experimental = true;
+        legacy_version_file = true;
+        jobs = 4;
+        task_output = "prefix";
+      };
+      tools = {
+        # Runtimes - managed by mise for latest versions
+        node = "latest";
+        python = "latest";
+        go = "latest";
+        deno = "latest";
+        bun = "latest";
+        java = "openjdk-21";
+        # npm tools
+        "npm:@antfu/ni" = "latest";
+        "npm:pnpm" = "latest";
+        "npm:yarn" = "latest";
+        "npm:zenn-cli" = "latest";
+      };
+    };
+  };
 
-    # Package managers
-    pnpm # Fast npm alternative
-    deno # JavaScript/TypeScript runtime
-    bun # Fast JavaScript runtime
-    lua # Lua scripting language
+  home.packages = with pkgs; [
+    # Rust toolchain manager (special case - needs rustup for toolchain management)
+    rustup
+
+    # Package managers (Nix-managed for stability)
     uv # Fast Python package manager
+
+    # AI tools
+    claude-code # Claude CLI
 
     # Build tools
     gnumake
@@ -29,6 +53,7 @@
     nodePackages.typescript-language-server
     pyright
     gopls
+    lua-language-server
     # Note: rust-analyzer is provided by rustup
 
     # Additional dev tools
@@ -39,12 +64,26 @@
     git-lfs # Git Large File Storage
     git-wt # Git worktree management
 
-    # Cloud/DevOps (optional - uncomment if needed)
-    # awscli2        # AWS CLI
-    # terraform      # Infrastructure as code
-    # kubectl        # Kubernetes CLI
-    # kubernetes-helm # Helm
-    # docker-compose # Docker Compose
+    # gRPC/Protobuf tools
+    buf # Protobuf tooling
+    grpcurl # gRPC CLI
+    protobuf # protoc compiler
+
+    # Infrastructure tools
+    terraform # Infrastructure as code
+    ansible # Configuration management
+
+    # Nix development tools
+    nix-tree # Interactive dependency browser
+    nix-du # Store space visualization
+    manix # NixOS/HM option search
+    nix-diff # Compare Nix derivations
+    nvd # Nix version diff (compare closures)
+    devenv # Per-project development environments
+
+    # Secrets management
+    sops # Secrets OPerationS
+    age # Modern encryption tool
   ];
 
   # GitHub CLI

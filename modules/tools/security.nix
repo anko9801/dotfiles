@@ -10,6 +10,18 @@
     _1password-cli
   ];
 
+  # sops-nix secrets management
+  # Setup:
+  #   1. Generate age key: age-keygen -o ~/.config/sops/age/keys.txt
+  #   2. Create .sops.yaml with your public key
+  #   3. Create secrets/secrets.yaml and encrypt with sops
+  sops = {
+    age.keyFile = "${config.xdg.configHome}/sops/age/keys.txt";
+    # defaultSopsFile = ../secrets/secrets.yaml;
+    # Example secret:
+    # secrets.github_token = { };
+  };
+
   xdg.configFile."op/config".text = builtins.toJSON {
     latest_signin = "";
     device = config.home.username;

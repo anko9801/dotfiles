@@ -47,11 +47,8 @@
       "$HOME/.npm-global/bin"
     ];
 
-    activation.installNpmPackages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      if command -v npm &>/dev/null; then
-        $DRY_RUN_CMD npm install -g @antfu/ni @anthropic-ai/claude-code @google/gemini-cli czg cz-git 2>/dev/null || true
-      fi
-    '';
+    # Note: claude-code is now installed via Nix (dev.nix)
+    # Other npm tools managed by mise
   };
 
   xdg = {
