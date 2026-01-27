@@ -47,6 +47,7 @@
 
       # Misc
       watchexec # file watcher
+      peco # interactive filtering tool
     ];
 
     sessionVariables = {
