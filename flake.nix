@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    flake-parts.url = "github:hercules-ci/flake-parts";
+
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -23,9 +27,10 @@
   };
 
   outputs =
-    {
+    inputs@{
       self,
       nixpkgs,
+      flake-parts,
       home-manager,
       nix-darwin,
       nix-index-database,
@@ -88,62 +93,67 @@
             }
           ];
         };
-      # Supported systems
-      supportedSystems = [
+    in
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
         "x86_64-linux"
         "aarch64-linux"
         "x86_64-darwin"
         "aarch64-darwin"
       ];
 
-      # Helper to generate per-system outputs
-      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-    in
-    {
-      # Formatter for `nix fmt`
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
+      imports = [
+        inputs.treefmt-nix.flakeModule
+      ];
 
-      # Development shell for working on this config
-      devShells = forAllSystems (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
+      perSystem =
+        { pkgs, ... }:
         {
-          default = pkgs.mkShell {
+          # Unified formatting with treefmt
+          treefmt = {
+            projectRootFile = "flake.nix";
+            programs = {
+              nixfmt.enable = true;
+              shfmt.enable = true;
+              yamlfmt.enable = true;
+            };
+          };
+
+          # Development shell for working on this config
+          devShells.default = pkgs.mkShell {
             packages = with pkgs; [
-              nixfmt
               statix
               deadnix
               nil
             ];
           };
-        }
-      );
-
-      # Standalone Home Manager configurations (Linux/WSL)
-      homeConfigurations = {
-        "anko@wsl" = mkHome {
-          system = "x86_64-linux";
-          extraModules = [ ./modules/platforms/wsl.nix ];
         };
 
-        "anko@linux" = mkHome {
-          system = "x86_64-linux";
-          extraModules = [ ./modules/platforms/linux.nix ];
-        };
-      };
+      flake = {
+        # Standalone Home Manager configurations (Linux/WSL)
+        homeConfigurations = {
+          "anko@wsl" = mkHome {
+            system = "x86_64-linux";
+            extraModules = [ ./modules/platforms/wsl.nix ];
+          };
 
-      # nix-darwin configurations (macOS)
-      darwinConfigurations = {
-        # Apple Silicon Mac
-        "anko-mac" = mkDarwin {
-          system = "aarch64-darwin";
+          "anko@linux" = mkHome {
+            system = "x86_64-linux";
+            extraModules = [ ./modules/platforms/linux.nix ];
+          };
         };
 
-        # Intel Mac
-        "anko-mac-intel" = mkDarwin {
-          system = "x86_64-darwin";
+        # nix-darwin configurations (macOS)
+        darwinConfigurations = {
+          # Apple Silicon Mac
+          "anko-mac" = mkDarwin {
+            system = "aarch64-darwin";
+          };
+
+          # Intel Mac
+          "anko-mac-intel" = mkDarwin {
+            system = "x86_64-darwin";
+          };
         };
       };
     };

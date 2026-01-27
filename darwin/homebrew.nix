@@ -13,19 +13,16 @@ _:
     };
 
     # Taps
-    taps = [
-      "koekeishiya/formulae"
-    ];
+    taps = [ ];
 
     # CLI tools (most are in Home Manager, these are Homebrew-only)
-    brews = [
-      # Window management (needs Homebrew for macOS integration)
-      "koekeishiya/formulae/yabai"
-      "koekeishiya/formulae/skhd"
-    ];
+    brews = [ ];
 
     # GUI Applications (casks)
     casks = [
+      # Window management
+      "nikitabobko/tap/aerospace"
+
       # Development
       "visual-studio-code"
       "iterm2"

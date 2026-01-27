@@ -7,8 +7,7 @@
 {
   imports = [
     ./homebrew.nix
-    ./yabai.nix
-    ./skhd.nix
+    ./aerospace.nix
     ./system.nix
   ];
 

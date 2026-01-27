@@ -1,5 +1,4 @@
 name: Build
-
 on:
   push:
     branches: [master]
@@ -12,11 +11,9 @@ on:
       - '**.nix'
       - 'flake.lock'
       - '.github/workflows/test.yml'
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   build-linux:
     strategy:
@@ -25,33 +22,22 @@ jobs:
         config: [anko@wsl, anko@linux]
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: DeterminateSystems/nix-installer-action@main
-
       - uses: DeterminateSystems/magic-nix-cache-action@main
-
       - name: Build Home Manager configuration
         run: nix build .#homeConfigurations."${{ matrix.config }}".activationPackage
-
       - name: Show result
         run: ls -la result/
-
   build-macos:
     runs-on: macos-latest
     timeout-minutes: 30
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: DeterminateSystems/nix-installer-action@main
-
       - uses: DeterminateSystems/magic-nix-cache-action@main
-
       - name: Build nix-darwin configuration
         run: nix build .#darwinConfigurations.anko-mac.system
-
       - name: Show result
         run: ls -la result/

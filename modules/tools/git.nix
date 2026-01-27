@@ -1,6 +1,9 @@
-_:
+{ pkgs, ... }:
 
 {
+  # difftastic for structural diffs
+  home.packages = with pkgs; [ difftastic ];
+
   programs.git = {
     enable = true;
 
@@ -44,6 +47,7 @@ _:
       diff = {
         renames = true;
         colorMoved = "default";
+        external = "difft";
       };
       interactive.diffFilter = "delta --color-only";
 
