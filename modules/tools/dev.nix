@@ -37,6 +37,7 @@
     gitui # Git TUI
     gibo # .gitignore templates
     git-lfs # Git Large File Storage
+    git-worktree-switcher # Switch between git worktrees
 
     # Cloud/DevOps (optional - uncomment if needed)
     # awscli2        # AWS CLI
