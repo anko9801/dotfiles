@@ -6,7 +6,10 @@
 {
   home.packages = with pkgs; [
     # JavaScript/TypeScript linting
-    oxlint # Fast JS/TS linter (new addition)
+    oxlint # Fast JS/TS linter
+
+    # Python
+    ruff # Extremely fast Python linter/formatter
 
     # Multi-language formatters
     treefmt # One CLI to format the code tree

@@ -5,69 +5,98 @@ This project uses Claude Code for AI-assisted development. This document provide
 ## Project Overview
 
 **Purpose**: Personal dotfiles configuration for development environment setup
-**Main Technologies**: Shell scripting, YADM, Various CLI tools
-**Key Features**: Cross-platform support, automated setup, modern CLI tools integration
+**Main Technologies**: Nix, Home Manager, nix-darwin, nixvim
+**Key Features**: Declarative configuration, cross-platform support, reproducible environments
 
 ## Development Guidelines
 
 ### Code Style
-- Use shellcheck-compliant bash scripts
-- Follow XDG Base Directory specification
-- Keep configurations modular and well-documented
-- Ensure idempotency in all setup scripts
+- Use Nix for all configuration management
+- Follow nixfmt formatting (run `nix fmt`)
+- Keep modules small and focused (200-400 lines)
+- Use statix and deadnix for linting
 
 ### Testing Approach
-- Test bootstrap scripts in clean environments
-- Verify cross-platform compatibility (macOS, Linux, WSL)
-- Check for existing files before modifications
+- Run `nix flake check` before committing
+- Build configurations with `nix build .#homeConfigurations."anko@wsl".activationPackage`
+- Test on both Linux and macOS when possible
 
 ### Important Commands
-- `yadm bootstrap` - Run full setup
-- `yadm alt` - Generate templates
-- `czg` - Create conventional commits
-- `gitui` - Interactive git interface
+```bash
+# Apply configuration
+home-manager switch --flake ~/dotfiles#anko@wsl
+
+# Format code
+nix fmt
+
+# Lint
+nix shell nixpkgs#statix -c statix check .
+nix shell nixpkgs#deadnix -c deadnix .
+
+# Update flake inputs
+nix flake update
+
+# Show what changed
+nvd diff /nix/var/nix/profiles/per-user/anko/home-manager $(home-manager build --flake ~/dotfiles#anko@wsl)
+```
 
 ## Project Structure
 
 ```
-.config/
-├── git/          # Git configuration
-├── zsh/          # Shell configuration
-├── nvim/         # Neovim setup
-├── tmux/         # Terminal multiplexer
-├── mise/         # Tool version management
-├── yadm/         # Bootstrap scripts
-├── yabai/        # Window manager (macOS)
-├── skhd/         # Hotkey daemon (macOS)
-└── claude/       # This configuration
+dotfiles/
+├── flake.nix              # Flake definition
+├── flake.lock             # Locked dependencies
+├── home.nix               # Main home-manager config
+├── modules/
+│   ├── shell/             # zsh, starship
+│   ├── tools/             # CLI tools, dev tools, neovim
+│   ├── services/          # syncthing, etc.
+│   └── platforms/         # wsl, linux, darwin, server
+├── darwin/                # macOS-specific (nix-darwin)
+├── configs/               # Static config files (claude, wsl)
+└── .github/workflows/     # CI (lint, build)
 ```
+
+## Tool Management
+
+| Category | Manager | Examples |
+|----------|---------|----------|
+| Runtimes | mise | node, python, go, deno, bun |
+| CLI tools | Nix | ripgrep, fd, bat, eza |
+| Neovim | nixvim | LSP, plugins, keymaps |
+| Secrets | sops-nix | API keys, tokens |
 
 ## Security Considerations
 
 - Never store secrets in plain text
 - Use 1Password for credential management
-- All SSH keys should be managed via 1Password SSH agent
-- Sensitive files should use YADM encryption if needed
+- SSH keys managed via 1Password SSH agent
+- Use sops-nix for encrypted secrets in repo
 
 ## Common Tasks
 
-### Adding a new tool
-1. Add to appropriate package manager config (Brewfile, install script)
-2. Create configuration in `.config/toolname/`
-3. Update relevant documentation
-4. Test installation on clean system
+### Adding a new package
+1. Find the appropriate module in `modules/tools/`
+2. Add package to `home.packages`
+3. Run `nix fmt` and `statix check`
+4. Test with `home-manager switch`
 
-### Updating configurations
-1. Make changes in appropriate config files
-2. Test changes locally
-3. Commit with conventional commit message using `czg`
-4. Push to repository
+### Adding a new program with config
+1. Add to `programs.<name>` in appropriate module
+2. Configure settings declaratively
+3. Test and commit
+
+### Updating dependencies
+```bash
+nix flake update
+home-manager switch --flake ~/dotfiles#anko@wsl
+```
 
 ## AI Assistant Guidelines
 
 When working on this project:
-- Prioritize idempotency and safety
-- Always check for existing files before creating
-- Follow existing patterns and conventions
-- Document any significant changes
-- Test commands before suggesting them
+- Prefer editing existing Nix modules over creating new files
+- Use `programs.*` when available instead of raw `home.packages`
+- Run linters before suggesting commits
+- Keep configurations declarative and reproducible
+- Test changes with `nix flake check`
