@@ -390,9 +390,6 @@
         # ==============================================================================
         # Tool Integrations
         # ==============================================================================
-        # mcfly (if installed separately)
-        command -v mcfly &>/dev/null && eval "$(mcfly init zsh)"
-
         # 1Password plugin integrations
         if command -v op &>/dev/null; then
             command -v gh &>/dev/null && alias gh='op plugin run -- gh'

@@ -9,7 +9,6 @@
       # Modern CLI replacements
       ripgrep # grep replacement (rg)
       fd # find replacement
-      eza # ls replacement
       sd # sed replacement
       dust # du replacement
       duf # df replacement
@@ -38,7 +37,6 @@
       gnused
 
       # Documentation
-      tealdeer # tldr - simplified man pages
       man-db # man pages
 
       # Media
@@ -48,11 +46,7 @@
       pandoc # document converter
 
       # Misc
-      yadm # dotfiles manager
       watchexec # file watcher
-      entr # run commands on file changes
-      gomi # trash command (safer rm)
-      mcfly # shell history search
     ];
 
     sessionVariables = {

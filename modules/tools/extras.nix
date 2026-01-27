@@ -59,7 +59,6 @@
 
       # Development
       just # Command runner (like make but simpler)
-      direnv # Per-directory environment
 
       # Productivity
       taskwarrior3 # Task management

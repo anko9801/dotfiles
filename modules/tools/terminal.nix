@@ -153,16 +153,6 @@
   };
 
   xdg.configFile = {
-    "mcfly/config.toml".text = ''
-      fuzzy = 2
-      light = false
-      disable_menu = false
-      results = 10
-      interface_view = "default"
-      delete_without_confirm = false
-      results_filter = "all"
-    '';
-
     "gitleaks/config.toml".text = ''
       title = "gitleaks config"
 

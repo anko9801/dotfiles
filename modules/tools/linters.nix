@@ -17,7 +17,6 @@
 
     # Nix
     nixfmt # Nix formatter
-    nil # Nix language server
     statix # Nix linter
 
     # YAML/JSON
