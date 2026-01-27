@@ -1,8 +1,37 @@
 { pkgs, ... }:
 
 {
-  # difftastic for structural diffs
-  home.packages = with pkgs; [ difftastic ];
+  home = {
+    # difftastic for structural diffs
+    packages = with pkgs; [ difftastic ];
+
+    file = {
+      # Git allowed signers file
+      ".config/git/allowed_signers".text = ''
+        37263451+anko9801@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M
+      '';
+
+      # Git pre-commit hook for gitleaks
+      ".config/git/hooks/pre-commit" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+          # Git pre-commit hook - prevent committing secrets
+
+          set -euo pipefail
+
+          # Check if gitleaks is installed
+          if ! command -v gitleaks &>/dev/null; then
+              echo "Warning: gitleaks not found. Install it to scan for secrets."
+              exit 0
+          fi
+
+          # Run gitleaks on staged changes
+          gitleaks protect --staged --redact --exit-code 1
+        '';
+      };
+    };
+  };
 
   programs.git = {
     enable = true;
@@ -208,28 +237,4 @@
     };
   };
 
-  # Git allowed signers file
-  home.file.".config/git/allowed_signers".text = ''
-    37263451+anko9801@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M
-  '';
-
-  # Git pre-commit hook for gitleaks
-  home.file.".config/git/hooks/pre-commit" = {
-    executable = true;
-    text = ''
-      #!/usr/bin/env bash
-      # Git pre-commit hook - prevent committing secrets
-
-      set -euo pipefail
-
-      # Check if gitleaks is installed
-      if ! command -v gitleaks &>/dev/null; then
-          echo "Warning: gitleaks not found. Install it to scan for secrets."
-          exit 0
-      fi
-
-      # Run gitleaks on staged changes
-      gitleaks protect --staged --redact --exit-code 1
-    '';
-  };
 }
