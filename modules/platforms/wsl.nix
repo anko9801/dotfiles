@@ -5,6 +5,10 @@
 }:
 
 {
+  imports = [
+    ../tools/vim.nix
+  ];
+
   targets.genericLinux.enable = true;
 
   home = {

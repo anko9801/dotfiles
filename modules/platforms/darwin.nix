@@ -5,6 +5,10 @@
 }:
 
 {
+  imports = [
+    ../tools/vim.nix
+  ];
+
   home = {
     username = lib.mkForce "anko";
     homeDirectory = lib.mkForce "/Users/anko";

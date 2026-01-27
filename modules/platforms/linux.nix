@@ -5,6 +5,10 @@
 }:
 
 {
+  imports = [
+    ../tools/vim.nix
+  ];
+
   home = {
     homeDirectory = lib.mkDefault "/home/anko";
 

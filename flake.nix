@@ -147,6 +147,11 @@
             system = "x86_64-linux";
             extraModules = [ ./modules/platforms/linux.nix ];
           };
+
+          "anko@server" = mkHome {
+            system = "x86_64-linux";
+            extraModules = [ ./modules/platforms/server.nix ];
+          };
         };
 
         # nix-darwin configurations (macOS)
