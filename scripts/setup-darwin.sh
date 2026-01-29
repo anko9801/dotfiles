@@ -58,13 +58,39 @@ if ! $NIX_INSTALLED; then
     if [[ -n "$NIX_VOLUME" ]]; then
         warn "Found existing Nix volume: $NIX_VOLUME"
         echo ""
-        read -p "Delete existing Nix volume? (y/N): " -n 1 -r
+        read -p "Delete existing Nix volume? (Y/n): " -n 1 -r
         echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
             info "Deleting Nix volume..."
-            sudo diskutil apfs deleteVolume "$NIX_VOLUME" || warn "Failed to delete volume, continuing..."
+            # Try to unmount first
+            sudo diskutil unmount force "$NIX_VOLUME" 2>/dev/null || true
+            # Delete the volume
+            if ! sudo diskutil apfs deleteVolume "$NIX_VOLUME" 2>/dev/null; then
+                warn "Standard delete failed, trying force delete..."
+                sudo diskutil apfs deleteVolume "$NIX_VOLUME" -force 2>/dev/null || true
+            fi
+            success "Nix volume deleted"
         fi
     fi
+
+    # Also clean up any leftover Nix files
+    if [[ -d "/nix" ]]; then
+        warn "Found /nix directory"
+        read -p "Remove /nix directory? (Y/n): " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            sudo rm -rf /nix 2>/dev/null || true
+            success "Removed /nix directory"
+        fi
+    fi
+
+    # Remove old Nix config files
+    for f in /etc/bashrc /etc/zshrc /etc/bash.bashrc; do
+        if [[ -f "${f}.backup-before-nix" ]]; then
+            info "Restoring ${f} from backup..."
+            sudo mv "${f}.backup-before-nix" "$f" 2>/dev/null || true
+        fi
+    done
 fi
 
 # Step 3: Install Nix
@@ -72,14 +98,9 @@ if ! $NIX_INSTALLED; then
     info "Installing Nix..."
     echo ""
 
-    # Try Determinate Systems installer first (better UX)
-    if curl -fsSL https://install.determinate.systems/nix 2>/dev/null | head -1 | grep -q "404"; then
-        info "Using official Nix installer..."
-        sh <(curl -L https://nixos.org/nix/install) --daemon
-    else
-        info "Using Determinate Systems installer..."
-        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
-    fi
+    # Use official Nix installer (works on both Intel and Apple Silicon)
+    info "Using official Nix installer..."
+    sh <(curl -L https://nixos.org/nix/install) --daemon
 
     success "Nix installed successfully!"
 
