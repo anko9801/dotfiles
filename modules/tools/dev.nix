@@ -193,5 +193,28 @@
         };
       };
     };
+
+    # Cargo configuration (HM news 2025-11-26)
+    cargo = {
+      enable = true;
+      settings = {
+        build = {
+          jobs = 4;
+        };
+        net = {
+          git-fetch-with-cli = true;
+        };
+      };
+    };
+
+    # npm configuration (HM news 2025-12-05)
+    npm = {
+      enable = true;
+      settings = {
+        prefix = "~/.npm-global";
+        fund = false;
+        audit = false;
+      };
+    };
   };
 }

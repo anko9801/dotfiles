@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  config,
   ...
 }:
 
@@ -8,6 +9,7 @@
   programs.zsh = {
     enable = true;
     enableCompletion = true;
+    dotDir = "${config.xdg.configHome}/zsh"; # XDG compliant (HM 26.05+)
 
     # Shell aliases (replacing zsh-abbr - simpler and faster)
     shellAliases = {
