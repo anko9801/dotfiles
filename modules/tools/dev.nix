@@ -5,75 +5,128 @@
 }:
 
 {
-  home.packages = with pkgs; [
-    # Rust toolchain manager (special case - needs rustup for toolchain management)
-    rustup
+  home = {
+    packages = with pkgs; [
+      # Rust toolchain manager (special case - needs rustup for toolchain management)
+      rustup
 
-    # Package managers (Nix-managed for stability)
-    uv # Fast Python package manager
+      # Package managers (Nix-managed for stability)
+      uv # Fast Python package manager
 
-    # AI tools
-    # claude-code is managed via programs.claude-code in claude.nix
+      # AI tools
+      # claude-code is managed via programs.claude-code in claude.nix
 
-    # Build tools
-    gnumake
-    cmake
-    ninja # Fast build system
-    pkg-config
-    autoconf
-    automake
-    libtool
+      # Build tools
+      gnumake
+      cmake
+      ninja # Fast build system
+      pkg-config
+      autoconf
+      automake
+      libtool
 
-    # Debug/Low-level tools
-    gdb # GNU Debugger
-    nasm # Assembler
+      # Debug/Low-level tools
+      gdb # GNU Debugger (config in home.file.".gdbinit")
+      nasm # Assembler
 
-    # Language servers
-    nodePackages.typescript-language-server
-    pyright
-    gopls
-    lua-language-server
-    # Note: rust-analyzer is provided by rustup
+      # Language servers
+      nodePackages.typescript-language-server
+      pyright
+      gopls
+      lua-language-server
+      # Note: rust-analyzer is provided by rustup
 
-    # Additional dev tools
-    ghq # Git repository manager
-    # delta is installed via programs.delta in git.nix
-    gitui # Git TUI
-    gibo # .gitignore templates
-    git-lfs # Git Large File Storage
-    git-wt # Git worktree management
+      # Additional dev tools
+      ghq # Git repository manager
+      # delta is installed via programs.delta in git.nix
+      gitui # Git TUI
+      gibo # .gitignore templates
+      git-lfs # Git Large File Storage
+      git-wt # Git worktree management
 
-    # gRPC/Protobuf tools
-    buf # Protobuf tooling
-    grpcurl # gRPC CLI
-    protobuf # protoc compiler
+      # gRPC/Protobuf tools
+      buf # Protobuf tooling
+      grpcurl # gRPC CLI
+      protobuf # protoc compiler
 
-    # Infrastructure tools
-    terraform # Infrastructure as code
-    ansible # Configuration management
-    act # Run GitHub Actions locally
+      # Infrastructure tools
+      terraform # Infrastructure as code
+      ansible # Configuration management
+      act # Run GitHub Actions locally
 
-    # Nix development tools
-    nix-tree # Interactive dependency browser
-    nix-du # Store space visualization
-    manix # NixOS/HM option search
-    nix-diff # Compare Nix derivations
-    nvd # Nix version diff (compare closures)
-    devenv # Per-project development environments
+      # Nix development tools
+      nix-tree # Interactive dependency browser
+      nix-du # Store space visualization
+      manix # NixOS/HM option search
+      nix-diff # Compare Nix derivations
+      nvd # Nix version diff (compare closures)
+      devenv # Per-project development environments
 
-    # Secrets management
-    sops # Secrets OPerationS
-    age # Modern encryption tool
+      # Secrets management
+      sops # Secrets OPerationS
+      age # Modern encryption tool
 
-    # CLI tools (migrated from cargo)
-    just # Task runner
-    typst # Document processor
-    ast-grep # Structural code search
-    cargo-watch # Watch and rebuild
-    wasm-pack # WebAssembly bundler
-    wasm-tools # WebAssembly utilities
-    sqlx-cli # SQL toolkit
-  ];
+      # CLI tools (migrated from cargo)
+      just # Task runner
+      typst # Document processor
+      ast-grep # Structural code search
+      cargo-watch # Watch and rebuild
+      wasm-pack # WebAssembly bundler
+      wasm-tools # WebAssembly utilities
+      sqlx-cli # SQL toolkit
+    ];
+
+    activation = {
+      setupRust = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        if command -v rustup &>/dev/null; then
+          if ! rustup show active-toolchain &>/dev/null; then
+            $DRY_RUN_CMD rustup default stable 2>/dev/null || true
+          fi
+        fi
+      '';
+    };
+
+    # GDB configuration with exploit development frameworks
+    file.".gdbinit".text = ''
+      # PEDA - Python Exploit Development Assistance
+      define init-peda
+      source ~/peda/peda.py
+      end
+      document init-peda
+      Initializes the PEDA framework
+      end
+
+      define init-peda-arm
+      source ~/peda-arm/peda-arm.py
+      end
+      document init-peda-arm
+      Initializes PEDA for ARM
+      end
+
+      define init-peda-intel
+      source ~/peda-arm/peda-intel.py
+      end
+      document init-peda-intel
+      Initializes PEDA for Intel
+      end
+
+      # PwnDBG
+      define init-pwndbg
+      source ~/pwndbg/gdbinit.py
+      end
+      document init-pwndbg
+      Initializes PwnDBG
+      end
+
+      # GEF - GDB Enhanced Features
+      define init-gef
+      source ~/gef/gef.py
+      end
+      document init-gef
+      Initializes GEF
+      end
+    '';
+  };
 
   # act configuration (GitHub Actions local runner)
   xdg.configFile."act/actrc".text = ''
@@ -92,17 +145,6 @@
     [vcs]
     git = { protocol = "ssh" }
   '';
-
-  # Setup rustup on first activation
-  home.activation = {
-    setupRust = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      if command -v rustup &>/dev/null; then
-        if ! rustup show active-toolchain &>/dev/null; then
-          $DRY_RUN_CMD rustup default stable 2>/dev/null || true
-        fi
-      fi
-    '';
-  };
 
   programs = {
     # mise - polyglot tool version manager
