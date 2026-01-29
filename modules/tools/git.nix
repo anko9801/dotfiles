@@ -45,11 +45,10 @@
   programs.git = {
     enable = true;
 
-    # SSH signing (disabled - requires 1Password SSH agent setup)
-    # To enable: set up SSH key in WSL or Windows 1Password bridge
+    # SSH signing with 1Password
     signing = {
       key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M";
-      signByDefault = false;
+      signByDefault = true;
     };
 
     # All settings using the new format
@@ -140,7 +139,7 @@
 
       # Tag
       tag = {
-        gpgsign = false; # Disabled until SSH signing is set up
+        gpgsign = true;
         sort = "version:refname";
       };
 

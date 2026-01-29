@@ -18,14 +18,19 @@
       DISPLAY = ":0";
       WSL_INTEROP = "/run/WSL/1_interop";
       BROWSER = "xdg-open";
+      SSH_AUTH_SOCK = "$HOME/.1password/agent.sock";
     };
 
     packages = with pkgs; [
       wslu
-      _1password-cli # op command for SSH signing
+      socat # For 1Password SSH agent bridge
     ];
 
     activation = {
+      create1PasswordSocketDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD mkdir -p $HOME/.1password
+      '';
+
       setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
           $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
@@ -47,14 +52,26 @@
   programs = {
     git.settings = {
       credential.helper = "/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe";
-      # Note: SSH signing disabled - requires 1Password desktop app
-      # To enable later, set up SSH key in WSL or use Windows 1Password bridge
+      gpg.ssh.program = "/mnt/c/Users/anko/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
     };
+
+    ssh.extraConfig = ''
+      IdentityAgent ~/.1password/agent.sock
+    '';
 
     zsh.initContent = lib.mkAfter ''
       # WSL-Specific Configuration
 
       export WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2 2>/dev/null || echo "localhost")
+
+      # 1Password SSH Agent bridge (Windows -> WSL)
+      _1p_socket="$HOME/.1password/agent.sock"
+      _1p_relay="/mnt/c/Users/anko/go/bin/npiperelay.exe"
+      if [[ -x "$_1p_relay" ]] && ! pgrep -f "npiperelay.*openssh-ssh-agent" >/dev/null 2>&1; then
+        rm -f "$_1p_socket"
+        (setsid socat UNIX-LISTEN:"$_1p_socket",fork EXEC:"$_1p_relay -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
+      fi
+      unset _1p_socket _1p_relay
       export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0"
 
       [[ -d "/snap/bin" ]] && export PATH="/snap/bin:$PATH"
