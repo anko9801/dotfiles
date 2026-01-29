@@ -184,7 +184,7 @@ cd "$DOTFILES_DIR"
 # First run: bootstrap nix-darwin
 if ! command -v darwin-rebuild &>/dev/null; then
     info "Bootstrapping nix-darwin..."
-    nix run nix-darwin -- switch --flake ".#$DARWIN_CONFIG"
+    nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ".#$DARWIN_CONFIG"
 else
     info "Running darwin-rebuild..."
     darwin-rebuild switch --flake ".#$DARWIN_CONFIG"
