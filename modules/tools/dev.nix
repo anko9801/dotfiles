@@ -159,13 +159,19 @@
           jobs = 4;
           task_output = "prefix";
         };
+        env = {
+          PYTHONUNBUFFERED = "1";
+          NODE_OPTIONS = "--max-old-space-size=4096";
+        };
         tools = {
           # Runtimes - managed by mise for latest versions
           node = "latest";
           python = "latest";
+          ruby = "latest";
           go = "latest";
           deno = "latest";
           bun = "latest";
+          lua = "latest";
           java = "openjdk-21";
           # npm tools
           "npm:@antfu/ni" = "latest";
@@ -173,6 +179,38 @@
           "npm:yarn" = "latest";
           "npm:zenn-cli" = "latest";
           "npm:gitmoji-cli" = "latest";
+          "npm:@anthropic-ai/claude-code" = "latest";
+          "npm:@google/gemini-cli" = "latest";
+          "npm:czg" = "latest";
+          "npm:cz-git" = "latest";
+          "npm:ccmanager" = "latest";
+        };
+        tasks = {
+          update = {
+            description = "Update all tools to latest versions";
+            run = ''
+              echo "📦 Updating mise tools..."
+              mise update
+              mise prune
+              echo "✅ All tools updated!"
+            '';
+          };
+          doctor = {
+            description = "Check mise configuration and health";
+            run = ''
+              mise doctor
+              echo "---"
+              mise list
+            '';
+          };
+          clean = {
+            description = "Clean up old tool versions";
+            run = ''
+              echo "🧹 Cleaning up old versions..."
+              mise prune --yes
+              echo "✅ Cleanup complete!"
+            '';
+          };
         };
       };
     };

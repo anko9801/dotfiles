@@ -77,7 +77,10 @@
 
       # nix-darwin configuration (for macOS)
       mkDarwin =
-        { system }:
+        {
+          system,
+          user ? "anko",
+        }:
         nix-darwin.lib.darwinSystem {
           inherit system;
           specialArgs = { inherit self; };
@@ -90,7 +93,7 @@
               nix-homebrew = {
                 enable = true;
                 enableRosetta = system == "aarch64-darwin";
-                user = "anko";
+                inherit user;
                 autoMigrate = true;
               };
             }
@@ -101,12 +104,21 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                users.anko =
-                  { ... }:
+                users.${user} =
+                  { lib, ... }:
                   {
                     imports = commonHomeModules ++ [ ./modules/platforms/darwin.nix ];
+                    home = {
+                      username = lib.mkForce user;
+                      homeDirectory = lib.mkForce "/Users/${user}";
+                    };
                   };
               };
+            }
+
+            # Override system.primaryUser for the specific user
+            {
+              system.primaryUser = user;
             }
           ];
         };
@@ -175,14 +187,28 @@
 
         # nix-darwin configurations (macOS)
         darwinConfigurations = {
-          # Apple Silicon Mac
+          # Apple Silicon Mac (user: anko)
           "anko-mac" = mkDarwin {
             system = "aarch64-darwin";
+            user = "anko";
           };
 
-          # Intel Mac
+          # Intel Mac (user: anko)
           "anko-mac-intel" = mkDarwin {
             system = "x86_64-darwin";
+            user = "anko";
+          };
+
+          # Apple Silicon Mac (user: usamidaiki)
+          "usamidaiki-mac" = mkDarwin {
+            system = "aarch64-darwin";
+            user = "usamidaiki";
+          };
+
+          # Intel Mac (user: usamidaiki)
+          "usamidaiki-mac-intel" = mkDarwin {
+            system = "x86_64-darwin";
+            user = "usamidaiki";
           };
         };
       };

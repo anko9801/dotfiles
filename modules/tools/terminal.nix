@@ -31,6 +31,20 @@
       };
     };
 
+    mcfly = {
+      enable = true;
+      enableZshIntegration = true;
+      fuzzySearchFactor = 2;
+      settings = {
+        light = false;
+        disable_menu = false;
+        results = 10;
+        interface_view = "default";
+        delete_without_confirm = false;
+        results_filter = "all";
+      };
+    };
+
     bat = {
       enable = true;
       config = {

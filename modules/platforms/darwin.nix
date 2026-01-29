@@ -10,8 +10,7 @@
   ];
 
   home = {
-    username = lib.mkForce "anko";
-    homeDirectory = lib.mkForce "/Users/anko";
+    # username and homeDirectory are set in flake.nix based on the user parameter
 
     sessionVariables.SSH_AUTH_SOCK = "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
 
