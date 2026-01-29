@@ -21,7 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
       - name: Build Home Manager configuration
         run: nix build .#homeConfigurations."anko@linux".activationPackage
       - name: Show result
@@ -32,7 +31,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
       - name: Build nix-darwin configuration
         run: nix build .#darwinConfigurations.anko-mac.system
       - name: Show result

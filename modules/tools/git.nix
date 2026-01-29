@@ -11,6 +11,15 @@
         37263451+anko9801@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M
       '';
 
+      # Gitmoji configuration
+      ".gitmojirc.json".text = builtins.toJSON {
+        autoAdd = false;
+        emojiFormat = "emoji";
+        scopePrompt = false;
+        messagePrompt = true;
+        capitalizeTitle = true;
+      };
+
       # Git pre-commit hook for gitleaks
       ".config/git/hooks/pre-commit" = {
         executable = true;
@@ -36,10 +45,11 @@
   programs.git = {
     enable = true;
 
-    # SSH signing with 1Password
+    # SSH signing (disabled - requires 1Password SSH agent setup)
+    # To enable: set up SSH key in WSL or Windows 1Password bridge
     signing = {
       key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M";
-      signByDefault = true;
+      signByDefault = false;
     };
 
     # All settings using the new format
@@ -68,14 +78,19 @@
       # Colors
       color.ui = "auto";
 
+      # Column output
+      column.ui = "auto";
+
       # Merge/Diff
       merge = {
         tool = "vimdiff";
         conflictstyle = "diff3";
       };
       diff = {
+        algorithm = "histogram";
         renames = true;
-        colorMoved = "default";
+        colorMoved = "plain";
+        mnemonicPrefix = true;
         external = "difft";
       };
       interactive.diffFilter = "delta --color-only";
@@ -85,9 +100,12 @@
       push = {
         autoSetupRemote = true;
         default = "current";
+        followTags = true;
       };
       fetch = {
         prune = true;
+        pruneTags = true;
+        all = true;
         fsckobjects = true;
       };
 
@@ -95,25 +113,35 @@
       rebase = {
         autostash = true;
         autosquash = true;
+        updateRefs = true;
       };
 
       # Init
       init.defaultBranch = "main";
 
-      # Commit/Tag
+      # Commit
       commit.verbose = true;
-      tag.gpgsign = true;
 
       # Help
       help.autocorrect = "prompt";
 
       # Rerere - remember conflict resolutions
-      rerere.enabled = true;
+      rerere = {
+        enabled = true;
+        autoupdate = true;
+      };
 
       # Branch
       branch = {
         autosetupmerge = "always";
         autosetuprebase = "always";
+        sort = "-committerdate";
+      };
+
+      # Tag
+      tag = {
+        gpgsign = false; # Disabled until SSH signing is set up
+        sort = "version:refname";
       };
 
       # Status
@@ -122,6 +150,9 @@
       # Transfer
       transfer.fsckobjects = true;
       receive.fsckObjects = true;
+
+      # Use SSH instead of HTTPS for GitHub
+      url."ssh://git@github.com/".insteadOf = "https://github.com/";
 
       # Aliases
       alias = {
@@ -147,8 +178,9 @@
         please = "push --force-with-lease";
 
         # Log and history
-        lg = "log --oneline --graph --decorate";
+        lg = "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all";
         la = "log --oneline --graph --decorate --all";
+        ll = "log --oneline --graph --decorate";
         last = "log -1 HEAD";
         contributors = "shortlog -sn";
 
@@ -160,6 +192,7 @@
 
         # Branch management
         cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d";
+        br-prune = "!git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d";
 
         # Utilities
         it = "!git init && git commit -m 'Initial commit' --allow-empty";

@@ -1,5 +1,6 @@
 {
   pkgs,
+  config,
   ...
 }:
 
@@ -29,8 +30,10 @@
       httpie # HTTP client
 
       # Archives
+      zip
       unzip
       p7zip
+      upx # Executable packer
 
       # Text processing
       gawk
@@ -45,15 +48,51 @@
       yt-dlp # video downloader
       pandoc # document converter
 
+      # Database
+      sqlite # SQLite CLI
+
+      # Network/Testing tools
+      k6 # Load testing tool
+
       # Misc
       watchexec # file watcher
       peco # interactive filtering tool
     ];
 
     sessionVariables = {
-      RIPGREP_CONFIG_PATH = "$XDG_CONFIG_HOME/ripgrep/config";
+      RIPGREP_CONFIG_PATH = "${config.xdg.configHome}/ripgrep/config";
       _JQ_COLORS = "1;36:0;33:0;33:0;39:0;32:1;39:1;39";
     };
+
+    # LaTeXmk configuration
+    file.".latexmkrc".text = ''
+      #!/usr/bin/env perl
+
+      # LuaLaTeX (modern, Unicode native)
+      $lualatex = "lualatex -file-line-error -synctex=1 -interaction=nonstopmode -halt-on-error --shell-escape %O %S";
+      $pdf_mode = 4;
+      $max_repeat = 5;
+
+      # BibTeX / Biber
+      $bibtex = "pbibtex %O %S";
+      $biber = "biber --bblencoding=utf8 -u -U --output_safechars %O %S";
+
+      # Index
+      $makeindex = "mendex %O -o %D %S";
+
+      # Preview (OS-specific)
+      $pvc_view_file_via_temporary = 0;
+      if ($^O eq 'linux') {
+          $dvi_previewer = "xdg-open %S";
+          $pdf_previewer = "xdg-open %S";
+      } elsif ($^O eq 'darwin') {
+          $dvi_previewer = "open %S";
+          $pdf_previewer = "open %S";
+      } else {
+          $dvi_previewer = "start %S";
+          $pdf_previewer = "start %S";
+      }
+    '';
   };
 
   xdg.configFile = {

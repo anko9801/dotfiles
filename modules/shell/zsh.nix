@@ -11,8 +11,8 @@
 
     # Shell aliases (replacing zsh-abbr - simpler and faster)
     shellAliases = {
-      # Safety and utility
-      rm = "gomi";
+      # Safety and utility (trashy - trash-cli compatible)
+      rm = "trash";
       cp = "cp -i";
       mv = "mv -i";
       mkdir = "mkdir -p";

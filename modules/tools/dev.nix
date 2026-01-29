@@ -13,12 +13,20 @@
     uv # Fast Python package manager
 
     # AI tools
-    claude-code # Claude CLI
+    # claude-code is managed via programs.claude-code in claude.nix
 
     # Build tools
     gnumake
     cmake
+    ninja # Fast build system
     pkg-config
+    autoconf
+    automake
+    libtool
+
+    # Debug/Low-level tools
+    gdb # GNU Debugger
+    nasm # Assembler
 
     # Language servers
     nodePackages.typescript-language-server
@@ -43,6 +51,7 @@
     # Infrastructure tools
     terraform # Infrastructure as code
     ansible # Configuration management
+    act # Run GitHub Actions locally
 
     # Nix development tools
     nix-tree # Interactive dependency browser
@@ -55,7 +64,24 @@
     # Secrets management
     sops # Secrets OPerationS
     age # Modern encryption tool
+
+    # CLI tools (migrated from cargo)
+    just # Task runner
+    typst # Document processor
+    ast-grep # Structural code search
+    cargo-watch # Watch and rebuild
+    wasm-pack # WebAssembly bundler
+    wasm-tools # WebAssembly utilities
+    sqlx-cli # SQL toolkit
   ];
+
+  # act configuration (GitHub Actions local runner)
+  xdg.configFile."act/actrc".text = ''
+    -P ubuntu-latest=catthehacker/ubuntu:act-latest
+    -P ubuntu-22.04=catthehacker/ubuntu:act-22.04
+    -P ubuntu-20.04=catthehacker/ubuntu:act-20.04
+    -P ubuntu-18.04=catthehacker/ubuntu:act-18.04
+  '';
 
   # ghq configuration
   xdg.configFile."ghq/config".text = ''
@@ -104,6 +130,7 @@
           "npm:pnpm" = "latest";
           "npm:yarn" = "latest";
           "npm:zenn-cli" = "latest";
+          "npm:gitmoji-cli" = "latest";
         };
       };
     };

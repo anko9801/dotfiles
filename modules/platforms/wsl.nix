@@ -18,19 +18,14 @@
       DISPLAY = ":0";
       WSL_INTEROP = "/run/WSL/1_interop";
       BROWSER = "xdg-open";
-      SSH_AUTH_SOCK = "$HOME/.1password/agent.sock";
     };
 
     packages = with pkgs; [
       wslu
-      socat
+      _1password-cli # op command for SSH signing
     ];
 
     activation = {
-      create1PasswordSocket = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        $DRY_RUN_CMD mkdir -p $HOME/.1password
-      '';
-
       setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
           $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
@@ -50,13 +45,10 @@
   };
 
   programs = {
-    ssh.extraConfig = ''
-      IdentityAgent ~/.1password/agent.sock
-    '';
-
     git.settings = {
-      gpg.ssh.program = "/mnt/c/Users/anko/AppData/Local/1Password/app/8/op-ssh-sign-wsl";
       credential.helper = "/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe";
+      # Note: SSH signing disabled - requires 1Password desktop app
+      # To enable later, set up SSH key in WSL or use Windows 1Password bridge
     };
 
     zsh.initContent = lib.mkAfter ''

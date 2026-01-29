@@ -47,21 +47,25 @@
       "$HOME/.npm-global/bin"
     ];
 
-    # Note: claude-code is now installed via Nix (dev.nix)
-    # Other npm tools managed by mise
+    # claude-code is managed via programs.claude-code in modules/tools/claude.nix
+    # npm tools managed by mise
   };
 
   xdg = {
     enable = true;
     configFile = {
-      claude = {
-        source = ./configs/claude;
-        recursive = true;
-      };
       wsl = {
         source = ./configs/wsl;
         recursive = true;
       };
+    };
+  };
+
+  nix = {
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
     };
   };
 
