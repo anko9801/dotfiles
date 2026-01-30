@@ -41,18 +41,6 @@ dotfiles/
 | Server | `home-manager switch --flake .#anko@server` |
 | Windows | `Update-Dotfiles` (PowerShell) |
 
-## 主要ツール
-
-| カテゴリ | ツール |
-|----------|--------|
-| シェル | zsh + starship + zsh-abbr + fzf-tab + atuin |
-| エディタ | Neovim (nixvim) + VSCode |
-| ターミナル | zellij (自動起動) |
-| Git | lazygit + ghq + gh + delta + gitleaks |
-| 検索 | ripgrep + fd + fzf |
-| ファイル | eza + bat + dust + procs |
-| ランタイム | mise (Node, Python, Go, Rust, Ruby) |
-
 ## キーバインド
 
 | キー | 動作 |
@@ -83,5 +71,13 @@ nix develop -c deadnix .
 - **再現可能** - Flakes でロック
 - **クロスプラットフォーム** - 1コマンドでセットアップ
 - **1Password** - SSH/GPG 鍵管理
-- **モダン CLI** - eza, bat, ripgrep, fd, fzf, zoxide, atuin
-- **開発環境** - Neovim (nixvim), zellij, lazygit, mise
+
+| カテゴリ | ツール |
+|----------|--------|
+| シェル | zsh + starship + zsh-abbr + fzf-tab + atuin |
+| エディタ | Neovim (nixvim) + VSCode |
+| ターミナル | zellij (自動起動) |
+| Git | lazygit + ghq + gh + delta + gitleaks |
+| 検索 | ripgrep + fd + fzf |
+| ファイル | eza + bat + dust + procs |
+| ランタイム | mise (Node, Python, Go, Rust, Ruby) |
