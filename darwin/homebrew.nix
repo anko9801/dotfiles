@@ -33,7 +33,7 @@ _:
       "orbstack" # Docker replacement (2sec startup, 60% faster, 180mW)
 
       # AI/LLM (Metal acceleration)
-      "ollama"
+      "ollama-app" # renamed from ollama
 
       # Productivity
       "raycast"
