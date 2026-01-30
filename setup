@@ -116,25 +116,19 @@ if (-not (Test-Path $dotfiles)) {
 }
 
 # Packages
-Write-Host "[3/4] Packages..." -ForegroundColor Yellow
+Write-Host "[3/5] Packages..." -ForegroundColor Yellow
 $json = "$dotfiles\windows\winget-packages.json"
 if (Test-Path $json) {
     winget import -i $json --accept-package-agreements --accept-source-agreements --ignore-unavailable
 }
 
-# WSL
-Write-Host "[4/4] WSL..." -ForegroundColor Yellow
-$wsl = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-if ($wsl.State -ne "Enabled") {
-    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
-    Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart
-    Write-Host "Restart required for WSL" -ForegroundColor Yellow
-} else {
-    wsl --set-default-version 2 2>$null
-}
-
 # Git config
+Write-Host "[4/5] Git config..." -ForegroundColor Yellow
 git config --global core.autocrlf input
 git config --global init.defaultBranch main
+
+# WSL setup
+Write-Host "[5/5] WSL setup..." -ForegroundColor Yellow
+wsl -e sh -c "curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh"
 
 Write-Host "`n  Done!" -ForegroundColor Cyan
