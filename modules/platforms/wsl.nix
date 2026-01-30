@@ -6,7 +6,6 @@
 }:
 
 let
-  windowsUser = config.programs.wsl.windowsUser;
   sshExe = "/mnt/c/Windows/System32/OpenSSH/ssh.exe";
 in
 {
@@ -21,7 +20,7 @@ in
     # 1Password paths for WSL (uses Windows ssh.exe directly)
     tools.ssh = {
       onePasswordAgentPath = null; # Not needed - using Windows ssh.exe
-      onePasswordSignProgram = "/mnt/c/Users/${windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
+      onePasswordSignProgram = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
     };
 
     home = {

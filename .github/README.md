@@ -79,7 +79,9 @@ nix develop -c deadnix .
 
 ## コンセプト
 
-- **宣言的** - 全て Nix / winget で管理
+- **宣言的** - Nix / winget で管理
 - **再現可能** - Flakes でロック
 - **クロスプラットフォーム** - 1コマンドでセットアップ
 - **1Password** - SSH/GPG 鍵管理
+- **モダン CLI** - eza, bat, ripgrep, fd, fzf, zoxide, atuin
+- **開発環境** - Neovim (nixvim), zellij, lazygit, mise
