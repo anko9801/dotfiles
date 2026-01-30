@@ -100,3 +100,4 @@ When working on this project:
 - Run linters before suggesting commits
 - Keep configurations declarative and reproducible
 - Test changes with `nix flake check`
+- Do not include `Co-Authored-By` in commit messages
