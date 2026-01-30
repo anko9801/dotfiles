@@ -4,7 +4,7 @@ Nix + Home Manager で管理する個人設定。macOS / Linux / WSL / Windows �
 
 ## セットアップ (1コマンド)
 
-**macOS / Linux:**
+**macOS / Linux / WSL:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
 ```
@@ -27,7 +27,7 @@ dotfiles/
 │   ├── services/             # syncthing
 │   └── platforms/            # wsl, linux, darwin, server
 ├── darwin/                   # macOS 専用 (nix-darwin, homebrew)
-├── windows/                  # Windows 専用 (winget packages)
+├── windows/                  # Windows 専用 (winget, wsl.conf)
 └── configs/                  # 静的設定ファイル
 ```
 
