@@ -39,6 +39,9 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Theming
+    stylix.url = "github:danth/stylix";
   };
 
   outputs =
@@ -56,9 +59,11 @@
       # Common modules for home-manager
       commonHomeModules = [
         ./home.nix
+        ./modules/theme.nix
         nix-index-database.homeModules.nix-index
         inputs.nixvim.homeModules.nixvim
         inputs.sops-nix.homeModules.sops
+        inputs.stylix.homeModules.stylix
       ];
 
       # Standalone home-manager configuration (for Linux/WSL)
@@ -94,7 +99,9 @@
         }:
         nix-darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = { inherit self; };
+          specialArgs = {
+            inherit self inputs;
+          };
           modules = [
             ./darwin/configuration.nix
 

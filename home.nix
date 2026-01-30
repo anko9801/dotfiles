@@ -29,9 +29,8 @@
       NODE_OPTIONS = "--max-old-space-size=4096";
       PYTHONUNBUFFERED = "1";
 
-      # FZF
+      # FZF (colors managed by stylix)
       FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git";
-      FZF_DEFAULT_OPTS = "--height 40% --layout=reverse --border";
       FZF_CTRL_T_COMMAND = "fd --type f --hidden --follow --exclude .git";
 
       # Suppress zoxide doctor warning
@@ -79,6 +78,11 @@
     fzf = {
       enable = true;
       enableZshIntegration = true;
+      defaultOptions = [
+        "--height=40%"
+        "--layout=reverse"
+        "--border"
+      ];
     };
   };
 }
