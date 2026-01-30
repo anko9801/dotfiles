@@ -131,8 +131,10 @@ git config --global init.defaultBranch main
 Write-Host "[5/5] WSL config..." -ForegroundColor Yellow
 $wslConf = "$dotfiles\windows\wsl.conf"
 if (Test-Path $wslConf) {
-    wsl -u root cp "$($wslConf -replace '\\','/' -replace 'C:','/mnt/c')" /etc/wsl.conf
-    Write-Host "  wsl.conf installed" -ForegroundColor Green
+    $wslPath = $wslConf -replace '\\','/' -replace 'C:','/mnt/c'
+    wsl -u root sh -c "[ -f /etc/wsl.conf ] && cp /etc/wsl.conf /etc/wsl.conf.bak"
+    wsl -u root cp "$wslPath" /etc/wsl.conf
+    Write-Host "  wsl.conf installed (backup: /etc/wsl.conf.bak)" -ForegroundColor Green
 }
 
 Write-Host "`n  Done! Run 'wsl --shutdown' to apply wsl.conf" -ForegroundColor Cyan
