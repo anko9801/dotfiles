@@ -29,6 +29,11 @@
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
         { "PackageIdentifier": "FilesCommunity.Files" },
+        { "PackageIdentifier": "voidtools.Everything" },
+        { "PackageIdentifier": "Ditto.Ditto" },
+        { "PackageIdentifier": "ShareX.ShareX" },
+        { "PackageIdentifier": "xanderfrangos.twinkletray" },
+        { "PackageIdentifier": "TrackerSoftware.PDF-XChangeEditor" },
         { "PackageIdentifier": "File-New-Project.EarTrumpet" }
       ],
       "SourceDetails": {
