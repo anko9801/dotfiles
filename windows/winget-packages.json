@@ -25,6 +25,7 @@
         { "PackageIdentifier": "VideoLAN.VLC" },
         { "PackageIdentifier": "OBSProject.OBSStudio" },
         { "PackageIdentifier": "Tailscale.Tailscale" },
+        { "PackageIdentifier": "Parsec.Parsec" },
         { "PackageIdentifier": "Starship.Starship" },
         { "PackageIdentifier": "ajeetdsouza.zoxide" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
