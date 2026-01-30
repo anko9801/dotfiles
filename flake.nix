@@ -42,9 +42,6 @@
 
     # Theming
     stylix.url = "github:danth/stylix";
-
-    # AI tools (crush, etc.)
-    nix-ai-tools.url = "github:numtide/nix-ai-tools";
   };
 
   outputs =
@@ -76,17 +73,10 @@
           user,
           extraModules ? [ ],
         }:
-        let
+        home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
-          };
-        in
-        home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          extraSpecialArgs = {
-            inherit inputs;
-            nix-ai-tools = inputs.nix-ai-tools.packages.${system};
           };
           modules =
             commonHomeModules
@@ -132,10 +122,6 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit inputs;
-                  nix-ai-tools = inputs.nix-ai-tools.packages.${system};
-                };
                 users.${user} =
                   { lib, ... }:
                   {

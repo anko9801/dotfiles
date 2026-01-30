@@ -13,10 +13,14 @@ _:
     };
 
     # Taps
-    taps = [ ];
+    taps = [
+      "charmbracelet/tap" # For crush
+    ];
 
     # CLI tools (most are in Home Manager, these are Homebrew-only)
-    brews = [ ];
+    brews = [
+      "charmbracelet/tap/crush" # AI coding agent (avoids Nix Go build)
+    ];
 
     # GUI Applications (casks)
     casks = [

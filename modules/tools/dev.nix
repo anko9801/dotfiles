@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  nix-ai-tools,
   ...
 }:
 
@@ -83,9 +82,9 @@
 
       # AI/LLM CLI tools (2025 additions)
       # ollama is installed via homebrew cask for Metal acceleration
+      # crush is installed via homebrew (avoids Go build)
       aichat # All-in-one AI CLI (20+ providers, RAG, function calling)
       mods # AI for command pipelines (e.g., git diff | mods "explain")
-      nix-ai-tools.crush # Charm's AI coding agent
     ];
 
     activation = {
