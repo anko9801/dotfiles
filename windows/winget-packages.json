@@ -12,8 +12,6 @@
         { "PackageIdentifier": "Docker.DockerDesktop" },
         { "PackageIdentifier": "GoLang.Go" },
         { "PackageIdentifier": "Google.Chrome" },
-        { "PackageIdentifier": "Mozilla.Firefox" },
-        { "PackageIdentifier": "Zen-Team.Zen-Browser" },
         { "PackageIdentifier": "AgileBits.1Password" },
         { "PackageIdentifier": "AgileBits.1Password.CLI" },
         { "PackageIdentifier": "Anthropic.Claude" },
@@ -28,7 +26,6 @@
         { "PackageIdentifier": "Valve.Steam" },
         { "PackageIdentifier": "Tailscale.Tailscale" },
         { "PackageIdentifier": "Starship.Starship" },
-        { "PackageIdentifier": "LGUG2Z.komorebi" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
         { "PackageIdentifier": "Warp.Warp" }
