@@ -60,6 +60,10 @@
       # Markdown/Documentation
       glow # Markdown renderer for CLI
 
+      # Charm.sh ecosystem
+      gum # Shell script prompts/inputs
+      vhs # Terminal GIF recorder
+
       # Data analysis (2025 additions)
       qsv # CSV processing (xsv successor, SIMD optimized)
       jless # JSON viewer with expand/collapse

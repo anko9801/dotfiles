@@ -26,7 +26,7 @@ _:
       # Development
       "visual-studio-code"
       "ghostty"
-      "docker"
+      "orbstack" # Docker replacement (2sec startup, 60% faster, 180mW)
 
       # AI/LLM (Metal acceleration)
       "ollama"
