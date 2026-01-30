@@ -1,0 +1,140 @@
+#!/bin/sh
+# Polyglot script: works in bash/sh AND PowerShell
+# Usage: curl -fsSL URL/setup | sh    (Unix)
+#        iwr URL/setup | iex          (Windows)
+
+echo --% > /dev/null ; : ' | out-null
+<#'
+
+# ============================================================================
+# UNIX (bash/sh)
+# ============================================================================
+set -eu
+
+REPO="https://github.com/anko9801/dotfiles.git"
+DOTFILES="$HOME/dotfiles"
+
+echo ""
+echo "  ╔═══════════════════════════════════════╗"
+echo "  ║         Dotfiles Setup (Unix)         ║"
+echo "  ╚═══════════════════════════════════════╝"
+echo ""
+
+case "$(uname -s)" in
+    Darwin) OS="darwin" ;;
+    Linux)
+        if grep -qi microsoft /proc/version 2>/dev/null; then
+            OS="wsl"
+        else
+            OS="linux"
+        fi
+        ;;
+    *) echo "Unsupported OS"; exit 1 ;;
+esac
+
+echo "[*] Detected: $OS"
+
+# Install Nix
+if ! command -v nix >/dev/null 2>&1; then
+    echo "[1/3] Installing Nix..."
+    curl -fsSL https://install.determinate.systems/nix | sh -s -- install --no-confirm
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+else
+    echo "[1/3] Nix already installed"
+fi
+
+# Clone dotfiles
+echo "[2/3] Setting up dotfiles..."
+if [ ! -d "$DOTFILES" ]; then
+    git clone "$REPO" "$DOTFILES"
+else
+    git -C "$DOTFILES" pull --rebase
+fi
+
+# Apply config
+echo "[3/3] Applying configuration..."
+cd "$DOTFILES"
+case "$OS" in
+    darwin)
+        if ! command -v darwin-rebuild >/dev/null 2>&1; then
+            nix run nix-darwin -- switch --flake .#anko-mac
+        else
+            sudo darwin-rebuild switch --flake .#anko-mac
+        fi
+        ;;
+    wsl)   nix run home-manager -- switch --flake .#anko@wsl ;;
+    linux) nix run home-manager -- switch --flake .#anko@linux ;;
+esac
+
+echo ""
+echo "  Done! Run: exec zsh"
+exit 0
+#>
+
+# ============================================================================
+# WINDOWS (PowerShell)
+# ============================================================================
+$ErrorActionPreference = "Stop"
+$dotfiles = "$env:USERPROFILE\dotfiles"
+$repo = "https://github.com/anko9801/dotfiles.git"
+
+Write-Host @"
+
+  ╔═══════════════════════════════════════╗
+  ║       Dotfiles Setup (Windows)        ║
+  ╚═══════════════════════════════════════╝
+
+"@ -ForegroundColor Cyan
+
+# Check admin
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Please run as Administrator!" -ForegroundColor Red
+    exit 1
+}
+
+# winget
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "[1/4] Installing winget..." -ForegroundColor Yellow
+    Invoke-WebRequest -Uri https://aka.ms/getwinget -OutFile winget.msixbundle
+    Add-AppxPackage winget.msixbundle
+    Remove-Item winget.msixbundle
+} else {
+    Write-Host "[1/4] winget OK" -ForegroundColor Green
+}
+
+# Git + clone
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    winget install -e --id Git.Git --accept-package-agreements --accept-source-agreements
+    $env:PATH += ";C:\Program Files\Git\cmd"
+}
+
+Write-Host "[2/4] Dotfiles..." -ForegroundColor Yellow
+if (-not (Test-Path $dotfiles)) {
+    git clone $repo $dotfiles
+} else {
+    Push-Location $dotfiles; git pull --rebase; Pop-Location
+}
+
+# Packages
+Write-Host "[3/4] Packages..." -ForegroundColor Yellow
+$json = "$dotfiles\windows\winget-packages.json"
+if (Test-Path $json) {
+    winget import -i $json --accept-package-agreements --accept-source-agreements --ignore-unavailable
+}
+
+# WSL
+Write-Host "[4/4] WSL..." -ForegroundColor Yellow
+$wsl = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+if ($wsl.State -ne "Enabled") {
+    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
+    Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart
+    Write-Host "Restart required for WSL" -ForegroundColor Yellow
+} else {
+    wsl --set-default-version 2 2>$null
+}
+
+# Git config
+git config --global core.autocrlf input
+git config --global init.defaultBranch main
+
+Write-Host "`n  Done!" -ForegroundColor Cyan
