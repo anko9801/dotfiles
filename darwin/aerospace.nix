@@ -1,9 +1,9 @@
-_:
+{ config, ... }:
 
 {
   # AeroSpace configuration (TOML format)
   # Installed via Homebrew cask
-  home-manager.users.anko.home.file.".config/aerospace/aerospace.toml".text = ''
+  home-manager.users.${config.system.primaryUser}.home.file.".config/aerospace/aerospace.toml".text = ''
     # AeroSpace - tiling window manager for macOS
     # https://github.com/nikitabobko/AeroSpace
 

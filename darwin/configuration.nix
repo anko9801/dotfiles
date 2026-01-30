@@ -54,12 +54,13 @@
   # Create /etc/zshrc that loads nix-darwin environment
   programs.zsh.enable = true;
 
-  # Primary user for system defaults
-  system.primaryUser = "anko";
+  # Primary user is set in flake.nix based on the user parameter
+
+  # Home Manager backup for existing files
+  home-manager.backupFileExtension = "backup";
 
   # Used for backwards compatibility
   system.stateVersion = 5;
 
-  # The platform the configuration will be used on
-  nixpkgs.hostPlatform = lib.mkDefault "aarch64-darwin";
+  # The platform is set by flake.nix based on the system parameter
 }
