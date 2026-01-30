@@ -34,6 +34,9 @@
         { "PackageIdentifier": "ShareX.ShareX" },
         { "PackageIdentifier": "xanderfrangos.twinkletray" },
         { "PackageIdentifier": "TrackerSoftware.PDF-XChangeEditor" },
+        { "PackageIdentifier": "SumatraPDF.SumatraPDF" },
+        { "PackageIdentifier": "REALiX.HWiNFO" },
+        { "PackageIdentifier": "DevToys-app.DevToys" },
         { "PackageIdentifier": "File-New-Project.EarTrumpet" }
       ],
       "SourceDetails": {
