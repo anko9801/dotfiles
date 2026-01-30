@@ -51,7 +51,7 @@ _:
       # Utilities
       "1password"
       "appcleaner"
-      "ice" # Menu bar management
+      "jordanbaird-ice" # Menu bar management
       "maccy" # Clipboard manager
       "shottr" # Screenshot tool
 
