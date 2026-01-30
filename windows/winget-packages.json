@@ -28,7 +28,8 @@
         { "PackageIdentifier": "Starship.Starship" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
-        { "PackageIdentifier": "Warp.Warp" }
+        { "PackageIdentifier": "Warp.Warp" },
+        { "PackageIdentifier": "File-New-Project.EarTrumpet" }
       ],
       "SourceDetails": {
         "Argument": "https://cdn.winget.microsoft.com/cache",
