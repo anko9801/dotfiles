@@ -9,6 +9,7 @@
         { "PackageIdentifier": "Microsoft.PowerToys" },
         { "PackageIdentifier": "Git.Git" },
         { "PackageIdentifier": "Microsoft.VisualStudioCode" },
+        { "PackageIdentifier": "ZedIndustries.Zed" },
         { "PackageIdentifier": "Docker.DockerDesktop" },
         { "PackageIdentifier": "GoLang.Go" },
         { "PackageIdentifier": "Google.Chrome" },
@@ -28,7 +29,6 @@
         { "PackageIdentifier": "Starship.Starship" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
-        { "PackageIdentifier": "Warp.Warp" },
         { "PackageIdentifier": "File-New-Project.EarTrumpet" }
       ],
       "SourceDetails": {
