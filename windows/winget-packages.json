@@ -28,6 +28,7 @@
         { "PackageIdentifier": "Starship.Starship" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
+        { "PackageIdentifier": "FilesCommunity.Files" },
         { "PackageIdentifier": "File-New-Project.EarTrumpet" }
       ],
       "SourceDetails": {
