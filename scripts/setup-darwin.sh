@@ -153,34 +153,81 @@ if ! grep -q "\"$DARWIN_CONFIG\"" "$DOTFILES_DIR/flake.nix" 2>/dev/null; then
   fi
 fi
 
-# Step 6: Backup existing config files
+# Step 6: Backup and remove existing config files that will conflict with Nix
 info "Backing up existing configuration files..."
 BACKUP_DIR="$HOME/.config-backup-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
-backup_if_exists() {
+backup_and_remove() {
   local src="$1"
   if [[ -e $src ]]; then
-    local dest="$BACKUP_DIR/$(basename "$src")"
+    # Create parent directory structure in backup
+    local relative_path="${src#$HOME/}"
+    local dest_dir="$BACKUP_DIR/$(dirname "$relative_path")"
+    mkdir -p "$dest_dir"
+    local dest="$BACKUP_DIR/$relative_path"
     cp -r "$src" "$dest"
-    info "Backed up: $src -> $dest"
+    rm -rf "$src"
+    info "Backed up and removed: $src"
   fi
 }
 
-# Backup files that will be managed by Nix
-backup_if_exists "$HOME/.config/zsh"
-backup_if_exists "$HOME/.config/atuin"
-backup_if_exists "$HOME/.config/mise"
-backup_if_exists "$HOME/.config/mcfly"
-backup_if_exists "$HOME/.config/gitleaks"
-backup_if_exists "$HOME/.config/sheldon"
-backup_if_exists "$HOME/.config/git/ghq.toml"
-backup_if_exists "$HOME/.ssh/config"
-backup_if_exists "$HOME/.zshrc"
+# All files that will be managed by Nix (from home-manager)
+# These must be removed before darwin-rebuild to avoid "would be clobbered" errors
+MANAGED_FILES=(
+  # Shell configs
+  "$HOME/.zshenv"
+  "$HOME/.zshrc"
+  "$HOME/.bashrc"
+  "$HOME/.bash_profile"
+  "$HOME/.config/zsh"
+  "$HOME/.config/fish"
+  "$HOME/.config/starship.toml"
+  # Tool configs
+  "$HOME/.config/atuin"
+  "$HOME/.config/mise"
+  "$HOME/.config/mcfly"
+  "$HOME/.config/gitleaks"
+  "$HOME/.config/sheldon"
+  "$HOME/.config/htop"
+  "$HOME/.config/zellij"
+  "$HOME/.config/tmux"
+  "$HOME/.config/nvim"
+  "$HOME/.config/op"
+  # Git configs
+  "$HOME/.config/git"
+  # SSH
+  "$HOME/.ssh/config"
+  # Claude
+  "$HOME/.claude/settings.json"
+  "$HOME/.claude/commands"
+  "$HOME/.claude/CLAUDE.md"
+  # GitHub CLI
+  "$HOME/.config/gh"
+  # VS Code (if managed)
+  "$HOME/Library/Application Support/Code/User/settings.json"
+  # WSL (not needed on macOS but included for completeness)
+  "$HOME/.config/wsl"
+)
+
+for file in "${MANAGED_FILES[@]}"; do
+  backup_and_remove "$file"
+done
 
 success "Backups saved to: $BACKUP_DIR"
 
-# Step 7: Apply nix-darwin configuration
+# Step 7: Prepare /etc files for nix-darwin
+info "Preparing /etc files for nix-darwin..."
+
+# nix-darwin needs to manage these files, so rename existing ones
+for f in /etc/bashrc /etc/zshrc /etc/zshenv; do
+  if [[ -f $f ]] && [[ ! -f "${f}.before-nix-darwin" ]]; then
+    info "Backing up $f -> ${f}.before-nix-darwin"
+    sudo mv "$f" "${f}.before-nix-darwin"
+  fi
+done
+
+# Step 8: Apply nix-darwin configuration
 info "Applying nix-darwin configuration..."
 echo ""
 
@@ -196,25 +243,6 @@ else
 fi
 
 success "nix-darwin configuration applied!"
-
-# Step 8: Post-setup cleanup
-echo ""
-info "Post-setup tasks..."
-
-# Remove old config files (now managed by Nix)
-read -p "Remove old config files that are now managed by Nix? (y/N): " -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  rm -rf "$HOME/.config/zsh" 2>/dev/null || true
-  rm -rf "$HOME/.config/atuin/config.toml" 2>/dev/null || true
-  rm -rf "$HOME/.config/mise/config.toml" 2>/dev/null || true
-  rm -rf "$HOME/.config/mcfly" 2>/dev/null || true
-  rm -rf "$HOME/.config/gitleaks/config.toml" 2>/dev/null || true
-  rm -rf "$HOME/.config/sheldon" 2>/dev/null || true
-  rm -rf "$HOME/.config/git/ghq.toml" 2>/dev/null || true
-  rm -rf "$HOME/.ssh/config.d/oracle.conf" 2>/dev/null || true
-  success "Old config files removed"
-fi
 
 # Step 9: Done!
 echo ""

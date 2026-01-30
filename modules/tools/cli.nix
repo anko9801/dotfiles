@@ -57,6 +57,9 @@
       # Misc
       watchexec # file watcher
       peco # interactive filtering tool
+
+      # Markdown/Documentation
+      glow # Markdown renderer for CLI
     ];
 
     sessionVariables = {

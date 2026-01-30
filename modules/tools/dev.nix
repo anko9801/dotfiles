@@ -165,7 +165,7 @@
         };
         tools = {
           # Runtimes - LTS/stable versions to avoid constant re-downloads
-          node = "lts";
+          node = "22";
           python = "latest";
           ruby = "latest";
           go = "latest";
