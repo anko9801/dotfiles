@@ -11,6 +11,11 @@
 
   targets.genericLinux.enable = true;
 
+  xdg.configFile.wsl = {
+    source = ../../configs/wsl;
+    recursive = true;
+  };
+
   home = {
     homeDirectory = lib.mkDefault "/home/anko";
 

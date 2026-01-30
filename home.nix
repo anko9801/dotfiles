@@ -51,15 +51,7 @@
     # npm tools managed by mise
   };
 
-  xdg = {
-    enable = true;
-    configFile = {
-      wsl = {
-        source = ./configs/wsl;
-        recursive = true;
-      };
-    };
-  };
+  xdg.enable = true;
 
   nix = {
     gc = {
