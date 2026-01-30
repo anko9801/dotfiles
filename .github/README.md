@@ -31,7 +31,7 @@ dotfiles/
 └── configs/                  # 静的設定ファイル
 ```
 
-## プラットフォーム
+## コマンド
 
 | 環境 | 適用コマンド |
 |------|-------------|
@@ -41,21 +41,7 @@ dotfiles/
 | Server | `home-manager switch --flake .#anko@server` |
 | Windows | `Update-Dotfiles` (PowerShell) |
 
-## キーバインド
-
-| キー | 動作 |
-|------|------|
-| `Ctrl+a` | fzf で abbr 選択 |
-| `Ctrl+r` | atuin 履歴検索 |
-| `Ctrl+g` | zellij UI 切替 |
-
-## コマンド
-
 ```bash
-# 更新
-cd ~/dotfiles && git pull
-home-manager switch --flake .#anko@wsl  # or darwin-rebuild for macOS
-
 # flake 更新
 nix flake update
 
@@ -64,6 +50,14 @@ nix fmt
 nix develop -c statix check .
 nix develop -c deadnix .
 ```
+
+## キーバインド
+
+| キー | 動作 |
+|------|------|
+| `Ctrl+a` | fzf で abbr 選択 |
+| `Ctrl+r` | atuin 履歴検索 |
+| `Ctrl+g` | zellij UI 切替 |
 
 ## コンセプト
 
