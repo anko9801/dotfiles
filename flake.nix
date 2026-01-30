@@ -1,5 +1,5 @@
 {
-  description = "Home Manager and nix-darwin configuration for anko";
+  description = "Home Manager and nix-darwin configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -65,6 +65,7 @@
       mkHome =
         {
           system,
+          user,
           extraModules ? [ ],
         }:
         home-manager.lib.homeManagerConfiguration {
@@ -72,7 +73,17 @@
             inherit system;
             config.allowUnfree = true;
           };
-          modules = commonHomeModules ++ extraModules;
+          modules =
+            commonHomeModules
+            ++ extraModules
+            ++ [
+              {
+                home = {
+                  username = user;
+                  homeDirectory = "/home/${user}";
+                };
+              }
+            ];
         };
 
       # nix-darwin configuration (for macOS)
@@ -171,16 +182,22 @@
         homeConfigurations = {
           "anko@wsl" = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./modules/platforms/wsl.nix ];
+            user = "anko";
+            extraModules = [
+              ./modules/platforms/wsl.nix
+              { programs.wsl.windowsUser = "anko"; }
+            ];
           };
 
           "anko@linux" = mkHome {
             system = "x86_64-linux";
+            user = "anko";
             extraModules = [ ./modules/platforms/linux.nix ];
           };
 
           "anko@server" = mkHome {
             system = "x86_64-linux";
+            user = "anko";
             extraModules = [ ./modules/platforms/server.nix ];
           };
         };

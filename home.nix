@@ -1,5 +1,4 @@
 {
-  lib,
   ...
 }:
 
@@ -11,8 +10,7 @@
   ];
 
   home = {
-    username = "anko";
-    homeDirectory = lib.mkDefault "/home/anko";
+    # username and homeDirectory are set in flake.nix
     stateVersion = "24.11";
 
     sessionVariables = {

@@ -10,8 +10,6 @@
   ];
 
   home = {
-    homeDirectory = lib.mkDefault "/home/anko";
-
     sessionVariables = {
       MOZ_ENABLE_WAYLAND = "1";
       QT_QPA_PLATFORM = "wayland;xcb";
