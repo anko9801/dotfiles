@@ -25,7 +25,7 @@ _:
 
       # Development
       "visual-studio-code"
-      "iterm2"
+      "ghostty"
       "docker"
 
       # Productivity
