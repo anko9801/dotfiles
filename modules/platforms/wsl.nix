@@ -5,6 +5,10 @@
   ...
 }:
 
+let
+  windowsUser = config.programs.wsl.windowsUser;
+  sshExe = "/mnt/c/Windows/System32/OpenSSH/ssh.exe";
+in
 {
   options.programs.wsl.windowsUser = lib.mkOption {
     type = lib.types.str;
@@ -14,10 +18,10 @@
   config = {
     targets.genericLinux.enable = true;
 
-    # 1Password paths for WSL (uses Windows 1Password)
+    # 1Password paths for WSL (uses Windows ssh.exe directly)
     tools.ssh = {
-      onePasswordAgentPath = "~/.1password/agent.sock";
-      onePasswordSignProgram = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
+      onePasswordAgentPath = null; # Not needed - using Windows ssh.exe
+      onePasswordSignProgram = "/mnt/c/Users/${windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
     };
 
     xdg.configFile.wsl = {
@@ -30,19 +34,15 @@
         DISPLAY = ":0";
         WSL_INTEROP = "/run/WSL/1_interop";
         BROWSER = "xdg-open";
-        SSH_AUTH_SOCK = "$HOME/.1password/agent.sock";
+        # Use Windows ssh.exe for Git operations (1Password SSH agent)
+        GIT_SSH_COMMAND = sshExe;
       };
 
       packages = with pkgs; [
         wslu
-        socat # For 1Password SSH agent bridge
       ];
 
       activation = {
-        create1PasswordSocketDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-          $DRY_RUN_CMD mkdir -p $HOME/.1password
-        '';
-
         setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
           if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
             $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
@@ -62,27 +62,23 @@
     };
 
     programs = {
+      # SSH config - use Windows ssh.exe for 1Password integration
       ssh.extraConfig = ''
-        IdentityAgent ${config.tools.ssh.onePasswordAgentPath}
+        # For hosts that need 1Password SSH agent, use Windows ssh.exe via ProxyCommand
+        # Example:
+        # Host github.com
+        #   ProxyCommand ${sshExe} -W %h:%p %r@%h
       '';
 
       git.settings = {
         credential.helper = "/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe";
         gpg.ssh.program = config.tools.ssh.onePasswordSignProgram;
+        core.sshCommand = sshExe;
       };
 
       zsh.initContent = lib.mkAfter ''
         # WSL-Specific Configuration
         export WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2 2>/dev/null || echo "localhost")
-
-        # 1Password SSH Agent bridge (Windows -> WSL)
-        _1p_socket="$HOME/.1password/agent.sock"
-        _1p_relay="/mnt/c/Users/${config.programs.wsl.windowsUser}/go/bin/npiperelay.exe"
-        if [[ -x "$_1p_relay" ]] && ! pgrep -f "npiperelay.*openssh-ssh-agent" >/dev/null 2>&1; then
-          rm -f "$_1p_socket"
-          (setsid socat UNIX-LISTEN:"$_1p_socket",fork EXEC:"$_1p_relay -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
-        fi
-        unset _1p_socket _1p_relay
 
         # Windows paths
         export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0"
@@ -118,6 +114,11 @@
 
         alias pbcopy='clip.exe'
         alias pbpaste='powershell.exe -command "Get-Clipboard" | tr -d "\r"'
+
+        # SSH wrapper to use Windows ssh.exe with 1Password
+        ssh() {
+          ${sshExe} "$@"
+        }
 
         # X11 display (VcXsrv/Xming)
         (command -v vcxsrv.exe &>/dev/null || command -v xming.exe &>/dev/null) && export DISPLAY="''${WSL_HOST}:0"

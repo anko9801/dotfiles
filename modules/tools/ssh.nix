@@ -4,9 +4,9 @@
   # Platform-specific options for 1Password SSH integration
   options.tools.ssh = {
     onePasswordAgentPath = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.nullOr lib.types.str;
       default = "~/.1password/agent.sock";
-      description = "Path to 1Password SSH agent socket";
+      description = "Path to 1Password SSH agent socket (null to disable)";
     };
 
     onePasswordSignProgram = lib.mkOption {
