@@ -33,15 +33,14 @@ dotfiles/
 
 ## コマンド
 
-| 環境 | 適用コマンド |
-|------|-------------|
-| macOS | `darwin-rebuild switch --flake .#anko-mac` |
-| Linux | `home-manager switch --flake .#anko@linux` |
-| WSL | `home-manager switch --flake .#anko@wsl` |
-| Server | `home-manager switch --flake .#anko@server` |
-| Windows | `Update-Dotfiles` (PowerShell) |
-
 ```bash
+# 適用
+darwin-rebuild switch --flake .#anko-mac    # macOS
+home-manager switch --flake .#anko@linux    # Linux
+home-manager switch --flake .#anko@wsl      # WSL
+home-manager switch --flake .#anko@server   # Server
+Update-Dotfiles                              # Windows (PowerShell)
+
 # flake 更新
 nix flake update
 
