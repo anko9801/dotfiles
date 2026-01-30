@@ -9,39 +9,40 @@ Pure Nix Home Manager ベースの dotfiles。
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
 # 2. dotfiles クローン
-git clone https://github.com/anko9801/dotfiles ~/.config/home-manager
+git clone https://github.com/anko9801/dotfiles ~/dotfiles
 
 # 3. Home Manager 適用
-nix run home-manager -- switch --flake ~/.config/home-manager#anko@wsl    # Linux/WSL
-nix run nix-darwin -- switch --flake ~/.config/home-manager#anko-mac      # macOS
+nix run home-manager -- switch --flake ~/dotfiles#<user>@wsl      # Linux/WSL
+nix run home-manager -- switch --flake ~/dotfiles#<user>@linux    # Linux
+sudo nix run nix-darwin -- switch --flake ~/dotfiles#<user>-mac   # macOS
 ```
 
 ## 構成
 
 ```
-~/.config/home-manager
+~/dotfiles
 ├── flake.nix       # Flake definition
 ├── home.nix        # Common configuration
 ├── darwin/         # macOS (nix-darwin)
 ├── modules/
 │   ├── shell/      # zsh, starship
-│   ├── tools/      # cli, git, dev, linters
+│   ├── tools/      # cli, git, dev, neovim
 │   ├── services/   # syncthing
 │   └── platforms/  # wsl, darwin, linux
-└── configs/        # Raw config files (nvim, vim, claude)
+└── configs/        # Raw config files (wsl, claude)
 ```
 
 ## コマンド
 
 ```bash
 # 設定を更新
-home-manager switch --flake ~/.config/home-manager#anko@wsl    # Linux/WSL
-darwin-rebuild switch --flake ~/.config/home-manager#anko-mac  # macOS
+home-manager switch --flake ~/dotfiles#<user>@wsl       # Linux/WSL
+sudo darwin-rebuild switch --flake ~/dotfiles#<user>-mac  # macOS
 
 # flake 更新
 nix flake update
 
-# 開発シェル (nixfmt, statix, deadnix, nil)
+# 開発シェル (nixfmt, statix, deadnix, nixd)
 nix develop
 
 # フォーマット
@@ -59,12 +60,12 @@ nix fmt
 
 **Shell**: zsh + starship + fzf + zoxide + atuin
 
-**Editor**: Neovim + lazy.nvim, Vim
+**Editor**: Neovim (nixvim), Vim
 
 **Git**: delta, gitui, ghq, gibo, lazygit, gitleaks
 
 **Modern CLI**: bat, eza, ripgrep, fd, dust, bottom, procs, sd
 
-**Dev**: Node.js, Python, Go, Rust, Ruby
+**Dev**: mise (Node.js, Python, Go, Rust, Ruby, etc.)
 
-**macOS**: yabai + skhd, Raycast, Homebrew (via nix-darwin)
+**macOS**: AeroSpace, Raycast, Homebrew (via nix-darwin)
