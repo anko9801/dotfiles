@@ -26,6 +26,7 @@
         { "PackageIdentifier": "OBSProject.OBSStudio" },
         { "PackageIdentifier": "Tailscale.Tailscale" },
         { "PackageIdentifier": "Starship.Starship" },
+        { "PackageIdentifier": "ajeetdsouza.zoxide" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
         { "PackageIdentifier": "FilesCommunity.Files" },
