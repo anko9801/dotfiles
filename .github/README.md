@@ -9,11 +9,10 @@ Nix + Home Manager で管理する個人設定。macOS / Linux / WSL / Windows �
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
 ```
 
-**Windows + WSL (PowerShell 管理者):**
+**Windows (PowerShell 管理者):**
 ```powershell
 iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex
 ```
-↑ Windows (winget) と WSL (Nix) 両方セットアップされる
 
 ## 構成
 
