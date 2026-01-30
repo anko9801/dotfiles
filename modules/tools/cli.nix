@@ -35,12 +35,6 @@
       gawk
       gnused
 
-      # Documentation
-      man-db # man pages
-
-      # Media (lightweight)
-      yt-dlp # video downloader
-
       # Database
       sqlite # SQLite CLI
 
@@ -137,15 +131,7 @@
       };
     };
 
-    yazi = {
-      enable = true;
-      enableZshIntegration = true;
-      settings.manager = {
-        show_hidden = true;
-        sort_by = "natural";
-        sort_dir_first = true;
-      };
-    };
+    # yazi is in platforms/darwin.nix (heavy due to ffmpeg dependency)
 
     readline = {
       enable = true;
@@ -166,7 +152,7 @@
 
     man = {
       enable = true;
-      generateCaches = true;
+      generateCaches = false; # Skip man page index rebuild (saves 30-60s)
     };
 
     eza = {

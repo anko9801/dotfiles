@@ -309,18 +309,14 @@ _:
       options.desc = "Format file";
     }
 
-    # Lazygit
+    # Lazygit (using built-in terminal)
     {
       mode = "n";
       key = "<leader>gg";
       action.__raw = ''
         function()
-          require("toggleterm.terminal").Terminal:new({
-            cmd = "lazygit",
-            dir = "git_dir",
-            direction = "float",
-            float_opts = { border = "double" },
-          }):toggle()
+          vim.cmd("tabnew | terminal lazygit")
+          vim.cmd("startinsert")
         end
       '';
       options.desc = "Lazygit";
@@ -448,6 +444,82 @@ _:
       key = "r";
       action.__raw = "function() require('flash').remote() end";
       options.desc = "Flash remote";
+    }
+
+    # Avante (AI) keymaps
+    {
+      mode = "n";
+      key = "<leader>aa";
+      action = "<cmd>AvanteAsk<CR>";
+      options.desc = "Avante: Ask AI";
+    }
+    {
+      mode = "v";
+      key = "<leader>aa";
+      action = "<cmd>AvanteAsk<CR>";
+      options.desc = "Avante: Ask AI (selection)";
+    }
+    {
+      mode = "n";
+      key = "<leader>ae";
+      action = "<cmd>AvanteEdit<CR>";
+      options.desc = "Avante: Edit";
+    }
+    {
+      mode = "v";
+      key = "<leader>ae";
+      action = "<cmd>AvanteEdit<CR>";
+      options.desc = "Avante: Edit (selection)";
+    }
+    {
+      mode = "n";
+      key = "<leader>at";
+      action = "<cmd>AvanteToggle<CR>";
+      options.desc = "Avante: Toggle";
+    }
+    {
+      mode = "n";
+      key = "<leader>ar";
+      action = "<cmd>AvanteRefresh<CR>";
+      options.desc = "Avante: Refresh";
+    }
+
+    # Trouble (diagnostics)
+    {
+      mode = "n";
+      key = "<leader>xx";
+      action = "<cmd>Trouble diagnostics toggle<CR>";
+      options.desc = "Diagnostics (Trouble)";
+    }
+    {
+      mode = "n";
+      key = "<leader>xX";
+      action = "<cmd>Trouble diagnostics toggle filter.buf=0<CR>";
+      options.desc = "Buffer Diagnostics (Trouble)";
+    }
+    {
+      mode = "n";
+      key = "<leader>cs";
+      action = "<cmd>Trouble symbols toggle focus=false<CR>";
+      options.desc = "Symbols (Trouble)";
+    }
+    {
+      mode = "n";
+      key = "<leader>cl";
+      action = "<cmd>Trouble lsp toggle focus=false win.position=right<CR>";
+      options.desc = "LSP (Trouble)";
+    }
+    {
+      mode = "n";
+      key = "<leader>xL";
+      action = "<cmd>Trouble loclist toggle<CR>";
+      options.desc = "Location List (Trouble)";
+    }
+    {
+      mode = "n";
+      key = "<leader>xQ";
+      action = "<cmd>Trouble qflist toggle<CR>";
+      options.desc = "Quickfix List (Trouble)";
     }
   ];
 }

@@ -33,7 +33,7 @@
       gopls
       lua-language-server
       nodePackages.typescript-language-server
-      basedpyright
+      pyright
       nixd
 
       # Additional dev tools
@@ -61,12 +61,6 @@
       typst # Document processor
       ast-grep # Structural code search
       cargo-watch # Watch and rebuild
-
-      # AI/LLM CLI tools (2025 additions)
-      # ollama is installed via homebrew cask for Metal acceleration
-      # crush is installed via homebrew (avoids Go build)
-      aichat # All-in-one AI CLI (20+ providers, RAG, function calling)
-      mods # AI for command pipelines (e.g., git diff | mods "explain")
     ];
 
     activation = {

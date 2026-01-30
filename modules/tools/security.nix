@@ -55,13 +55,7 @@
       };
     };
 
-    password-store = {
-      enable = true;
-      settings = {
-        PASSWORD_STORE_DIR = "$HOME/.password-store";
-        PASSWORD_STORE_CLIP_TIME = "45";
-      };
-    };
+    # password-store removed (using 1Password instead)
 
     nix-index = {
       enable = true;

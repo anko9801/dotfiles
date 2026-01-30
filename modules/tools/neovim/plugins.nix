@@ -8,13 +8,16 @@
     # Lazy loading with lz.n
     lz-n.enable = true;
 
-    # UI (load immediately)
+    # ==========================================================================
+    # UI (load immediately - needed for visual consistency)
+    # ==========================================================================
     web-devicons.enable = true;
 
     lualine = {
       enable = true;
       settings.options = {
         theme = "tokyonight";
+        globalstatus = true; # Single statusline for all windows
         component_separators = {
           left = "";
           right = "";
@@ -26,18 +29,9 @@
       };
     };
 
-    bufferline = {
-      enable = true;
-      settings.options = {
-        diagnostics = "nvim_lsp";
-        show_buffer_close_icons = true;
-        show_close_icon = true;
-        separator_style = "slant";
-      };
-    };
-
     indent-blankline = {
       enable = true;
+      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
       settings = {
         indent = {
           char = "│";
@@ -47,118 +41,43 @@
       };
     };
 
-    noice.enable = true;
-    notify.enable = true;
-
-    # Dashboard
-    alpha = {
+    # Noice: better UI for messages, cmdline, popupmenu
+    noice = {
       enable = true;
-      theme = null;
-      settings.layout = [
-        {
-          type = "padding";
-          val = 2;
-        }
-        {
-          type = "text";
-          val = [
-            "                                                     "
-            "  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗"
-            "  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║"
-            "  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║"
-            "  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║"
-            "  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║"
-            "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝"
-            "                                                     "
-          ];
-          opts = {
-            position = "center";
-            hl = "Type";
-          };
-        }
-        {
-          type = "padding";
-          val = 2;
-        }
-        {
-          type = "group";
-          val = [
-            {
-              type = "button";
-              val = "  Find file";
-              on_press.__raw = "function() vim.cmd('FzfLua files') end";
-              opts = {
-                shortcut = "f";
-                position = "center";
-                cursor = 3;
-                width = 50;
-                align_shortcut = "right";
-                hl_shortcut = "Keyword";
-              };
-            }
-            {
-              type = "button";
-              val = "  New file";
-              on_press.__raw = "function() vim.cmd('ene | startinsert') end";
-              opts = {
-                shortcut = "e";
-                position = "center";
-                cursor = 3;
-                width = 50;
-                align_shortcut = "right";
-                hl_shortcut = "Keyword";
-              };
-            }
-            {
-              type = "button";
-              val = "  Recent files";
-              on_press.__raw = "function() vim.cmd('FzfLua oldfiles') end";
-              opts = {
-                shortcut = "r";
-                position = "center";
-                cursor = 3;
-                width = 50;
-                align_shortcut = "right";
-                hl_shortcut = "Keyword";
-              };
-            }
-            {
-              type = "button";
-              val = "  Find text";
-              on_press.__raw = "function() vim.cmd('FzfLua live_grep') end";
-              opts = {
-                shortcut = "t";
-                position = "center";
-                cursor = 3;
-                width = 50;
-                align_shortcut = "right";
-                hl_shortcut = "Keyword";
-              };
-            }
-            {
-              type = "button";
-              val = "  Quit";
-              on_press.__raw = "function() vim.cmd('qa') end";
-              opts = {
-                shortcut = "q";
-                position = "center";
-                cursor = 3;
-                width = 50;
-                align_shortcut = "right";
-                hl_shortcut = "Keyword";
-              };
-            }
-          ];
-        }
-      ];
+      lazyLoad.settings.event = [ "VeryLazy" ];
+      settings = {
+        lsp.override = {
+          "vim.lsp.util.convert_input_to_markdown_lines" = true;
+          "vim.lsp.util.stylize_markdown" = true;
+          "cmp.entry.get_documentation" = true;
+        };
+        presets = {
+          bottom_search = true;
+          command_palette = true;
+          long_message_to_split = true;
+        };
+      };
     };
 
-    # File explorer: oil.nvim (lightweight, buffer-based)
+    notify = {
+      enable = true;
+      lazyLoad.settings.event = [ "VeryLazy" ];
+      settings = {
+        timeout = 3000;
+        max_height.__raw = "function() return math.floor(vim.o.lines * 0.75) end";
+        max_width.__raw = "function() return math.floor(vim.o.columns * 0.75) end";
+      };
+    };
+
+    # ==========================================================================
+    # File explorer & Fuzzy finder (lazy load on command)
+    # ==========================================================================
     oil = {
       enable = true;
       lazyLoad.settings.cmd = [ "Oil" ];
       settings = {
         view_options.show_hidden = true;
+        skip_confirm_for_simple_edits = true;
         keymaps = {
           "g?" = "actions.show_help";
           "<CR>" = "actions.select";
@@ -177,7 +96,6 @@
       };
     };
 
-    # Fuzzy finder: fzf-lua (faster than telescope)
     fzf-lua = {
       enable = true;
       lazyLoad.settings.cmd = [ "FzfLua" ];
@@ -192,19 +110,29 @@
         };
         keymap.fzf = {
           "ctrl-q" = "select-all+accept";
+          "ctrl-u" = "half-page-up";
+          "ctrl-d" = "half-page-down";
         };
-        files = {
-          fd_opts = "--type f --hidden --follow --exclude .git";
-        };
-        grep = {
-          rg_opts = "--column --line-number --no-heading --color=always --smart-case";
-        };
+        files.fd_opts = "--type f --hidden --follow --exclude .git";
+        grep.rg_opts = "--column --line-number --no-heading --color=always --smart-case";
       };
     };
 
-    # Motion: flash.nvim (better than leap/hop)
+    harpoon = {
+      enable = true;
+      enableTelescope = false;
+      lazyLoad.settings.event = [ "VeryLazy" ];
+    };
+
+    # ==========================================================================
+    # Motion & Navigation
+    # ==========================================================================
     flash = {
       enable = true;
+      lazyLoad.settings = {
+        event = [ "VeryLazy" ];
+        keys = [ "s" "S" ];
+      };
       settings = {
         labels = "asdfghjklqwertyuiopzxcvbnm";
         search.mode = "fuzzy";
@@ -216,16 +144,13 @@
       };
     };
 
-    # Harpoon: quick file navigation
-    harpoon = {
-      enable = true;
-      enableTelescope = false;
-    };
-
-    # Treesitter with explicit grammars (required for NixOS)
+    # ==========================================================================
+    # Treesitter (load on file open)
+    # ==========================================================================
     treesitter = {
       enable = true;
       nixvimInjections = true;
+      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
       settings = {
         highlight.enable = true;
         indent.enable = true;
@@ -239,33 +164,12 @@
           };
         };
       };
-      # Essential grammars only (removed: diff, fish, git_rebase, gitcommit, luadoc, make, query, regex, vim, vimdoc)
       grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
-        bash
-        c
-        cpp
-        css
-        dockerfile
-        go
-        gomod
-        html
-        javascript
-        json
-        lua
-        markdown
-        markdown_inline
-        nix
-        python
-        rust
-        sql
-        toml
-        tsx
-        typescript
-        yaml
+        bash c cpp css dockerfile go gomod html javascript json lua
+        markdown markdown_inline nix python rust sql toml tsx typescript yaml
       ];
     };
 
-    # Treesitter extensions
     treesitter-textobjects = {
       enable = true;
       settings = {
@@ -298,15 +202,21 @@
 
     treesitter-context = {
       enable = true;
+      lazyLoad.settings.event = [ "BufReadPost" ];
       settings.max_lines = 3;
     };
 
-    ts-autotag.enable = true;
-    rainbow-delimiters.enable = true;
+    ts-autotag = {
+      enable = true;
+      lazyLoad.settings.event = [ "InsertEnter" ];
+    };
 
-    # Git
+    # ==========================================================================
+    # Git (lazy load)
+    # ==========================================================================
     gitsigns = {
       enable = true;
+      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
       settings = {
         signs = {
           add.text = "│";
@@ -326,21 +236,16 @@
               opts.buffer = bufnr
               vim.keymap.set(mode, l, r, opts)
             end
-
-            -- Navigation
             map("n", "]c", function()
               if vim.wo.diff then return "]c" end
               vim.schedule(function() gs.next_hunk() end)
               return "<Ignore>"
             end, { expr = true, desc = "Next hunk" })
-
             map("n", "[c", function()
               if vim.wo.diff then return "[c" end
               vim.schedule(function() gs.prev_hunk() end)
               return "<Ignore>"
             end, { expr = true, desc = "Previous hunk" })
-
-            -- Actions
             map("n", "<leader>hs", gs.stage_hunk, { desc = "Stage hunk" })
             map("n", "<leader>hr", gs.reset_hunk, { desc = "Reset hunk" })
             map("v", "<leader>hs", function() gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, { desc = "Stage hunk" })
@@ -361,65 +266,111 @@
 
     diffview = {
       enable = true;
-      lazyLoad.settings.cmd = [
-        "DiffviewOpen"
-        "DiffviewFileHistory"
-      ];
+      lazyLoad.settings.cmd = [ "DiffviewOpen" "DiffviewFileHistory" ];
     };
 
-    # Git conflict resolution
     git-conflict = {
       enable = true;
+      lazyLoad.settings.event = [ "BufReadPost" ];
       settings.default_mappings = true;
     };
 
-    # Auto pairs
+    # ==========================================================================
+    # Editing (lazy load on events)
+    # ==========================================================================
     nvim-autopairs = {
       enable = true;
       lazyLoad.settings.event = [ "InsertEnter" ];
     };
 
-    # Comments: use ts-comments for proper treesitter detection
-    # (Neovim 0.10+ has native gc/gcc, ts-comments adds commentstring)
+    # mini.surround (lighter than nvim-surround)
+    mini = {
+      enable = true;
+      mockDevIcons = false;
+      modules = {
+        surround = {
+          mappings = {
+            add = "sa";
+            delete = "sd";
+            find = "sf";
+            find_left = "sF";
+            highlight = "sh";
+            replace = "sr";
+            update_n_lines = "sn";
+          };
+        };
+        ai = {
+          n_lines = 500;
+          custom_textobjects = {
+            # Whole buffer
+            g.__raw = ''
+              function()
+                local from = { line = 1, col = 1 }
+                local to = { line = vim.fn.line('$'), col = math.max(vim.fn.getline('$'):len(), 1) }
+                return { from = from, to = to }
+              end
+            '';
+          };
+        };
+      };
+    };
+
     ts-comments.enable = true;
 
-    # Todo comments
     todo-comments = {
       enable = true;
-      lazyLoad.settings.event = [
-        "BufReadPost"
-        "BufNewFile"
-      ];
+      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
     };
 
-    # Surround
-    nvim-surround = {
+    # ==========================================================================
+    # Diagnostics (trouble.nvim)
+    # ==========================================================================
+    trouble = {
       enable = true;
-      lazyLoad.settings.event = [ "VeryLazy" ];
+      lazyLoad.settings.cmd = [ "Trouble" ];
+      settings = {
+        modes = {
+          diagnostics = {
+            auto_close = true;
+            auto_preview = false;
+          };
+        };
+      };
     };
 
-    # Which key
+    # ==========================================================================
+    # Utilities
+    # ==========================================================================
     which-key = {
       enable = true;
-      settings.delay = 200;
+      lazyLoad.settings.event = [ "VeryLazy" ];
+      settings = {
+        delay = 200;
+        icons.mappings = false;
+      };
     };
 
-    # Terminal
-    toggleterm = {
+    # ==========================================================================
+    # AI: avante.nvim (Cursor-like AI with Claude)
+    # ==========================================================================
+    avante = {
       enable = true;
-      lazyLoad.settings.cmd = [ "ToggleTerm" ];
+      lazyLoad.settings.cmd = [ "AvanteAsk" "AvanteEdit" "AvanteToggle" ];
       settings = {
-        size = 20;
-        open_mapping.__raw = "[[<c-\\>]]";
-        hide_numbers = true;
-        shade_terminals = true;
-        shading_factor = 2;
-        start_in_insert = true;
-        insert_mappings = true;
-        persist_size = true;
-        direction = "float";
-        close_on_exit = true;
-        float_opts.border = "curved";
+        provider = "claude";
+        claude = {
+          endpoint = "https://api.anthropic.com";
+          model = "claude-sonnet-4-20250514";
+          max_tokens = 4096;
+        };
+        behaviour = {
+          auto_suggestions = false;
+          auto_set_keymaps = true;
+        };
+        windows = {
+          position = "right";
+          width = 30;
+        };
       };
     };
   };
