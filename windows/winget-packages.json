@@ -24,7 +24,6 @@
         { "PackageIdentifier": "Spotify.Spotify" },
         { "PackageIdentifier": "VideoLAN.VLC" },
         { "PackageIdentifier": "OBSProject.OBSStudio" },
-        { "PackageIdentifier": "Valve.Steam" },
         { "PackageIdentifier": "Tailscale.Tailscale" },
         { "PackageIdentifier": "Starship.Starship" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
