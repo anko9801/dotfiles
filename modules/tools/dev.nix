@@ -29,12 +29,12 @@
       # gdb - Not available on macOS, use lldb instead
       nasm # Assembler
 
-      # Language servers
-      nodePackages.typescript-language-server
-      pyright
+      # Language servers (shared with neovim via PATH)
       gopls
       lua-language-server
-      # Note: rust-analyzer is provided by rustup
+      nodePackages.typescript-language-server
+      basedpyright
+      nixd
 
       # Additional dev tools
       ghq # Git repository manager
@@ -43,16 +43,6 @@
       gibo # .gitignore templates
       git-lfs # Git Large File Storage
       git-wt # Git worktree management
-
-      # gRPC/Protobuf tools
-      buf # Protobuf tooling
-      grpcurl # gRPC CLI
-      protobuf # protoc compiler
-
-      # Infrastructure tools
-      terraform # Infrastructure as code
-      ansible # Configuration management
-      act # Run GitHub Actions locally
 
       # Nix development tools
       nix-tree # Interactive dependency browser
@@ -66,19 +56,11 @@
       sops # Secrets OPerationS
       age # Modern encryption tool
 
-      # Container/Kubernetes tools (2025 additions)
-      k9s # Kubernetes TUI (essential)
-      lazydocker # Docker TUI
-      dive # Docker image layer analysis
-
       # CLI tools (migrated from cargo)
       just # Task runner
       typst # Document processor
       ast-grep # Structural code search
       cargo-watch # Watch and rebuild
-      wasm-pack # WebAssembly bundler
-      wasm-tools # WebAssembly utilities
-      sqlx-cli # SQL toolkit
 
       # AI/LLM CLI tools (2025 additions)
       # ollama is installed via homebrew cask for Metal acceleration
@@ -139,14 +121,6 @@
     '';
   };
 
-  # act configuration (GitHub Actions local runner)
-  xdg.configFile."act/actrc".text = ''
-    -P ubuntu-latest=catthehacker/ubuntu:act-latest
-    -P ubuntu-22.04=catthehacker/ubuntu:act-22.04
-    -P ubuntu-20.04=catthehacker/ubuntu:act-20.04
-    -P ubuntu-18.04=catthehacker/ubuntu:act-18.04
-  '';
-
   # ghq configuration
   xdg.configFile."ghq/config".text = ''
     [general]
@@ -170,10 +144,8 @@
           jobs = 4;
           task_output = "prefix";
         };
-        env = {
-          PYTHONUNBUFFERED = "1";
-          NODE_OPTIONS = "--max-old-space-size=4096";
-        };
+        # Environment variables set in home.nix sessionVariables
+        env = { };
         tools = {
           # Runtimes - LTS/stable versions to avoid constant re-downloads
           node = "22";

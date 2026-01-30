@@ -15,14 +15,11 @@
       duf # df replacement
       bottom # top replacement (btm)
       procs # ps replacement
-      tokei # code statistics
-      hyperfine # benchmarking tool
 
       # File operations
       tree
       jq # JSON processor
       yq-go # YAML processor
-      hexyl # hex viewer
 
       # Networking
       curl
@@ -33,7 +30,6 @@
       zip
       unzip
       p7zip
-      upx # Executable packer
 
       # Text processing
       gawk
@@ -42,17 +38,11 @@
       # Documentation
       man-db # man pages
 
-      # Media
-      ffmpeg # video/audio processing
-      imagemagick # image processing
+      # Media (lightweight)
       yt-dlp # video downloader
-      pandoc # document converter
 
       # Database
       sqlite # SQLite CLI
-
-      # Network/Testing tools
-      k6 # Load testing tool
 
       # Misc
       watchexec # file watcher
@@ -60,14 +50,8 @@
       # Markdown/Documentation
       glow # Markdown renderer for CLI
 
-      # Charm.sh ecosystem
-      gum # Shell script prompts/inputs
-      vhs # Terminal GIF recorder
-
-      # Data analysis (2025 additions)
-      qsv # CSV processing (xsv successor, SIMD optimized)
+      # Data analysis
       jless # JSON viewer with expand/collapse
-      jnv # jq builder with live preview
     ];
 
     sessionVariables = {

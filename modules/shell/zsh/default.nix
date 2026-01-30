@@ -6,108 +6,15 @@
 }:
 
 {
+  imports = [
+    ./aliases.nix
+    ./functions.nix
+  ];
+
   programs.zsh = {
     enable = true;
     enableCompletion = true;
     dotDir = "${config.xdg.configHome}/zsh"; # XDG compliant (HM 26.05+)
-
-    # Shell aliases (replacing zsh-abbr - simpler and faster)
-    shellAliases = {
-      # Safety and utility (trashy - trash-cli compatible)
-      rm = "trash";
-      cp = "cp -i";
-      mv = "mv -i";
-      mkdir = "mkdir -p";
-
-      # Modern CLI replacements
-      ls = "eza";
-      ll = "eza -l";
-      la = "eza -la";
-      lt = "eza --tree";
-      lta = "eza --tree -a";
-      cat = "bat";
-      find = "fd";
-      grep = "rg";
-      top = "btm";
-      htop = "btm";
-      du = "dust";
-      ps = "procs";
-      sed = "sd";
-      df = "df -h";
-      free = "free -h";
-
-      # Navigation
-      ".." = "cd ..";
-      "..." = "cd ../..";
-      "...." = "cd ../../..";
-      dl = "cd ~/Downloads";
-      dt = "cd ~/Desktop";
-      pj = "cd ~/repos";
-      dot = "cd ~/dotfiles";
-
-      # Git (using git aliases)
-      g = "git";
-      gst = "git st";
-      gsw = "git sw";
-      gf = "git f";
-      gpl = "git pl";
-      gps = "git ps";
-      glg = "git lg";
-      gla = "git la";
-      gdf = "git df";
-      gstaged = "git staged";
-      gamend = "git amend";
-      gundo = "git undo";
-      gunstage = "git unstage";
-      gcleanup = "git cleanup";
-      gopen = "git open";
-      gc = "ghq get";
-
-      # Docker
-      d = "docker";
-      dc = "docker-compose";
-      dps = "docker ps";
-      dpsa = "docker ps -a";
-      di = "docker images";
-      drm = "docker rm";
-      drmi = "docker rmi";
-
-      # Editors
-      v = "vim";
-      nv = "nvim";
-      c = "code";
-
-      # zellij (tmux removed in favor of zellij)
-      zj = "zellij";
-      zja = "zellij attach";
-      zjn = "zellij -s";
-      zjl = "zellij list-sessions";
-      zjk = "zellij kill-session";
-
-      # Tools
-      lg = "lazygit";
-
-      # Development
-      py = "python3";
-      pip = "uv pip";
-      venv = "uv venv";
-
-      # GitHub CLI
-      ghpr = "gh pr create";
-      ghpv = "gh pr view";
-      ghpl = "gh pr list";
-      ghrc = "gh repo clone";
-      ghrv = "gh repo view --web";
-
-      # ghq
-      gql = "ghq list";
-      gqr = "ghq root";
-
-      # Misc
-      h = "history";
-      j = "jobs";
-      reload = "source ~/.zshrc";
-    };
 
     # History configuration
     history = {
@@ -159,7 +66,7 @@
         export GPG_TTY=$(tty)
       '')
 
-      # Main configuration
+      # Shell options and completion styles
       ''
         # ==============================================================================
         # Shell Options
@@ -287,125 +194,15 @@
         if [[ -n "$TMUX" ]]; then
             zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
         fi
+      ''
 
-        # ==============================================================================
-        # Custom Functions
-        # ==============================================================================
-
-        # ghq + fzf integration - quickly cd to repositories
-        ghq-fzf() {
-            local selected
-            selected=$(ghq list | fzf --height=40% --layout=reverse --border --preview "cat $(ghq root)/{}/README.md 2>/dev/null || ls -la $(ghq root)/{}")
-            if [[ -n "$selected" ]]; then
-                cd "$(ghq root)/$selected" || return
-            fi
-        }
-        alias gq='ghq-fzf'
-
-        # ghq + fzf - open in editor
-        ghq-code() {
-            local selected
-            selected=$(ghq list | fzf --height=40% --layout=reverse --border)
-            if [[ -n "$selected" ]]; then
-                code "$(ghq root)/$selected"
-            fi
-        }
-
-        # Create new directory and cd into it
-        mkcd() {
-            mkdir -p "$1" && cd "$1" || return
-        }
-
-        # Extract various archive formats
-        extract() {
-            if [ -f "$1" ]; then
-                case "$1" in
-                    *.tar.bz2)   tar xjf "$1"   ;;
-                    *.tar.gz)    tar xzf "$1"   ;;
-                    *.bz2)       bunzip2 "$1"   ;;
-                    *.rar)       unrar x "$1"   ;;
-                    *.gz)        gunzip "$1"    ;;
-                    *.tar)       tar xf "$1"    ;;
-                    *.tbz2)      tar xjf "$1"   ;;
-                    *.tgz)       tar xzf "$1"   ;;
-                    *.zip)       unzip "$1"     ;;
-                    *.Z)         uncompress "$1";;
-                    *.7z)        7z x "$1"      ;;
-                    *.xz)        xz -d "$1"     ;;
-                    *.tar.xz)    tar xJf "$1"   ;;
-                    *.zst)       zstd -d "$1"   ;;
-                    *.tar.zst)   tar --zstd -xf "$1" ;;
-                    *)           echo "'$1' cannot be extracted via extract()" ;;
-                esac
-            else
-                echo "'$1' is not a valid file"
-            fi
-        }
-
-        # fzf-powered cd
-        fcd() {
-            local dir
-            dir=$(fd --type d --hidden --follow --exclude .git 2>/dev/null | fzf --height=40% --layout=reverse --border --preview 'eza --tree --level=2 --color=always {} | head -100') && cd "$dir" || return
-        }
-
-        # Kill process with fzf
-        fkill() {
-            local pid
-            pid=$(ps aux | sed 1d | fzf --height=40% --layout=reverse --border --multi | awk '{print $2}')
-            if [[ -n "$pid" ]]; then
-                echo "$pid" | xargs kill -9
-            fi
-        }
-
-        # Git branch switch with fzf
-        fbr() {
-            local branches branch
-            branches=$(git branch --all | grep -v HEAD) &&
-            branch=$(echo "$branches" | fzf --height=40% --layout=reverse --border -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-            git checkout "$(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")"
-        }
-
-        # Docker container exec with fzf
-        dexec() {
-            local container
-            container=$(docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}" | sed 1d | fzf --height=40% --layout=reverse --border | awk '{print $1}')
-            if [[ -n "$container" ]]; then
-                docker exec -it "$container" /bin/bash || docker exec -it "$container" /bin/sh
-            fi
-        }
-
-        # Search history with fzf
-        fh() {
-            print -z $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf --height=40% --layout=reverse --border --tac | sed -E 's/ *[0-9]*\*? *//' | sed -E 's/\\/\\\\/g')
-        }
-
-        # Git log with fzf
-        fgl() {
-            git log --oneline --color=always | fzf --ansi --preview 'git show --color=always {1}' | awk '{print $1}'
-        }
-
-        # ==============================================================================
-        # Tool Integrations
-        # ==============================================================================
-        # 1Password plugin integrations
-        if command -v op &>/dev/null; then
-            command -v gh &>/dev/null && alias gh='op plugin run -- gh'
-            command -v aws &>/dev/null && alias aws='op plugin run -- aws'
-            command -v gcloud &>/dev/null && alias gcloud='op plugin run -- gcloud'
-            command -v az &>/dev/null && alias az='op plugin run -- az'
-            command -v stripe &>/dev/null && alias stripe='op plugin run -- stripe'
-        fi
-
+      # Local settings (loaded last)
+      (lib.mkAfter ''
         # ==============================================================================
         # Local Settings
         # ==============================================================================
         [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
-      ''
+      '')
     ];
   };
-
-  # Additional zsh plugins as packages
-  home.packages = with pkgs; [
-    zsh-fzf-tab
-  ];
 }

@@ -166,20 +166,13 @@
             };
           };
 
-          # Development shell for working on this config
+          # Development shell for working on this config (minimal)
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
-              # Linters
-              statix
-              deadnix
-              # LSP
-              nixd
-              # Debugging & navigation
-              nix-tree
-              nix-du
-              manix
-              nix-diff
-              nvd
+              statix # Linter
+              deadnix # Dead code finder
+              nvd # Version diff (lightweight)
+              # Heavy tools (nix-tree, nix-du, nix-diff, manix) available via `nix run nixpkgs#<tool>`
             ];
           };
         };

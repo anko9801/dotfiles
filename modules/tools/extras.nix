@@ -39,60 +39,27 @@
     '';
   };
 
-  # noti - notifications when commands complete
-  programs.noti = {
-    enable = true;
-    settings = {
-      say = {
-        voice = "Alex";
-      };
-    };
-  };
-
   # Additional packages
   home.packages =
     with pkgs;
     [
       # System info
-      neofetch # System info display
       onefetch # Git repository info
 
-      # Development
-      just # Command runner (like make but simpler)
-
-      # Productivity
-      taskwarrior3 # Task management
-      timewarrior # Time tracking
-
       # Network
-      mtr # Network diagnostic tool
       nmap # Network scanner
-      doggo # DNS client (dig replacement)
 
       # File management
       ouch # Compression tool
 
       # JSON/Data
-      fx # JSON viewer
       dasel # Query/modify data formats
 
       # Git extras
       git-absorb # Auto-fixup commits
-      git-branchless # Stacked diffs workflow
     ]
     ++ lib.optionals pkgs.stdenv.isLinux [
       trashy # Trash CLI (Linux only)
     ];
 
-  # Taskwarrior configuration
-  home.file.".taskrc".text = ''
-    data.location=~/.local/share/task
-    color.active=bold white on green
-    color.due=red
-    color.due.today=bold red
-    color.overdue=bold white on red
-    color.tagged=yellow
-    weekstart=monday
-    default.command=next limit:10
-  '';
 }

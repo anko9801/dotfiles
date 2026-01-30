@@ -8,7 +8,7 @@ _:
     ./git.nix
     ./ssh.nix
     ./terminal.nix
-    ./neovim.nix
+    ./neovim
     ./vscode.nix
     ./security.nix
     ./extras.nix
