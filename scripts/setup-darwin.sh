@@ -100,9 +100,9 @@ if ! $NIX_INSTALLED; then
   info "Installing Nix..."
   echo ""
 
-  # Use official Nix installer (works on both Intel and Apple Silicon)
-  info "Using official Nix installer..."
-  sh <(curl -L https://nixos.org/nix/install) --daemon
+  # Use Determinate Nix installer (flakes enabled by default, easy uninstall)
+  info "Using Determinate Nix installer..."
+  curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
   success "Nix installed successfully!"
 

@@ -13,8 +13,8 @@ curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/scripts/se
 ### 手動セットアップ
 
 ```bash
-# 1. Nix インストール
-curl -L https://nixos.org/nix/install | sh -s -- --daemon
+# 1. Nix インストール (Determinate Installer)
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
 # 2. dotfiles クローン
 git clone https://github.com/anko9801/dotfiles ~/dotfiles
