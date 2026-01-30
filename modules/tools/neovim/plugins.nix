@@ -31,7 +31,10 @@
 
     indent-blankline = {
       enable = true;
-      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
+      lazyLoad.settings.event = [
+        "BufReadPost"
+        "BufNewFile"
+      ];
       settings = {
         indent = {
           char = "│";
@@ -131,7 +134,10 @@
       enable = true;
       lazyLoad.settings = {
         event = [ "VeryLazy" ];
-        keys = [ "s" "S" ];
+        keys = [
+          "s"
+          "S"
+        ];
       };
       settings = {
         labels = "asdfghjklqwertyuiopzxcvbnm";
@@ -150,7 +156,10 @@
     treesitter = {
       enable = true;
       nixvimInjections = true;
-      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
+      lazyLoad.settings.event = [
+        "BufReadPost"
+        "BufNewFile"
+      ];
       settings = {
         highlight.enable = true;
         indent.enable = true;
@@ -165,8 +174,27 @@
         };
       };
       grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
-        bash c cpp css dockerfile go gomod html javascript json lua
-        markdown markdown_inline nix python rust sql toml tsx typescript yaml
+        bash
+        c
+        cpp
+        css
+        dockerfile
+        go
+        gomod
+        html
+        javascript
+        json
+        lua
+        markdown
+        markdown_inline
+        nix
+        python
+        rust
+        sql
+        toml
+        tsx
+        typescript
+        yaml
       ];
     };
 
@@ -216,7 +244,10 @@
     # ==========================================================================
     gitsigns = {
       enable = true;
-      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
+      lazyLoad.settings.event = [
+        "BufReadPost"
+        "BufNewFile"
+      ];
       settings = {
         signs = {
           add.text = "│";
@@ -266,7 +297,10 @@
 
     diffview = {
       enable = true;
-      lazyLoad.settings.cmd = [ "DiffviewOpen" "DiffviewFileHistory" ];
+      lazyLoad.settings.cmd = [
+        "DiffviewOpen"
+        "DiffviewFileHistory"
+      ];
     };
 
     git-conflict = {
@@ -319,7 +353,10 @@
 
     todo-comments = {
       enable = true;
-      lazyLoad.settings.event = [ "BufReadPost" "BufNewFile" ];
+      lazyLoad.settings.event = [
+        "BufReadPost"
+        "BufNewFile"
+      ];
     };
 
     # ==========================================================================
@@ -355,7 +392,11 @@
     # ==========================================================================
     avante = {
       enable = true;
-      lazyLoad.settings.cmd = [ "AvanteAsk" "AvanteEdit" "AvanteToggle" ];
+      lazyLoad.settings.cmd = [
+        "AvanteAsk"
+        "AvanteEdit"
+        "AvanteToggle"
+      ];
       settings = {
         provider = "claude";
         claude = {
