@@ -1,0 +1,33 @@
+{
+  "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+  "Sources": [
+    {
+      "Packages": [
+        { "PackageIdentifier": "Microsoft.WindowsTerminal" },
+        { "PackageIdentifier": "Microsoft.PowerShell" },
+        { "PackageIdentifier": "Microsoft.VisualStudioCode" },
+        { "PackageIdentifier": "Git.Git" },
+        { "PackageIdentifier": "GitHub.cli" },
+        { "PackageIdentifier": "AgileBits.1Password" },
+        { "PackageIdentifier": "Discord.Discord" },
+        { "PackageIdentifier": "Spotify.Spotify" },
+        { "PackageIdentifier": "Google.Chrome" },
+        { "PackageIdentifier": "Mozilla.Firefox" },
+        { "PackageIdentifier": "Notion.Notion" },
+        { "PackageIdentifier": "SlackTechnologies.Slack" },
+        { "PackageIdentifier": "Zoom.Zoom" },
+        { "PackageIdentifier": "VideoLAN.VLC" },
+        { "PackageIdentifier": "7zip.7zip" },
+        { "PackageIdentifier": "voidtools.Everything" },
+        { "PackageIdentifier": "Flow-Launcher.Flow-Launcher" },
+        { "PackageIdentifier": "Obsidian.Obsidian" }
+      ],
+      "SourceDetails": {
+        "Argument": "https://cdn.winget.microsoft.com/cache",
+        "Identifier": "Microsoft.Winget.Source_8wekyb3d8bbwe",
+        "Name": "winget",
+        "Type": "Microsoft.PreIndexed.Package"
+      }
+    }
+  ]
+}
