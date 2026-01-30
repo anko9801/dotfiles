@@ -1,13 +1,16 @@
 {
   pkgs,
+  config,
   lib,
   ...
 }:
 
 {
-  imports = [
-    ../tools/vim.nix
-  ];
+  # 1Password paths for Linux
+  tools.ssh = {
+    onePasswordAgentPath = "~/.1password/agent.sock";
+    onePasswordSignProgram = "op-ssh-sign";
+  };
 
   home = {
     sessionVariables = {
@@ -25,14 +28,13 @@
 
   programs = {
     ssh.extraConfig = ''
-      IdentityAgent ~/.1password/agent.sock
+      IdentityAgent ${config.tools.ssh.onePasswordAgentPath}
     '';
 
-    git.settings.gpg.ssh.program = "op-ssh-sign";
+    git.settings.gpg.ssh.program = config.tools.ssh.onePasswordSignProgram;
 
     zsh.initContent = lib.mkAfter ''
       # Linux-Specific Configuration
-
       [[ -d "/snap/bin" ]] && export PATH="/snap/bin:$PATH"
       [[ -d "/var/lib/flatpak/exports/bin" ]] && export PATH="/var/lib/flatpak/exports/bin:$PATH"
     '';

@@ -6,10 +6,6 @@
 }:
 
 {
-  imports = [
-    ../tools/vim.nix
-  ];
-
   options.programs.wsl.windowsUser = lib.mkOption {
     type = lib.types.str;
     description = "Windows username for WSL integration paths";
@@ -17,6 +13,12 @@
 
   config = {
     targets.genericLinux.enable = true;
+
+    # 1Password paths for WSL (uses Windows 1Password)
+    tools.ssh = {
+      onePasswordAgentPath = "~/.1password/agent.sock";
+      onePasswordSignProgram = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
+    };
 
     xdg.configFile.wsl = {
       source = ../../configs/wsl;
@@ -60,18 +62,17 @@
     };
 
     programs = {
+      ssh.extraConfig = ''
+        IdentityAgent ${config.tools.ssh.onePasswordAgentPath}
+      '';
+
       git.settings = {
         credential.helper = "/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe";
-        gpg.ssh.program = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
+        gpg.ssh.program = config.tools.ssh.onePasswordSignProgram;
       };
-
-      ssh.extraConfig = ''
-        IdentityAgent ~/.1password/agent.sock
-      '';
 
       zsh.initContent = lib.mkAfter ''
         # WSL-Specific Configuration
-
         export WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2 2>/dev/null || echo "localhost")
 
         # 1Password SSH Agent bridge (Windows -> WSL)
@@ -82,13 +83,18 @@
           (setsid socat UNIX-LISTEN:"$_1p_socket",fork EXEC:"$_1p_relay -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
         fi
         unset _1p_socket _1p_relay
+
+        # Windows paths
         export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0"
 
+        # Linux package managers
         [[ -d "/snap/bin" ]] && export PATH="/snap/bin:$PATH"
         [[ -d "/var/lib/flatpak/exports/bin" ]] && export PATH="/var/lib/flatpak/exports/bin:$PATH"
 
+        # Docker
         [[ -S "/var/run/docker.sock" ]] && export DOCKER_HOST="unix:///var/run/docker.sock"
 
+        # WSL utilities
         wsl2_fix_time() {
           echo "Syncing WSL2 time..."
           if command -v ntpdate &>/dev/null; then
@@ -113,6 +119,7 @@
         alias pbcopy='clip.exe'
         alias pbpaste='powershell.exe -command "Get-Clipboard" | tr -d "\r"'
 
+        # X11 display (VcXsrv/Xming)
         (command -v vcxsrv.exe &>/dev/null || command -v xming.exe &>/dev/null) && export DISPLAY="''${WSL_HOST}:0"
       '';
     };

@@ -59,8 +59,7 @@
         email = "37263451+anko9801@users.noreply.github.com";
       };
 
-      # GPG/SSH signing format
-      gpg.format = "ssh";
+      # SSH signing - allowed signers file (gpg.format is set in ssh.nix)
       gpg.ssh.allowedSignersFile = "~/.config/git/allowed_signers";
 
       # Core settings
