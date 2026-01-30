@@ -52,8 +52,8 @@
 
       # Generate wallpaper from colors (or use an image)
       image = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/tokyo-night/tokyo-night-vscode-theme/master/static/ss_dark.png";
-        sha256 = "sha256-AXkLbd1wAFKCATyMPg2IpQfaCHJwg6BspRshmrwSQmE=";
+        url = "https://raw.githubusercontent.com/tokyo-night/tokyo-night-vscode-theme/master/static/ss_tokyo_night.png";
+        sha256 = "sha256-FxBZyiOblkNNdeKcErll4Od2XYu4DvY/g+yz0sfHel8=";
       };
 
       # Fonts
