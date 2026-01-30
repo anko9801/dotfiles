@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  nix-ai-tools,
   ...
 }:
 
@@ -84,6 +85,7 @@
       # ollama is installed via homebrew cask for Metal acceleration
       aichat # All-in-one AI CLI (20+ providers, RAG, function calling)
       mods # AI for command pipelines (e.g., git diff | mods "explain")
+      nix-ai-tools.crush # Charm's AI coding agent
     ];
 
     activation = {
