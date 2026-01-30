@@ -123,8 +123,16 @@ if (Test-Path $json) {
 }
 
 # Git config
-Write-Host "[4/4] Git config..." -ForegroundColor Yellow
+Write-Host "[4/5] Git config..." -ForegroundColor Yellow
 git config --global core.autocrlf input
 git config --global init.defaultBranch main
 
-Write-Host "`n  Done!" -ForegroundColor Cyan
+# WSL config
+Write-Host "[5/5] WSL config..." -ForegroundColor Yellow
+$wslConf = "$dotfiles\configs\wsl\wsl.conf"
+if (Test-Path $wslConf) {
+    wsl -u root cp "$($wslConf -replace '\\','/' -replace 'C:','/mnt/c')" /etc/wsl.conf
+    Write-Host "  wsl.conf installed" -ForegroundColor Green
+}
+
+Write-Host "`n  Done! Run 'wsl --shutdown' to apply wsl.conf" -ForegroundColor Cyan
