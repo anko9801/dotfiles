@@ -39,7 +39,7 @@ darwin-rebuild switch --flake .#anko-mac    # macOS
 home-manager switch --flake .#anko@linux    # Linux
 home-manager switch --flake .#anko@wsl      # WSL
 home-manager switch --flake .#anko@server   # Server
-Update-Dotfiles                              # Windows (PowerShell)
+Update-Dotfiles                              # Windows (setup後に使える)
 
 # flake 更新
 nix flake update
