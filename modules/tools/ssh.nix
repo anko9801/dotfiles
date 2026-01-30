@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, ... }:
 
 {
   # Platform-specific options for 1Password SSH integration
