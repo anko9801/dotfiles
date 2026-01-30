@@ -50,6 +50,11 @@
         src = pkgs.zsh-fzf-tab;
         file = "share/fzf-tab/fzf-tab.plugin.zsh";
       }
+      {
+        name = "zsh-abbr";
+        src = pkgs.zsh-abbr;
+        file = "share/zsh/zsh-abbr/zsh-abbr.plugin.zsh";
+      }
     ];
 
     # Completion styles
