@@ -77,20 +77,15 @@
       nv = "nvim";
       c = "code";
 
-      # tmux
-      t = "tmux";
-      ta = "tmux attach";
-      tn = "tmux new";
-      tl = "tmux list-sessions";
-      tk = "tmux kill-session";
-      ts = "tmux switch";
-
-      # Tools
-      gu = "gitui";
+      # zellij (tmux removed in favor of zellij)
       zj = "zellij";
       zja = "zellij attach";
+      zjn = "zellij -s";
       zjl = "zellij list-sessions";
       zjk = "zellij kill-session";
+
+      # Tools
+      lg = "lazygit";
 
       # Development
       py = "python3";

@@ -28,6 +28,9 @@ _:
       "ghostty"
       "docker"
 
+      # AI/LLM (Metal acceleration)
+      "ollama"
+
       # Productivity
       "raycast"
       "rectangle"

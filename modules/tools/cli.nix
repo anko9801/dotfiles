@@ -27,7 +27,7 @@
       # Networking
       curl
       wget
-      httpie # HTTP client
+      xh # HTTP client (Rust, httpie-compatible)
 
       # Archives
       zip
@@ -56,10 +56,14 @@
 
       # Misc
       watchexec # file watcher
-      peco # interactive filtering tool
 
       # Markdown/Documentation
       glow # Markdown renderer for CLI
+
+      # Data analysis (2025 additions)
+      qsv # CSV processing (xsv successor, SIMD optimized)
+      jless # JSON viewer with expand/collapse
+      jnv # jq builder with live preview
     ];
 
     sessionVariables = {

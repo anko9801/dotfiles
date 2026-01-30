@@ -39,7 +39,7 @@
       # Additional dev tools
       ghq # Git repository manager
       # delta is installed via programs.delta in git.nix
-      gitui # Git TUI
+      # lazygit is installed via programs.lazygit below
       gibo # .gitignore templates
       git-lfs # Git Large File Storage
       git-wt # Git worktree management
@@ -66,6 +66,11 @@
       sops # Secrets OPerationS
       age # Modern encryption tool
 
+      # Container/Kubernetes tools (2025 additions)
+      k9s # Kubernetes TUI (essential)
+      lazydocker # Docker TUI
+      dive # Docker image layer analysis
+
       # CLI tools (migrated from cargo)
       just # Task runner
       typst # Document processor
@@ -74,6 +79,11 @@
       wasm-pack # WebAssembly bundler
       wasm-tools # WebAssembly utilities
       sqlx-cli # SQL toolkit
+
+      # AI/LLM CLI tools (2025 additions)
+      # ollama is installed via homebrew cask for Metal acceleration
+      aichat # All-in-one AI CLI (20+ providers, RAG, function calling)
+      mods # AI for command pipelines (e.g., git diff | mods "explain")
     ];
 
     activation = {
