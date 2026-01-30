@@ -69,6 +69,11 @@
       (lib.mkBefore ''
         # GPG TTY
         export GPG_TTY=$(tty)
+
+        # Auto-start zellij (if not already in zellij and interactive)
+        if [[ -z "$ZELLIJ" && -z "$INSIDE_EMACS" && -z "$VSCODE_TERMINAL" ]] && command -v zellij &>/dev/null; then
+          zellij attach -c
+        fi
       '')
 
       # Shell options and completion styles

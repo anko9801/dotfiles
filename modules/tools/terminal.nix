@@ -42,14 +42,18 @@ _:
     zellij = {
       enable = true;
       settings = {
+        # Start in locked mode (UI hidden) - press Ctrl+g to show
+        default_mode = "locked";
+        simplified_ui = true;
         ui.pane_frames = {
           rounded_corners = true;
-          hide_session_name = false;
+          hide_session_name = true;
         };
-        default_layout = "default";
-        pane_frames = true;
+        pane_frames = false; # Hide pane frames for cleaner look
         mouse_mode = true;
         on_force_close = "detach";
+        # Hide status bar in locked mode
+        theme = "default";
       };
     };
   };
