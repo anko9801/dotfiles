@@ -26,7 +26,7 @@
       libtool
 
       # Debug/Low-level tools
-      gdb # GNU Debugger (config in home.file.".gdbinit")
+      # gdb - Not available on macOS, use lldb instead
       nasm # Assembler
 
       # Language servers
@@ -164,8 +164,8 @@
           NODE_OPTIONS = "--max-old-space-size=4096";
         };
         tools = {
-          # Runtimes - managed by mise for latest versions
-          node = "latest";
+          # Runtimes - LTS/stable versions to avoid constant re-downloads
+          node = "lts";
           python = "latest";
           ruby = "latest";
           go = "latest";
@@ -173,17 +173,16 @@
           bun = "latest";
           lua = "latest";
           java = "openjdk-21";
-          # npm tools
-          "npm:@antfu/ni" = "latest";
-          "npm:pnpm" = "latest";
-          "npm:yarn" = "latest";
-          "npm:zenn-cli" = "latest";
-          "npm:gitmoji-cli" = "latest";
-          "npm:@anthropic-ai/claude-code" = "latest";
-          "npm:@google/gemini-cli" = "latest";
-          "npm:czg" = "latest";
-          "npm:cz-git" = "latest";
-          "npm:ccmanager" = "latest";
+          pnpm = "10.28.1";
+          # npm tools (version-pinned to avoid timeout issues)
+          "npm:@antfu/ni" = "28.2.0";
+          "npm:@google/gemini-cli" = "0.25.2";
+          "npm:czg" = "1.12.0";
+          "npm:cz-git" = "1.12.0";
+          "npm:ccmanager" = "3.6.1";
+          "npm:zenn-cli" = "0.4.3";
+          "npm:gitmoji-cli" = "9.7.0";
+          # claude-code is managed by Nix (programs.claude-code)
         };
         tasks = {
           update = {
