@@ -4,15 +4,23 @@ Pure Nix Home Manager ベースの dotfiles。
 
 ## セットアップ
 
+### macOS (ワンライナー)
+
 ```bash
-# 1. Nix インストール (flakes 有効)
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/scripts/setup-darwin.sh | bash
+```
+
+### 手動セットアップ
+
+```bash
+# 1. Nix インストール
+curl -L https://nixos.org/nix/install | sh -s -- --daemon
 
 # 2. dotfiles クローン
 git clone https://github.com/anko9801/dotfiles ~/dotfiles
 
-# 3. Home Manager 適用
-nix run home-manager -- switch --flake ~/dotfiles#<user>@wsl      # Linux/WSL
+# 3. 適用
+nix run home-manager -- switch --flake ~/dotfiles#<user>@wsl      # WSL
 nix run home-manager -- switch --flake ~/dotfiles#<user>@linux    # Linux
 sudo nix run nix-darwin -- switch --flake ~/dotfiles#<user>-mac   # macOS
 ```

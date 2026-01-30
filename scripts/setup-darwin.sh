@@ -23,7 +23,6 @@ error() {
 # Configuration
 DOTFILES_REPO="https://github.com/anko9801/dotfiles.git"
 DOTFILES_DIR="$HOME/dotfiles"
-DARWIN_CONFIG="usamidaiki-mac" # Change to your config name
 
 echo ""
 echo "=============================================="
@@ -135,21 +134,24 @@ else
 fi
 
 # Step 5: Determine correct Darwin configuration
-if [[ $USERNAME == "usamidaiki" ]]; then
-  DARWIN_CONFIG="usamidaiki-mac"
-elif [[ $USERNAME == "anko" ]]; then
-  DARWIN_CONFIG="anko-mac"
-else
-  warn "Unknown username: $USERNAME"
-  read -p "Enter Darwin configuration name (e.g., usamidaiki-mac): " DARWIN_CONFIG
-fi
-
-# Add -intel suffix for Intel Macs
+# Auto-generate from username and architecture
+DARWIN_CONFIG="${USERNAME}-mac"
 if [[ $ARCH != "arm64" ]]; then
   DARWIN_CONFIG="${DARWIN_CONFIG}-intel"
 fi
 
 info "Using Darwin configuration: $DARWIN_CONFIG"
+
+# Check if configuration exists in flake.nix
+if ! grep -q "\"$DARWIN_CONFIG\"" "$DOTFILES_DIR/flake.nix" 2>/dev/null; then
+  warn "Configuration '$DARWIN_CONFIG' not found in flake.nix"
+  info "You may need to add it to flake.nix darwinConfigurations"
+  read -p "Continue anyway? (y/N): " -n 1 -r
+  echo ""
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    error "Aborted. Please add '$DARWIN_CONFIG' to flake.nix first."
+  fi
+fi
 
 # Step 6: Backup existing config files
 info "Backing up existing configuration files..."
