@@ -4,14 +4,19 @@ Nix + Home Manager で管理する個人設定。macOS / Linux / WSL / Windows �
 
 ## セットアップ (1コマンド)
 
-**Unix (macOS / Linux / WSL):**
+**macOS / Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
 ```
 
-**Windows (PowerShell 管理者):**
+**Windows + WSL:** (2ステップ)
 ```powershell
+# 1. Windows (PowerShell 管理者) - winget + WSL有効化
 iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex
+```
+```bash
+# 2. WSL 内 - Nix + home-manager
+curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
 ```
 
 ## 構成
