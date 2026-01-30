@@ -980,9 +980,6 @@
             settings.nixd = {
               nixpkgs.expr = "import (builtins.getFlake \"nixpkgs\") { }";
               formatting.command = [ "nixfmt" ];
-              options = {
-                home_manager.expr = ''(builtins.getFlake ("git+file://" + builtins.getEnv "HOME" + "/dotfiles")).homeConfigurations."anko@wsl".options'';
-              };
             };
           };
           lua_ls = {
@@ -1225,7 +1222,7 @@
     extraPackages = with pkgs; [
       # Formatters
       stylua
-      nixfmt-rfc-style
+      nixfmt
       prettierd
       ruff
 
