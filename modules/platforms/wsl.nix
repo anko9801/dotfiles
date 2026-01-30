@@ -24,11 +24,6 @@ in
       onePasswordSignProgram = "/mnt/c/Users/${windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
     };
 
-    xdg.configFile.wsl = {
-      source = ../../configs/wsl;
-      recursive = true;
-    };
-
     home = {
       sessionVariables = {
         DISPLAY = ":0";
