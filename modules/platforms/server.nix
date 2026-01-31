@@ -41,7 +41,7 @@
     # Basic shell setup
     bash = {
       enable = true;
-      shellAliases = {
+      shellAliases = lib.mkForce {
         ll = "ls -la";
         la = "ls -A";
         l = "ls -CF";

@@ -1,5 +1,5 @@
 {
-  description = "Home Manager and nix-darwin configuration";
+  description = "NixOS, nix-darwin, and Home Manager configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -37,6 +37,12 @@
 
     sops-nix = {
       url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # NixOS-WSL
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -158,6 +164,56 @@
             }
           ];
         };
+
+      # NixOS configuration
+      mkNixOS =
+        {
+          system,
+          extraModules ? [ ],
+          homeModule,
+        }:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit self inputs userConfig;
+            unfree-pkgs = mkUnfreePkgs system;
+          };
+          modules = [
+            # User configuration
+            {
+              users.users.${username} = {
+                isNormalUser = true;
+                extraGroups = [
+                  "wheel"
+                  "networkmanager"
+                ];
+              };
+            }
+
+            # Home Manager as NixOS module
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                extraSpecialArgs = {
+                  inherit userConfig;
+                  unfree-pkgs = mkUnfreePkgs system;
+                };
+                users.${username} =
+                  { lib, ... }:
+                  {
+                    imports = commonHomeModules ++ [ homeModule ];
+                    home = {
+                      username = lib.mkForce username;
+                      homeDirectory = lib.mkForce "/home/${username}";
+                    };
+                  };
+              };
+            }
+          ]
+          ++ extraModules;
+        };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
@@ -227,6 +283,33 @@
           # Intel Mac
           mac-intel = mkDarwin {
             system = "x86_64-darwin";
+          };
+        };
+
+        # NixOS configurations
+        nixosConfigurations = {
+          # NixOS on WSL
+          nixos-wsl = mkNixOS {
+            system = "x86_64-linux";
+            extraModules = [ ./nixos/wsl.nix ];
+            homeModule = {
+              imports = [ ./modules/platforms/wsl.nix ];
+              programs.wsl.windowsUser = username;
+            };
+          };
+
+          # NixOS desktop
+          nixos-desktop = mkNixOS {
+            system = "x86_64-linux";
+            extraModules = [ ./nixos/desktop.nix ];
+            homeModule = ./modules/platforms/linux.nix;
+          };
+
+          # NixOS server
+          nixos-server = mkNixOS {
+            system = "x86_64-linux";
+            extraModules = [ ./nixos/server.nix ];
+            homeModule = ./modules/platforms/server.nix;
           };
         };
       };
