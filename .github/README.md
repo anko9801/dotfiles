@@ -15,34 +15,11 @@ Personal dotfiles for declaratively managing development environments across mac
 > [!NOTE]
 > This is a personal configuration. Feel free to fork and adapt for your own needs.
 
-## Why Nix?
+## Design Philosophy
 
-[Nix](https://nixos.org/) is a build system that enables [reproducible builds](https://reproducible-builds.org/).\
-A properly pinned Nix configuration can be rebuilt with high reproducibility even as time passes.
+**The goal is to minimize cognitive load.**
 
-By using [home-manager](https://github.com/nix-community/home-manager), you can manage user-space configuration with Nix.\
-By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage macOS system configuration as well.
-
-## Configuration Overview
-
-This configuration is built around the idea that your development environment should feel the same no matter what machine you're on. With a single command, you get the exact same setup on macOS, Linux, or WSL.
-
-The entry point is `flake.nix`, which defines configurations for each platform. Shared settings live in `home.nix` and `modules/`, while `user.nix` holds personal settings like git name and SSH hosts. Platform-specific code goes in `modules/platforms/` or `darwin/`.
-
-```
-dotfiles/
-├── flake.nix           # Flake definition and configurations
-├── home.nix            # Main home-manager config
-├── user.nix            # User-specific settings (git, SSH hosts)
-├── modules/
-│   ├── shell/          # zsh, starship
-│   ├── tools/          # CLI, dev tools, neovim
-│   └── platforms/      # wsl, linux, darwin, server
-├── darwin/             # macOS-specific (nix-darwin)
-└── windows/            # Windows (winget, wsl.conf)
-```
-
-The goal is to minimize cognitive load. Cognitive load is reduced across multiple dimensions:
+Cognitive load is reduced across multiple dimensions:
 
 - **Across machines**: Nix flakes pin every dependency, so the same configuration rebuilds identically anywhere. No "works on my machine" problems.
 - **Across tools**: Stylix applies your theme consistently across terminal, editor, and CLI tools—change it once, change it everywhere. Vim keybindings and fzf work the same in shell, editor, and multiplexer.
@@ -52,27 +29,25 @@ The goal is to minimize cognitive load. Cognitive load is reduced across multipl
 
 The result: minimal configuration that just works—no bugs, high performance, improved productivity.
 
+## Tool Choices
+
 | Component | Choice | Reason |
 |-----------|--------|--------|
-| Theme | Stylix, Tokyo Night | Unified theming across all tools (not per-app config) |
-| Terminal | Ghostty, Windows Terminal (zellij) | GPU-accelerated emulators, simpler multiplexer (not tmux) |
-| Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like abbr/fzf (not fish) |
-| Prompt | starship | Fast, customizable, cross-shell (not p10k/oh-my-zsh) |
-| Runtimes | mise | Single tool for node/python/go/ruby/java, per-project versions (not asdf/nvm/pyenv/rbenv) |
-| Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins (not Lua config) |
-| CLI | eza, bat, fd, rg, zoxide, dust, procs | Faster, colorful, better defaults (not ls/cat/find/grep/cd/du/ps) |
-| Git | lazygit, delta, difftastic, ghq | TUI, syntax-highlighted diffs, structural diffs, consistent repo layout |
-| Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
-| Task runner | just | Simple, cross-platform (not make) |
+| Theme | Stylix | Unified theming across all tools |
+| Terminal | Ghostty, Windows Terminal | GPU-accelerated, native feel |
+| Multiplexer | zellij | Simpler than tmux, better defaults |
+| Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like UX |
+| Prompt | starship | Fast, customizable, cross-shell |
+| Runtimes | mise | Single tool for node/python/go/ruby/java |
+| Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins |
+| CLI | eza, bat, fd, rg, zoxide, dust, procs | Faster, colorful, better defaults |
+| Git | lazygit, delta, difftastic, ghq | TUI, syntax-highlighted diffs, consistent repo layout |
+| Secrets | 1Password | E2E encrypted SSH keys, git signing, API keys |
+| Task runner | just | Simple, cross-platform |
 
 ## Setup
 
-The following operating systems are supported:
-
-- macOS (Apple Silicon / Intel)
-- Linux
-- WSL2
-- Windows (via winget)
+Supported platforms: macOS (Apple Silicon / Intel), Linux, WSL2, Windows
 
 ### First-time setup
 
@@ -110,9 +85,24 @@ home-manager switch --impure --flake ~/dotfiles#wsl
 nix flake update
 ```
 
-## Customization
+## Structure
 
-To fork and adapt this configuration:
+```
+dotfiles/
+├── flake.nix           # Flake definition and configurations
+├── home.nix            # Main home-manager config
+├── user.nix            # User-specific settings (git, SSH hosts)
+├── modules/
+│   ├── shell/          # zsh, starship
+│   ├── tools/          # CLI, dev tools, neovim
+│   └── platforms/      # wsl, linux, darwin, server
+├── darwin/             # macOS-specific (nix-darwin)
+└── windows/            # Windows (winget, wsl.conf)
+```
+
+The entry point is `flake.nix`, which defines configurations for each platform. Shared settings live in `home.nix` and `modules/`, while `user.nix` holds personal settings like git name and SSH hosts.
+
+## Customization
 
 1. Fork the repository
 2. Edit `user.nix` to set your git name, email, and SSH key
@@ -124,20 +114,17 @@ To fork and adapt this configuration:
 
 ## Development
 
-You can enter the development environment using [nix-direnv](https://github.com/nix-community/nix-direnv):
+Enter the development environment:
 
 ```sh
-echo "use flake" > .envrc
-direnv allow
-```
+# With nix-direnv (recommended)
+echo "use flake" > .envrc && direnv allow
 
-Or manually:
-
-```sh
+# Or manually
 nix develop
 ```
 
-### Available commands in devShell
+Available commands:
 
 ```sh
 nix fmt                           # Format Nix files
@@ -151,7 +138,7 @@ nix develop -c deadnix .          # Find dead code
 - Run `git add .` to track new files before building
 
 **Evaluation requires --impure**
-- Username is detected from `$USER` environment variable, which requires impure evaluation
+- Username is detected from `$USER` environment variable
 
 **Conflict with existing dotfiles**
 - Backup and remove conflicting files in `~/.config/`
