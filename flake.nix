@@ -65,8 +65,12 @@
       # User-specific configuration (change this when forking)
       userConfig = import ./user.nix;
 
-      # Get username from environment (use --impure flag)
-      username = builtins.getEnv "USER";
+      # Get username from environment (use --impure flag for actual username)
+      username =
+        let
+          envUser = builtins.getEnv "USER";
+        in
+        if envUser != "" then envUser else "nixuser";
 
       # Unfree packages helper - warns when used
       mkUnfreePkgs =
