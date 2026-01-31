@@ -2,17 +2,22 @@
   config,
   pkgs,
   lib,
+  unfree-pkgs,
   ...
 }:
 
+let
+  unfreePkgs = unfree-pkgs "modules/tools/vscode.nix";
+in
 {
   # VSCode - Only enable on non-WSL/non-genericLinux platforms
   # WSL should use Windows VSCode with Remote-WSL extension
   programs.vscode = lib.mkIf (!(config.targets.genericLinux.enable or false)) {
     enable = true;
+    package = unfreePkgs.vscode;
     profiles.default = {
       extensions =
-        with pkgs.vscode-extensions;
+        with unfreePkgs.vscode-extensions;
         [
           # Vim
           vscodevim.vim
@@ -44,7 +49,7 @@
           # Remote
           ms-vscode-remote.remote-ssh
         ]
-        ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+        ++ unfreePkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
             name = "ayu";
             publisher = "teabyii";

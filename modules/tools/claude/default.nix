@@ -1,8 +1,12 @@
-_:
+{ unfree-pkgs, ... }:
 
+let
+  unfreePkgs = unfree-pkgs "modules/tools/claude/default.nix";
+in
 {
   programs.claude-code = {
     enable = true;
+    package = unfreePkgs.claude-code;
 
     # CLAUDE.md (memory)
     memory.source = ./CLAUDE.md;

@@ -2,9 +2,13 @@
   pkgs,
   lib,
   config,
+  unfree-pkgs,
   ...
 }:
 
+let
+  unfreePkgs = unfree-pkgs "modules/shell/zsh/default.nix";
+in
 {
   imports = [
     ./aliases.nix
@@ -52,7 +56,7 @@
       }
       {
         name = "zsh-abbr";
-        src = pkgs.zsh-abbr;
+        src = unfreePkgs.zsh-abbr;
         file = "share/zsh/zsh-abbr/zsh-abbr.plugin.zsh";
       }
     ];

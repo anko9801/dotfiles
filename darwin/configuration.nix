@@ -30,9 +30,6 @@
     };
   };
 
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
   # System packages (available to all users)
   environment.systemPackages = with pkgs; [
     vim

@@ -2,12 +2,16 @@
   config,
   pkgs,
   lib,
+  unfree-pkgs,
   ...
 }:
 
+let
+  unfreePkgs = unfree-pkgs "modules/tools/security.nix";
+in
 {
-  home.packages = with pkgs; [
-    _1password-cli
+  home.packages = [
+    unfreePkgs._1password-cli
   ];
 
   # sops-nix secrets management
