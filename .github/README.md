@@ -80,16 +80,16 @@ The Tokyo Night theme ties everything together visually, applied consistently ac
 
 | Component | Choice | Reason |
 |-----------|--------|--------|
+| Theme | Stylix, Tokyo Night | Unified theming across all tools (not per-app config) |
+| Terminal | Ghostty, Windows Terminal (zellij) | GPU-accelerated emulators, simpler multiplexer (not tmux) |
 | Shell | zsh, zsh-abbr, fzf-tab, atuin | Abbreviations expand before execution, visible in history. SQLite-based history syncs across machines. |
+| Prompt | starship | Fast, customizable, cross-shell (not p10k/oh-my-zsh) |
 | Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins (not Lua config) |
-| Terminal | zellij | Simpler configuration, built-in UI (not tmux) |
-| Theme | Tokyo Night, Stylix | Unified theming across all tools (not per-app config) |
-| Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
-| Runtimes | mise | Single tool for all runtimes including uv for Python (not asdf/nvm/pyenv/pip) |
 | CLI | eza, bat, fd, rg, dust, procs | Faster, colorful, better defaults (not ls/cat/find/grep/du/ps) |
 | Git | lazygit, delta, difftastic, ghq | TUI, syntax-highlighted diffs, structural diffs, consistent repo layout |
+| Runtimes | mise | Single tool for all runtimes including uv for Python (not asdf/nvm/pyenv/pip) |
+| Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
 | Task runner | just | Simple, cross-platform (not make) |
-| Prompt | starship | Fast, customizable, cross-shell (not p10k/oh-my-zsh) |
 
 ## Development
 
