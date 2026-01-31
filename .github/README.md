@@ -22,7 +22,7 @@ Personal dotfiles for declaratively managing development environments across mac
 Cognitive load is reduced across multiple dimensions:
 
 - **Across machines**: Nix flakes pin every dependency, so the same configuration rebuilds identically anywhere. No "works on my machine" problems.
-- **Across tools**: Stylix applies your theme consistently across terminal, editor, and CLI tools—change it once, change it everywhere. Vim keybindings and fzf work the same in shell, editor, and multiplexer.
+- **Across tools**: Theme (Stylix), keybindings (Vim), and fuzzy finder (fzf) work consistently across terminal, shell, editor, and multiplexer.
 - **Across time**: Self-documenting Nix code means you won't wonder why a setting exists when revisiting months later.
 - **Across people**: Declarative config makes it trivial to adopt someone else's improvements—just copy the module.
 - **For secrets**: 1Password handles SSH keys, git signing, and API credentials with E2E encryption—no need to manage keys yourself or sync encrypted files across machines.
