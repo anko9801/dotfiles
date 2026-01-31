@@ -76,6 +76,16 @@ By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage 
 | Theme | Tokyo Night, HackGen |
 | Secrets | 1Password CLI |
 
+This configuration is built around the idea that your development environment should feel the same no matter what machine you're on. With a single command, you get the exact same setup on macOS, Linux, or WSL.
+
+Everything uses Vim keybindings. Whether you're navigating in the shell, editing code in Neovim, or switching panes in zellij, the muscle memory stays the same. Combined with fzf integration everywhere, you can fuzzy search through files, command history, git branches, and even running processes without thinking about which tool you're in.
+
+Typing is kept to a minimum. Abbreviations expand as you type, ghq organizes all repositories under a consistent structure, and modern CLI tools like eza, bat, fd, and ripgrep replace their slower predecessors with sensible defaults and colorful output.
+
+Secrets live in one place. 1Password manages SSH keys and API credentials across all devices with E2E encryption, eliminating the need to sync encrypted files or manage GPG keys.
+
+The Tokyo Night theme ties everything together visually, applied consistently across the terminal, editor, and all CLI tools through Stylix.
+
 ### Design Decisions
 
 | Choice | Reason |
