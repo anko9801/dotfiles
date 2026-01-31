@@ -31,13 +31,24 @@ The result: low friction compounds. This configuration is the result of hundreds
 
 ## Implementation
 
-Configuration follows the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/latest/). Nix garbage collection runs weekly automatically.
+Configuration follows the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/latest/). Nix garbage collection runs weekly automatically. Security is layered: destructive commands require confirmation, secrets are caught before commit, and sensitive commands are filtered from shell history.
 
-Security is layered: destructive commands require confirmation, secrets are caught before commit, and sensitive commands are filtered from shell history.
+```
+dotfiles/
+├── flake.nix           # Entry point, platform configurations
+├── home.nix            # Shared home-manager settings
+├── user.nix            # Personal settings (git, SSH)
+├── setup               # Bootstrap script (bash/PowerShell polyglot)
+├── modules/
+│   ├── shell/          # zsh, starship
+│   ├── tools/          # CLI, dev tools, neovim, theme
+│   └── platforms/      # wsl, linux, darwin, server
+├── darwin/             # macOS (nix-darwin)
+├── nixos/              # NixOS (configuration.nix)
+└── windows/            # Windows (winget, wsl.conf)
+```
 
-Environments are automatic: project-specific shells activate on `cd`, and any Nixpkgs command can run without installation via comma.
-
-Code quality is enforced at the flake level with unified formatting and static analysis in CI.
+Environments are automatic: project-specific shells activate on `cd`, and any Nixpkgs command can run without installation via comma. Code quality is enforced at the flake level with unified formatting and static analysis in CI.
 
 | Component | Choice | Reason |
 |-----------|--------|--------|
@@ -54,23 +65,6 @@ Code quality is enforced at the flake level with unified formatting and static a
 | Dev env | direnv, nix-direnv, comma | Auto-activate per-project, run any Nixpkgs command |
 | Formatting | treefmt (nixfmt, shfmt, yamlfmt) | Unified formatting across languages |
 | Task runner | just | Simple, cross-platform |
-
-Repository structure:
-
-```
-dotfiles/
-├── flake.nix           # Entry point, platform configurations
-├── home.nix            # Shared home-manager settings
-├── user.nix            # Personal settings (git, SSH)
-├── setup               # Bootstrap script (bash/PowerShell polyglot)
-├── modules/
-│   ├── shell/          # zsh, starship
-│   ├── tools/          # CLI, dev tools, neovim
-│   └── platforms/      # wsl, linux, darwin, server
-├── darwin/             # macOS (nix-darwin)
-├── nixos/              # NixOS (configuration.nix)
-└── windows/            # Windows (winget, wsl.conf)
-```
 
 ## Setup
 
