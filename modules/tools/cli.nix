@@ -25,6 +25,7 @@
       curl
       wget
       xh # HTTP client (Rust, httpie-compatible)
+      rsync # Fast incremental file transfer
 
       # Archives
       zip
