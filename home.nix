@@ -6,7 +6,6 @@
   imports = [
     ./modules/shell
     ./modules/tools
-    ./modules/services
   ];
 
   home = {
