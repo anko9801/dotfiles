@@ -49,10 +49,6 @@
       nvd # Nix version diff (compare closures)
       devenv # Per-project development environments
 
-      # Secrets management
-      sops # Secrets OPerationS
-      age # Modern encryption tool
-
       # CLI tools (migrated from cargo)
       just # Task runner
       typst # Document processor

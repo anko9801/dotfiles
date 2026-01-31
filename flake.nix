@@ -30,11 +30,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # NixOS-WSL
     nixos-wsl = {
       url = "github:nix-community/NixOS-WSL";
@@ -95,7 +90,6 @@
         ./home.nix
         nix-index-database.homeModules.nix-index
         inputs.nixvim.homeModules.nixvim
-        inputs.sops-nix.homeModules.sops
         inputs.stylix.homeModules.stylix
       ];
 
