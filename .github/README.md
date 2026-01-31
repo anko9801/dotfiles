@@ -17,7 +17,12 @@ This repository contains configurations for declaratively managing development e
 
 > [!WARNING]
 > These configurations are personalized for the [author](https://github.com/anko9801).\
-> If you want to use this, fork the repository and update the configuration values (usernames, paths, etc.) before applying.
+> If you want to use this, fork the repository and update [`user.nix`](../user.nix):
+>
+> - `username` - System username
+> - `windowsUsername` - Windows username (for WSL)
+> - `git.name`, `git.email`, `git.sshKey` - Git configuration
+> - `sshHosts` - SSH server hosts
 
 To apply these configurations, you need to have [Nix](https://github.com/NixOS/nix) installed.\
 The setup script will install Nix automatically using [nix-installer](https://github.com/DeterminateSystems/nix-installer).
@@ -80,16 +85,22 @@ The Tokyo Night theme ties everything together visually, applied consistently ac
 
 | Component | Choice | Reason |
 |-----------|--------|--------|
-| Shell | zsh, starship, zsh-abbr, fzf-tab, atuin | Abbreviations expand before execution, visible in history. SQLite-based history syncs across machines. |
+| Shell | zsh, zsh-abbr, fzf-tab, atuin | Abbreviations expand before execution, visible in history. SQLite-based history syncs across machines. |
 | Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins (not Lua config) |
 | Terminal | zellij | Simpler configuration, built-in UI (not tmux) |
-| Theme | Tokyo Night, HackGen, Stylix | Unified theming across all tools (not per-app config) |
+| Theme | Tokyo Night, Stylix | Unified theming across all tools (not per-app config) |
 | Secrets | 1Password CLI | E2E encrypted, single source of truth across all devices (not sops-nix) |
-| SSH (WSL) | ssh.exe | No extra dependencies, native Windows SSH agent (not npiperelay) |
+| SSH (WSL) | ssh.exe | Uses Windows 1Password SSH agent directly (not npiperelay) |
+| SSH signing | 1Password | Sign git commits with SSH keys stored in 1Password (not GPG) |
 | Runtimes | mise | Single tool for all runtimes (not asdf/nvm/pyenv) |
-| CLI | eza, bat, fd, rg | Faster, colorful, better defaults (not ls/cat/find/grep) |
-| Git | lazygit, ghq | More features, consistent repo structure under ~/repos |
+| Python | uv | Fast package manager and venv (not pip/venv) |
+| CLI | eza, bat, fd, rg, dust, procs | Faster, colorful, better defaults (not ls/cat/find/grep/du/ps) |
+| Git UI | lazygit | More features, better keybindings (not gitui) |
+| Git diff | delta, difftastic | Side-by-side, syntax highlighted, structural diffs (not diff) |
+| Repo management | ghq | Consistent structure under ~/repos (not manual clone) |
+| Task runner | just | Simple, cross-platform (not make) |
 | Prompt | starship | Fast, customizable, cross-shell (not p10k/oh-my-zsh) |
+| Package search | nix-index, comma | Run any package without installing (not apt/brew search) |
 
 ## Development
 

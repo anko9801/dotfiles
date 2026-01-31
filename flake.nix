@@ -56,6 +56,9 @@
       ...
     }:
     let
+      # User-specific configuration (change this when forking)
+      userConfig = import ./user.nix;
+
       # Common modules for home-manager
       commonHomeModules = [
         ./home.nix
@@ -78,6 +81,7 @@
             inherit system;
             config.allowUnfree = true;
           };
+          extraSpecialArgs = { inherit userConfig; };
           modules =
             commonHomeModules
             ++ extraModules
@@ -95,12 +99,12 @@
       mkDarwin =
         {
           system,
-          user ? "anko",
+          user ? userConfig.username,
         }:
         nix-darwin.lib.darwinSystem {
           inherit system;
           specialArgs = {
-            inherit self inputs;
+            inherit self inputs userConfig;
           };
           modules = [
             ./darwin/configuration.nix
@@ -122,6 +126,7 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
+                extraSpecialArgs = { inherit userConfig; };
                 users.${user} =
                   { lib, ... }:
                   {
@@ -180,52 +185,38 @@
       flake = {
         # Standalone Home Manager configurations (Linux/WSL)
         homeConfigurations = {
-          "anko@wsl" = mkHome {
+          "${userConfig.username}@wsl" = mkHome {
             system = "x86_64-linux";
-            user = "anko";
+            user = userConfig.username;
             extraModules = [
               ./modules/platforms/wsl.nix
-              { programs.wsl.windowsUser = "anko"; }
+              { programs.wsl.windowsUser = userConfig.windowsUsername; }
             ];
           };
 
-          "anko@linux" = mkHome {
+          "${userConfig.username}@linux" = mkHome {
             system = "x86_64-linux";
-            user = "anko";
+            user = userConfig.username;
             extraModules = [ ./modules/platforms/linux.nix ];
           };
 
-          "anko@server" = mkHome {
+          "${userConfig.username}@server" = mkHome {
             system = "x86_64-linux";
-            user = "anko";
+            user = userConfig.username;
             extraModules = [ ./modules/platforms/server.nix ];
           };
         };
 
         # nix-darwin configurations (macOS)
         darwinConfigurations = {
-          # Apple Silicon Mac (user: anko)
-          "anko-mac" = mkDarwin {
+          # Apple Silicon Mac
+          "${userConfig.username}-mac" = mkDarwin {
             system = "aarch64-darwin";
-            user = "anko";
           };
 
-          # Intel Mac (user: anko)
-          "anko-mac-intel" = mkDarwin {
+          # Intel Mac
+          "${userConfig.username}-mac-intel" = mkDarwin {
             system = "x86_64-darwin";
-            user = "anko";
-          };
-
-          # Apple Silicon Mac (user: usamidaiki)
-          "usamidaiki-mac" = mkDarwin {
-            system = "aarch64-darwin";
-            user = "usamidaiki";
-          };
-
-          # Intel Mac (user: usamidaiki)
-          "usamidaiki-mac-intel" = mkDarwin {
-            system = "x86_64-darwin";
-            user = "usamidaiki";
           };
         };
       };

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, userConfig, ... }:
 
 {
   home = {
@@ -8,7 +8,7 @@
     file = {
       # Git allowed signers file
       ".config/git/allowed_signers".text = ''
-        37263451+anko9801@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M
+        ${userConfig.git.email} ${userConfig.git.sshKey}
       '';
 
       # Gitmoji configuration
@@ -47,7 +47,7 @@
 
     # SSH signing with 1Password
     signing = {
-      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M";
+      key = userConfig.git.sshKey;
       signByDefault = true;
     };
 
@@ -55,8 +55,8 @@
     settings = {
       # User settings
       user = {
-        name = "anko9801";
-        email = "37263451+anko9801@users.noreply.github.com";
+        name = userConfig.git.name;
+        email = userConfig.git.email;
       };
 
       # SSH signing - allowed signers file (gpg.format is set in ssh.nix)

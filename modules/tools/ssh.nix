@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, userConfig, ... }:
 
 {
   # Platform-specific options for 1Password SSH integration
@@ -38,28 +38,12 @@
           user = "git";
         };
 
-        # Oracle Cloud servers
-        "pikachu" = {
-          hostname = "140.238.55.181";
-          user = "ubuntu";
-          identityFile = "~/.ssh/id_ed25519";
-        };
-        "metamon" = {
-          hostname = "150.230.108.22";
-          user = "ubuntu";
-          identityFile = "~/.ssh/id_ed25519";
-        };
-        "bracky" = {
-          hostname = "168.138.210.152";
-          user = "ubuntu";
-          identityFile = "~/.ssh/id_ed25519";
-        };
-        "pochama" = {
-          hostname = "193.123.167.108";
-          user = "ubuntu";
-          identityFile = "~/.ssh/id_ed25519";
-        };
-      };
+      }
+      // (lib.mapAttrs (name: host: {
+        hostname = host.hostname;
+        user = host.user;
+        identityFile = "~/.ssh/id_ed25519";
+      }) userConfig.sshHosts);
     };
 
     # Git SSH signing configuration (uses platform-specific program)
