@@ -1,11 +1,10 @@
 <div align="center">
 
-# ❄️ dotfiles
-
-<img src="../assets/screenshot.png" style="width: 400" />
+# dotfiles
 
 [![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
-[![CI](https://github.com/anko9801/dotfiles/actions/workflows/ci.yaml/badge.svg)](https://github.com/anko9801/dotfiles/actions/workflows/ci.yaml)
+[![Lint](https://github.com/anko9801/dotfiles/actions/workflows/lint.yaml/badge.svg)](https://github.com/anko9801/dotfiles/actions/workflows/lint.yaml)
+[![Build](https://github.com/anko9801/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/anko9801/dotfiles/actions/workflows/test.yml)
 
 </div>
 
