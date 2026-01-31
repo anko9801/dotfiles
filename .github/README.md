@@ -27,7 +27,7 @@ Cognitive load is reduced across multiple dimensions:
 - **Across people**: Declarative config makes it trivial to adopt someone else's improvements—just copy the module.
 - **For secrets**: 1Password handles SSH keys, git signing, and API credentials with E2E encryption—no need to manage keys yourself or sync encrypted files across machines.
 
-The result: minimal configuration that just works—no bugs, high performance, improved productivity.
+The result: low friction compounds. This configuration is the result of hundreds of iterations. Fork it and get a bug-free, high-performance, productivity-boosting setup on day one.
 
 ## Implementation
 
