@@ -14,12 +14,34 @@ set -eu
 REPO="https://github.com/anko9801/dotfiles.git"
 DOTFILES="$HOME/dotfiles"
 
+# Colors (ANSI)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+info()    { printf "${BLUE}[INFO]${NC} %s\n" "$1"; }
+success() { printf "${GREEN}[OK]${NC} %s\n" "$1"; }
+warn()    { printf "${YELLOW}[WARN]${NC} %s\n" "$1"; }
+error()   { printf "${RED}[ERROR]${NC} %s\n" "$1"; exit 1; }
+
+confirm() {
+    printf "%s [Y/n] " "$1"
+    read -r reply
+    case "$reply" in
+        [Nn]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
 echo ""
 echo "  ╔═══════════════════════════════════════╗"
 echo "  ║         Dotfiles Setup (Unix)         ║"
 echo "  ╚═══════════════════════════════════════╝"
 echo ""
 
+# Detect OS
 case "$(uname -s)" in
     Darwin) OS="darwin" ;;
     Linux)
@@ -29,45 +51,73 @@ case "$(uname -s)" in
             OS="linux"
         fi
         ;;
-    *) echo "Unsupported OS"; exit 1 ;;
+    *) error "Unsupported OS" ;;
 esac
 
-echo "[*] Detected: $OS"
+# Detect architecture
+ARCH="$(uname -m)"
+case "$ARCH" in
+    arm64|aarch64) ARCH_NAME="ARM64 (Apple Silicon)" ;;
+    x86_64)        ARCH_NAME="x86_64 (Intel)" ;;
+    *)             ARCH_NAME="$ARCH" ;;
+esac
 
-# Install Nix
+info "Detected: $OS ($ARCH_NAME)"
+echo ""
+
+# Confirm before proceeding
+if ! confirm "Proceed with installation?"; then
+    echo "Aborted."
+    exit 0
+fi
+echo ""
+
+# Step 1: Install Nix
 if ! command -v nix >/dev/null 2>&1; then
-    echo "[1/3] Installing Nix..."
-    curl -fsSL https://install.determinate.systems/nix | sh -s -- install --no-confirm
-    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+    info "[1/3] Installing Nix..."
+    if confirm "Install Nix via Determinate Systems installer?"; then
+        curl -fsSL https://install.determinate.systems/nix | sh -s -- install
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        success "Nix installed"
+    else
+        warn "Skipping Nix installation"
+    fi
 else
-    echo "[1/3] Nix already installed"
+    success "[1/3] Nix already installed ($(nix --version))"
 fi
 
-# Clone dotfiles
-echo "[2/3] Setting up dotfiles..."
+# Step 2: Clone dotfiles
+info "[2/3] Setting up dotfiles..."
 if [ ! -d "$DOTFILES" ]; then
     git clone "$REPO" "$DOTFILES"
+    success "Cloned dotfiles to $DOTFILES"
 else
     git -C "$DOTFILES" pull --rebase
+    success "Updated dotfiles"
 fi
 
-# Apply config
-echo "[3/3] Applying configuration..."
-cd "$DOTFILES"
-case "$OS" in
-    darwin)
-        if ! command -v darwin-rebuild >/dev/null 2>&1; then
-            nix run nix-darwin -- switch --flake .#anko-mac
-        else
-            sudo darwin-rebuild switch --flake .#anko-mac
-        fi
-        ;;
-    wsl)   nix run home-manager -- switch --flake .#anko@wsl ;;
-    linux) nix run home-manager -- switch --flake .#anko@linux ;;
-esac
+# Step 3: Apply config
+info "[3/3] Applying configuration..."
+if confirm "Apply Nix configuration for $OS?"; then
+    cd "$DOTFILES"
+    case "$OS" in
+        darwin)
+            if ! command -v darwin-rebuild >/dev/null 2>&1; then
+                nix run nix-darwin -- switch --flake .#anko-mac
+            else
+                sudo darwin-rebuild switch --flake .#anko-mac
+            fi
+            ;;
+        wsl)   nix run home-manager -- switch --flake .#anko@wsl ;;
+        linux) nix run home-manager -- switch --flake .#anko@linux ;;
+    esac
+    success "Configuration applied"
+else
+    warn "Skipping configuration"
+fi
 
 echo ""
-echo "  Done! Run: exec zsh"
+success "Done! Run: exec zsh"
 exit 0
 #>
 
