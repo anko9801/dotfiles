@@ -41,17 +41,17 @@ The setup script will:
 For automation, you can use flags:
 
 ```sh
-./setup --user myname --git-name "My Name" --git-email me@example.com --non-interactive
+./setup --git-name "My Name" --git-email me@example.com --non-interactive
 ```
 
 ### Subsequent updates
 
 ```sh
 # macOS
-darwin-rebuild switch --flake ~/dotfiles
+darwin-rebuild switch --impure --flake ~/dotfiles#mac
 
 # Linux / WSL
-home-manager switch --flake ~/dotfiles
+home-manager switch --impure --flake ~/dotfiles#wsl
 
 # Update dependencies
 nix flake update

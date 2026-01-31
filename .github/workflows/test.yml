@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - name: Build Home Manager configuration
-        run: nix build .#homeConfigurations."anko@linux".activationPackage
+        run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
       - name: Show result
         run: ls -la result/
   build-macos:
@@ -32,6 +32,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - name: Build nix-darwin configuration
-        run: nix build .#darwinConfigurations.anko-mac.system
+        run: USER=ci nix build --impure .#darwinConfigurations.mac.system
       - name: Show result
         run: ls -la result/

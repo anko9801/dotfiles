@@ -59,6 +59,9 @@
       # User-specific configuration (change this when forking)
       userConfig = import ./user.nix;
 
+      # Get username from environment (use --impure flag)
+      username = builtins.getEnv "USER";
+
       # Common modules for home-manager
       commonHomeModules = [
         ./home.nix
@@ -73,7 +76,6 @@
       mkHome =
         {
           system,
-          user,
           extraModules ? [ ],
         }:
         home-manager.lib.homeManagerConfiguration {
@@ -88,8 +90,8 @@
             ++ [
               {
                 home = {
-                  username = user;
-                  homeDirectory = "/home/${user}";
+                  inherit username;
+                  homeDirectory = "/home/${username}";
                 };
               }
             ];
@@ -97,10 +99,7 @@
 
       # nix-darwin configuration (for macOS)
       mkDarwin =
-        {
-          system,
-          user ? userConfig.username,
-        }:
+        { system }:
         nix-darwin.lib.darwinSystem {
           inherit system;
           specialArgs = {
@@ -115,7 +114,7 @@
               nix-homebrew = {
                 enable = true;
                 enableRosetta = system == "aarch64-darwin";
-                inherit user;
+                user = username;
                 autoMigrate = true;
               };
             }
@@ -127,13 +126,13 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 extraSpecialArgs = { inherit userConfig; };
-                users.${user} =
+                users.${username} =
                   { lib, ... }:
                   {
                     imports = commonHomeModules ++ [ ./modules/platforms/darwin.nix ];
                     home = {
-                      username = lib.mkForce user;
-                      homeDirectory = lib.mkForce "/Users/${user}";
+                      username = lib.mkForce username;
+                      homeDirectory = lib.mkForce "/Users/${username}";
                     };
                   };
               };
@@ -141,7 +140,7 @@
 
             # Override system.primaryUser for the specific user
             {
-              system.primaryUser = user;
+              system.primaryUser = username;
             }
           ];
         };
@@ -185,24 +184,21 @@
       flake = {
         # Standalone Home Manager configurations (Linux/WSL)
         homeConfigurations = {
-          "${userConfig.username}@wsl" = mkHome {
+          wsl = mkHome {
             system = "x86_64-linux";
-            user = userConfig.username;
             extraModules = [
               ./modules/platforms/wsl.nix
-              { programs.wsl.windowsUser = userConfig.windowsUsername; }
+              { programs.wsl.windowsUser = username; }
             ];
           };
 
-          "${userConfig.username}@linux" = mkHome {
+          linux = mkHome {
             system = "x86_64-linux";
-            user = userConfig.username;
             extraModules = [ ./modules/platforms/linux.nix ];
           };
 
-          "${userConfig.username}@server" = mkHome {
+          server = mkHome {
             system = "x86_64-linux";
-            user = userConfig.username;
             extraModules = [ ./modules/platforms/server.nix ];
           };
         };
@@ -210,12 +206,12 @@
         # nix-darwin configurations (macOS)
         darwinConfigurations = {
           # Apple Silicon Mac
-          "${userConfig.username}-mac" = mkDarwin {
+          mac = mkDarwin {
             system = "aarch64-darwin";
           };
 
           # Intel Mac
-          "${userConfig.username}-mac-intel" = mkDarwin {
+          mac-intel = mkDarwin {
             system = "x86_64-darwin";
           };
         };

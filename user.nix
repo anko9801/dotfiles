@@ -1,12 +1,6 @@
 # User-specific configuration
 # Change these values when forking this repository
 {
-  # System username
-  username = "anko";
-
-  # Windows username (for WSL)
-  windowsUsername = "anko";
-
   # Git configuration
   git = {
     name = "anko9801";

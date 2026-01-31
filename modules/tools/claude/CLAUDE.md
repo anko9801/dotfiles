@@ -18,13 +18,13 @@ This project uses Claude Code for AI-assisted development. This document provide
 
 ### Testing Approach
 - Run `nix flake check` before committing
-- Build configurations with `nix build .#homeConfigurations."anko@wsl".activationPackage`
+- Build configurations with `nix build --impure .#homeConfigurations.wsl.activationPackage`
 - Test on both Linux and macOS when possible
 
 ### Important Commands
 ```bash
 # Apply configuration
-home-manager switch --flake ~/dotfiles#anko@wsl
+home-manager switch --impure --flake ~/dotfiles#wsl
 
 # Format code
 nix fmt
@@ -37,7 +37,7 @@ nix shell nixpkgs#deadnix -c deadnix .
 nix flake update
 
 # Show what changed
-nvd diff /nix/var/nix/profiles/per-user/anko/home-manager $(home-manager build --flake ~/dotfiles#anko@wsl)
+nvd diff /nix/var/nix/profiles/per-user/$USER/home-manager $(home-manager build --impure --flake ~/dotfiles#wsl)
 ```
 
 ## Project Structure
@@ -89,7 +89,7 @@ dotfiles/
 ### Updating dependencies
 ```bash
 nix flake update
-home-manager switch --flake ~/dotfiles#anko@wsl
+home-manager switch --impure --flake ~/dotfiles#wsl
 ```
 
 ## AI Assistant Guidelines
