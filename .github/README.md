@@ -62,7 +62,19 @@ nix develop -c deadnix .
 - **宣言的** - Nix / winget で管理
 - **再現可能** - Flakes でロック
 - **クロスプラットフォーム** - 1コマンドでセットアップ
-- **1Password** - SSH/GPG 鍵管理
+- **1Password** - SSH/GPG 鍵 + API キー管理
+
+## 1Password 連携
+
+```bash
+# API キー一括ロード
+load-secrets              # Personal vault から
+load-secrets Work         # 指定 vault から
+
+# 個別取得
+opsecret "OpenAI/credential"
+export MY_KEY=$(opsecret "Item/field")
+```
 
 | カテゴリ | ツール |
 |----------|--------|
