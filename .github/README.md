@@ -55,6 +55,23 @@ Code quality is enforced at the flake level with unified formatting and static a
 | Formatting | treefmt (nixfmt, shfmt, yamlfmt) | Unified formatting across languages |
 | Task runner | just | Simple, cross-platform |
 
+Repository structure:
+
+```
+dotfiles/
+├── flake.nix           # Entry point, platform configurations
+├── home.nix            # Shared home-manager settings
+├── user.nix            # Personal settings (git, SSH)
+├── setup               # Bootstrap script
+├── modules/
+│   ├── shell/          # zsh, starship
+│   ├── tools/          # CLI, dev tools, neovim
+│   └── platforms/      # wsl, linux, darwin, server
+├── darwin/             # macOS (nix-darwin)
+├── nixos/              # NixOS (configuration.nix)
+└── windows/            # Windows (winget, wsl.conf)
+```
+
 ## Setup
 
 Supported platforms: macOS (Apple Silicon / Intel), Linux, WSL2, Windows
@@ -94,23 +111,6 @@ home-manager switch --impure --flake ~/dotfiles#wsl
 # Update dependencies
 nix flake update
 ```
-
-## Structure
-
-```
-dotfiles/
-├── flake.nix           # Flake definition and configurations
-├── home.nix            # Main home-manager config
-├── user.nix            # User-specific settings (git, SSH hosts)
-├── modules/
-│   ├── shell/          # zsh, starship
-│   ├── tools/          # CLI, dev tools, neovim
-│   └── platforms/      # wsl, linux, darwin, server
-├── darwin/             # macOS-specific (nix-darwin)
-└── windows/            # Windows (winget, wsl.conf)
-```
-
-The entry point is `flake.nix`, which defines configurations for each platform. Shared settings live in `home.nix` and `modules/`, while `user.nix` holds personal settings like git name and SSH hosts.
 
 ## Customization
 
