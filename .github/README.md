@@ -1,87 +1,142 @@
-# dotfiles
+# Dotfiles
 
-Nix + Home Manager で管理する個人設定。macOS / Linux / WSL / Windows 対応。
+Personal configuration managed with Nix + Home Manager. Works on macOS, Linux, WSL, and Windows.
 
-## セットアップ (1コマンド)
+This setup is declarative, reproducible, and cross-platform. One command to install, one command to update. Whether you're setting up a new machine or keeping multiple systems in sync, these dotfiles have you covered.
+
+## Quick Start
 
 **macOS / Linux / WSL:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
 ```
 
-**Windows (PowerShell 管理者):**
+**Windows (PowerShell as Admin):**
 ```powershell
 iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex
 ```
 
-## 構成
+The setup script will:
+1. Detect your OS and architecture (Apple Silicon, Intel, ARM64)
+2. Install Nix (via Determinate Systems installer)
+3. Clone this repository
+4. Apply the appropriate configuration
+
+## Structure
 
 ```
 dotfiles/
-├── flake.nix                 # Nix Flake 定義
-├── home.nix                  # Home Manager 共通設定
-├── setup                     # ポリグロット セットアップスクリプト
+├── flake.nix                 # Nix Flake definition
+├── home.nix                  # Home Manager base config
+├── setup                     # Polyglot setup script (bash + PowerShell)
 ├── modules/
 │   ├── shell/                # zsh, starship, bash, fish
-│   ├── tools/                # CLI, dev, neovim, claude
+│   ├── tools/                # CLI, dev tools, neovim, claude
 │   ├── platforms/            # wsl, linux, darwin, server
-│   └── theme.nix             # Stylix テーマ
-├── darwin/                   # macOS 専用 (nix-darwin, homebrew)
-└── windows/                  # Windows 専用 (winget, wsl.conf)
+│   └── theme.nix             # Stylix theming (Tokyo Night)
+├── darwin/                   # macOS-specific (nix-darwin, homebrew)
+└── windows/                  # Windows-specific (winget, wsl.conf)
 ```
 
-## コマンド
+## Commands
 
 ```bash
-# 適用
+# Apply configuration
 darwin-rebuild switch --flake .#anko-mac    # macOS
 home-manager switch --flake .#anko@linux    # Linux
 home-manager switch --flake .#anko@wsl      # WSL
-home-manager switch --flake .#anko@server   # Server
-Update-Dotfiles                              # Windows (setup後に使える)
+home-manager switch --flake .#anko@server   # Server (minimal)
 
-# flake 更新
+# Update flake inputs
 nix flake update
 
-# lint
+# Lint
 nix fmt
 nix develop -c statix check .
 nix develop -c deadnix .
 ```
 
-## キーバインド
+## Key Bindings
 
-| キー | 動作 |
-|------|------|
-| `Ctrl+a` | fzf で abbr 選択 |
-| `Ctrl+r` | atuin 履歴検索 |
-| `Ctrl+g` | zellij UI 切替 |
+| Key | Action |
+|-----|--------|
+| `Ctrl+a` | fzf abbr selection |
+| `Ctrl+r` | atuin history search |
+| `Ctrl+g` | Toggle zellij UI |
 
-## コンセプト
+## Tools
 
-- **宣言的** - Nix / winget で管理
-- **再現可能** - Flakes でロック
-- **クロスプラットフォーム** - 1コマンドでセットアップ
-- **1Password** - SSH/GPG 鍵 + API キー管理
+| Category | Tools |
+|----------|-------|
+| Shell | zsh + starship + zsh-abbr + fzf-tab + atuin |
+| Editor | Neovim (nixvim) + VSCode + Zed |
+| Terminal | zellij (auto-start, locked mode) |
+| Git | lazygit + ghq + gh + delta + gitleaks |
+| Search | ripgrep + fd + fzf |
+| Files | eza + bat + dust + procs |
+| Runtime | mise (Node, Python, Go, Rust, Ruby) |
 
-## 1Password 連携
+## 1Password Integration
+
+SSH keys and API secrets are managed via 1Password.
 
 ```bash
-# API キー一括ロード
-load-secrets              # Personal vault から
-load-secrets Work         # 指定 vault から
+# Load API keys from 1Password
+load-secrets              # From Personal vault
+load-secrets Work         # From specified vault
 
-# 個別取得
+# Quick secret read
 opsecret "OpenAI/credential"
 export MY_KEY=$(opsecret "Item/field")
 ```
 
-| カテゴリ | ツール |
-|----------|--------|
-| シェル | zsh + starship + zsh-abbr + fzf-tab + atuin |
-| エディタ | Neovim (nixvim) + VSCode |
-| ターミナル | zellij (自動起動) |
-| Git | lazygit + ghq + gh + delta + gitleaks |
-| 検索 | ripgrep + fd + fzf |
-| ファイル | eza + bat + dust + procs |
-| ランタイム | mise (Node, Python, Go, Rust, Ruby) |
+### SSH Agent
+
+- **WSL**: Uses Windows `ssh.exe` directly for 1Password SSH agent
+- **macOS/Linux**: Uses native 1Password SSH agent socket
+
+## Platform-Specific Features
+
+### WSL
+- Windows SSH agent integration via `ssh.exe`
+- `clip.exe` / `pbpaste` aliases
+- `wslview` for `xdg-open`
+- Time sync and memory compact utilities
+
+### macOS
+- Homebrew casks for GUI apps
+- Aerospace tiling window manager
+- System defaults configuration
+
+### Server
+- Minimal profile (vim instead of neovim)
+- Essential tools only
+- Fast deployment
+
+### Windows
+- Declarative package management via winget
+- Includes: PowerToys, Windows Terminal, VSCode, Zed, DevToys, etc.
+
+## Design Principles
+
+- **Declarative** - Everything managed by Nix or winget
+- **Reproducible** - Flakes lock all dependencies
+- **Cross-platform** - One setup command for all platforms
+- **1Password** - Centralized credential management
+
+## Neovim
+
+Neovim is configured via [nixvim](https://github.com/nix-community/nixvim) with:
+- LSP support for multiple languages
+- Treesitter for syntax highlighting
+- Telescope for fuzzy finding
+- Which-key for keybinding discovery
+- Tokyo Night theme via Stylix
+
+## Contributing
+
+Feel free to open issues or PRs if you find something useful or have suggestions!
+
+## License
+
+MIT
