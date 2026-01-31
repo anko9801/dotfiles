@@ -85,8 +85,7 @@ The Tokyo Night theme ties everything together visually, applied consistently ac
 | Terminal | zellij | Simpler configuration, built-in UI (not tmux) |
 | Theme | Tokyo Night, Stylix | Unified theming across all tools (not per-app config) |
 | Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
-| Runtimes | mise | Single tool for all runtimes (not asdf/nvm/pyenv) |
-| Python | uv | Fast package manager and venv (not pip/venv) |
+| Runtimes | mise, uv | Single tool for all runtimes. uv for Python packages (not asdf/nvm/pyenv/pip) |
 | CLI | eza, bat, fd, rg, dust, procs | Faster, colorful, better defaults (not ls/cat/find/grep/du/ps) |
 | Git UI | lazygit | More features, better keybindings (not gitui) |
 | Git diff | delta, difftastic | Side-by-side, syntax highlighted, structural diffs (not diff) |
