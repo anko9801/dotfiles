@@ -1,7 +1,7 @@
 { unfree-pkgs, ... }:
 
 let
-  unfreePkgs = unfree-pkgs "modules/tools/claude/default.nix";
+  unfreePkgs = unfree-pkgs;
 in
 {
   programs.claude-code = {

@@ -72,15 +72,21 @@
         in
         if envUser != "" then envUser else "nixuser";
 
-      # Unfree packages helper - warns when used
+      # Unfree packages helper - warns on each package access
+      # Uses setUnfreeWarning from lib.nix for granular warnings
       mkUnfreePkgs =
-        system: sourcePath:
-        builtins.warn "Using UNFREE packages in ${sourcePath}" (
-          import nixpkgs {
+        system:
+        let
+          innerUnfreePkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
-          }
-        );
+          };
+          inherit (import ./lib.nix { inherit (nixpkgs) lib; }) setUnfreeWarning;
+        in
+        setUnfreeWarning {
+          maybeAttrs = innerUnfreePkgs;
+          prefix = "unfreePkgs";
+        };
 
       # Common modules for home-manager
       commonHomeModules = [

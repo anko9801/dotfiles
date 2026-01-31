@@ -7,7 +7,7 @@
 }:
 
 let
-  unfreePkgs = unfree-pkgs "modules/shell/zsh/default.nix";
+  unfreePkgs = unfree-pkgs;
 in
 {
   imports = [

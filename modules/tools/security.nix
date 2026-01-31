@@ -7,7 +7,7 @@
 }:
 
 let
-  unfreePkgs = unfree-pkgs "modules/tools/security.nix";
+  unfreePkgs = unfree-pkgs;
 in
 {
   home.packages = [

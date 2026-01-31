@@ -6,7 +6,7 @@
 }:
 
 let
-  unfreePkgs = unfree-pkgs "modules/tools/vscode.nix";
+  unfreePkgs = unfree-pkgs;
 in
 {
   # VSCode - Only enable on non-WSL/non-genericLinux platforms
