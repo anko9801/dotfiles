@@ -132,9 +132,14 @@ Write-Host "[5/5] WSL config..." -ForegroundColor Yellow
 $wslConf = "$dotfiles\windows\wsl.conf"
 if (Test-Path $wslConf) {
     $wslPath = $wslConf -replace '\\','/' -replace 'C:','/mnt/c'
-    wsl -u root sh -c "[ -f /etc/wsl.conf ] && cp /etc/wsl.conf /etc/wsl.conf.bak"
-    wsl -u root cp "$wslPath" /etc/wsl.conf
-    Write-Host "  wsl.conf installed (backup: /etc/wsl.conf.bak)" -ForegroundColor Green
+    $diff = wsl -u root sh -c "diff -q '$wslPath' /etc/wsl.conf 2>/dev/null"
+    if ($LASTEXITCODE -ne 0) {
+        wsl -u root sh -c "[ -f /etc/wsl.conf ] && cp /etc/wsl.conf /etc/wsl.conf.bak"
+        wsl -u root cp "$wslPath" /etc/wsl.conf
+        Write-Host "  wsl.conf installed (backup: /etc/wsl.conf.bak)" -ForegroundColor Green
+    } else {
+        Write-Host "  wsl.conf unchanged" -ForegroundColor Green
+    }
 }
 
 Write-Host "`n  Done! Run 'wsl --shutdown' to apply wsl.conf" -ForegroundColor Cyan
