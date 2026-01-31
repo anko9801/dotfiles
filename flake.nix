@@ -72,21 +72,32 @@
         in
         if envUser != "" then envUser else "nixuser";
 
-      # Unfree packages helper - warns on each package access
-      # Uses setUnfreeWarning from lib.nix for granular warnings
+      # Warn on unfree package access (recursive attribute wrapper)
+      setUnfreeWarning =
+        maybeAttrs: prefix:
+        let
+          withoutWarning =
+            if builtins.isAttrs maybeAttrs then
+              builtins.mapAttrs (
+                name: value: setUnfreeWarning value "${prefix}.${name}"
+              ) maybeAttrs
+            else
+              maybeAttrs;
+        in
+        if nixpkgs.lib.isDerivation withoutWarning then
+          builtins.warn "Using UNFREE package: ${prefix}" withoutWarning
+        else
+          withoutWarning;
+
+      # Unfree packages helper
       mkUnfreePkgs =
         system:
-        let
-          innerUnfreePkgs = import nixpkgs {
+        setUnfreeWarning
+          (import nixpkgs {
             inherit system;
             config.allowUnfree = true;
-          };
-          inherit (import ./lib.nix { inherit (nixpkgs) lib; }) setUnfreeWarning;
-        in
-        setUnfreeWarning {
-          maybeAttrs = innerUnfreePkgs;
-          prefix = "unfreePkgs";
-        };
+          })
+          "unfreePkgs";
 
       # Common modules for home-manager
       commonHomeModules = [
