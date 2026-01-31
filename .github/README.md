@@ -12,7 +12,8 @@
 
 Personal dotfiles for declaratively managing development environments across macOS, Linux, WSL, and Windows.
 
-> **Note**: This is a personal configuration. Feel free to fork and adapt for your own needs.
+> [!NOTE]
+> This is a personal configuration. Feel free to fork and adapt for your own needs.
 
 ## Setup
 
@@ -40,9 +41,11 @@ The setup script will:
 3. Prompt for git configuration (name, email, SSH key)
 4. Generate `user.nix` and apply the configuration
 
-> **Note**: Username is automatically detected from `$USER`. The `--impure` flag is required for this.
+> [!NOTE]
+> Username is automatically detected from `$USER`. The `--impure` flag is required for this.
 
-> **Warning**: When forking, edit `user.nix` to set your git configuration and SSH hosts.
+> [!WARNING]
+> When forking, edit `user.nix` to set your git configuration and SSH hosts.
 
 For automation, you can use flags:
 
@@ -120,7 +123,8 @@ To fork and adapt this configuration:
 3. Modify `modules/` to add or remove packages
 4. Run `home-manager switch --impure --flake .#wsl`
 
-> **Tip**: Add new packages to `home.packages` in the appropriate module under `modules/tools/`.
+> [!TIP]
+> Add new packages to `home.packages` in the appropriate module under `modules/tools/`.
 
 ## Development
 
