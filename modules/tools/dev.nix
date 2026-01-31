@@ -10,9 +10,6 @@
       # Rust toolchain manager (special case - needs rustup for toolchain management)
       rustup
 
-      # Package managers (Nix-managed for stability)
-      uv # Fast Python package manager
-
       # AI tools
       # claude-code is managed via programs.claude-code in claude.nix
 
@@ -144,6 +141,7 @@
           # Runtimes - LTS/stable versions to avoid constant re-downloads
           node = "22";
           python = "latest";
+          uv = "latest";
           ruby = "latest";
           go = "latest";
           deno = "latest";
