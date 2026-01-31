@@ -68,14 +68,6 @@ By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage 
 
 ## Configuration Overview
 
-| Component | Tools |
-|-----------|-------|
-| Shell | zsh, starship, zsh-abbr, fzf-tab, atuin |
-| Editor | Neovim ([nixvim](https://github.com/nix-community/nixvim)) |
-| Terminal | zellij |
-| Theme | Tokyo Night, HackGen |
-| Secrets | 1Password CLI |
-
 This configuration is built around the idea that your development environment should feel the same no matter what machine you're on. With a single command, you get the exact same setup on macOS, Linux, or WSL.
 
 Everything uses Vim keybindings. Whether you're navigating in the shell, editing code in Neovim, or switching panes in zellij, the muscle memory stays the same. Combined with fzf integration everywhere, you can fuzzy search through files, command history, git branches, and even running processes without thinking about which tool you're in.
@@ -86,23 +78,18 @@ Secrets live in one place. 1Password manages SSH keys and API credentials across
 
 The Tokyo Night theme ties everything together visually, applied consistently across the terminal, editor, and all CLI tools through Stylix.
 
-### Design Decisions
-
-| Choice | Reason |
-|--------|--------|
-| 1Password | E2E encrypted, single source of truth across all devices (not sops-nix) |
-| zellij | Simpler configuration, built-in UI (not tmux) |
-| nixvim | Declarative, reproducible, version-locked plugins (not Lua) |
-| ssh.exe | No extra dependencies, native Windows SSH agent (not npiperelay) |
-| zsh-abbr | Expands before execution, visible in history (not aliases) |
-| atuin | SQLite-based, syncs across machines (not zsh history) |
-| mise | Single tool for all runtimes (not asdf/nvm/pyenv) |
-| eza/bat/fd/rg | Faster, colorful, better defaults (not ls/cat/find/grep) |
-| fzf-tab | Preview files while completing (not default zsh completion) |
-| lazygit | More features, better keybindings (not gitui) |
-| ghq | Consistent repo structure under ~/repos (not manual clone) |
-| Stylix | Unified theming across all tools (not per-app config) |
-| starship | Fast, customizable, cross-shell prompt (not p10k/oh-my-zsh) |
+| Component | Choice | Reason |
+|-----------|--------|--------|
+| Shell | zsh, starship, zsh-abbr, fzf-tab, atuin | Abbreviations expand before execution, visible in history. SQLite-based history syncs across machines. |
+| Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins (not Lua config) |
+| Terminal | zellij | Simpler configuration, built-in UI (not tmux) |
+| Theme | Tokyo Night, HackGen, Stylix | Unified theming across all tools (not per-app config) |
+| Secrets | 1Password CLI | E2E encrypted, single source of truth across all devices (not sops-nix) |
+| SSH (WSL) | ssh.exe | No extra dependencies, native Windows SSH agent (not npiperelay) |
+| Runtimes | mise | Single tool for all runtimes (not asdf/nvm/pyenv) |
+| CLI | eza, bat, fd, rg | Faster, colorful, better defaults (not ls/cat/find/grep) |
+| Git | lazygit, ghq | More features, consistent repo structure under ~/repos |
+| Prompt | starship | Fast, customizable, cross-shell (not p10k/oh-my-zsh) |
 
 ## Development
 
