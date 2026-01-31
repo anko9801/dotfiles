@@ -84,9 +84,7 @@ The Tokyo Night theme ties everything together visually, applied consistently ac
 | Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins (not Lua config) |
 | Terminal | zellij | Simpler configuration, built-in UI (not tmux) |
 | Theme | Tokyo Night, Stylix | Unified theming across all tools (not per-app config) |
-| Secrets | 1Password CLI | E2E encrypted, single source of truth across all devices (not sops-nix) |
-| SSH (WSL) | ssh.exe | Uses Windows 1Password SSH agent directly (not npiperelay) |
-| SSH signing | 1Password | Sign git commits with SSH keys stored in 1Password (not GPG) |
+| Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
 | Runtimes | mise | Single tool for all runtimes (not asdf/nvm/pyenv) |
 | Python | uv | Fast package manager and venv (not pip/venv) |
 | CLI | eza, bat, fd, rg, dust, procs | Faster, colorful, better defaults (not ls/cat/find/grep/du/ps) |
