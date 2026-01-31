@@ -23,11 +23,12 @@ dotfiles/
 ├── setup                     # ポリグロット セットアップスクリプト
 ├── modules/
 │   ├── shell/                # zsh, starship, bash
-│   ├── tools/                # CLI, dev, neovim, claude
-│   ├── platforms/            # wsl, linux, darwin, server
-│   └── theme.nix             # Stylix テーマ
+│   ├── tools/                # CLI, dev tools, neovim (nixvim)
+│   ├── services/             # syncthing
+│   └── platforms/            # wsl, linux, darwin, server
 ├── darwin/                   # macOS 専用 (nix-darwin, homebrew)
-└── windows/                  # Windows 専用 (winget, wsl.conf)
+├── windows/                  # Windows 専用 (winget, wsl.conf)
+└── configs/                  # 静的設定ファイル
 ```
 
 ## コマンド

@@ -48,12 +48,12 @@ dotfiles/
 ├── flake.lock             # Locked dependencies
 ├── home.nix               # Main home-manager config
 ├── modules/
-│   ├── shell/             # zsh, starship, bash
-│   ├── tools/             # CLI, dev, neovim, claude
-│   ├── platforms/         # wsl, linux, darwin, server
-│   └── theme.nix          # Stylix theming
+│   ├── shell/             # zsh, starship
+│   ├── tools/             # CLI tools, dev tools, neovim
+│   ├── services/          # syncthing, etc.
+│   └── platforms/         # wsl, linux, darwin, server
 ├── darwin/                # macOS-specific (nix-darwin)
-├── windows/               # Windows (winget, wsl.conf)
+├── configs/               # Static config files (claude, wsl)
 └── .github/workflows/     # CI (lint, build)
 ```
 
@@ -64,14 +64,14 @@ dotfiles/
 | Runtimes | mise | node, python, go, deno, bun |
 | CLI tools | Nix | ripgrep, fd, bat, eza |
 | Neovim | nixvim | LSP, plugins, keymaps |
-| Secrets | 1Password | API keys via `op` CLI |
+| Secrets | sops-nix | API keys, tokens |
 
 ## Security Considerations
 
 - Never store secrets in plain text
 - Use 1Password for credential management
 - SSH keys managed via 1Password SSH agent
-- Use `load-secrets` function to load API keys from 1Password
+- Use sops-nix for encrypted secrets in repo
 
 ## Common Tasks
 
