@@ -27,13 +27,30 @@ By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage 
 
 This configuration is built around the idea that your development environment should feel the same no matter what machine you're on. With a single command, you get the exact same setup on macOS, Linux, or WSL.
 
-Everything uses Vim keybindings. Whether you're navigating in the shell, editing code in Neovim, or switching panes in zellij, the muscle memory stays the same. Combined with fzf integration everywhere, you can fuzzy search through files, command history, git branches, and even running processes without thinking about which tool you're in.
+The entry point is `flake.nix`, which defines configurations for each platform. Shared settings live in `home.nix` and `modules/`, while `user.nix` holds personal settings like git name and SSH hosts. Platform-specific code goes in `modules/platforms/` or `darwin/`.
 
-Typing is kept to a minimum. Abbreviations expand as you type, ghq organizes all repositories under a consistent structure, and modern CLI tools like eza, bat, fd, and ripgrep replace their slower predecessors with sensible defaults and colorful output.
+```
+dotfiles/
+├── flake.nix           # Flake definition and configurations
+├── home.nix            # Main home-manager config
+├── user.nix            # User-specific settings (git, SSH hosts)
+├── modules/
+│   ├── shell/          # zsh, starship
+│   ├── tools/          # CLI, dev tools, neovim
+│   └── platforms/      # wsl, linux, darwin, server
+├── darwin/             # macOS-specific (nix-darwin)
+└── windows/            # Windows (winget, wsl.conf)
+```
 
-Secrets live in one place. 1Password manages SSH keys and API credentials across all devices with E2E encryption, eliminating the need to sync encrypted files or manage GPG keys.
+The goal is to minimize cognitive load. Cognitive load is reduced across multiple dimensions:
 
-The Tokyo Night theme ties everything together visually, applied consistently across the terminal, editor, and all CLI tools through Stylix.
+- **Across machines**: Nix flakes pin every dependency, so the same configuration rebuilds identically anywhere. No "works on my machine" problems.
+- **Across tools**: Stylix applies your theme consistently across terminal, editor, and CLI tools—change it once, change it everywhere. Vim keybindings and fzf work the same in shell, editor, and multiplexer.
+- **Across time**: Self-documenting Nix code means you won't wonder why a setting exists when revisiting months later.
+- **Across people**: Declarative config makes it trivial to adopt someone else's improvements—just copy the module.
+- **For secrets**: 1Password handles SSH keys, git signing, and API credentials with E2E encryption—no need to manage keys yourself or sync encrypted files across machines.
+
+The result: minimal configuration that just works—no bugs, high performance, improved productivity.
 
 | Component | Choice | Reason |
 |-----------|--------|--------|
@@ -80,12 +97,6 @@ The setup script will:
 > [!WARNING]
 > When forking, edit `user.nix` to set your git configuration and SSH hosts.
 
-For automation, you can use flags:
-
-```sh
-./setup --git-name "My Name" --git-email me@example.com --non-interactive
-```
-
 ### Subsequent updates
 
 ```sh
@@ -97,21 +108,6 @@ home-manager switch --impure --flake ~/dotfiles#wsl
 
 # Update dependencies
 nix flake update
-```
-
-## Structure
-
-```
-dotfiles/
-├── flake.nix           # Flake definition and configurations
-├── home.nix            # Main home-manager config
-├── user.nix            # User-specific settings (git, SSH hosts)
-├── modules/
-│   ├── shell/          # zsh, starship
-│   ├── tools/          # CLI, dev tools, neovim
-│   └── platforms/      # wsl, linux, darwin, server
-├── darwin/             # macOS-specific (nix-darwin)
-└── windows/            # Windows (winget, wsl.conf)
 ```
 
 ## Customization
