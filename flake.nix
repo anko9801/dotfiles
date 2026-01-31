@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
@@ -63,17 +62,6 @@
       # Get username from environment (use --impure flag)
       username = builtins.getEnv "USER";
 
-      # Overlays for accessing different nixpkgs versions
-      overlays = import ./overlays { inherit inputs; };
-
-      # Create pkgs with overlays applied
-      mkPkgs =
-        system:
-        import nixpkgs {
-          inherit system;
-          overlays = builtins.attrValues overlays;
-        };
-
       # Unfree packages helper - warns when used
       mkUnfreePkgs =
         system: sourcePath:
@@ -101,7 +89,7 @@
           extraModules ? [ ],
         }:
         home-manager.lib.homeManagerConfiguration {
-          pkgs = mkPkgs system;
+          pkgs = import nixpkgs { inherit system; };
           extraSpecialArgs = {
             inherit userConfig;
             unfree-pkgs = mkUnfreePkgs system;
@@ -129,9 +117,6 @@
             unfree-pkgs = mkUnfreePkgs system;
           };
           modules = [
-            # Apply overlays
-            { nixpkgs.overlays = builtins.attrValues overlays; }
-
             ./darwin/configuration.nix
 
             # Homebrew management
@@ -211,9 +196,6 @@
         };
 
       flake = {
-        # Export overlays for reuse
-        inherit overlays;
-
         # Standalone Home Manager configurations (Linux/WSL)
         homeConfigurations = {
           wsl = mkHome {
