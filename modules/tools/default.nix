@@ -12,6 +12,6 @@ _:
     ./vscode.nix
     ./security.nix
     ./extras.nix
-    ./claude.nix
+    ./claude
   ];
 }

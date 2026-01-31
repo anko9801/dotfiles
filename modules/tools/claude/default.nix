@@ -5,16 +5,13 @@ _:
     enable = true;
 
     # CLAUDE.md (memory)
-    memory.source = ../../claude/CLAUDE.md;
+    memory.source = ./CLAUDE.md;
 
     # Agents directory
-    agentsDir = ../../claude/agents;
+    agentsDir = ./agents;
 
     # Commands directory
-    commandsDir = ../../claude/commands;
-
-    # Rules directory (if exists)
-    # rulesDir = ../../configs/claude/rules;
+    commandsDir = ./commands;
 
     # Settings
     settings = {
