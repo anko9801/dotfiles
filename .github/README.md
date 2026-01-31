@@ -29,20 +29,30 @@ Cognitive load is reduced across multiple dimensions:
 
 The result: minimal configuration that just works—no bugs, high performance, improved productivity.
 
-## Tool Choices
+## Implementation
+
+Configuration follows the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/latest/). Nix garbage collection runs weekly automatically.
+
+Security is layered: destructive commands require confirmation, secrets are caught before commit, and sensitive commands are filtered from shell history.
+
+Environments are automatic: project-specific shells activate on `cd`, and any Nixpkgs command can run without installation via comma.
+
+Code quality is enforced at the flake level with unified formatting and static analysis in CI.
 
 | Component | Choice | Reason |
 |-----------|--------|--------|
 | Theme | Stylix | Unified theming across all tools |
 | Terminal | Ghostty, Windows Terminal | GPU-accelerated, native feel |
-| Multiplexer | zellij | Simpler than tmux, better defaults |
+| Multiplexer | zellij | Simpler config, better defaults than tmux |
 | Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like UX |
 | Prompt | starship | Fast, customizable, cross-shell |
 | Runtimes | mise | Single tool for node/python/go/ruby/java |
-| Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins |
-| CLI | eza, bat, fd, rg, zoxide, dust, procs | Faster, colorful, better defaults |
-| Git | lazygit, delta, difftastic, ghq | TUI, syntax-highlighted diffs, consistent repo layout |
+| Editor | Neovim (nixvim) | Declarative, reproducible plugins |
+| CLI | eza, bat, fd, rg, zoxide, dust, procs, trash-cli | Modern replacements with sane defaults |
+| Git | lazygit, delta, difftastic, ghq, gitleaks | TUI, semantic diffs, pre-commit secret scanning |
 | Secrets | 1Password | E2E encrypted SSH keys, git signing, API keys |
+| Dev env | direnv, nix-direnv, comma | Auto-activate per-project, run any Nixpkgs command |
+| Formatting | treefmt (nixfmt, shfmt, yamlfmt) | Unified formatting across languages |
 | Task runner | just | Simple, cross-platform |
 
 ## Setup
