@@ -116,9 +116,3 @@ nix develop -c deadnix .          # Find dead code
 ## License
 
 MIT
-
-## References
-
-- [momeemt/config](https://github.com/momeemt/config)
-- [nix-community/home-manager](https://github.com/nix-community/home-manager)
-- [nix-community/nixvim](https://github.com/nix-community/nixvim)
