@@ -15,6 +15,39 @@ Personal dotfiles for declaratively managing development environments across mac
 > [!NOTE]
 > This is a personal configuration. Feel free to fork and adapt for your own needs.
 
+## Why Nix?
+
+[Nix](https://nixos.org/) is a build system that enables [reproducible builds](https://reproducible-builds.org/).\
+A properly pinned Nix configuration can be rebuilt with high reproducibility even as time passes.
+
+By using [home-manager](https://github.com/nix-community/home-manager), you can manage user-space configuration with Nix.\
+By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage macOS system configuration as well.
+
+## Configuration Overview
+
+This configuration is built around the idea that your development environment should feel the same no matter what machine you're on. With a single command, you get the exact same setup on macOS, Linux, or WSL.
+
+Everything uses Vim keybindings. Whether you're navigating in the shell, editing code in Neovim, or switching panes in zellij, the muscle memory stays the same. Combined with fzf integration everywhere, you can fuzzy search through files, command history, git branches, and even running processes without thinking about which tool you're in.
+
+Typing is kept to a minimum. Abbreviations expand as you type, ghq organizes all repositories under a consistent structure, and modern CLI tools like eza, bat, fd, and ripgrep replace their slower predecessors with sensible defaults and colorful output.
+
+Secrets live in one place. 1Password manages SSH keys and API credentials across all devices with E2E encryption, eliminating the need to sync encrypted files or manage GPG keys.
+
+The Tokyo Night theme ties everything together visually, applied consistently across the terminal, editor, and all CLI tools through Stylix.
+
+| Component | Choice | Reason |
+|-----------|--------|--------|
+| Theme | Stylix, Tokyo Night | Unified theming across all tools (not per-app config) |
+| Terminal | Ghostty, Windows Terminal (zellij) | GPU-accelerated emulators, simpler multiplexer (not tmux) |
+| Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like abbr/fzf (not fish) |
+| Prompt | starship | Fast, customizable, cross-shell (not p10k/oh-my-zsh) |
+| Runtimes | mise | Single tool for node/python/go/ruby/java, per-project versions (not asdf/nvm/pyenv/rbenv) |
+| Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins (not Lua config) |
+| CLI | eza, bat, fd, rg, zoxide, dust, procs | Faster, colorful, better defaults (not ls/cat/find/grep/cd/du/ps) |
+| Git | lazygit, delta, difftastic, ghq | TUI, syntax-highlighted diffs, structural diffs, consistent repo layout |
+| Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
+| Task runner | just | Simple, cross-platform (not make) |
+
 ## Setup
 
 The following operating systems are supported:
@@ -65,39 +98,6 @@ home-manager switch --impure --flake ~/dotfiles#wsl
 # Update dependencies
 nix flake update
 ```
-
-## Why Nix?
-
-[Nix](https://nixos.org/) is a build system that enables [reproducible builds](https://reproducible-builds.org/).\
-A properly pinned Nix configuration can be rebuilt with high reproducibility even as time passes.
-
-By using [home-manager](https://github.com/nix-community/home-manager), you can manage user-space configuration with Nix.\
-By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage macOS system configuration as well.
-
-## Configuration Overview
-
-This configuration is built around the idea that your development environment should feel the same no matter what machine you're on. With a single command, you get the exact same setup on macOS, Linux, or WSL.
-
-Everything uses Vim keybindings. Whether you're navigating in the shell, editing code in Neovim, or switching panes in zellij, the muscle memory stays the same. Combined with fzf integration everywhere, you can fuzzy search through files, command history, git branches, and even running processes without thinking about which tool you're in.
-
-Typing is kept to a minimum. Abbreviations expand as you type, ghq organizes all repositories under a consistent structure, and modern CLI tools like eza, bat, fd, and ripgrep replace their slower predecessors with sensible defaults and colorful output.
-
-Secrets live in one place. 1Password manages SSH keys and API credentials across all devices with E2E encryption, eliminating the need to sync encrypted files or manage GPG keys.
-
-The Tokyo Night theme ties everything together visually, applied consistently across the terminal, editor, and all CLI tools through Stylix.
-
-| Component | Choice | Reason |
-|-----------|--------|--------|
-| Theme | Stylix, Tokyo Night | Unified theming across all tools (not per-app config) |
-| Terminal | Ghostty, Windows Terminal (zellij) | GPU-accelerated emulators, simpler multiplexer (not tmux) |
-| Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like abbr/fzf (not fish) |
-| Prompt | starship | Fast, customizable, cross-shell (not p10k/oh-my-zsh) |
-| Runtimes | mise | Single tool for all runtimes including uv for Python (not asdf/nvm/pyenv/pip) |
-| Editor | Neovim (nixvim) | Declarative, reproducible, version-locked plugins (not Lua config) |
-| CLI | eza, bat, fd, rg, zoxide, dust, procs | Faster, colorful, better defaults (not ls/cat/find/grep/cd/du/ps) |
-| Git | lazygit, delta, difftastic, ghq | TUI, syntax-highlighted diffs, structural diffs, consistent repo layout |
-| Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
-| Task runner | just | Simple, cross-platform (not make) |
 
 ## Structure
 
