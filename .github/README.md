@@ -13,19 +13,7 @@
 
 This repository contains configurations for declaratively managing development environments across macOS, Linux, WSL, and Windows.
 
-## Applying the configuration
-
-> [!WARNING]
-> These configurations are personalized for the [author](https://github.com/anko9801).\
-> If you want to use this, fork the repository and update [`user.nix`](../user.nix):
->
-> - `username` - System username
-> - `windowsUsername` - Windows username (for WSL)
-> - `git.name`, `git.email`, `git.sshKey` - Git configuration
-> - `sshHosts` - SSH server hosts
-
-To apply these configurations, you need to have [Nix](https://github.com/NixOS/nix) installed.\
-The setup script will install Nix automatically using [nix-installer](https://github.com/DeterminateSystems/nix-installer).
+## Setup
 
 The following operating systems are supported:
 
@@ -36,8 +24,6 @@ The following operating systems are supported:
 
 ### First-time setup
 
-Run the following command to install everything:
-
 ```sh
 # macOS / Linux / WSL
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
@@ -46,18 +32,27 @@ curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
 iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex
 ```
 
-The setup script is interactive and will ask for confirmation at each step.
+The setup script will:
+
+1. Install Nix via [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer)
+2. Clone this repository
+3. Prompt for your configuration (username, git email, etc.)
+4. Generate `user.nix` and apply the configuration
+
+For automation, you can use flags:
+
+```sh
+./setup --user myname --git-name "My Name" --git-email me@example.com --non-interactive
+```
 
 ### Subsequent updates
 
-Once set up, you can apply configuration changes with:
-
 ```sh
 # macOS
-darwin-rebuild switch --flake ~/dotfiles#anko-mac
+darwin-rebuild switch --flake ~/dotfiles
 
 # Linux / WSL
-home-manager switch --flake ~/dotfiles#anko@wsl
+home-manager switch --flake ~/dotfiles
 
 # Update dependencies
 nix flake update
