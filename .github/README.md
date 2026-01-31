@@ -76,13 +76,23 @@ By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage 
 | Theme | Tokyo Night, HackGen |
 | Secrets | 1Password CLI |
 
-### Key Features
+### Design Decisions
 
-- **Vim keybindings everywhere** - Shell, editor, and terminal all use consistent vim-style navigation
-- **fzf integration** - Fuzzy search for files, history, git branches, processes
-- **Modern CLI replacements** - eza, bat, fd, ripgrep, dust, procs
-- **Abbreviation expansion** - Type `gst` and press Space to expand to `git status`
-- **1Password integration** - SSH keys and API secrets managed via `op` CLI
+| Choice | Reason |
+|--------|--------|
+| 1Password | E2E encrypted, single source of truth across all devices (not sops-nix) |
+| zellij | Simpler configuration, built-in UI (not tmux) |
+| nixvim | Declarative, reproducible, version-locked plugins (not Lua) |
+| ssh.exe | No extra dependencies, native Windows SSH agent (not npiperelay) |
+| zsh-abbr | Expands before execution, visible in history (not aliases) |
+| atuin | SQLite-based, syncs across machines (not zsh history) |
+| mise | Single tool for all runtimes (not asdf/nvm/pyenv) |
+| eza/bat/fd/rg | Faster, colorful, better defaults (not ls/cat/find/grep) |
+| fzf-tab | Preview files while completing (not default zsh completion) |
+| lazygit | More features, better keybindings (not gitui) |
+| ghq | Consistent repo structure under ~/repos (not manual clone) |
+| Stylix | Unified theming across all tools (not per-app config) |
+| starship | Fast, customizable, cross-shell prompt (not p10k/oh-my-zsh) |
 
 ## Development
 
