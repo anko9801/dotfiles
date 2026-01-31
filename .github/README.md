@@ -62,7 +62,7 @@ dotfiles/
 ├── flake.nix           # Entry point, platform configurations
 ├── home.nix            # Shared home-manager settings
 ├── user.nix            # Personal settings (git, SSH)
-├── setup               # Bootstrap script
+├── setup               # Bootstrap script (bash/PowerShell polyglot)
 ├── modules/
 │   ├── shell/          # zsh, starship
 │   ├── tools/          # CLI, dev tools, neovim
