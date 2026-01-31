@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
@@ -62,6 +63,27 @@
       # Get username from environment (use --impure flag)
       username = builtins.getEnv "USER";
 
+      # Overlays for accessing different nixpkgs versions
+      overlays = import ./overlays { inherit inputs; };
+
+      # Create pkgs with overlays applied
+      mkPkgs =
+        system:
+        import nixpkgs {
+          inherit system;
+          overlays = builtins.attrValues overlays;
+        };
+
+      # Unfree packages helper - warns when used
+      mkUnfreePkgs =
+        system: sourcePath:
+        builtins.warn "Using UNFREE packages in ${sourcePath}" (
+          import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          }
+        );
+
       # Common modules for home-manager
       commonHomeModules = [
         ./home.nix
@@ -79,11 +101,11 @@
           extraModules ? [ ],
         }:
         home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
+          pkgs = mkPkgs system;
+          extraSpecialArgs = {
+            inherit userConfig;
+            unfree-pkgs = mkUnfreePkgs system;
           };
-          extraSpecialArgs = { inherit userConfig; };
           modules =
             commonHomeModules
             ++ extraModules
@@ -104,8 +126,12 @@
           inherit system;
           specialArgs = {
             inherit self inputs userConfig;
+            unfree-pkgs = mkUnfreePkgs system;
           };
           modules = [
+            # Apply overlays
+            { nixpkgs.overlays = builtins.attrValues overlays; }
+
             ./darwin/configuration.nix
 
             # Homebrew management
@@ -125,7 +151,10 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                extraSpecialArgs = { inherit userConfig; };
+                extraSpecialArgs = {
+                  inherit userConfig;
+                  unfree-pkgs = mkUnfreePkgs system;
+                };
                 users.${username} =
                   { lib, ... }:
                   {
@@ -182,6 +211,9 @@
         };
 
       flake = {
+        # Export overlays for reuse
+        inherit overlays;
+
         # Standalone Home Manager configurations (Linux/WSL)
         homeConfigurations = {
           wsl = mkHome {
