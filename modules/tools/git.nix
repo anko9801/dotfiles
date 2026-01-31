@@ -55,8 +55,7 @@
     settings = {
       # User settings
       user = {
-        name = userConfig.git.name;
-        email = userConfig.git.email;
+        inherit (userConfig.git) name email;
       };
 
       # SSH signing - allowed signers file (gpg.format is set in ssh.nix)

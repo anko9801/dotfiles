@@ -39,9 +39,8 @@
         };
 
       }
-      // (lib.mapAttrs (name: host: {
-        hostname = host.hostname;
-        user = host.user;
+      // (lib.mapAttrs (_: host: {
+        inherit (host) hostname user;
         identityFile = "~/.ssh/id_ed25519";
       }) userConfig.sshHosts);
     };
