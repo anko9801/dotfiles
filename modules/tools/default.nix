@@ -2,6 +2,7 @@ _:
 
 {
   imports = [
+    ../theme.nix
     ./cli.nix
     ./dev.nix
     ./linters.nix

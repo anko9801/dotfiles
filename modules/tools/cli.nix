@@ -176,5 +176,29 @@
         column_meters_1 = "RightCPUs Tasks LoadAverage Uptime";
       };
     };
+
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
+
+    zoxide = {
+      enable = true;
+      enableZshIntegration = true;
+      options = [
+        "--cmd"
+        "cd"
+      ];
+    };
+
+    fzf = {
+      enable = true;
+      enableZshIntegration = true;
+      defaultOptions = [
+        "--height=40%"
+        "--layout=reverse"
+        "--border"
+      ];
+    };
   };
 }

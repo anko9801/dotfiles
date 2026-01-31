@@ -78,9 +78,7 @@
         let
           withoutWarning =
             if builtins.isAttrs maybeAttrs then
-              builtins.mapAttrs (
-                name: value: setUnfreeWarning value "${prefix}.${name}"
-              ) maybeAttrs
+              builtins.mapAttrs (name: value: setUnfreeWarning value "${prefix}.${name}") maybeAttrs
             else
               maybeAttrs;
         in
@@ -92,17 +90,14 @@
       # Unfree packages helper
       mkUnfreePkgs =
         system:
-        setUnfreeWarning
-          (import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          })
-          "unfreePkgs";
+        setUnfreeWarning (import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        }) "unfreePkgs";
 
       # Common modules for home-manager
       commonHomeModules = [
         ./home.nix
-        ./modules/theme.nix
         nix-index-database.homeModules.nix-index
         inputs.nixvim.homeModules.nixvim
         inputs.sops-nix.homeModules.sops
