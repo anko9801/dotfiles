@@ -110,6 +110,48 @@
           command -v az &>/dev/null && alias az='op plugin run -- az'
           command -v stripe &>/dev/null && alias stripe='op plugin run -- stripe'
       fi
+
+      # ==============================================================================
+      # 1Password Secrets
+      # ==============================================================================
+      # Load secrets from 1Password
+      # Usage: load-secrets [vault]
+      load-secrets() {
+          if ! command -v op &>/dev/null; then
+              echo "1Password CLI (op) not found"
+              return 1
+          fi
+
+          # Check if signed in
+          if ! op account list &>/dev/null; then
+              echo "Signing in to 1Password..."
+              eval $(op signin)
+          fi
+
+          local vault="''${1:-Personal}"
+
+          # Load API keys (customize these paths to match your 1Password items)
+          echo "Loading secrets from vault: $vault"
+
+          # Example: export OPENAI_API_KEY=$(op read "op://$vault/OpenAI/api-key" 2>/dev/null)
+          # Example: export ANTHROPIC_API_KEY=$(op read "op://$vault/Anthropic/api-key" 2>/dev/null)
+
+          # Add your secrets here:
+          [[ -n "$(op read "op://$vault/OpenAI/credential" 2>/dev/null)" ]] && \
+              export OPENAI_API_KEY=$(op read "op://$vault/OpenAI/credential")
+          [[ -n "$(op read "op://$vault/Anthropic/credential" 2>/dev/null)" ]] && \
+              export ANTHROPIC_API_KEY=$(op read "op://$vault/Anthropic/credential")
+          [[ -n "$(op read "op://$vault/GitHub Token/credential" 2>/dev/null)" ]] && \
+              export GITHUB_TOKEN=$(op read "op://$vault/GitHub Token/credential")
+
+          echo "Secrets loaded!"
+      }
+
+      # Quick secret read
+      # Usage: opsecret "OpenAI/api-key"
+      opsecret() {
+          op read "op://Personal/$1" 2>/dev/null || op read "op://Private/$1" 2>/dev/null
+      }
     ''
   ];
 }
