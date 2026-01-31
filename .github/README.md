@@ -10,7 +10,9 @@
 
 <br />
 
-This repository contains configurations for declaratively managing development environments across macOS, Linux, WSL, and Windows.
+Personal dotfiles for declaratively managing development environments across macOS, Linux, WSL, and Windows.
+
+> **Note**: This is a personal configuration. Feel free to fork and adapt for your own needs.
 
 ## Setup
 
@@ -35,8 +37,12 @@ The setup script will:
 
 1. Install Nix via [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer)
 2. Clone this repository
-3. Prompt for your configuration (username, git email, etc.)
+3. Prompt for git configuration (name, email, SSH key)
 4. Generate `user.nix` and apply the configuration
+
+> **Note**: Username is automatically detected from `$USER`. The `--impure` flag is required for this.
+
+> **Warning**: When forking, edit `user.nix` to set your git configuration and SSH hosts.
 
 For automation, you can use flags:
 
@@ -90,6 +96,32 @@ The Tokyo Night theme ties everything together visually, applied consistently ac
 | Secrets | 1Password | SSH keys, git signing, API keys all in one place with E2E encryption (not sops-nix/GPG) |
 | Task runner | just | Simple, cross-platform (not make) |
 
+## Structure
+
+```
+dotfiles/
+├── flake.nix           # Flake definition and configurations
+├── home.nix            # Main home-manager config
+├── user.nix            # User-specific settings (git, SSH hosts)
+├── modules/
+│   ├── shell/          # zsh, starship
+│   ├── tools/          # CLI, dev tools, neovim
+│   └── platforms/      # wsl, linux, darwin, server
+├── darwin/             # macOS-specific (nix-darwin)
+└── windows/            # Windows (winget, wsl.conf)
+```
+
+## Customization
+
+To fork and adapt this configuration:
+
+1. Fork the repository
+2. Edit `user.nix` to set your git name, email, and SSH key
+3. Modify `modules/` to add or remove packages
+4. Run `home-manager switch --impure --flake .#wsl`
+
+> **Tip**: Add new packages to `home.packages` in the appropriate module under `modules/tools/`.
+
 ## Development
 
 You can enter the development environment using [nix-direnv](https://github.com/nix-community/nix-direnv):
@@ -112,6 +144,17 @@ nix fmt                           # Format Nix files
 nix develop -c statix check .     # Lint Nix files
 nix develop -c deadnix .          # Find dead code
 ```
+
+## Troubleshooting
+
+**Build fails with "file not found"**
+- Run `git add .` to track new files before building
+
+**Evaluation requires --impure**
+- Username is detected from `$USER` environment variable, which requires impure evaluation
+
+**Conflict with existing dotfiles**
+- Backup and remove conflicting files in `~/.config/`
 
 ## License
 
