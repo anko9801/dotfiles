@@ -1,220 +1,118 @@
-# dotfiles
+<div align="center">
 
-Nix + Home Manager で管理する個人設定ファイル。macOS / Linux / WSL / Windows に対応。
+# ❄️ dotfiles
 
-宣言的で再現可能なクロスプラットフォーム環境を目指している。新しいマシンでも1コマンドで同じ環境が手に入る。
+<img src="../assets/screenshot.png" style="width: 400" />
 
-> [!Note]
-> このリポジトリは個人用に最適化されている。フォークして自分用にカスタマイズすることをおすすめする。
+[![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
+[![CI](https://github.com/anko9801/dotfiles/actions/workflows/ci.yaml/badge.svg)](https://github.com/anko9801/dotfiles/actions/workflows/ci.yaml)
 
-## セットアップ
+</div>
 
-**macOS / Linux / WSL:**
-```bash
+<br />
+
+This repository contains configurations for declaratively managing development environments across macOS, Linux, WSL, and Windows.
+
+## Applying the configuration
+
+> [!WARNING]
+> These configurations are personalized for the [author](https://github.com/anko9801).\
+> If you want to use this, fork the repository and update the configuration values (usernames, paths, etc.) before applying.
+
+To apply these configurations, you need to have [Nix](https://github.com/NixOS/nix) installed.\
+The setup script will install Nix automatically using [nix-installer](https://github.com/DeterminateSystems/nix-installer).
+
+The following operating systems are supported:
+
+- macOS (Apple Silicon / Intel)
+- Linux
+- WSL2
+- Windows (via winget)
+
+### First-time setup
+
+Run the following command to install everything:
+
+```sh
+# macOS / Linux / WSL
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
-```
 
-**Windows (PowerShell 管理者権限):**
-```powershell
+# Windows (PowerShell as Administrator)
 iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex
 ```
 
-> [!Important]
-> セットアップスクリプトはインタラクティブに動作する。各ステップで確認プロンプトが表示されるので、スキップも可能。
+The setup script is interactive and will ask for confirmation at each step.
 
-セットアップスクリプトは以下を行う:
-1. OS とアーキテクチャを検出 (Apple Silicon / Intel / ARM64)
-2. Nix をインストール (Determinate Systems installer)
-3. このリポジトリをクローン
-4. 適切な設定を適用
+### Subsequent updates
 
-## 構成
+Once set up, you can apply configuration changes with:
 
-```
-dotfiles/
-├── flake.nix                 # Nix Flake 定義
-├── home.nix                  # Home Manager 共通設定
-├── setup                     # ポリグロット セットアップスクリプト
-├── modules/
-│   ├── shell/                # zsh, starship, bash, fish
-│   ├── tools/                # CLI, dev, neovim, claude
-│   ├── platforms/            # wsl, linux, darwin, server
-│   └── theme.nix             # Stylix テーマ (Tokyo Night)
-├── darwin/                   # macOS 専用 (nix-darwin, homebrew)
-└── windows/                  # Windows 専用 (winget, wsl.conf)
-```
-
-## 適用コマンド
-
-設定を適用するには、プラットフォームに応じたコマンドを実行する。
-
-```bash
+```sh
 # macOS
-darwin-rebuild switch --flake .#anko-mac
+darwin-rebuild switch --flake ~/dotfiles#anko-mac
 
-# Linux
-home-manager switch --flake .#anko@linux
+# Linux / WSL
+home-manager switch --flake ~/dotfiles#anko@wsl
 
-# WSL
-home-manager switch --flake .#anko@wsl
-
-# Server (最小構成)
-home-manager switch --flake .#anko@server
-```
-
-その他のコマンド:
-
-```bash
-# flake 入力を更新
+# Update dependencies
 nix flake update
-
-# フォーマット
-nix fmt
-
-# Lint
-nix develop -c statix check .
-nix develop -c deadnix .
 ```
 
-## ZSH 設定
+## Why Nix?
 
-メインシェルは ZSH。以下のプラグインと機能を使用している。
+[Nix](https://nixos.org/) is a build system that enables [reproducible builds](https://reproducible-builds.org/).\
+A properly pinned Nix configuration can be rebuilt with high reproducibility even as time passes.
 
-| プラグイン | 説明 |
-|------------|------|
-| zsh-abbr | 略語展開 (fish 風) |
-| fzf-tab | タブ補完を fzf で |
-| zsh-autosuggestions | コマンド候補表示 |
-| zsh-syntax-highlighting | シンタックスハイライト |
-| atuin | 履歴検索 (SQLite) |
+By using [home-manager](https://github.com/nix-community/home-manager), you can manage user-space configuration with Nix.\
+By using [nix-darwin](https://github.com/nix-darwin/nix-darwin), you can manage macOS system configuration as well.
 
-### キーバインド
+## Configuration Overview
 
-| キー | 動作 |
-|------|------|
-| `Ctrl+a` | fzf で abbr 選択 |
-| `Ctrl+r` | atuin 履歴検索 |
-| `Ctrl+g` | zellij UI 切替 |
-| `jk` | ESC (insert mode) |
+| Component | Tools |
+|-----------|-------|
+| Shell | zsh, starship, zsh-abbr, fzf-tab, atuin |
+| Editor | Neovim ([nixvim](https://github.com/nix-community/nixvim)) |
+| Terminal | zellij |
+| Theme | Tokyo Night, HackGen |
+| Secrets | 1Password CLI |
 
-### カスタム関数
+### Key Features
 
-```bash
-ghq-fzf    # ghq + fzf でリポジトリ移動
-mkcd       # mkdir && cd
-extract    # アーカイブ展開
-fcd        # fzf でディレクトリ移動
-fkill      # fzf でプロセス kill
-fbr        # fzf で git branch 切り替え
+- **Vim keybindings everywhere** - Shell, editor, and terminal all use consistent vim-style navigation
+- **fzf integration** - Fuzzy search for files, history, git branches, processes
+- **Modern CLI replacements** - eza, bat, fd, ripgrep, dust, procs
+- **Abbreviation expansion** - Type `gst` and press Space to expand to `git status`
+- **1Password integration** - SSH keys and API secrets managed via `op` CLI
+
+## Development
+
+You can enter the development environment using [nix-direnv](https://github.com/nix-community/nix-direnv):
+
+```sh
+echo "use flake" > .envrc
+direnv allow
 ```
 
-## Neovim 設定
+Or manually:
 
-Neovim は [nixvim](https://github.com/nix-community/nixvim) で設定している。Lua ファイルではなく Nix で宣言的に管理。
-
-```
-modules/tools/neovim/
-├── default.nix      # 基本設定
-├── options.nix      # エディタオプション
-├── keymaps.nix      # キーバインド
-├── plugins.nix      # プラグイン設定
-└── lsp.nix          # LSP / フォーマッター
+```sh
+nix develop
 ```
 
-### 主要プラグイン
+### Available commands in devShell
 
-- **telescope.nvim** - ファジーファインダー
-- **nvim-treesitter** - シンタックスハイライト
-- **nvim-lspconfig** - LSP クライアント
-- **nvim-cmp** - 補完
-- **which-key.nvim** - キーバインドヘルプ
-- **oil.nvim** - ファイルマネージャー
-- **gitsigns.nvim** - Git 差分表示
-
-> [!Note]
-> Server プロファイルでは nixvim を無効化し、代わりに軽量な vim を使用する。
-
-## Zellij 設定
-
-ターミナルマルチプレクサは zellij を使用。シェル起動時に自動でアタッチする。
-
-デフォルトは locked モードで、UI は非表示。`Ctrl+g` で UI を表示できる。
-
-## 1Password 連携
-
-SSH 鍵と API シークレットは 1Password で管理している。
-
-### SSH エージェント
-
-| プラットフォーム | 方式 |
-|------------------|------|
-| WSL | Windows の `ssh.exe` を直接使用 |
-| macOS | 1Password SSH エージェントソケット |
-| Linux | 1Password SSH エージェントソケット |
-
-### API キーの読み込み
-
-```bash
-# 一括ロード
-load-secrets              # Personal vault から
-load-secrets Work         # 指定 vault から
-
-# 個別取得
-opsecret "OpenAI/credential"
-export MY_KEY=$(opsecret "Item/field")
+```sh
+nix fmt                           # Format Nix files
+nix develop -c statix check .     # Lint Nix files
+nix develop -c deadnix .          # Find dead code
 ```
-
-## プラットフォーム別設定
-
-### WSL
-
-- Windows `ssh.exe` で 1Password SSH エージェント連携
-- `clip.exe` / `pbpaste` エイリアス
-- `wslview` による `xdg-open` 対応
-- 時刻同期 (`wsl2_fix_time`) とメモリ解放 (`wsl2_compact_memory`)
-
-### macOS
-
-- Homebrew で GUI アプリ管理 (casks)
-- Aerospace タイリングウィンドウマネージャー
-- システムデフォルト設定
-
-### Server
-
-- 最小構成 (nixvim 無効、vim 使用)
-- 必須ツールのみ
-- 高速デプロイ
-
-### Windows
-
-winget で宣言的にパッケージ管理。`windows/winget-packages.json` で定義。
-
-主なパッケージ:
-- 開発: Git, Docker, Go, VSCode, Zed
-- ターミナル: Windows Terminal, PowerShell 7, Starship
-- ユーティリティ: PowerToys, Everything, Ditto, ShareX, DevToys
-- 通信: Slack, Discord, Zoom
-
-## ツール一覧
-
-| カテゴリ | ツール |
-|----------|--------|
-| シェル | zsh + starship + zsh-abbr + fzf-tab + atuin |
-| エディタ | Neovim (nixvim) + VSCode + Zed |
-| ターミナル | zellij (自動起動) |
-| Git | lazygit + ghq + gh + delta + gitleaks |
-| 検索 | ripgrep + fd + fzf |
-| ファイル | eza + bat + dust + procs |
-| ランタイム | mise (Node, Python, Go, Rust, Ruby) |
-| 同期 | rsync over Tailscale |
-
-## コンセプト
-
-- **宣言的** - Nix / winget で全て管理
-- **再現可能** - Flakes で依存関係をロック
-- **クロスプラットフォーム** - 1コマンドでセットアップ
-- **1Password** - 認証情報を一元管理
 
 ## License
 
 MIT
+
+## References
+
+- [momeemt/config](https://github.com/momeemt/config)
+- [nix-community/home-manager](https://github.com/nix-community/home-manager)
+- [nix-community/nixvim](https://github.com/nix-community/nixvim)
