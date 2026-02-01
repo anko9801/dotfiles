@@ -141,6 +141,11 @@
       wt.basedir = ".worktrees";
 
       # ==============================================================================
+      # Blame
+      # ==============================================================================
+      blame.ignoreRevsFile = ".git-blame-ignore-revs"; # フォーマットコミットを無視
+
+      # ==============================================================================
       # Misc
       # ==============================================================================
       init.defaultBranch = "main";
@@ -259,6 +264,9 @@
       side-by-side = true;
       syntax-theme = "TwoDark";
       features = "decorations";
+      hyperlinks = true; # ターミナルからファイル直接開ける
+      hyperlinks-file-link-format = "vscode://file/{path}:{line}";
+      blame-palette = "#1e1e2e #313244 #45475a";
       decorations = {
         commit-decoration-style = "bold yellow box ul";
         file-style = "bold yellow ul";
