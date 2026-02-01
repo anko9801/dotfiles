@@ -41,7 +41,6 @@
 
       # Misc
       watchexec # file watcher
-      fzf-git-sh # Git + fzf integration (Ctrl-G Ctrl-F/B/T/H)
 
       # Markdown/Documentation
       glow # Markdown renderer for CLI

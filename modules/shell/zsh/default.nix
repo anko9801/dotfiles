@@ -90,10 +90,6 @@ in
           zellij attach -c
         fi
 
-        # fzf-git-sh: Git + fzf keybindings (Ctrl-G Ctrl-F/B/T/H/R/S)
-        if [[ -f "${pkgs.fzf-git-sh}/share/fzf-git-sh/fzf-git.sh" ]]; then
-          source "${pkgs.fzf-git-sh}/share/fzf-git-sh/fzf-git.sh"
-        fi
       '')
 
       # Shell options and completion styles
