@@ -14,14 +14,16 @@ in
     unfreePkgs._1password-cli
   ];
 
-  # 1Password CLI config - op doesn't accept symlinks, so we use activation script
+  # 1Password CLI config - op doesn't accept symlinks and requires 700 permissions
   home.activation.opConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p ~/.config/op
+    chmod 700 ~/.config/op
     if [[ ! -f ~/.config/op/config ]] || [[ -L ~/.config/op/config ]]; then
       rm -f ~/.config/op/config
       cat > ~/.config/op/config << 'EOF'
 {"latest_signin":"","device":"${config.home.username}","commands":{"biometric_unlock":true},"cache":{"session":{"ttl":1800}}}
 EOF
+      chmod 600 ~/.config/op/config
     fi
   '';
 
