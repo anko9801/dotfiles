@@ -148,11 +148,11 @@
       # ==============================================================================
       # 1Password plugin integrations
       if command -v op &>/dev/null; then
-          command -v gh &>/dev/null && alias gh='op plugin run -- gh'
-          command -v aws &>/dev/null && alias aws='op plugin run -- aws'
-          command -v gcloud &>/dev/null && alias gcloud='op plugin run -- gcloud'
-          command -v az &>/dev/null && alias az='op plugin run -- az'
-          command -v stripe &>/dev/null && alias stripe='op plugin run -- stripe'
+          command -v gh &>/dev/null && eval "$(op plugin init gh)"
+          command -v aws &>/dev/null && eval "$(op plugin init aws)"
+          command -v gcloud &>/dev/null && eval "$(op plugin init gcloud)"
+          command -v az &>/dev/null && eval "$(op plugin init az)"
+          command -v stripe &>/dev/null && eval "$(op plugin init stripe)"
       fi
 
       # ==============================================================================
