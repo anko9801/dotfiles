@@ -260,6 +260,156 @@ in
         zstyle ':fzf-tab:complete:z:*' fzf-preview 'eza -1 --color=always $word 2>/dev/null || ls -1 $word'
         zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -1 --color=always $realpath 2>/dev/null'
 
+        # ==============================================================================
+        # Kubernetes
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:kubectl-*:*' fzf-preview 'kubectl describe $word 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:kubectl:*' fzf-preview 'kubectl explain $word 2>/dev/null | head -30'
+
+        # ==============================================================================
+        # Homebrew (macOS)
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:brew-(install|info|upgrade|uninstall):*' fzf-preview 'brew info $word 2>/dev/null'
+        zstyle ':fzf-tab:complete:brew-cask-*:*' fzf-preview 'brew info --cask $word 2>/dev/null'
+
+        # ==============================================================================
+        # Cargo / Rust
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:cargo-install:*' fzf-preview 'cargo search $word 2>/dev/null | head -10'
+        zstyle ':fzf-tab:complete:cargo-add:*' fzf-preview 'cargo search $word 2>/dev/null | head -10'
+        zstyle ':fzf-tab:complete:rustup-*:*' fzf-preview 'rustup show 2>/dev/null'
+
+        # ==============================================================================
+        # Python / pip / uv
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:pip-install:*' fzf-preview 'pip show $word 2>/dev/null || pip search $word 2>/dev/null | head -10'
+        zstyle ':fzf-tab:complete:pip-show:*' fzf-preview 'pip show $word 2>/dev/null'
+        zstyle ':fzf-tab:complete:pip-uninstall:*' fzf-preview 'pip show $word 2>/dev/null'
+        zstyle ':fzf-tab:complete:uv-pip-*:*' fzf-preview 'pip show $word 2>/dev/null'
+        zstyle ':fzf-tab:complete:python:*' fzf-preview 'file $realpath 2>/dev/null; head -20 $realpath 2>/dev/null'
+
+        # ==============================================================================
+        # Node.js / npm / pnpm / bun
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:npm-install:*' fzf-preview 'npm view $word 2>/dev/null | head -20'
+        zstyle ':fzf-tab:complete:pnpm-add:*' fzf-preview 'npm view $word 2>/dev/null | head -20'
+        zstyle ':fzf-tab:complete:bun-add:*' fzf-preview 'npm view $word 2>/dev/null | head -20'
+        zstyle ':fzf-tab:complete:node:*' fzf-preview 'file $realpath 2>/dev/null; head -20 $realpath 2>/dev/null'
+
+        # ==============================================================================
+        # Go
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:go-*:*' fzf-preview 'go doc $word 2>/dev/null | head -30'
+
+        # ==============================================================================
+        # mise (runtime manager)
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:mise-install:*' fzf-preview 'mise ls-remote $word 2>/dev/null | tail -20'
+        zstyle ':fzf-tab:complete:mise-use:*' fzf-preview 'mise ls-remote $word 2>/dev/null | tail -20'
+        zstyle ':fzf-tab:complete:mise-*:*' fzf-preview 'mise info 2>/dev/null'
+
+        # ==============================================================================
+        # AWS CLI
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:aws:*' fzf-preview 'aws $word help 2>/dev/null | head -50'
+
+        # ==============================================================================
+        # Terraform
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:terraform-*:*' fzf-preview 'terraform providers schema -json 2>/dev/null | jq -C ".provider_schemas | keys" 2>/dev/null || echo "$word"'
+
+        # ==============================================================================
+        # Just (task runner)
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:just:*' fzf-preview 'just --show $word 2>/dev/null || just --list 2>/dev/null'
+
+        # ==============================================================================
+        # Lazygit / Lazydocker
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:lazygit:*' fzf-preview 'git -C $realpath log --oneline -10 2>/dev/null || echo "$word"'
+
+        # ==============================================================================
+        # Archives (tar, unzip, 7z)
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:tar-*:*' fzf-preview 'tar -tvf $realpath 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:unzip:*' fzf-preview 'unzip -l $realpath 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:7z:*' fzf-preview '7z l $realpath 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:zstd:*' fzf-preview 'zstd -l $realpath 2>/dev/null'
+
+        # ==============================================================================
+        # File permissions (chmod, chown)
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:chmod:*' fzf-preview 'stat $realpath 2>/dev/null; eza -la $realpath 2>/dev/null'
+        zstyle ':fzf-tab:complete:chown:*' fzf-preview 'stat $realpath 2>/dev/null; eza -la $realpath 2>/dev/null'
+
+        # ==============================================================================
+        # Dangerous commands (rm, mv) - show before delete/move
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:rm:*' fzf-preview '
+            if [[ -d $realpath ]]; then
+                eza --tree --level=2 --color=always $realpath 2>/dev/null | head -50
+            else
+                bat --color=always --style=numbers --line-range=:50 $realpath 2>/dev/null || head -50 $realpath
+            fi
+        '
+        zstyle ':fzf-tab:complete:trash:*' fzf-preview '
+            if [[ -d $realpath ]]; then
+                eza --tree --level=2 --color=always $realpath 2>/dev/null | head -50
+            else
+                bat --color=always --style=numbers --line-range=:50 $realpath 2>/dev/null || head -50 $realpath
+            fi
+        '
+
+        # ==============================================================================
+        # Ripgrep / fd
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:rg:*' fzf-preview 'bat --color=always --style=numbers $realpath 2>/dev/null | head -100'
+        zstyle ':fzf-tab:complete:fd:*' fzf-preview 'eza -la --color=always $realpath 2>/dev/null'
+
+        # ==============================================================================
+        # jq / yq
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:jq:*' fzf-preview 'jq -C "." $realpath 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:yq:*' fzf-preview 'yq -C "." $realpath 2>/dev/null | head -50'
+
+        # ==============================================================================
+        # Neovim / Vim
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:(nvim|vim|vi):*' fzf-preview '
+            if [[ -d $realpath ]]; then
+                eza --tree --level=2 --color=always $realpath 2>/dev/null
+            else
+                bat --color=always --style=numbers --line-range=:100 $realpath 2>/dev/null || cat $realpath
+            fi
+        '
+
+        # ==============================================================================
+        # VS Code
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:code:*' fzf-preview '
+            if [[ -d $realpath ]]; then
+                eza --tree --level=2 --color=always $realpath 2>/dev/null
+            else
+                bat --color=always --style=numbers --line-range=:100 $realpath 2>/dev/null || cat $realpath
+            fi
+        '
+
+        # ==============================================================================
+        # GitHub CLI
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:gh:*' fzf-preview 'gh $word --help 2>/dev/null | head -30'
+
+        # ==============================================================================
+        # Journalctl (systemd logs)
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:journalctl:*' fzf-preview 'journalctl -u $word --no-pager -n 20 2>/dev/null'
+
+        # ==============================================================================
+        # Processes (ps, kill, pkill)
+        # ==============================================================================
+        zstyle ':fzf-tab:complete:ps:*' fzf-preview 'ps aux | head -1; ps aux | grep $word | head -20'
+        zstyle ':fzf-tab:complete:pkill:*' fzf-preview 'ps aux | grep $word | head -20'
+
         # Use zellij popup if available (instead of tmux)
         if [[ -n "$ZELLIJ" ]]; then
             # zellij doesn't have popup yet, use default
