@@ -89,6 +89,18 @@ _:
       abbr -S -q h="history"
       abbr -S -q j="jobs"
       abbr -S -q reload="source ~/.zshrc"
+
+      # Make abbreviations available in Tab completion
+      # Hook into command completion to include abbr names
+      _complete_abbr() {
+        local -a _abbrs
+        _abbrs=(''${(f)"$(abbr list-abbreviations 2>/dev/null | cut -d= -f1 | tr -d \")"})
+        [[ ''${#_abbrs} -gt 0 ]] && compadd -V abbr -X 'abbreviations' -- "''${_abbrs[@]}"
+        return 1  # Continue to other completers
+      }
+      # Prepend to completers
+      zstyle -g _completers ':completion:*' completer
+      zstyle ':completion:*' completer _complete_abbr ''${_completers[@]}
     '';
   };
 }
