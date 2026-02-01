@@ -28,8 +28,10 @@ jobs:
         run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
       - name: Activate Home Manager
         run: |
-          USER=ci ./result/activate
-          echo "$HOME/.nix-profile/bin" >> $GITHUB_PATH
+          sudo mkdir -p /home/ci
+          sudo chown $USER:$USER /home/ci
+          USER=ci HOME=/home/ci ./result/activate
+          echo "/home/ci/.nix-profile/bin" >> $GITHUB_PATH
       # Benchmark (only on push to master)
       - name: Download previous benchmark data
         if: github.event_name == 'push'
@@ -39,7 +41,7 @@ jobs:
           key: ${{ runner.os }}-benchmark
       - name: Run benchmark
         if: github.event_name == 'push'
-        run: .github/scripts/benchmark.sh
+        run: USER=ci HOME=/home/ci .github/scripts/benchmark.sh
       - name: Upload benchmark
         if: github.event_name == 'push'
         uses: benchmark-action/github-action-benchmark@v1
