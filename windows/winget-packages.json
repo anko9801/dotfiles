@@ -39,7 +39,9 @@
         { "PackageIdentifier": "SumatraPDF.SumatraPDF" },
         { "PackageIdentifier": "REALiX.HWiNFO" },
         { "PackageIdentifier": "DevToys-app.DevToys" },
-        { "PackageIdentifier": "File-New-Project.EarTrumpet" }
+        { "PackageIdentifier": "File-New-Project.EarTrumpet" },
+        { "PackageIdentifier": "LGUG2Z.komorebi" },
+        { "PackageIdentifier": "LGUG2Z.whkd" }
       ],
       "SourceDetails": {
         "Argument": "https://cdn.winget.microsoft.com/cache",

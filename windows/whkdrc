@@ -1,0 +1,99 @@
+# ==============================================================================
+# whkd - Windows Hot Key Daemon for komorebi
+# Layer: WM (Win+Alt to avoid Windows standard shortcut conflicts)
+# ==============================================================================
+
+.shell powershell
+
+# ==============================================================================
+# Window Focus (Win+Alt + hjkl)
+# ==============================================================================
+alt + win + h : komorebic focus left
+alt + win + j : komorebic focus down
+alt + win + k : komorebic focus up
+alt + win + l : komorebic focus right
+
+# ==============================================================================
+# Window Move (Win+Alt+Shift + hjkl)
+# ==============================================================================
+alt + win + shift + h : komorebic move left
+alt + win + shift + j : komorebic move down
+alt + win + shift + k : komorebic move up
+alt + win + shift + l : komorebic move right
+
+# ==============================================================================
+# Workspace Focus (Win+Alt + number)
+# ==============================================================================
+alt + win + 1 : komorebic focus-workspace 0
+alt + win + 2 : komorebic focus-workspace 1
+alt + win + 3 : komorebic focus-workspace 2
+alt + win + 4 : komorebic focus-workspace 3
+alt + win + 5 : komorebic focus-workspace 4
+alt + win + 6 : komorebic focus-workspace 5
+alt + win + 7 : komorebic focus-workspace 6
+alt + win + 8 : komorebic focus-workspace 7
+alt + win + 9 : komorebic focus-workspace 8
+
+# ==============================================================================
+# Move Window to Workspace (Win+Alt+Shift + number)
+# ==============================================================================
+alt + win + shift + 1 : komorebic move-to-workspace 0
+alt + win + shift + 2 : komorebic move-to-workspace 1
+alt + win + shift + 3 : komorebic move-to-workspace 2
+alt + win + shift + 4 : komorebic move-to-workspace 3
+alt + win + shift + 5 : komorebic move-to-workspace 4
+alt + win + shift + 6 : komorebic move-to-workspace 5
+alt + win + shift + 7 : komorebic move-to-workspace 6
+alt + win + shift + 8 : komorebic move-to-workspace 7
+alt + win + shift + 9 : komorebic move-to-workspace 8
+
+# ==============================================================================
+# Layout Controls
+# ==============================================================================
+alt + win + f         : komorebic toggle-monocle
+alt + win + t         : komorebic toggle-float
+alt + win + e         : komorebic cycle-layout next
+alt + win + shift + e : komorebic cycle-layout previous
+
+# ==============================================================================
+# Resize (Win+Alt+Ctrl + hjkl)
+# ==============================================================================
+alt + win + ctrl + h : komorebic resize-axis horizontal decrease
+alt + win + ctrl + j : komorebic resize-axis vertical increase
+alt + win + ctrl + k : komorebic resize-axis vertical decrease
+alt + win + ctrl + l : komorebic resize-axis horizontal increase
+
+# Balance window sizes
+alt + win + 0 : komorebic retile
+
+# ==============================================================================
+# Stack Operations
+# ==============================================================================
+alt + win + s         : komorebic stack left
+alt + win + shift + s : komorebic unstack
+
+# Cycle through stacked windows
+alt + win + n : komorebic cycle-stack next
+alt + win + p : komorebic cycle-stack previous
+
+# ==============================================================================
+# Window Operations
+# ==============================================================================
+alt + win + q : komorebic close
+alt + win + m : komorebic minimize
+
+# ==============================================================================
+# Monitor Focus (for multi-monitor)
+# ==============================================================================
+alt + win + comma  : komorebic focus-monitor prev
+alt + win + period : komorebic focus-monitor next
+
+# Move to monitor
+alt + win + shift + comma  : komorebic move-to-monitor prev
+alt + win + shift + period : komorebic move-to-monitor next
+
+# ==============================================================================
+# Komorebi Control
+# ==============================================================================
+alt + win + r : komorebic reload-configuration
+alt + win + shift + r : komorebic stop; komorebic start --whkd
