@@ -14,6 +14,9 @@
   config = {
     targets.genericLinux.enable = true;
 
+    # WSL uses clip.exe for clipboard
+    tools.zellij.copyCommand = "clip.exe";
+
     # 1Password paths for WSL
     tools.ssh = {
       onePasswordAgentPath = "$HOME/.1password/agent.sock";

@@ -1,7 +1,13 @@
-_:
+{ config, lib, ... }:
 
 {
-  programs = {
+  options.tools.zellij.copyCommand = lib.mkOption {
+    type = lib.types.str;
+    default = "wl-copy";
+    description = "Command to use for copying to clipboard in zellij";
+  };
+
+  config.programs = {
     atuin = {
       enable = true;
       enableZshIntegration = true;
@@ -45,7 +51,7 @@ _:
     };
   };
 
-  xdg.configFile = {
+  config.xdg.configFile = {
     "zellij/config.kdl".text = ''
       // ==============================================================================
       // Zellij Configuration - tmux-like keybindings
@@ -65,7 +71,7 @@ _:
       mouse_mode true
       on_force_close "detach"
       scrollback_editor "nvim"
-      copy_command "wl-copy"
+      copy_command "${config.tools.zellij.copyCommand}"
       default_layout "default"
 
       // ==============================================================================
