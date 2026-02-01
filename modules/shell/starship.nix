@@ -84,7 +84,7 @@
       };
 
       git_status = {
-        format = "[\\[$all_status$ahead_behind\\] ]($style)";
+        format = "[$conflicted$staged$modified$untracked$renamed$deleted$stashed$stashed_count$ahead_behind]($style) ";
         style = "fg:#5CCFE6";
         conflicted = "=";
         ahead = "⇡\${count}";
@@ -92,7 +92,7 @@
         diverged = "⇕⇡\${ahead_count}⇣\${behind_count}";
         up_to_date = "";
         untracked = "?\${count}";
-        stashed = ''\\$''${count}'';
+        stashed = "\\$";
         modified = "!\${count}";
         staged = "+\${count}";
         renamed = "»\${count}";
