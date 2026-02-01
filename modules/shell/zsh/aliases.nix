@@ -89,18 +89,6 @@ _:
       abbr -S -q h="history"
       abbr -S -q j="jobs"
       abbr -S -q reload="source ~/.zshrc"
-
-      # Ctrl+a: fzf で abbr 一覧から選択して挿入
-      function _fzf_abbr() {
-        local selected=$(abbr | fzf --height=40% --reverse | cut -d'=' -f1 | tr -d ' "')
-        if [[ -n "$selected" ]]; then
-          LBUFFER+="$selected "
-          zle expand-abbr
-        fi
-        zle redisplay
-      }
-      zle -N _fzf_abbr
-      bindkey '^a' _fzf_abbr
     '';
   };
 }
