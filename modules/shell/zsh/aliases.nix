@@ -41,22 +41,13 @@ _:
       abbr -S -q pj="cd ~/repos"
       abbr -S -q dot="cd ~/dotfiles"
 
-      # Git
-      abbr -S -q g="git"
-      abbr -S -q gst="git st"
-      abbr -S -q gsw="git sw"
-      abbr -S -q gf="git f"
-      abbr -S -q gpl="git pl"
-      abbr -S -q gps="git ps"
-      abbr -S -q glg="git lg"
-      abbr -S -q gla="git la"
-      abbr -S -q gdf="git df"
-      abbr -S -q gstaged="git staged"
-      abbr -S -q gamend="git amend"
-      abbr -S -q gundo="git undo"
-      abbr -S -q gunstage="git unstage"
-      abbr -S -q gcleanup="git cleanup"
-      abbr -S -q gopen="git open"
+      # Git (minimal - editor/Claude handles most operations)
+      abbr -S -q G="git status"
+      abbr -S -q gl="git l"
+      abbr -S -q gp="git pull"
+      abbr -S -q gP="git push"
+      abbr -S -q 'gP!'="git please"
+      abbr -S -q gw="git worktree"
 
       # Docker
       abbr -S -q d="docker"

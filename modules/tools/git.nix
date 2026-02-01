@@ -82,7 +82,7 @@
       # Merge/Diff
       merge = {
         tool = "vimdiff";
-        conflictstyle = "diff3";
+        conflictstyle = "zdiff3"; # diff3より読みやすい (変更ない行を省略)
       };
       diff = {
         algorithm = "histogram";
@@ -94,11 +94,13 @@
       interactive.diffFilter = "delta --color-only";
 
       # Pull/Push/Fetch
-      # ff=only: fast-forward以外は失敗させる
-      # - デフォルトだとmergeかffか実行時まで不明で予測不能
-      # - ff=onlyなら失敗時に明示的にrebaseかmergeを選べる
-      # - 分岐時は sync (fetch+rebase) エイリアスを使う
-      pull.ff = "only";
+      # pull設定:
+      # - ff=only: mergeコミット作成を防ぐ
+      # - rebase=true: 分岐時は自動rebase (mergeではなく)
+      pull = {
+        ff = "only";
+        rebase = true;
+      };
       push = {
         autoSetupRemote = true;
         default = "current";
@@ -152,6 +154,12 @@
       # Status
       status.showUntrackedFiles = "all";
 
+      # Log
+      log.date = "iso";
+
+      # Performance (大規模リポジトリ向け)
+      feature.manyFiles = true;
+
       # Transfer
       transfer.fsckobjects = true;
       receive.fsckObjects = true;
@@ -168,14 +176,18 @@
         # 状態確認 (ターミナルにいる時用)
         st = "status -sb";
         l = "log --graph --pretty=format:'%C(yellow)%h %C(cyan)%ar %C(reset)%s%C(auto)%d' -20";
+        lp = "log -p --ext-diff"; # パッチ付き (difftastic)
+        cp = "cherry-pick";
 
-        # Push/Pull (pull.ff=onlyなので分岐時はsyncを使う)
+        # Push/Pull (pull.rebase=true で分岐時も自動rebase)
         ps = "push";
         pl = "pull";
-        sync = "!git fetch --prune && git rebase";
-        please = "push --force-with-lease";
+        please = "push --force-with-lease --force-if-includes";
 
-        # コミット修正
+        # コミット (Claude でメッセージ生成、編集可能)
+        vibecommit = ''
+          !claude -p "Generate a conventional commit message for this diff. Output plaintext only, no codeblock:
+          $(git diff --cached)" | git commit --edit --trailer "Assisted-by: Claude" -F -'';
         undo = "reset HEAD~1 --mixed";
         fixup = "commit --fixup HEAD"; # rebase -i --autosquash で自動squash
 
