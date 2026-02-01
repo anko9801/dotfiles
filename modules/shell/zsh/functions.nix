@@ -7,25 +7,6 @@
       # Custom Functions
       # ==============================================================================
 
-      # ghq + fzf integration - quickly cd to repositories
-      ghq-fzf() {
-          local selected
-          selected=$(ghq list | fzf --height=40% --layout=reverse --border --preview "cat $(ghq root)/{}/README.md 2>/dev/null || ls -la $(ghq root)/{}")
-          if [[ -n "$selected" ]]; then
-              cd "$(ghq root)/$selected" || return
-          fi
-      }
-      alias gq='ghq-fzf'
-
-      # ghq + fzf - open in editor
-      ghq-code() {
-          local selected
-          selected=$(ghq list | fzf --height=40% --layout=reverse --border)
-          if [[ -n "$selected" ]]; then
-              code "$(ghq root)/$selected"
-          fi
-      }
-
       # Create new directory and cd into it
       mkcd() {
           mkdir -p "$1" && cd "$1" || return

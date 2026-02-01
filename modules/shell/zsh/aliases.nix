@@ -57,7 +57,6 @@ _:
       abbr -S -q gunstage="git unstage"
       abbr -S -q gcleanup="git cleanup"
       abbr -S -q gopen="git open"
-      abbr -S -q gc="ghq get"
 
       # Docker
       abbr -S -q d="docker"
@@ -94,10 +93,6 @@ _:
       abbr -S -q ghpl="gh pr list"
       abbr -S -q ghrc="gh repo clone"
       abbr -S -q ghrv="gh repo view --web"
-
-      # ghq
-      abbr -S -q gql="ghq list"
-      abbr -S -q gqr="ghq root"
 
       # Misc
       abbr -S -q h="history"

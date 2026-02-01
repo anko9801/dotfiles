@@ -60,7 +60,7 @@ Environments are automatic: project-specific shells activate on `cd`, and any Ni
 | Runtimes | mise | Single tool for node/python/go/ruby/java |
 | Editor | Neovim (nixvim) | Declarative, reproducible plugins |
 | CLI | eza, bat, fd, rg, zoxide, dust, procs, trash-cli | Modern replacements with sane defaults |
-| Git | lazygit, delta, difftastic, ghq, gitleaks | TUI, semantic diffs, pre-commit secret scanning |
+| Git | lazygit, delta, difftastic, gitleaks | TUI, semantic diffs, pre-commit secret scanning |
 | Secrets | 1Password | E2E encrypted SSH keys, git signing, API keys |
 | Dev env | direnv, nix-direnv, comma | Auto-activate per-project, run any Nixpkgs command |
 | Formatting | treefmt (nixfmt, shfmt, yamlfmt) | Unified formatting across languages |

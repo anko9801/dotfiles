@@ -34,7 +34,6 @@
       nixd
 
       # Additional dev tools
-      ghq # Git repository manager
       # delta is installed via programs.delta in git.nix
       # lazygit is installed via programs.lazygit below
       gibo # .gitignore templates
@@ -107,16 +106,6 @@
       end
     '';
   };
-
-  # ghq configuration
-  xdg.configFile."ghq/config".text = ''
-    [general]
-    root = ["~/repos", "~/go/src"]
-    default_root = "~/repos"
-
-    [vcs]
-    git = { protocol = "ssh" }
-  '';
 
   programs = {
     # mise - polyglot tool version manager
