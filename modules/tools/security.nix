@@ -14,12 +14,16 @@ in
     unfreePkgs._1password-cli
   ];
 
-  xdg.configFile."op/config".text = builtins.toJSON {
-    latest_signin = "";
-    device = config.home.username;
-    commands.biometric_unlock = true;
-    cache.session.ttl = 1800;
-  };
+  # 1Password CLI config - op doesn't accept symlinks, so we use activation script
+  home.activation.opConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p ~/.config/op
+    if [[ ! -f ~/.config/op/config ]] || [[ -L ~/.config/op/config ]]; then
+      rm -f ~/.config/op/config
+      cat > ~/.config/op/config << 'EOF'
+{"latest_signin":"","device":"${config.home.username}","commands":{"biometric_unlock":true},"cache":{"session":{"ttl":1800}}}
+EOF
+    fi
+  '';
 
   services.gpg-agent = lib.mkIf (!(config.targets.genericLinux.enable or false)) {
     enable = true;
