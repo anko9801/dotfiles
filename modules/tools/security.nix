@@ -8,9 +8,11 @@
 
 let
   unfreePkgs = unfree-pkgs;
+  isWSL = config.programs.wsl.windowsUser or null != null;
 in
 {
-  home.packages = [
+  # WSL uses op.exe from Windows, so skip Nix 1password-cli
+  home.packages = lib.optionals (!isWSL) [
     unfreePkgs._1password-cli
   ];
 

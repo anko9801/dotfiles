@@ -5,9 +5,6 @@
   ...
 }:
 
-let
-  sshExe = "/mnt/c/Windows/System32/OpenSSH/ssh.exe";
-in
 {
   options.programs.wsl.windowsUser = lib.mkOption {
     type = lib.types.str;
@@ -17,9 +14,9 @@ in
   config = {
     targets.genericLinux.enable = true;
 
-    # 1Password paths for WSL (uses Windows ssh.exe directly)
+    # 1Password paths for WSL
     tools.ssh = {
-      onePasswordAgentPath = null; # Not needed - using Windows ssh.exe
+      onePasswordAgentPath = "$HOME/.1password/agent.sock";
       onePasswordSignProgram = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
     };
 
@@ -28,8 +25,8 @@ in
         DISPLAY = ":0";
         WSL_INTEROP = "/run/WSL/1_interop";
         BROWSER = "xdg-open";
-        # Use Windows ssh.exe for Git operations (1Password SSH agent)
-        GIT_SSH_COMMAND = sshExe;
+        # 1Password SSH agent socket for WSL
+        SSH_AUTH_SOCK = "$HOME/.1password/agent.sock";
       };
 
       packages = with pkgs; [
@@ -56,18 +53,11 @@ in
     };
 
     programs = {
-      # SSH config - use Windows ssh.exe for 1Password integration
-      ssh.extraConfig = ''
-        # For hosts that need 1Password SSH agent, use Windows ssh.exe via ProxyCommand
-        # Example:
-        # Host github.com
-        #   ProxyCommand ${sshExe} -W %h:%p %r@%h
-      '';
+      ssh.extraConfig = "";
 
       git.settings = {
         credential.helper = "/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe";
         gpg.ssh.program = config.tools.ssh.onePasswordSignProgram;
-        core.sshCommand = sshExe;
       };
 
       zsh.initContent = lib.mkAfter ''
@@ -108,11 +98,7 @@ in
 
         alias pbcopy='clip.exe'
         alias pbpaste='powershell.exe -command "Get-Clipboard" | tr -d "\r"'
-
-        # SSH wrapper to use Windows ssh.exe with 1Password
-        ssh() {
-          ${sshExe} "$@"
-        }
+        alias op='op.exe'
 
         # X11 display (VcXsrv/Xming)
         (command -v vcxsrv.exe &>/dev/null || command -v xming.exe &>/dev/null) && export DISPLAY="''${WSL_HOST}:0"
