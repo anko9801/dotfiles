@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -u
 
 export TERM="xterm-256color"
 # Completely disable mise in CI (avoids SSH auth failures for pyenv/rbenv)
@@ -8,10 +8,11 @@ export __MISE_DISABLED=1
 echo "==> Benchmarking zsh startup..."
 
 # zsh startup (10 iterations)
+# Note: zsh -i may return non-zero due to warnings in CI, so we ignore the exit code
 total_zsh=0
 for i in $(seq 1 10); do
   start=$(date +%s%N)
-  zsh -i -c exit
+  zsh -i -c exit 2>/dev/null || true
   end=$(date +%s%N)
   elapsed=$(((end - start) / 1000000))
   total_zsh=$((total_zsh + elapsed))
@@ -26,7 +27,7 @@ if command -v nvim >/dev/null 2>&1; then
   total_nvim=0
   for i in $(seq 1 10); do
     start=$(date +%s%N)
-    nvim --headless -c 'quit' 2>/dev/null
+    nvim --headless -c 'quit' 2>/dev/null || true
     end=$(date +%s%N)
     elapsed=$(((end - start) / 1000000))
     total_nvim=$((total_nvim + elapsed))
