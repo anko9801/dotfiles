@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  userConfig,
   ...
 }:
 
@@ -38,6 +39,7 @@
       # lazygit is installed via programs.lazygit below
       gibo # .gitignore templates
       git-lfs # Git Large File Storage
+      jujutsu # Modern Git alternative (jj)
       git-wt # Git worktree management
 
       # Nix development tools
@@ -256,4 +258,23 @@
       };
     };
   };
+
+  # Jujutsu (jj) configuration
+  xdg.configFile."jj/config.toml".text = ''
+    [user]
+    name = "${userConfig.git.name}"
+    email = "${userConfig.git.email}"
+
+    [signing]
+    behavior = "own"
+    backend = "ssh"
+    key = "${userConfig.git.sshKey}"
+
+    [ui]
+    default-command = "status"
+    pager = "delta"
+
+    [template-aliases]
+    'format_short_change_id(id)' = 'id.shortest(4)'
+  '';
 }
