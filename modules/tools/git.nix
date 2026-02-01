@@ -51,7 +51,7 @@
       # Core
       # ==============================================================================
       core = {
-        editor = "nvim";
+        editor = userConfig.editor;
         autocrlf = false;
         safecrlf = true;
         filemode = false;

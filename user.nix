@@ -1,6 +1,10 @@
 # User-specific configuration
-# Change these values when forking this repository
+# Regenerate with: ./setup --non-interactive --git-name NAME --git-email EMAIL
 {
+  # Preferences
+  editor = "nvim"; # nvim, code, hx
+  theme = "catppuccin"; # catppuccin, nord, gruvbox
+
   # Git configuration
   git = {
     name = "anko9801";

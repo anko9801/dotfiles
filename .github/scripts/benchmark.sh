@@ -8,11 +8,11 @@ echo "==> Benchmarking zsh startup..."
 # zsh startup (10 iterations)
 total_zsh=0
 for i in $(seq 1 10); do
-    start=$(date +%s%N)
-    zsh -i -c exit
-    end=$(date +%s%N)
-    elapsed=$(( (end - start) / 1000000 ))
-    total_zsh=$((total_zsh + elapsed))
+  start=$(date +%s%N)
+  zsh -i -c exit
+  end=$(date +%s%N)
+  elapsed=$(((end - start) / 1000000))
+  total_zsh=$((total_zsh + elapsed))
 done
 zsh_startup=$((total_zsh / 10))
 echo "zsh average: ${zsh_startup}ms"
@@ -21,19 +21,19 @@ echo "zsh average: ${zsh_startup}ms"
 echo "==> Benchmarking neovim startup..."
 nvim_startup=0
 if command -v nvim >/dev/null 2>&1; then
-    total_nvim=0
-    for i in $(seq 1 10); do
-        start=$(date +%s%N)
-        nvim --headless -c 'quit' 2>/dev/null
-        end=$(date +%s%N)
-        elapsed=$(( (end - start) / 1000000 ))
-        total_nvim=$((total_nvim + elapsed))
-    done
-    nvim_startup=$((total_nvim / 10))
-    echo "nvim average: ${nvim_startup}ms"
+  total_nvim=0
+  for i in $(seq 1 10); do
+    start=$(date +%s%N)
+    nvim --headless -c 'quit' 2>/dev/null
+    end=$(date +%s%N)
+    elapsed=$(((end - start) / 1000000))
+    total_nvim=$((total_nvim + elapsed))
+  done
+  nvim_startup=$((total_nvim / 10))
+  echo "nvim average: ${nvim_startup}ms"
 else
-    echo "neovim not found, skipping"
-    nvim_startup=0
+  echo "neovim not found, skipping"
+  nvim_startup=0
 fi
 
 # Output JSON result
