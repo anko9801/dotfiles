@@ -2,10 +2,8 @@
 set -eu
 
 export TERM="xterm-256color"
-# Disable mise network access in CI (avoids SSH auth failures)
-export MISE_OFFLINE=1
-export MISE_NO_AUTO_INSTALL=1
-export MISE_YES=1
+# Completely disable mise in CI (avoids SSH auth failures for pyenv/rbenv)
+export MISE_DISABLE=1
 
 echo "==> Benchmarking zsh startup..."
 
