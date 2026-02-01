@@ -5,7 +5,12 @@
   ...
 }:
 
+let
+  # CI環境ではdbusがないのでdconfを無効化
+  isCI = builtins.getEnv "CI" != "";
+in
 {
+  dconf.enable = !isCI;
   # 1Password paths for Linux
   tools.ssh = {
     onePasswordAgentPath = "~/.1password/agent.sock";
