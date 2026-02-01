@@ -39,6 +39,21 @@ else
   nvim_startup=0
 fi
 
+# starship prompt (10 iterations)
+echo "==> Benchmarking starship prompt..."
+starship_time=0
+if command -v starship >/dev/null 2>&1; then
+  total_starship=0
+  for i in $(seq 1 10); do
+    elapsed=$(starship timings 2>/dev/null | head -1 | awk '{print $NF}' | sed 's/ms//' || echo "0")
+    total_starship=$((total_starship + ${elapsed:-0}))
+  done
+  starship_time=$((total_starship / 10))
+  echo "starship average: ${starship_time}ms"
+else
+  echo "starship not found, skipping"
+fi
+
 # Output JSON result
 cat <<EOJ | tee /tmp/result-benchmark.json
 [
@@ -51,6 +66,11 @@ cat <<EOJ | tee /tmp/result-benchmark.json
         "name": "neovim startup",
         "unit": "ms",
         "value": ${nvim_startup}
+    },
+    {
+        "name": "starship prompt",
+        "unit": "ms",
+        "value": ${starship_time}
     }
 ]
 EOJ
