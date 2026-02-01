@@ -27,55 +27,58 @@
       outer.top = 12
       outer.right = 12
 
+      # ==============================================================================
       # Main mode keybindings
+      # Using Cmd (Super) for WM layer - avoids conflicts with terminal/editor
+      # ==============================================================================
       [mode.main.binding]
-      # Window focus (alt + vim keys)
-      alt-h = 'focus left'
-      alt-j = 'focus down'
-      alt-k = 'focus up'
-      alt-l = 'focus right'
+      # Window focus (cmd + vim keys)
+      cmd-h = 'focus left'
+      cmd-j = 'focus down'
+      cmd-k = 'focus up'
+      cmd-l = 'focus right'
 
-      # Move windows (alt + shift + vim keys)
-      alt-shift-h = 'move left'
-      alt-shift-j = 'move down'
-      alt-shift-k = 'move up'
-      alt-shift-l = 'move right'
+      # Move windows (cmd + shift + vim keys)
+      cmd-shift-h = 'move left'
+      cmd-shift-j = 'move down'
+      cmd-shift-k = 'move up'
+      cmd-shift-l = 'move right'
 
-      # Workspace focus (alt + number)
-      alt-1 = 'workspace 1'
-      alt-2 = 'workspace 2'
-      alt-3 = 'workspace 3'
-      alt-4 = 'workspace 4'
-      alt-5 = 'workspace 5'
-      alt-6 = 'workspace 6'
-      alt-7 = 'workspace 7'
-      alt-8 = 'workspace 8'
-      alt-9 = 'workspace 9'
+      # Workspace focus (cmd + number)
+      cmd-1 = 'workspace 1'
+      cmd-2 = 'workspace 2'
+      cmd-3 = 'workspace 3'
+      cmd-4 = 'workspace 4'
+      cmd-5 = 'workspace 5'
+      cmd-6 = 'workspace 6'
+      cmd-7 = 'workspace 7'
+      cmd-8 = 'workspace 8'
+      cmd-9 = 'workspace 9'
 
-      # Move window to workspace (alt + shift + number)
-      alt-shift-1 = 'move-node-to-workspace 1'
-      alt-shift-2 = 'move-node-to-workspace 2'
-      alt-shift-3 = 'move-node-to-workspace 3'
-      alt-shift-4 = 'move-node-to-workspace 4'
-      alt-shift-5 = 'move-node-to-workspace 5'
-      alt-shift-6 = 'move-node-to-workspace 6'
-      alt-shift-7 = 'move-node-to-workspace 7'
-      alt-shift-8 = 'move-node-to-workspace 8'
-      alt-shift-9 = 'move-node-to-workspace 9'
+      # Move window to workspace (cmd + shift + number)
+      cmd-shift-1 = 'move-node-to-workspace 1'
+      cmd-shift-2 = 'move-node-to-workspace 2'
+      cmd-shift-3 = 'move-node-to-workspace 3'
+      cmd-shift-4 = 'move-node-to-workspace 4'
+      cmd-shift-5 = 'move-node-to-workspace 5'
+      cmd-shift-6 = 'move-node-to-workspace 6'
+      cmd-shift-7 = 'move-node-to-workspace 7'
+      cmd-shift-8 = 'move-node-to-workspace 8'
+      cmd-shift-9 = 'move-node-to-workspace 9'
 
       # Layout controls
-      alt-f = 'fullscreen'
-      alt-t = 'layout floating tiling'
-      alt-e = 'layout tiles horizontal vertical'
+      cmd-f = 'fullscreen'
+      cmd-t = 'layout floating tiling'
+      cmd-e = 'layout tiles horizontal vertical'
 
       # Balance windows
-      alt-shift-0 = 'balance-sizes'
+      cmd-shift-0 = 'balance-sizes'
 
       # Resize mode
-      alt-r = 'mode resize'
+      cmd-r = 'mode resize'
 
       # Service mode
-      alt-shift-semicolon = 'mode service'
+      cmd-shift-semicolon = 'mode service'
 
       # Resize mode keybindings
       [mode.resize.binding]

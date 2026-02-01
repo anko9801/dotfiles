@@ -69,11 +69,12 @@ _:
       default_layout "default"
 
       // ==============================================================================
-      // Keybindings - tmux-like (Ctrl-b prefix)
+      // Keybindings - Ctrl-q prefix (avoids Ctrl-b conflict with shells)
+      // Layer: Multiplexer (Super=WM, Ctrl=Editor, Ctrl-q=Multiplexer)
       // ==============================================================================
       keybinds clear-defaults=true {
           normal {
-              bind "Ctrl b" { SwitchToMode "tmux"; }
+              bind "Ctrl q" { SwitchToMode "tmux"; }
           }
 
           tmux {
@@ -118,7 +119,7 @@ _:
               bind "[" { SwitchToMode "Scroll"; }
 
               // Exit tmux mode
-              bind "Ctrl b" "Esc" { SwitchToMode "Normal"; }
+              bind "Ctrl q" "Esc" { SwitchToMode "Normal"; }
           }
 
           scroll {
@@ -153,16 +154,9 @@ _:
               bind "Esc" "Enter" { SwitchToMode "Normal"; }
           }
 
-          // Quick navigation without prefix (Alt+key)
-          shared_except "locked" {
-              bind "Alt h" { MoveFocusOrTab "Left"; }
-              bind "Alt l" { MoveFocusOrTab "Right"; }
-              bind "Alt j" { MoveFocus "Down"; }
-              bind "Alt k" { MoveFocus "Up"; }
-              bind "Alt n" { NewPane; }
-              bind "Alt =" "Alt +" { Resize "Increase"; }
-              bind "Alt -" { Resize "Decrease"; }
-          }
+          // Alt+hjkl removed - reserved for editor (Neovim line movement)
+          // Use Ctrl-q + hjkl for pane navigation instead
+      }
       }
     '';
 
