@@ -2,16 +2,13 @@
 
 {
   home = {
-    # difftastic for structural diffs
     packages = with pkgs; [ difftastic ];
 
     file = {
-      # Git allowed signers file
       ".config/git/allowed_signers".text = ''
         ${userConfig.git.email} ${userConfig.git.sshKey}
       '';
 
-      # Gitmoji configuration
       ".gitmojirc.json".text = builtins.toJSON {
         autoAdd = false;
         emojiFormat = "emoji";
@@ -20,22 +17,15 @@
         capitalizeTitle = true;
       };
 
-      # Git pre-commit hook for gitleaks
       ".config/git/hooks/pre-commit" = {
         executable = true;
         text = ''
           #!/usr/bin/env bash
-          # Git pre-commit hook - prevent committing secrets
-
           set -euo pipefail
-
-          # Check if gitleaks is installed
           if ! command -v gitleaks &>/dev/null; then
               echo "Warning: gitleaks not found. Install it to scan for secrets."
               exit 0
           fi
-
-          # Run gitleaks on staged changes
           gitleaks protect --staged --redact --exit-code 1
         '';
       };
@@ -45,23 +35,21 @@
   programs.git = {
     enable = true;
 
-    # SSH signing with 1Password
     signing = {
       key = userConfig.git.sshKey;
       signByDefault = true;
     };
 
-    # All settings using the new format
     settings = {
-      # User settings
       user = {
         inherit (userConfig.git) name email;
       };
 
-      # SSH signing - allowed signers file (gpg.format is set in ssh.nix)
       gpg.ssh.allowedSignersFile = "~/.config/git/allowed_signers";
 
-      # Core settings
+      # ==============================================================================
+      # Core
+      # ==============================================================================
       core = {
         editor = "nvim";
         autocrlf = false;
@@ -69,132 +57,126 @@
         filemode = false;
         pager = "delta";
         hooksPath = "~/.config/git/hooks";
-        quotepath = false;
-        untrackedCache = true; # パフォーマンス向上
+        quotepath = false; # 日本語ファイル名を正しく表示
+        untrackedCache = true; # git status 高速化
       };
 
-      # Colors
       color.ui = "auto";
-
-      # Column output
       column.ui = "auto";
 
-      # Merge/Diff
-      merge = {
-        tool = "vimdiff";
-        conflictstyle = "zdiff3"; # diff3より読みやすい (変更ない行を省略)
-      };
+      # ==============================================================================
+      # Diff/Merge
+      # ==============================================================================
       diff = {
-        algorithm = "histogram";
+        algorithm = "histogram"; # patience より高速で正確
         renames = true;
         colorMoved = "plain";
-        mnemonicPrefix = true;
-        external = "difft";
+        mnemonicPrefix = true; # a/b → i/w/c (index/worktree/commit)
+        external = "difft"; # 構文認識diff
       };
+
+      merge = {
+        tool = "vimdiff";
+        conflictstyle = "zdiff3"; # 元コード+両者を表示、変更ない行は省略
+      };
+
       interactive.diffFilter = "delta --color-only";
 
+      # ==============================================================================
       # Pull/Push/Fetch
-      # pull設定:
-      # - ff=only: mergeコミット作成を防ぐ
-      # - rebase=true: 分岐時は自動rebase (mergeではなく)
+      # ==============================================================================
+      # pull: ff=only で意図しないmergeを防ぎ、rebase=true で分岐時は自動rebase
       pull = {
         ff = "only";
         rebase = true;
       };
+
       push = {
-        autoSetupRemote = true;
+        autoSetupRemote = true; # 初回pushで自動的にupstream設定
         default = "current";
-        followTags = true;
+        followTags = true; # push時にタグも送信
       };
+
       fetch = {
-        prune = true;
+        prune = true; # 削除されたリモートブランチをローカルからも削除
         pruneTags = true;
         all = true;
-        fsckobjects = true;
+        fsckobjects = true; # 破損オブジェクト検出
       };
 
-      # Submodule
       submodule.recurse = true;
 
-      # Rebase
+      # ==============================================================================
+      # Rebase/Merge workflow
+      # ==============================================================================
       rebase = {
-        autostash = true;
-        autosquash = true;
-        updateRefs = true;
+        autostash = true; # rebase前に自動stash
+        autosquash = true; # fixup! コミットを自動squash
+        updateRefs = true; # スタックしたブランチも更新
       };
 
-      # Init
-      init.defaultBranch = "main";
-
-      # Commit
-      commit.verbose = true;
-
-      # Help
-      help.autocorrect = "prompt";
-
-      # Rerere - remember conflict resolutions
+      # rerere: コンフリクト解決を記録し、同じ解決を自動適用
       rerere = {
         enabled = true;
         autoupdate = true;
       };
 
-      # Branch
+      # ==============================================================================
+      # Branch/Tag
+      # ==============================================================================
       branch = {
         autosetupmerge = "always";
         autosetuprebase = "always";
-        sort = "-committerdate";
+        sort = "-committerdate"; # 最新ブランチを上に
       };
 
-      # Tag
       tag = {
         gpgsign = true;
-        sort = "version:refname";
+        sort = "version:refname"; # v1.9 < v1.10 の正しいソート
       };
 
-      # Status
+      # ==============================================================================
+      # Misc
+      # ==============================================================================
+      init.defaultBranch = "main";
+      commit.verbose = true; # コミット時にdiffを表示
+      help.autocorrect = "prompt";
       status.showUntrackedFiles = "all";
-
-      # Log
       log.date = "iso";
+      feature.manyFiles = true; # 大規模リポジトリ最適化
 
-      # Performance (大規模リポジトリ向け)
-      feature.manyFiles = true;
-
-      # Transfer
       transfer.fsckobjects = true;
       receive.fsckObjects = true;
 
-      # Use SSH instead of HTTPS for GitHub
       url."ssh://git@github.com/".insteadOf = "https://github.com/";
 
+      # ==============================================================================
       # Aliases
+      # ==============================================================================
       # 方針: エディタ(VSCode/Neovim)とLLM(Claude)で代替できるものは省く
-      # - diff/stage/stash/log視覚化 → エディタのGit UIが優秀
-      # - コミットメッセージ生成 → Claude が生成
-      # - 残すのは: ターミナルで素早く打ちたいもの、緊急操作、自動化用
       alias = {
-        # 状態確認 (ターミナルにいる時用)
+        # 状態確認
         st = "status -sb";
         l = "log --graph --pretty=format:'%C(yellow)%h %C(cyan)%ar %C(reset)%s%C(auto)%d' -20";
-        lp = "log -p --ext-diff"; # パッチ付き (difftastic)
+        lp = "log -p --ext-diff";
         cp = "cherry-pick";
 
-        # Push/Pull (pull.rebase=true で分岐時も自動rebase)
+        # Push/Pull
         ps = "push";
         pl = "pull";
-        please = "push --force-with-lease --force-if-includes";
+        please = "push --force-with-lease --force-if-includes"; # 安全なforce push
 
-        # コミット (Claude でメッセージ生成、編集可能)
+        # コミット
         vibecommit = ''
           !claude -p "Generate a conventional commit message for this diff. Output plaintext only, no codeblock:
           $(git diff --cached)" | git commit --edit --trailer "Assisted-by: Claude" -F -'';
-        undo = "reset HEAD~1 --mixed";
-        fixup = "commit --fixup HEAD"; # rebase -i --autosquash で自動squash
+        undo = "reset HEAD~1 --mixed"; # 直前コミット取消 (変更は残す)
+        fixup = "commit --fixup HEAD"; # autosquash用
 
-        # 緊急操作 (素早く打てることが重要)
-        nevermind = "!git reset --hard HEAD && git clean -d -f";
+        # 緊急操作
+        nevermind = "!git reset --hard HEAD && git clean -d -f"; # 全変更破棄
 
-        # ブランチ整理 (自動化)
+        # ブランチ整理
         prune = "!git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d";
 
         # スクリプト用
@@ -203,7 +185,6 @@
       };
     };
 
-    # Global gitignore
     ignores = [
       # OS
       ".DS_Store"
@@ -250,11 +231,9 @@
       ".cache/"
     ];
 
-    # LFS support
     lfs.enable = true;
   };
 
-  # Delta for better diffs
   programs.delta = {
     enable = true;
     options = {
@@ -271,5 +250,4 @@
       };
     };
   };
-
 }
