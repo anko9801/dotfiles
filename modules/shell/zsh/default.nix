@@ -30,6 +30,17 @@ in
       ignoreDups = true;
       ignoreAllDups = true;
       ignoreSpace = true;
+      ignorePatterns = [
+        "ls *"
+        "cd *"
+        "pwd"
+        "exit"
+        "clear"
+        "history *"
+        "fg"
+        "bg"
+        "jobs"
+      ];
     };
 
     # Shell options
