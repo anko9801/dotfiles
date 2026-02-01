@@ -41,24 +41,132 @@ _:
 
     zellij = {
       enable = true;
-      settings = {
-        # Start in locked mode (UI hidden) - press Ctrl+g to show
-        default_mode = "locked";
-        simplified_ui = true;
-        ui.pane_frames = {
-          rounded_corners = true;
-          hide_session_name = true;
-        };
-        pane_frames = false; # Hide pane frames for cleaner look
-        mouse_mode = true;
-        on_force_close = "detach";
-        # Hide status bar in locked mode
-        theme = "default";
-      };
+      # KDL config via xdg.configFile (keybinds not supported in settings)
     };
   };
 
   xdg.configFile = {
+    "zellij/config.kdl".text = ''
+      // ==============================================================================
+      // Zellij Configuration - tmux-like keybindings
+      // ==============================================================================
+
+      // UI
+      ui {
+          pane_frames {
+              rounded_corners true
+              hide_session_name true
+          }
+      }
+
+      // Options
+      pane_frames false
+      simplified_ui true
+      mouse_mode true
+      on_force_close "detach"
+      scrollback_editor "nvim"
+      copy_command "wl-copy"
+      default_layout "default"
+
+      // ==============================================================================
+      // Keybindings - tmux-like (Ctrl-b prefix)
+      // ==============================================================================
+      keybinds clear-defaults=true {
+          normal {
+              bind "Ctrl b" { SwitchToMode "tmux"; }
+          }
+
+          tmux {
+              // Pane: split
+              bind "\"" { NewPane "Down"; SwitchToMode "Normal"; }
+              bind "%" { NewPane "Right"; SwitchToMode "Normal"; }
+              bind "-" { NewPane "Down"; SwitchToMode "Normal"; }
+              bind "|" { NewPane "Right"; SwitchToMode "Normal"; }
+
+              // Pane: close/zoom
+              bind "x" { CloseFocus; SwitchToMode "Normal"; }
+              bind "z" { ToggleFocusFullscreen; SwitchToMode "Normal"; }
+
+              // Pane: navigate
+              bind "h" "Left" { MoveFocus "Left"; SwitchToMode "Normal"; }
+              bind "l" "Right" { MoveFocus "Right"; SwitchToMode "Normal"; }
+              bind "j" "Down" { MoveFocus "Down"; SwitchToMode "Normal"; }
+              bind "k" "Up" { MoveFocus "Up"; SwitchToMode "Normal"; }
+
+              // Pane: resize
+              bind "H" { Resize "Increase Left"; }
+              bind "L" { Resize "Increase Right"; }
+              bind "J" { Resize "Increase Down"; }
+              bind "K" { Resize "Increase Up"; }
+
+              // Tab
+              bind "c" { NewTab; SwitchToMode "Normal"; }
+              bind "n" { GoToNextTab; SwitchToMode "Normal"; }
+              bind "p" { GoToPreviousTab; SwitchToMode "Normal"; }
+              bind "1" { GoToTab 1; SwitchToMode "Normal"; }
+              bind "2" { GoToTab 2; SwitchToMode "Normal"; }
+              bind "3" { GoToTab 3; SwitchToMode "Normal"; }
+              bind "4" { GoToTab 4; SwitchToMode "Normal"; }
+              bind "5" { GoToTab 5; SwitchToMode "Normal"; }
+              bind "," { SwitchToMode "RenameTab"; }
+
+              // Session
+              bind "d" { Detach; }
+              bind "w" { SwitchToMode "Session"; }
+
+              // Scroll
+              bind "[" { SwitchToMode "Scroll"; }
+
+              // Exit tmux mode
+              bind "Ctrl b" "Esc" { SwitchToMode "Normal"; }
+          }
+
+          scroll {
+              bind "j" "Down" { ScrollDown; }
+              bind "k" "Up" { ScrollUp; }
+              bind "Ctrl d" { HalfPageScrollDown; }
+              bind "Ctrl u" { HalfPageScrollUp; }
+              bind "g" { ScrollToTop; }
+              bind "G" { ScrollToBottom; }
+              bind "/" { SwitchToMode "EnterSearch"; SearchInput 0; }
+              bind "q" "Esc" { SwitchToMode "Normal"; }
+          }
+
+          entersearch {
+              bind "Enter" { SwitchToMode "Search"; }
+              bind "Esc" { SwitchToMode "Scroll"; }
+          }
+
+          search {
+              bind "n" { Search "down"; }
+              bind "N" { Search "up"; }
+              bind "Esc" { SwitchToMode "Scroll"; }
+          }
+
+          renametab {
+              bind "Enter" { SwitchToMode "Normal"; }
+              bind "Esc" { UndoRenameTab; SwitchToMode "Normal"; }
+          }
+
+          session {
+              bind "d" { Detach; }
+              bind "Esc" "Enter" { SwitchToMode "Normal"; }
+          }
+
+          // Quick navigation without prefix (Alt+key)
+          shared_except "locked" {
+              bind "Alt h" { MoveFocusOrTab "Left"; }
+              bind "Alt l" { MoveFocusOrTab "Right"; }
+              bind "Alt j" { MoveFocus "Down"; }
+              bind "Alt k" { MoveFocus "Up"; }
+              bind "Alt n" { NewPane; }
+              bind "Alt =" "Alt +" { Resize "Increase"; }
+              bind "Alt -" { Resize "Decrease"; }
+          }
+      }
+    '';
+
+
     "gitleaks/config.toml".text = ''
       title = "gitleaks config"
 
