@@ -81,6 +81,55 @@
       }
 
       # ==============================================================================
+      # Performance Profiling
+      # ==============================================================================
+      # zsh 起動時間計測 (10回平均)
+      zsh-startuptime() {
+          local total=0
+          for i in {1..10}; do
+              local start=$(($(date +%s%N)/1000000))
+              zsh -i -c exit
+              local end=$(($(date +%s%N)/1000000))
+              total=$((total + end - start))
+          done
+          echo "Average: $((total / 10))ms"
+      }
+
+      # neovim 起動時間計測
+      nvim-startuptime() {
+          nvim --startuptime /tmp/nvim-startup.log -c 'quit'
+          tail -1 /tmp/nvim-startup.log
+      }
+
+      # 全プラグイン一括更新
+      plugupdate() {
+          echo "==> Updating Nix flake..."
+          (cd ~/dotfiles && nix flake update)
+          echo "==> Updating mise..."
+          mise upgrade
+          echo "==> Updating Neovim plugins..."
+          nvim --headless '+Lazy sync' +qa
+          echo "==> Done!"
+      }
+
+      # ==============================================================================
+      # Clipboard (cross-platform)
+      # ==============================================================================
+      if [[ -z "$WAYLAND_DISPLAY" ]] && [[ -z "$DISPLAY" ]]; then
+          # WSL or no display
+          if command -v clip.exe &>/dev/null; then
+              alias pbcopy='clip.exe'
+              alias pbpaste='powershell.exe -c Get-Clipboard'
+          fi
+      elif [[ -n "$WAYLAND_DISPLAY" ]]; then
+          alias pbcopy='wl-copy'
+          alias pbpaste='wl-paste'
+      else
+          alias pbcopy='xclip -selection clipboard'
+          alias pbpaste='xclip -selection clipboard -o'
+      fi
+
+      # ==============================================================================
       # Git Worktree (git-wt)
       # ==============================================================================
       if command -v git-wt &>/dev/null; then

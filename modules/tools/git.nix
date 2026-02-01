@@ -176,9 +176,14 @@
       alias = {
         # 状態確認
         st = "status -sb";
-        ds = "diff --staged"; # git diff -S と競合するため
+        ds = "diff --staged";
         l = "log --graph --pretty=format:'%C(yellow)%h %C(cyan)%ar %C(reset)%s%C(auto)%d' -20";
         lp = "log -p --ext-diff";
+        tree = "log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit";
+
+        # ブランチ操作
+        safe-switch = "!git stash push -m 'switch backup' && git stash apply && git switch";
+        remember = "!git diff $(git merge-base HEAD $(git symbolic-ref refs/remotes/origin/HEAD | sed 's@refs/remotes/origin/@@'))";
 
         # Push/Pull
         ps = "push";
