@@ -94,10 +94,21 @@ home-manager switch --impure --flake ~/dotfiles#wsl
 
 ## AI Assistant Guidelines
 
-When working on this project:
+### Core Principles
+- Code like Kent Beck: simple, clear, refactor often
+- Understand context first: check changed files and documents
+- Explain why, not what: only comment non-obvious decisions
+
+### Code Artifacts
 - Prefer editing existing Nix modules over creating new files
 - Use `programs.*` when available instead of raw `home.packages`
 - Run linters before suggesting commits
 - Keep configurations declarative and reproducible
 - Test changes with `nix flake check`
-- Do not include `Co-Authored-By` in commit messages
+
+### Commit Messages
+- Use Conventional Commits: `<type>(<scope>): <subject>`
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
+- Breaking changes: `<type>!: <subject>`
+- Add trailer: `Assisted-by: Claude (model: <model-name>)`
+- Do not include `Co-Authored-By`

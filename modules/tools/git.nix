@@ -70,6 +70,7 @@
         pager = "delta";
         hooksPath = "~/.config/git/hooks";
         quotepath = false;
+        untrackedCache = true; # パフォーマンス向上
       };
 
       # Colors
@@ -93,6 +94,10 @@
       interactive.diffFilter = "delta --color-only";
 
       # Pull/Push/Fetch
+      # ff=only: fast-forward以外は失敗させる
+      # - デフォルトだとmergeかffか実行時まで不明で予測不能
+      # - ff=onlyなら失敗時に明示的にrebaseかmergeを選べる
+      # - 分岐時は sync (fetch+rebase) エイリアスを使う
       pull.ff = "only";
       push = {
         autoSetupRemote = true;
@@ -105,6 +110,9 @@
         all = true;
         fsckobjects = true;
       };
+
+      # Submodule
+      submodule.recurse = true;
 
       # Rebase
       rebase = {
@@ -152,53 +160,34 @@
       url."ssh://git@github.com/".insteadOf = "https://github.com/";
 
       # Aliases
+      # 方針: エディタ(VSCode/Neovim)とLLM(Claude)で代替できるものは省く
+      # - diff/stage/stash/log視覚化 → エディタのGit UIが優秀
+      # - コミットメッセージ生成 → Claude が生成
+      # - 残すのは: ターミナルで素早く打ちたいもの、緊急操作、自動化用
       alias = {
-        # Status and basic operations
+        # 状態確認 (ターミナルにいる時用)
         st = "status -sb";
-        co = "checkout";
-        br = "branch";
-        sw = "switch";
-        re = "restore";
+        l = "log --graph --pretty=format:'%C(yellow)%h %C(cyan)%ar %C(reset)%s%C(auto)%d' -20";
 
-        # Commit operations
-        c = "commit";
-        cm = "commit -m";
-        a = "add --all";
-        amend = "commit --amend --no-edit";
-        commend = "commit --amend --no-edit";
-        undo = "reset HEAD~1 --mixed";
-
-        # Push/Pull operations
+        # Push/Pull (pull.ff=onlyなので分岐時はsyncを使う)
         ps = "push";
         pl = "pull";
-        f = "fetch --prune";
+        sync = "!git fetch --prune && git rebase";
         please = "push --force-with-lease";
 
-        # Log and history
-        lg = "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all";
-        la = "log --oneline --graph --decorate --all";
-        ll = "log --oneline --graph --decorate";
-        last = "log -1 HEAD";
-        contributors = "shortlog -sn";
+        # コミット修正
+        undo = "reset HEAD~1 --mixed";
+        fixup = "commit --fixup HEAD"; # rebase -i --autosquash で自動squash
 
-        # Diff operations
-        df = "diff --color-words";
-        staged = "diff --staged";
-        dfs = "diff --staged";
-        unstage = "reset HEAD --";
-
-        # Branch management
-        cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d";
-        br-prune = "!git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d";
-
-        # Utilities
-        it = "!git init && git commit -m 'Initial commit' --allow-empty";
-        wip = "!git add -A && git commit -m 'WIP'";
-        open = "!gh browse";
-        shorty = "status --short --branch";
+        # 緊急操作 (素早く打てることが重要)
         nevermind = "!git reset --hard HEAD && git clean -d -f";
-        graph = "log --graph -10 --branches --remotes --tags --format=format:'%Cgreen%h %Creset• %<(75,trunc)%s (%cN, %cr) %Cred%d' --date-order";
-        aliases = "!git config --get-regexp '^alias\\.' | sed 's/alias\\.\\([^ ]*\\) \\(.*\\)/\\1 => \\2/'";
+
+        # ブランチ整理 (自動化)
+        prune = "!git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d";
+
+        # スクリプト用
+        root = "rev-parse --show-toplevel";
+        current = "rev-parse --abbrev-ref HEAD";
       };
     };
 
