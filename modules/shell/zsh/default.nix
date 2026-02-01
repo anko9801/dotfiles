@@ -220,8 +220,51 @@ in
         # Man page preview
         zstyle ':fzf-tab:complete:man:*' fzf-preview 'man -P cat $word | head -100'
 
-        # Use tmux popup if available
-        if [[ -n "$TMUX" ]]; then
+        # tldr preview (fallback to man)
+        zstyle ':fzf-tab:complete:tldr:argument-1' fzf-preview 'tldr --color=always $word 2>/dev/null || man -P cat $word | head -100'
+
+        # Git branch preview
+        zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview 'git log --oneline --graph --color=always $word -- 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:git-switch:*' fzf-preview 'git log --oneline --graph --color=always $word -- 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:git-branch:*' fzf-preview 'git log --oneline --graph --color=always $word -- 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:git-merge:*' fzf-preview 'git log --oneline --graph --color=always $word -- 2>/dev/null | head -50'
+        zstyle ':fzf-tab:complete:git-rebase:*' fzf-preview 'git log --oneline --graph --color=always $word -- 2>/dev/null | head -50'
+
+        # Git stash preview
+        zstyle ':fzf-tab:complete:git-stash:*' fzf-preview 'git stash show -p $word --color=always 2>/dev/null'
+
+        # Docker container preview
+        zstyle ':fzf-tab:complete:docker-container-*:*' fzf-preview 'docker container inspect $word 2>/dev/null | jq -C ".[0] | {Id, Name, State, Config: {Image, Cmd}}"'
+        zstyle ':fzf-tab:complete:docker-exec:*' fzf-preview 'docker container inspect $word 2>/dev/null | jq -C ".[0] | {Name, State, Config: {Image}}"'
+        zstyle ':fzf-tab:complete:docker-logs:*' fzf-preview 'docker logs --tail 50 $word 2>/dev/null'
+
+        # Docker image preview
+        zstyle ':fzf-tab:complete:docker-image-*:*' fzf-preview 'docker image inspect $word 2>/dev/null | jq -C ".[0] | {Id, RepoTags, Size, Created}"'
+        zstyle ':fzf-tab:complete:docker-run:*' fzf-preview 'docker image inspect $word 2>/dev/null | jq -C ".[0] | {RepoTags, Size, Config: {Cmd, Entrypoint}}"'
+
+        # SSH host preview (from config)
+        zstyle ':fzf-tab:complete:ssh:*' fzf-preview 'grep -A5 "Host $word" ~/.ssh/config 2>/dev/null || echo "No config for $word"'
+        zstyle ':fzf-tab:complete:scp:*' fzf-preview 'grep -A5 "Host $word" ~/.ssh/config 2>/dev/null || echo "No config for $word"'
+
+        # Nix preview
+        zstyle ':fzf-tab:complete:nix-shell:*' fzf-preview 'nix-env -qa --description ".*$word.*" 2>/dev/null | head -20'
+        zstyle ':fzf-tab:complete:nix-build:*' fzf-preview 'nix eval --raw ".#$word.meta.description" 2>/dev/null || echo "$word"'
+
+        # make target preview
+        zstyle ':fzf-tab:complete:make:*' fzf-preview 'make -n $word 2>/dev/null | head -20 || echo "Target: $word"'
+
+        # npm/pnpm script preview
+        zstyle ':fzf-tab:complete:(npm|pnpm)-run:*' fzf-preview 'jq -r ".scripts.\"$word\"" package.json 2>/dev/null || echo "$word"'
+
+        # zoxide directory preview
+        zstyle ':fzf-tab:complete:z:*' fzf-preview 'eza -1 --color=always $word 2>/dev/null || ls -1 $word'
+        zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -1 --color=always $realpath 2>/dev/null'
+
+        # Use zellij popup if available (instead of tmux)
+        if [[ -n "$ZELLIJ" ]]; then
+            # zellij doesn't have popup yet, use default
+            :
+        elif [[ -n "$TMUX" ]]; then
             zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
         fi
       ''
