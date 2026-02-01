@@ -136,6 +136,11 @@
       };
 
       # ==============================================================================
+      # Worktree (git-wt)
+      # ==============================================================================
+      wt.basedir = ".worktrees";
+
+      # ==============================================================================
       # Misc
       # ==============================================================================
       init.defaultBranch = "main";
@@ -144,6 +149,15 @@
       status.showUntrackedFiles = "all";
       log.date = "iso";
       feature.manyFiles = true; # 大規模リポジトリ最適化
+      maintenance.auto = true; # バックグラウンドで最適化
+
+      # 慣れたユーザー向けにヒント削減
+      advice = {
+        addIgnoredFile = false;
+        statusHints = false;
+        commitBeforeMerge = false;
+        detachedHead = false;
+      };
 
       transfer.fsckobjects = true;
       receive.fsckObjects = true;
@@ -157,9 +171,9 @@
       alias = {
         # 状態確認
         st = "status -sb";
+        ds = "diff --staged"; # git diff -S と競合するため
         l = "log --graph --pretty=format:'%C(yellow)%h %C(cyan)%ar %C(reset)%s%C(auto)%d' -20";
         lp = "log -p --ext-diff";
-        cp = "cherry-pick";
 
         # Push/Pull
         ps = "push";
@@ -229,6 +243,9 @@
       "*.tmp"
       "*.temp"
       ".cache/"
+
+      # Worktree
+      ".worktrees/"
     ];
 
     lfs.enable = true;

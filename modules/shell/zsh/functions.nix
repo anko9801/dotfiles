@@ -81,6 +81,20 @@
       }
 
       # ==============================================================================
+      # Git Worktree (git-wt)
+      # ==============================================================================
+      if command -v git-wt &>/dev/null; then
+          eval "$(git-wt --init zsh)"
+      fi
+
+      # fzf で worktree 選択して移動
+      wt() {
+          local selected
+          selected=$(git worktree list | tail -n +2 | fzf --height=40% --layout=reverse --border | awk '{print $1}')
+          [[ -n "$selected" ]] && cd "$selected"
+      }
+
+      # ==============================================================================
       # Tool Integrations
       # ==============================================================================
       # 1Password plugin integrations
