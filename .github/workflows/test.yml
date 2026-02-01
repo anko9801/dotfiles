@@ -6,11 +6,14 @@ on:
       - '**.nix'
       - 'flake.lock'
       - '.github/workflows/test.yml'
+      - '.github/scripts/benchmark.sh'
   pull_request:
     paths:
       - '**.nix'
       - 'flake.lock'
       - '.github/workflows/test.yml'
+permissions:
+  contents: write
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -23,8 +26,38 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v14
       - name: Build Home Manager configuration
         run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
-      - name: Show result
-        run: ls -la result/
+      - name: Activate Home Manager
+        run: |
+          USER=ci ./result/activate
+          echo "$HOME/.nix-profile/bin" >> $GITHUB_PATH
+      # Benchmark (only on push to master)
+      - name: Download previous benchmark data
+        if: github.event_name == 'push'
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+      - name: Run benchmark
+        if: github.event_name == 'push'
+        run: .github/scripts/benchmark.sh
+      - name: Upload benchmark
+        if: github.event_name == 'push'
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: customSmallerIsBetter
+          output-file-path: /tmp/result-benchmark.json
+          external-data-json-path: ./cache/benchmark-data.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: false
+          comment-on-alert: true
+          alert-comment-cc-users: "@${{ github.repository_owner }}"
+          fail-on-alert: false
+          alert-threshold: "150%"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push'
+        with:
+          name: benchmark
+          path: ./cache
   build-macos:
     runs-on: macos-latest
     timeout-minutes: 30
