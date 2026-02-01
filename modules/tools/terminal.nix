@@ -157,7 +157,6 @@ _:
           // Alt+hjkl removed - reserved for editor (Neovim line movement)
           // Use Ctrl-q + hjkl for pane navigation instead
       }
-      }
     '';
 
     "gitleaks/config.toml".text = ''
