@@ -23,7 +23,7 @@ jobs:
         run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
       - name: Activate Home Manager
         run: |
-          ./result/activate
+          USER=ci ./result/activate
           echo "$HOME/.nix-profile/bin" >> $GITHUB_PATH
       - name: Download previous benchmark data
         uses: actions/cache@v4
