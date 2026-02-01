@@ -195,6 +195,10 @@
         it = "!git init && git commit -m 'Initial commit' --allow-empty";
         wip = "!git add -A && git commit -m 'WIP'";
         open = "!gh browse";
+        shorty = "status --short --branch";
+        nevermind = "!git reset --hard HEAD && git clean -d -f";
+        graph = "log --graph -10 --branches --remotes --tags --format=format:'%Cgreen%h %Creset• %<(75,trunc)%s (%cN, %cr) %Cred%d' --date-order";
+        aliases = "!git config --get-regexp '^alias\\.' | sed 's/alias\\.\\([^ ]*\\) \\(.*\\)/\\1 => \\2/'";
       };
     };
 
