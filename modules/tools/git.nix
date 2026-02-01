@@ -51,7 +51,7 @@
       # Core
       # ==============================================================================
       core = {
-        editor = userConfig.editor;
+        inherit (userConfig) editor;
         autocrlf = false;
         safecrlf = true;
         filemode = false;

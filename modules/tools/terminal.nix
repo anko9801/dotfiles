@@ -166,7 +166,6 @@ _:
       }
     '';
 
-
     "gitleaks/config.toml".text = ''
       title = "gitleaks config"
 
