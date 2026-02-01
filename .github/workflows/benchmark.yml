@@ -1,0 +1,61 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '**.nix'
+      - 'flake.lock'
+      - '.github/workflows/benchmark.yml'
+      - '.github/scripts/benchmark.sh'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v14
+
+      - name: Build Home Manager configuration
+        run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
+
+      - name: Activate Home Manager
+        run: |
+          ./result/activate
+          echo "$HOME/.nix-profile/bin" >> $GITHUB_PATH
+
+      - name: Download previous benchmark data
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+
+      - name: Run benchmark
+        run: .github/scripts/benchmark.sh
+
+      - name: Upload benchmark
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: customSmallerIsBetter
+          output-file-path: /tmp/result-benchmark.json
+          external-data-json-path: ./cache/benchmark-data.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: false
+          comment-on-alert: true
+          alert-comment-cc-users: "@${{ github.repository_owner }}"
+          fail-on-alert: false
+          alert-threshold: "150%"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark
+          path: ./cache
