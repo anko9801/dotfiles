@@ -1,40 +1,49 @@
 {
   pkgs,
+  lib,
   config,
   ...
 }:
 
 {
   home = {
-    packages = with pkgs; [
-      ripgrep
-      fd
-      sd
-      dust
-      duf
-      bottom
-      procs
-      tree
-      jq
-      yq-go
-      curl
-      wget
-      xh
-      rsync
-      zip
-      unzip
-      p7zip
-      gawk
-      gnused
-      sqlite
-      watchexec
-      glow
-      typst
-      jless
-      ast-grep
-      yamllint
-      markdownlint-cli
-    ];
+    packages =
+      with pkgs;
+      [
+        ripgrep
+        fd
+        sd
+        dust
+        duf
+        bottom
+        procs
+        tree
+        jq
+        yq-go
+        curl
+        wget
+        xh
+        rsync
+        zip
+        unzip
+        p7zip
+        gawk
+        gnused
+        sqlite
+        watchexec
+        glow
+        typst
+        jless
+        ast-grep
+        yamllint
+        markdownlint-cli
+        nmap
+        ouch
+        dasel
+      ]
+      ++ lib.optionals pkgs.stdenv.isLinux [
+        trashy
+      ];
 
     sessionVariables = {
       RIPGREP_CONFIG_PATH = "${config.xdg.configHome}/ripgrep/config";
