@@ -44,9 +44,13 @@
 
       # Markdown/Documentation
       glow # Markdown renderer for CLI
+      typst # Modern document processor
 
       # Data analysis
       jless # JSON viewer with expand/collapse
+
+      # Code search
+      ast-grep # Structural code search
     ];
 
     sessionVariables = {

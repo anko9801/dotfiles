@@ -28,7 +28,5 @@ _:
     ./jujutsu.nix
     ./git-tools.nix
 
-    # CLI tools
-    ./cli-tools.nix
   ];
 }
