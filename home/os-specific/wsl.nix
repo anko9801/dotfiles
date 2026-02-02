@@ -6,6 +6,11 @@
 }:
 
 {
+  imports = [
+    ../tools
+    ../editor
+  ];
+
   options.programs.wsl.windowsUser = lib.mkOption {
     type = lib.types.str;
     description = "Windows username for WSL integration paths";

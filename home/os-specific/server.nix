@@ -5,10 +5,10 @@
 {
   imports = [
     ../editor/vim.nix
+    ../tools/git
+    ../tools/cli.nix
+    ../tools/bat.nix
   ];
-
-  # Disable nixvim (use vim instead on servers)
-  programs.nixvim.enable = lib.mkForce false;
 
   home = {
     packages = with pkgs; [

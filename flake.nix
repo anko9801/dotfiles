@@ -138,7 +138,11 @@
       commonHomeModules =
         loadModulePaths {
           src = ./home;
-          exclude = [ "os-specific" ]; # Platform-specific modules loaded separately
+          exclude = [
+            "os-specific"
+            "tools"
+            "editor"
+          ]; # Imported explicitly per platform
         }
         ++ loadModulePaths { src = ./theme; }
         ++ [

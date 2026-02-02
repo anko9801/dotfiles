@@ -10,6 +10,11 @@ let
   isCI = builtins.getEnv "CI" != "";
 in
 {
+  imports = [
+    ../tools
+    ../editor
+  ];
+
   dconf.enable = !isCI;
 
   # CI環境ではsystemdユーザーサービスを起動しない
@@ -36,17 +41,6 @@ in
   };
 
   programs = {
-    # yazi: heavy (~1GB due to ffmpeg) but useful with Ghostty image preview
-    yazi = {
-      enable = true;
-      enableZshIntegration = true;
-      settings.manager = {
-        show_hidden = true;
-        sort_by = "natural";
-        sort_dir_first = true;
-      };
-    };
-
     ssh.extraConfig = ''
       IdentityAgent ${config.tools.ssh.onePasswordAgentPath}
     '';
