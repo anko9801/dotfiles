@@ -106,7 +106,10 @@ home-manager switch --impure --flake ~/dotfiles#wsl
 - Keep configurations declarative and reproducible
 - Test changes with `nix flake check`
 
-### Commit Messages
+### Commit Strategy
+- **Auto-split**: When committing, analyze changes and split into logical commits if they contain multiple concerns (e.g., feature + refactor, multiple unrelated fixes)
+- **Atomic commits**: Each commit should be self-contained and focused on one thing
+- **Workflow**: `git reset HEAD` → `git add <files>` → `git commit` for each logical group
 - Use Conventional Commits: `<type>(<scope>): <subject>`
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 - Breaking changes: `<type>!: <subject>`
