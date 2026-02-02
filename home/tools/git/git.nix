@@ -77,8 +77,11 @@ let
       !claude -p "Generate a conventional commit message for this diff. Output plaintext only, no codeblock:
       $(git diff --cached)" | git commit --edit --trailer "Assisted-by: Claude" -F -'';
     undo = "reset HEAD~1 --mixed";
-    fixup = "commit --fixup HEAD";
     nevermind = "!git reset --hard HEAD && git clean -d -f";
+
+    fixup = "commit --fixup HEAD";
+    # absorb: auto-fixup + rebase, falls back to interactive on failure
+    absorb = "!git absorb --and-rebase || git rebase -i --autosquash";
   };
 
   # Pre-commit hook for secret detection
