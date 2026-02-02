@@ -25,9 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/magic-nix-cache-action@v13
+      - uses: cachix/cachix-action@v15
         with:
-          use-flakehub: false
+          name: anko9801
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build Home Manager configuration
         run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
       - name: Activate Home Manager
@@ -72,9 +73,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/magic-nix-cache-action@v13
+      - uses: cachix/cachix-action@v15
         with:
-          use-flakehub: false
+          name: anko9801
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build nix-darwin configuration
         run: USER=ci nix build --impure .#darwinConfigurations.mac.system
       - name: Show result
