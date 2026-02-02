@@ -67,29 +67,27 @@ dotfiles/
 
 ## Setup
 
-Supported platforms: macOS (Apple Silicon / Intel), Linux, WSL2, Windows
-
-### First-time setup
+### Quick Start
 
 ```sh
 # macOS / Linux / WSL
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
 
-# Windows (PowerShell as Administrator)
+# Windows (PowerShell as Admin)
 iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex
 ```
 
 The setup script will:
 
 1. Install Nix via [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer)
-2. Clone this repository
-3. Prompt for git configuration (name, email, SSH key)
+2. Clone this repository to `~/dotfiles`
+3. Prompt for git config (name, email, SSH key)
 4. Generate `users/$USER.nix` and apply the configuration
 
 > [!NOTE]
-> Username is detected from `$USER` (requires `--impure` flag). When forking, run setup to generate your own config.
+> Username is detected from `$USER` environment variable (requires `--impure` flag).
 
-### Subsequent updates
+### Applying Changes
 
 ```sh
 # macOS
@@ -98,7 +96,7 @@ darwin-rebuild switch --impure --flake ~/dotfiles#mac
 # Linux / WSL
 home-manager switch --impure --flake ~/dotfiles#wsl
 
-# Update dependencies
+# Update flake inputs
 nix flake update
 ```
 
