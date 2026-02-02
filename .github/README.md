@@ -52,8 +52,6 @@ dotfiles/
 └── windows/            # Windows (winget, wsl.conf)
 ```
 
-Environments are automatic: project-specific shells activate on `cd`, and any Nixpkgs command can run without installation via comma. Code quality is enforced at the flake level with unified formatting and static analysis in CI.
-
 | Component | Choice | Reason |
 |-----------|--------|--------|
 | Theme | Stylix | Unified theming across all tools |
@@ -89,13 +87,10 @@ The setup script will:
 1. Install Nix via [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer)
 2. Clone this repository
 3. Prompt for git configuration (name, email, SSH key)
-4. Generate `user.nix` and apply the configuration
+4. Generate `users/$USER.nix` and apply the configuration
 
 > [!NOTE]
-> Username is automatically detected from `$USER`. The `--impure` flag is required for this.
-
-> [!WARNING]
-> When forking, run setup to generate `users/$USER.nix` with your git configuration.
+> Username is detected from `$USER` (requires `--impure` flag). When forking, run setup to generate your own config.
 
 ### Subsequent updates
 
@@ -135,9 +130,9 @@ nix develop
 Available commands:
 
 ```sh
-nix fmt                           # Format Nix files
-nix develop -c statix check .     # Lint Nix files
-nix develop -c deadnix .          # Find dead code
+nix fmt                                        # Format Nix files
+nix shell nixpkgs#statix -c statix check .     # Lint Nix files
+nix shell nixpkgs#deadnix -c deadnix .         # Find dead code
 ```
 
 ## Troubleshooting
