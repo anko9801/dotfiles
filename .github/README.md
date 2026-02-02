@@ -61,7 +61,7 @@ dotfiles/
 | Prompt | starship | Fast, customizable, cross-shell |
 | Dev env | mise, direnv | Per-project runtimes and shell environments |
 | Editor | Neovim (nixvim) | Declarative, reproducible plugins |
-| CLI | rg, zoxide | Fast search, smart cd |
+| CLI | rg, zoxide, claude | Fast search, smart cd, AI assistant |
 | Git | lazygit, delta, difftastic | Visual workflow, syntax-highlighted diffs |
 | Secrets | 1Password, gitleaks | E2E encryption, pre-commit secret scanning |
 
