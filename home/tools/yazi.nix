@@ -1,5 +1,5 @@
 # File manager with image preview support
-{ ... }:
+_:
 
 {
   programs.yazi = {
