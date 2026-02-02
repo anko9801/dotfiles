@@ -59,7 +59,7 @@ dotfiles/
 | Multiplexer | zellij | Simpler config, better defaults than tmux |
 | Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like UX |
 | Prompt | starship | Fast, customizable, cross-shell |
-| Dev env | mise, direnv, nix-direnv | Per-project runtimes and shell environments |
+| Dev env | mise, direnv | Per-project runtimes and shell environments |
 | Editor | Neovim (nixvim) | Declarative, reproducible plugins |
 | CLI | eza, bat, fd, rg, zoxide, dust, procs, trash-cli | Modern replacements with sane defaults |
 | Git | lazygit, delta, difftastic | Visual workflow, syntax-highlighted diffs |
