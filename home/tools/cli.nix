@@ -134,33 +134,9 @@
 
     # yazi is in platforms/darwin.nix (heavy due to ffmpeg dependency)
 
-    readline = {
-      enable = true;
-      variables = {
-        editing-mode = "vi";
-        show-mode-in-prompt = true;
-        vi-ins-mode-string = "\\1\\e[6 q\\2";
-        vi-cmd-mode-string = "\\1\\e[2 q\\2";
-        bell-style = "none";
-        completion-ignore-case = true;
-        completion-map-case = true;
-        show-all-if-ambiguous = true;
-        mark-symlinked-directories = true;
-        colored-stats = true;
-        visible-stats = true;
-      };
-    };
-
     man = {
       enable = true;
       generateCaches = false; # Skip man page index rebuild (saves 30-60s)
-    };
-
-    eza = {
-      enable = true;
-      enableZshIntegration = true;
-      icons = "auto";
-      git = true;
     };
 
     htop = {
@@ -175,30 +151,6 @@
         column_meters_0 = "LeftCPUs Memory Swap";
         column_meters_1 = "RightCPUs Tasks LoadAverage Uptime";
       };
-    };
-
-    direnv = {
-      enable = true;
-      nix-direnv.enable = true;
-    };
-
-    zoxide = {
-      enable = true;
-      enableZshIntegration = true;
-      options = [
-        "--cmd"
-        "cd"
-      ];
-    };
-
-    fzf = {
-      enable = true;
-      enableZshIntegration = true;
-      defaultOptions = [
-        "--height=40%"
-        "--layout=reverse"
-        "--border"
-      ];
     };
   };
 }

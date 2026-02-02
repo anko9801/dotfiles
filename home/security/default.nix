@@ -2,7 +2,10 @@ _:
 
 {
   imports = [
-    ./security.nix
+    ./1password.nix
+    ./gpg.nix
     ./ssh.nix
+    ./gitleaks.nix
+    ./trivy.nix
   ];
 }
