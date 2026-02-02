@@ -81,7 +81,7 @@ let
 
     fixup = "commit --fixup HEAD";
     # absorb: auto-fixup + rebase, falls back to interactive on failure
-    absorb = "!git absorb --and-rebase || git rebase -i --autosquash";
+    absorb = "absorb --and-rebase";
   };
 
   # Pre-commit hook for secret detection
