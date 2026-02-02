@@ -52,15 +52,19 @@
       ...
     }:
     let
-      # User-specific configuration (change this when forking)
-      userConfig = import ./users/anko.nix;
-
       # Get username from environment (use --impure flag for actual username)
       username =
         let
           envUser = builtins.getEnv "USER";
         in
         if envUser != "" then envUser else "nixuser";
+
+      # User-specific configuration (with fallback to default)
+      userConfig =
+        let
+          userFile = ./users/${username}.nix;
+        in
+        if builtins.pathExists userFile then import userFile else import ./users/default.nix;
 
       # Warn on unfree package access (recursive attribute wrapper)
       setUnfreeWarning =

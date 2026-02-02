@@ -153,9 +153,9 @@ GIT_KEY="${GIT_KEY:-$(prompt "SSH public key (for git signing, leave empty to sk
 EDITOR_PREF="${EDITOR_PREF:-$(prompt "Editor (nvim, code, hx)" "nvim")}"
 THEME_PREF="${THEME_PREF:-$(prompt "Theme (catppuccin, nord, gruvbox)" "catppuccin")}"
 
-# Generate users/anko.nix
+# Generate users/$USER.nix
 mkdir -p "$DOTFILES/users"
-cat > "$DOTFILES/users/anko.nix" << EOF
+cat > "$DOTFILES/users/$USER.nix" << EOF
 # User-specific configuration
 # Regenerate with: ./setup --non-interactive --git-name NAME --git-email EMAIL
 {
@@ -174,7 +174,7 @@ cat > "$DOTFILES/users/anko.nix" << EOF
   sshHosts = { };
 }
 EOF
-success "Generated users/anko.nix"
+success "Generated users/$USER.nix"
 
 # Step 4: Apply config
 info "[4/4] Applying configuration..."
