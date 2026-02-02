@@ -7,52 +7,31 @@
 {
   home = {
     packages = with pkgs; [
-      # Modern CLI replacements
-      ripgrep # grep replacement (rg)
-      fd # find replacement
-      sd # sed replacement
-      dust # du replacement
-      duf # df replacement
-      bottom # top replacement (btm)
-      procs # ps replacement
-
-      # File operations
+      ripgrep
+      fd
+      sd
+      dust
+      duf
+      bottom
+      procs
       tree
-      jq # JSON processor
-      yq-go # YAML processor
-
-      # Networking
+      jq
+      yq-go
       curl
       wget
-      xh # HTTP client (Rust, httpie-compatible)
-      rsync # Fast incremental file transfer
-
-      # Archives
+      xh
+      rsync
       zip
       unzip
       p7zip
-
-      # Text processing
       gawk
       gnused
-
-      # Database
-      sqlite # SQLite CLI
-
-      # Misc
-      watchexec # file watcher
-
-      # Markdown/Documentation
-      glow # Markdown renderer for CLI
-      typst # Modern document processor
-
-      # Data analysis
-      jless # JSON viewer with expand/collapse
-
-      # Code search
-      ast-grep # Structural code search
-
-      # Config/doc linting
+      sqlite
+      watchexec
+      glow
+      typst
+      jless
+      ast-grep
       yamllint
       markdownlint-cli
     ];
@@ -62,23 +41,14 @@
       _JQ_COLORS = "1;36:0;33:0;33:0;39:0;32:1;39:1;39";
     };
 
-    # LaTeXmk configuration
     file.".latexmkrc".text = ''
       #!/usr/bin/env perl
-
-      # LuaLaTeX (modern, Unicode native)
       $lualatex = "lualatex -file-line-error -synctex=1 -interaction=nonstopmode -halt-on-error --shell-escape %O %S";
       $pdf_mode = 4;
       $max_repeat = 5;
-
-      # BibTeX / Biber
       $bibtex = "pbibtex %O %S";
       $biber = "biber --bblencoding=utf8 -u -U --output_safechars %O %S";
-
-      # Index
       $makeindex = "mendex %O -o %D %S";
-
-      # Preview (OS-specific)
       $pvc_view_file_via_temporary = 0;
       if ($^O eq 'linux') {
           $dvi_previewer = "xdg-open %S";
@@ -140,11 +110,9 @@
       };
     };
 
-    # yazi is in platforms/darwin.nix (heavy due to ffmpeg dependency)
-
     man = {
       enable = true;
-      generateCaches = false; # Skip man page index rebuild (saves 30-60s)
+      generateCaches = false;
     };
 
     htop = {

@@ -5,7 +5,6 @@
 {
   imports = [
     ./shell
-    ./terminal
     ./editor
     ./dev
     ./tools

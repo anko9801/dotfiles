@@ -102,8 +102,10 @@ in
   home = {
     packages = with pkgs; [
       difftastic
-      gibo # .gitignore templates
-      git-wt # Git worktree management
+      gibo
+      git-wt
+      git-absorb
+      onefetch
     ];
 
     file = {

@@ -7,5 +7,6 @@ _:
     ./git
     ./extras.nix
     ./claude
+    ./zellij.nix
   ];
 }
