@@ -26,6 +26,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Build Home Manager configuration
         run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
       - name: Activate Home Manager
@@ -71,6 +73,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
       - uses: DeterminateSystems/magic-nix-cache-action@v8
+        with:
+          use-flakehub: false
       - name: Build nix-darwin configuration
         run: USER=ci nix build --impure .#darwinConfigurations.mac.system
       - name: Show result
