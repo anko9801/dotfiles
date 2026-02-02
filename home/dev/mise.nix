@@ -3,7 +3,7 @@ _:
 {
   programs.mise = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false; # Lazy loaded in zsh config
     globalConfig = {
       settings = {
         experimental = true;

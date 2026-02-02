@@ -129,13 +129,30 @@
           [[ -n "$selected" ]] && cd "$selected"
       }
 
-      # 1Password CLI plugins (auto-inject credentials for supported CLIs)
+      # Lazy load mise (saves ~0.5s startup time)
+      if command -v mise &>/dev/null; then
+          _mise_lazy_load() {
+              unfunction node npm npx pnpm python python3 pip ruby gem go deno bun lua java mise 2>/dev/null
+              eval "$(mise activate zsh)"
+          }
+          for cmd in node npm npx pnpm python python3 pip ruby gem go deno bun lua java mise; do
+              eval "$cmd() { _mise_lazy_load; $cmd \"\$@\" }"
+          done
+      fi
+
+      # Lazy load 1Password CLI plugins (saves ~0.3s per plugin)
       if command -v op &>/dev/null; then
-          command -v gh &>/dev/null && eval "$(op plugin init gh)"
-          command -v aws &>/dev/null && eval "$(op plugin init aws)"
-          command -v gcloud &>/dev/null && eval "$(op plugin init gcloud)"
-          command -v az &>/dev/null && eval "$(op plugin init az)"
-          command -v stripe &>/dev/null && eval "$(op plugin init stripe)"
+          _op_plugin_lazy() {
+              local cmd=$1; shift
+              unfunction $cmd 2>/dev/null
+              eval "$(op plugin init $cmd)"
+              $cmd "$@"
+          }
+          command -v gh &>/dev/null && gh() { _op_plugin_lazy gh "$@" }
+          command -v aws &>/dev/null && aws() { _op_plugin_lazy aws "$@" }
+          command -v gcloud &>/dev/null && gcloud() { _op_plugin_lazy gcloud "$@" }
+          command -v az &>/dev/null && az() { _op_plugin_lazy az "$@" }
+          command -v stripe &>/dev/null && stripe() { _op_plugin_lazy stripe "$@" }
       fi
 
       # Load API keys from 1Password into environment variables
