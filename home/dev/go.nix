@@ -1,8 +1,5 @@
 { pkgs, ... }:
 
 {
-  home.packages = with pkgs; [
-    # Go LSP
-    gopls
-  ];
+  home.packages = [ pkgs.gopls ];
 }
