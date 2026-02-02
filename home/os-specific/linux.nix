@@ -5,20 +5,13 @@
   ...
 }:
 
-let
-  # CI環境ではdbusがないのでdconfを無効化
-  isCI = builtins.getEnv "CI" != "";
-in
 {
   imports = [
     ../tools
     ../editor
   ];
 
-  dconf.enable = !isCI;
-
-  # CI環境ではsystemdユーザーサービスを起動しない
-  systemd.user.startServices = if isCI then false else "sd-switch";
+  systemd.user.startServices = "sd-switch";
 
   # 1Password paths for Linux
   tools.ssh = {
