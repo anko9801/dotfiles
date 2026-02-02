@@ -93,8 +93,18 @@ let
   '';
 in
 {
+  imports = [
+    ./gh.nix
+    ./lazygit.nix
+    ./jujutsu.nix
+  ];
+
   home = {
-    packages = [ pkgs.difftastic ];
+    packages = with pkgs; [
+      difftastic
+      gibo # .gitignore templates
+      git-wt # Git worktree management
+    ];
 
     file = {
       ".config/git/allowed_signers".text = "${email} ${sshKey}";

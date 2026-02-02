@@ -51,6 +51,10 @@
 
       # Code search
       ast-grep # Structural code search
+
+      # Config/doc linting
+      yamllint
+      markdownlint-cli
     ];
 
     sessionVariables = {

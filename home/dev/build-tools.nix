@@ -14,5 +14,9 @@
 
     # Debug/Low-level tools
     nasm # Assembler
+
+    # Shell script linting (build scripts)
+    shellcheck
+    shfmt
   ];
 }

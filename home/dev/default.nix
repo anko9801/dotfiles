@@ -14,18 +14,11 @@ _:
     ./lua.nix
 
     # Cross-language tools
-    ./formatters.nix
+    ./treefmt.nix
     ./build-tools.nix
 
     # Version management
     ./mise.nix
     ./nix-index.nix
-
-    # Git tools
-    ./gh.nix
-    ./lazygit.nix
-    ./jujutsu.nix
-    ./git-tools.nix
-
   ];
 }

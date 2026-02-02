@@ -4,7 +4,7 @@ _:
   imports = [
     ./bat.nix
     ./cli.nix
-    ./git.nix
+    ./git
     ./extras.nix
     ./claude
   ];
