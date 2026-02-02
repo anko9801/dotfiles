@@ -8,10 +8,14 @@
     # EditorConfig support
     editorconfig-core-c
 
-    # YAML linter
+    # Shell script
+    shellcheck
+    shfmt
+
+    # YAML
     yamllint
 
-    # Markdown linter
+    # Markdown
     markdownlint-cli
   ];
 }

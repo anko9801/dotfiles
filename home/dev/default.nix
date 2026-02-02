@@ -15,7 +15,6 @@ _:
 
     # Cross-language tools
     ./formatters.nix
-    ./shell-lint.nix
     ./build-tools.nix
 
     # Version management
