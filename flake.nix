@@ -98,7 +98,7 @@
         in
         if builtins.pathExists userFile then import userFile else import ./users/default.nix;
 
-      # Warn on unfree package access (recursive attribute wrapper)
+      # Log unfree package usage at build time (helps track non-FOSS dependencies)
       setUnfreeWarning =
         maybeAttrs: prefix:
         let

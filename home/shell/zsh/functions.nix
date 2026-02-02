@@ -3,11 +3,8 @@
 {
   programs.zsh.initContent = lib.mkMerge [
     ''
-      # ==============================================================================
-      # Custom Functions
-      # ==============================================================================
+      # Utility functions for common workflows
 
-      # Create new directory and cd into it
       mkcd() {
           mkdir -p "$1" && cd "$1" || return
       }
@@ -80,10 +77,7 @@
           git log --oneline --color=always | fzf --ansi --preview 'git show --color=always {1}' | awk '{print $1}'
       }
 
-      # ==============================================================================
-      # Performance Profiling
-      # ==============================================================================
-      # zsh 起動時間計測 (10回平均)
+      # Startup time benchmarks (10-run average)
       zsh-startuptime() {
           local total=0
           for i in {1..10}; do
@@ -95,13 +89,12 @@
           echo "Average: $((total / 10))ms"
       }
 
-      # neovim 起動時間計測
       nvim-startuptime() {
           nvim --startuptime /tmp/nvim-startup.log -c 'quit'
           tail -1 /tmp/nvim-startup.log
       }
 
-      # 全プラグイン一括更新
+      # Update all package managers at once
       plugupdate() {
           echo "==> Updating Nix flake..."
           (cd ~/dotfiles && nix flake update)
@@ -112,9 +105,7 @@
           echo "==> Done!"
       }
 
-      # ==============================================================================
-      # Clipboard (cross-platform)
-      # ==============================================================================
+      # Cross-platform clipboard (pbcopy/pbpaste aliases)
       if [[ -z "$WAYLAND_DISPLAY" ]] && [[ -z "$DISPLAY" ]]; then
           # WSL or no display
           if command -v clip.exe &>/dev/null; then
@@ -129,24 +120,16 @@
           alias pbpaste='xclip -selection clipboard -o'
       fi
 
-      # ==============================================================================
-      # Git Worktree (git-wt)
-      # ==============================================================================
-      if command -v git-wt &>/dev/null; then
-          eval "$(git-wt --init zsh)"
-      fi
+      # Git worktree helpers
+      command -v git-wt &>/dev/null && eval "$(git-wt --init zsh)"
 
-      # fzf で worktree 選択して移動
       wt() {
           local selected
           selected=$(git worktree list | tail -n +2 | fzf --height=40% --layout=reverse --border | awk '{print $1}')
           [[ -n "$selected" ]] && cd "$selected"
       }
 
-      # ==============================================================================
-      # Tool Integrations
-      # ==============================================================================
-      # 1Password plugin integrations
+      # 1Password CLI plugins (auto-inject credentials for supported CLIs)
       if command -v op &>/dev/null; then
           command -v gh &>/dev/null && eval "$(op plugin init gh)"
           command -v aws &>/dev/null && eval "$(op plugin init aws)"
@@ -155,11 +138,8 @@
           command -v stripe &>/dev/null && eval "$(op plugin init stripe)"
       fi
 
-      # ==============================================================================
-      # 1Password Secrets
-      # ==============================================================================
-      # Load secrets from 1Password
-      # Usage: load-secrets [vault]
+      # Load API keys from 1Password into environment variables
+      # Usage: load-secrets [vault]  (default: Personal)
       load-secrets() {
           if ! command -v op &>/dev/null; then
               echo "1Password CLI (op) not found"

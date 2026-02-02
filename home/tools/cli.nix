@@ -10,38 +10,55 @@
     packages =
       with pkgs;
       [
-        ripgrep
-        fd
-        sd
-        dust
-        duf
-        bottom
-        procs
-        tree
-        jq
-        curl
-        wget
-        xh
-        rsync
+        # Search & replace
+        ripgrep # rg: fast grep
+        fd # find alternative
+        sd # sed alternative (simpler syntax)
+        ast-grep # structural code search
+
+        # File & disk info
+        dust # du alternative (visual)
+        duf # df alternative (visual)
+        tree # directory tree
+        ouch # universal archive tool (compress/decompress)
+
+        # Process monitoring
+        bottom # btm: top/htop alternative
+        procs # ps alternative
+
+        # Data processing
+        jq # JSON processor
+        jless # JSON viewer
+        dasel # universal data selector (JSON/YAML/TOML/XML)
+
+        # Network
+        curl # HTTP client
+        wget # HTTP downloader
+        xh # httpie alternative (colored output)
+        nmap # network scanner
+
+        # File transfer & archive
+        rsync # incremental file sync
         zip
         unzip
-        p7zip
-        gawk
-        gnused
-        sqlite
-        watchexec
-        glow
-        typst
-        jless
-        ast-grep
+        p7zip # 7z
+
+        # Text processing (POSIX compatibility)
+        gawk # GNU awk
+        gnused # GNU sed
+
+        # Other
+        sqlite # embedded database
+        watchexec # file watcher (run command on change)
+        glow # terminal markdown renderer
+        typst # modern LaTeX alternative
+
+        # Linters
         yamllint
         markdownlint-cli
-        nmap
-        ouch
-        dasel
       ]
       ++ lib.optionals pkgs.stdenv.isLinux [
-        trashy
+        trashy # rm alternative (move to trash)
       ];
 
     sessionVariables = {
@@ -122,7 +139,7 @@
 
     man = {
       enable = true;
-      generateCaches = false;
+      generateCaches = false; # Speeds up rebuild; use `man -k` for search
     };
 
     htop = {
