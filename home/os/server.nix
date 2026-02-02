@@ -4,7 +4,7 @@
 
 {
   imports = [
-    ../tools/vim.nix
+    ../editor/vim.nix
   ];
 
   # Disable nixvim (use vim instead on servers)

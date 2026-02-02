@@ -4,8 +4,12 @@
 
 {
   imports = [
-    ./modules/shell
-    ./modules/tools
+    ./shell
+    ./terminal
+    ./editor
+    ./dev
+    ./tools
+    ./security
   ];
 
   home = {

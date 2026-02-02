@@ -53,7 +53,7 @@
     }:
     let
       # User-specific configuration (change this when forking)
-      userConfig = import ./user.nix;
+      userConfig = import ./users/anko.nix;
 
       # Get username from environment (use --impure flag for actual username)
       username =
@@ -87,7 +87,8 @@
 
       # Common modules for home-manager
       commonHomeModules = [
-        ./home.nix
+        ./home
+        ./theme
         nix-index-database.homeModules.nix-index
         inputs.nixvim.homeModules.nixvim
         inputs.stylix.homeModules.stylix
@@ -128,7 +129,7 @@
             unfree-pkgs = mkUnfreePkgs system;
           };
           modules = [
-            ./darwin/configuration.nix
+            ./system/darwin
 
             # Homebrew management
             nix-homebrew.darwinModules.nix-homebrew
@@ -154,7 +155,7 @@
                 users.${username} =
                   { lib, ... }:
                   {
-                    imports = commonHomeModules ++ [ ./modules/platforms/darwin.nix ];
+                    imports = commonHomeModules ++ [ ./home/os/darwin.nix ];
                     home = {
                       username = lib.mkForce username;
                       homeDirectory = lib.mkForce "/Users/${username}";
@@ -262,19 +263,19 @@
           wsl = mkHome {
             system = "x86_64-linux";
             extraModules = [
-              ./modules/platforms/wsl.nix
+              ./home/os/wsl.nix
               { programs.wsl.windowsUser = username; }
             ];
           };
 
           linux = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./modules/platforms/linux.nix ];
+            extraModules = [ ./home/os/linux.nix ];
           };
 
           server = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./modules/platforms/server.nix ];
+            extraModules = [ ./home/os/server.nix ];
           };
         };
 
@@ -296,9 +297,9 @@
           # NixOS on WSL
           nixos-wsl = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./nixos/wsl.nix ];
+            extraModules = [ ./system/nixos/wsl.nix ];
             homeModule = {
-              imports = [ ./modules/platforms/wsl.nix ];
+              imports = [ ./home/os/wsl.nix ];
               programs.wsl.windowsUser = username;
             };
           };
@@ -306,15 +307,15 @@
           # NixOS desktop
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./nixos/desktop.nix ];
-            homeModule = ./modules/platforms/linux.nix;
+            extraModules = [ ./system/nixos/desktop.nix ];
+            homeModule = ./home/os/linux.nix;
           };
 
           # NixOS server
           nixos-server = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./nixos/server.nix ];
-            homeModule = ./modules/platforms/server.nix;
+            extraModules = [ ./system/nixos/server.nix ];
+            homeModule = ./home/os/server.nix;
           };
         };
       };

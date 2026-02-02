@@ -19,6 +19,7 @@ in
 
     # Settings
     settings = {
+      terminalStatusLine = "disabled";
       permissions = {
         tools = {
           allowedCommands = [
