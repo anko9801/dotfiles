@@ -13,5 +13,7 @@
     nasm
     shellcheck
     shfmt
+    treefmt
+    editorconfig-core-c
   ];
 }
