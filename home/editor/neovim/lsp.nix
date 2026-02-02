@@ -48,6 +48,32 @@ _:
           enable = true;
           package = null;
         };
+        yamlls = {
+          enable = true;
+          package = null;
+          settings.yaml = {
+            schemas = {
+              kubernetes = "/*.k8s.yaml";
+              "http://json.schemastore.org/github-workflow" = ".github/workflows/*";
+              "http://json.schemastore.org/github-action" = ".github/action.{yml,yaml}";
+              "http://json.schemastore.org/prettierrc" = ".prettierrc.{yml,yaml}";
+            };
+            validate = true;
+            completion = true;
+            hover = true;
+          };
+        };
+        helm_ls = {
+          enable = true;
+          package = null;
+          settings.helm-ls = {
+            yamlls.path = "yaml-language-server";
+          };
+        };
+        terraformls = {
+          enable = true;
+          package = null;
+        };
       };
       keymaps = {
         lspBuf = {
@@ -105,6 +131,9 @@ _:
           go = [ "gofmt" ];
           rust = [ "rustfmt" ];
           nix = [ "nixfmt" ];
+          terraform = [ "terraform_fmt" ];
+          tf = [ "terraform_fmt" ];
+          hcl = [ "terraform_fmt" ];
         };
         format_on_save = {
           timeout_ms = 500;
