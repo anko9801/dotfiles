@@ -43,7 +43,7 @@ dotfiles/
 │   ├── dev/            # Language tools (nix, rust, go, python, node, lua)
 │   ├── tools/          # CLI, git, bat, zellij, claude
 │   ├── security/       # 1password, ssh, gpg, gitleaks, trivy
-│   └── os/             # Platform-specific (wsl, linux, darwin, server)
+│   └── os-specific/    # Platform-specific (wsl, linux, darwin, server)
 ├── theme/              # Stylix theming, dircolors
 ├── system/
 │   ├── darwin/         # nix-darwin system config

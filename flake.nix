@@ -125,7 +125,7 @@
       commonHomeModules =
         loadModulePaths {
           src = ./home;
-          exclude = [ "os" ]; # Platform-specific modules loaded separately
+          exclude = [ "os-specific" ]; # Platform-specific modules loaded separately
         }
         ++ loadModulePaths { src = ./theme; }
         ++ [
@@ -195,7 +195,7 @@
                 users.${username} =
                   { lib, ... }:
                   {
-                    imports = commonHomeModules ++ [ ./home/os/darwin.nix ];
+                    imports = commonHomeModules ++ [ ./home/os-specific/darwin.nix ];
                     home = {
                       username = lib.mkForce username;
                       homeDirectory = lib.mkForce "/Users/${username}";
@@ -303,19 +303,19 @@
           wsl = mkHome {
             system = "x86_64-linux";
             extraModules = [
-              ./home/os/wsl.nix
+              ./home/os-specific/wsl.nix
               { programs.wsl.windowsUser = username; }
             ];
           };
 
           linux = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./home/os/linux.nix ];
+            extraModules = [ ./home/os-specific/linux.nix ];
           };
 
           server = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./home/os/server.nix ];
+            extraModules = [ ./home/os-specific/server.nix ];
           };
         };
 
@@ -339,7 +339,7 @@
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/wsl.nix ];
             homeModule = {
-              imports = [ ./home/os/wsl.nix ];
+              imports = [ ./home/os-specific/wsl.nix ];
               programs.wsl.windowsUser = username;
             };
           };
@@ -348,14 +348,14 @@
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/desktop.nix ];
-            homeModule = ./home/os/linux.nix;
+            homeModule = ./home/os-specific/linux.nix;
           };
 
           # NixOS server
           nixos-server = mkNixOS {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/server.nix ];
-            homeModule = ./home/os/server.nix;
+            homeModule = ./home/os-specific/server.nix;
           };
         };
       };
