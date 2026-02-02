@@ -247,7 +247,7 @@ if (-not (Test-Path $dotfiles)) {
 
 # Packages
 Write-Host "[3/4] Packages..." -ForegroundColor Yellow
-$json = "$dotfiles\windows\winget-packages.json"
+$json = "$dotfiles\system\windows\winget-packages.json"
 if (Test-Path $json) {
     winget import -i $json --accept-package-agreements --accept-source-agreements --ignore-unavailable
 }
@@ -259,7 +259,7 @@ git config --global init.defaultBranch main
 
 # WSL config
 Write-Host "[5/5] WSL config..." -ForegroundColor Yellow
-$wslConf = "$dotfiles\windows\wsl.conf"
+$wslConf = "$dotfiles\system\windows\wsl.conf"
 if (Test-Path $wslConf) {
     $wslPath = $wslConf -replace '\\','/' -replace 'C:','/mnt/c'
     $diff = wsl -u root sh -c "diff -q '$wslPath' /etc/wsl.conf 2>/dev/null"
