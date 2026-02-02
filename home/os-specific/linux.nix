@@ -5,13 +5,17 @@
   ...
 }:
 
+let
+  isCI = builtins.getEnv "CI" != "";
+in
 {
   imports = [
     ../tools
     ../editor
   ];
 
-  systemd.user.startServices = "sd-switch";
+  # CI環境ではsystemdユーザーサービスを起動しない
+  systemd.user.startServices = if isCI then false else "sd-switch";
 
   # 1Password paths for Linux
   tools.ssh = {
