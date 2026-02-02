@@ -93,12 +93,6 @@ let
   '';
 in
 {
-  imports = [
-    ./gh.nix
-    ./lazygit.nix
-    ./jujutsu.nix
-  ];
-
   home = {
     packages = with pkgs; [
       difftastic

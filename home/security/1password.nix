@@ -1,12 +1,11 @@
 {
   config,
   lib,
-  unfree-pkgs,
+  unfreePkgs,
   ...
 }:
 
 let
-  unfreePkgs = unfree-pkgs;
   isWSL = config.programs.wsl.windowsUser or null != null;
 in
 {

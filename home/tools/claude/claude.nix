@@ -1,8 +1,5 @@
-{ unfree-pkgs, ... }:
+{ unfreePkgs, ... }:
 
-let
-  unfreePkgs = unfree-pkgs;
-in
 {
   programs.claude-code = {
     enable = true;

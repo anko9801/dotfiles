@@ -1,13 +1,10 @@
 {
   config,
   lib,
-  unfree-pkgs,
+  unfreePkgs,
   ...
 }:
 
-let
-  unfreePkgs = unfree-pkgs;
-in
 {
   # VSCode - Only enable on non-WSL/non-genericLinux platforms
   # WSL should use Windows VSCode with Remote-WSL extension

@@ -2,19 +2,11 @@
   pkgs,
   lib,
   config,
-  unfree-pkgs,
+  unfreePkgs,
   ...
 }:
 
-let
-  unfreePkgs = unfree-pkgs;
-in
 {
-  imports = [
-    ./aliases.nix
-    ./functions.nix
-  ];
-
   programs.zsh = {
     enable = true;
     enableCompletion = true;

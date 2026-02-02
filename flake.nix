@@ -38,6 +38,12 @@
 
     # Theming
     stylix.url = "github:danth/stylix";
+
+    # Filesystem-based module loader
+    haumea = {
+      url = "github:nix-community/haumea";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -49,9 +55,35 @@
       nix-darwin,
       nix-index-database,
       nix-homebrew,
+      haumea,
       ...
     }:
     let
+      # Load all module paths from a directory using haumea
+      loadModulePaths =
+        {
+          src,
+          exclude ? [ ],
+        }:
+        let
+          paths = haumea.lib.load {
+            inherit src;
+            loader = haumea.lib.loaders.path;
+          };
+          # Remove excluded keys from attrset
+          filterExcluded = attrs: builtins.removeAttrs attrs exclude;
+          flatten =
+            attrs:
+            builtins.concatLists (
+              builtins.attrValues (
+                builtins.mapAttrs (_: value: if builtins.isAttrs value then flatten value else [ value ]) (
+                  filterExcluded attrs
+                )
+              )
+            );
+        in
+        flatten paths;
+
       # Get username from environment (use --impure flag for actual username)
       username =
         let
@@ -89,14 +121,18 @@
           config.allowUnfree = true;
         }) "unfreePkgs";
 
-      # Common modules for home-manager
-      commonHomeModules = [
-        ./home
-        ./theme
-        nix-index-database.homeModules.nix-index
-        inputs.nixvim.homeModules.nixvim
-        inputs.stylix.homeModules.stylix
-      ];
+      # Common modules for home-manager (loaded via haumea)
+      commonHomeModules =
+        loadModulePaths {
+          src = ./home;
+          exclude = [ "os" ]; # Platform-specific modules loaded separately
+        }
+        ++ loadModulePaths { src = ./theme; }
+        ++ [
+          nix-index-database.homeModules.nix-index
+          inputs.nixvim.homeModules.nixvim
+          inputs.stylix.homeModules.stylix
+        ];
 
       # Standalone home-manager configuration (for Linux/WSL)
       mkHome =
@@ -108,7 +144,7 @@
           pkgs = import nixpkgs { inherit system; };
           extraSpecialArgs = {
             inherit userConfig;
-            unfree-pkgs = mkUnfreePkgs system;
+            unfreePkgs = mkUnfreePkgs system;
           };
           modules =
             commonHomeModules
@@ -130,7 +166,7 @@
           inherit system;
           specialArgs = {
             inherit self inputs userConfig;
-            unfree-pkgs = mkUnfreePkgs system;
+            unfreePkgs = mkUnfreePkgs system;
           };
           modules = [
             ./system/darwin
@@ -154,7 +190,7 @@
                 useUserPackages = true;
                 extraSpecialArgs = {
                   inherit userConfig;
-                  unfree-pkgs = mkUnfreePkgs system;
+                  unfreePkgs = mkUnfreePkgs system;
                 };
                 users.${username} =
                   { lib, ... }:
@@ -186,7 +222,7 @@
           inherit system;
           specialArgs = {
             inherit self inputs userConfig;
-            unfree-pkgs = mkUnfreePkgs system;
+            unfreePkgs = mkUnfreePkgs system;
           };
           modules = [
             # User configuration
@@ -208,7 +244,7 @@
                 useUserPackages = true;
                 extraSpecialArgs = {
                   inherit userConfig;
-                  unfree-pkgs = mkUnfreePkgs system;
+                  unfreePkgs = mkUnfreePkgs system;
                 };
                 users.${username} =
                   { lib, ... }:
