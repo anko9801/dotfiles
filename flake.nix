@@ -102,9 +102,22 @@
       setUnfreeWarning =
         maybeAttrs: prefix:
         let
+          # Skip derivation outputs to avoid duplicate warnings (foo and foo.out)
+          outputNames = [
+            "out"
+            "dev"
+            "lib"
+            "bin"
+            "man"
+            "doc"
+            "info"
+          ];
           withoutWarning =
             if builtins.isAttrs maybeAttrs then
-              builtins.mapAttrs (name: value: setUnfreeWarning value "${prefix}.${name}") maybeAttrs
+              builtins.mapAttrs (
+                name: value:
+                if builtins.elem name outputNames then value else setUnfreeWarning value "${prefix}.${name}"
+              ) maybeAttrs
             else
               maybeAttrs;
         in
@@ -140,8 +153,11 @@
           system,
           extraModules ? [ ],
         }:
-        home-manager.lib.homeManagerConfiguration {
+        let
           pkgs = import nixpkgs { inherit system; };
+        in
+        home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
           extraSpecialArgs = {
             inherit userConfig;
             unfreePkgs = mkUnfreePkgs system;
@@ -155,6 +171,7 @@
                   inherit username;
                   homeDirectory = "/home/${username}";
                 };
+                nix.package = pkgs.nix; # Required for standalone home-manager
               }
             ];
         };

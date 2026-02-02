@@ -1,5 +1,8 @@
 { pkgs, ... }:
 
+let
+  nixSettings = import ../nix-settings.nix;
+in
 {
   # NOTE: Replace with hardware-configuration.nix after installing NixOS
   # imports = [ ./hardware-configuration.nix ];
@@ -8,27 +11,28 @@
     fsType = "ext4";
   };
 
-  # Bootloader
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
   };
 
-  # Networking
   networking = {
     hostName = "nixos-desktop";
     networkmanager.enable = true;
   };
 
-  # Timezone and locale
   time.timeZone = "Asia/Tokyo";
   i18n.defaultLocale = "ja_JP.UTF-8";
 
-  # Enable nix command and flakes
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
+  nix = {
+    settings = nixSettings;
+    optimise.automatic = true;
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
+  };
 
   # Services
   services = {

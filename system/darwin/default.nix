@@ -3,6 +3,9 @@
   ...
 }:
 
+let
+  nixSettings = import ../nix-settings.nix;
+in
 {
   imports = [
     ./homebrew.nix
@@ -10,14 +13,8 @@
     ./system.nix
   ];
 
-  # Nix configuration
   nix = {
-    settings = {
-      experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-    };
+    settings = nixSettings;
     optimise.automatic = true;
     gc = {
       automatic = true;

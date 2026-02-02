@@ -5,7 +5,7 @@
 }:
 
 let
-  # Get username from environment with fallback
+  nixSettings = import ../nix-settings.nix;
   username =
     let
       envUser = builtins.getEnv "USER";
@@ -21,22 +21,23 @@ in
     enable = true;
     defaultUser = username;
     startMenuLaunchers = true;
-
-    # Windows interop
     interop = {
       register = true;
       includePath = true;
     };
   };
 
-  # Basic system configuration
   networking.hostName = "nixos-wsl";
 
-  # Enable nix command and flakes
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
+  nix = {
+    settings = nixSettings;
+    optimise.automatic = true;
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
+  };
 
   # System packages
   environment.systemPackages = with pkgs; [
