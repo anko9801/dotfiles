@@ -62,11 +62,9 @@ dotfiles/
 | Runtimes | mise | Single tool for node/python/go/ruby/java |
 | Editor | Neovim (nixvim) | Declarative, reproducible plugins |
 | CLI | eza, bat, fd, rg, zoxide, dust, procs, trash-cli | Modern replacements with sane defaults |
-| Git | lazygit, delta, difftastic, gitleaks | TUI, semantic diffs, pre-commit secret scanning |
-| Secrets | 1Password | E2E encrypted SSH keys, git signing, API keys |
+| Git | lazygit, delta, difftastic | Visual workflow, syntax-highlighted diffs |
+| Secrets | 1Password, gitleaks | E2E encryption, pre-commit secret scanning |
 | Dev env | direnv, nix-direnv, comma | Auto-activate per-project, run any Nixpkgs command |
-| Formatting | treefmt (nixfmt, shfmt, yamlfmt) | Unified formatting across languages |
-| Task runner | just | Simple, cross-platform |
 
 ## Setup
 
