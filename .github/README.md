@@ -59,12 +59,11 @@ dotfiles/
 | Multiplexer | zellij | Simpler config, better defaults than tmux |
 | Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like UX |
 | Prompt | starship | Fast, customizable, cross-shell |
-| Runtimes | mise | Single tool for node/python/go/ruby/java |
+| Dev env | mise, direnv, nix-direnv | Per-project runtimes and shell environments |
 | Editor | Neovim (nixvim) | Declarative, reproducible plugins |
 | CLI | eza, bat, fd, rg, zoxide, dust, procs, trash-cli | Modern replacements with sane defaults |
 | Git | lazygit, delta, difftastic | Visual workflow, syntax-highlighted diffs |
 | Secrets | 1Password, gitleaks | E2E encryption, pre-commit secret scanning |
-| Dev env | direnv, nix-direnv, comma | Auto-activate per-project, run any Nixpkgs command |
 
 ## Setup
 
