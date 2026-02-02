@@ -7,6 +7,8 @@
       cargo-watch
     ];
 
+    sessionPath = [ "$HOME/.cargo/bin" ];
+
     activation.setupRust = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if command -v rustup &>/dev/null; then
         if ! rustup show active-toolchain &>/dev/null; then

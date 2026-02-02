@@ -1,6 +1,8 @@
-_:
+{ config, ... }:
 
 {
+  home.sessionVariables.INPUTRC = "${config.xdg.configHome}/readline/inputrc";
+
   programs.readline = {
     enable = true;
     variables = {
