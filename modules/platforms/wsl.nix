@@ -14,8 +14,14 @@
   config = {
     targets.genericLinux.enable = true;
 
-    # WSL uses clip.exe for clipboard
-    tools.zellij.copyCommand = "clip.exe";
+    # WSL clipboard script (iconv to UTF-16 required since WSL 1.1.3+)
+    home.file.".local/bin/wsl-copy".text = ''
+      #!/bin/bash
+      iconv -t utf16 | clip.exe
+    '';
+    home.file.".local/bin/wsl-copy".executable = true;
+
+    tools.zellij.copyCommand = "wsl-copy";
 
     # 1Password paths for WSL
     tools.ssh = {

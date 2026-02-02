@@ -67,7 +67,6 @@
 
       // Options
       pane_frames false
-      simplified_ui true
       mouse_mode true
       on_force_close "detach"
       scrollback_editor "nvim"
@@ -78,7 +77,7 @@
       // Keybindings - Ctrl-q prefix (avoids Ctrl-b conflict with shells)
       // Layer: Multiplexer (Super=WM, Ctrl=Editor, Ctrl-q=Multiplexer)
       // ==============================================================================
-      keybinds clear-defaults=true {
+      keybinds {
           normal {
               bind "Ctrl q" { SwitchToMode "tmux"; }
           }
