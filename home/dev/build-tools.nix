@@ -10,6 +10,7 @@
     automake
     libtool
     just
+    go-task # Task runner (alternative to make)
     nasm
     shellcheck
     shfmt

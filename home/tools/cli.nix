@@ -30,12 +30,22 @@
         jq # JSON processor
         jless # JSON viewer
         dasel # universal data selector (JSON/YAML/TOML/XML)
+        dyff # YAML/JSON diff tool (semantic diff)
+        yq-go # YAML processor (like jq for YAML)
 
         # Network
         curl # HTTP client
         wget # HTTP downloader
         xh # httpie alternative (colored output)
         nmap # network scanner
+
+        # Container tools
+        dive # Docker image layer explorer
+        k9s # Kubernetes TUI
+
+        # Load testing
+        k6 # Modern load testing tool
+        vegeta # HTTP load testing tool
 
         # File transfer & archive
         rsync # incremental file sync
