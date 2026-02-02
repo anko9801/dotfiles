@@ -9,7 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: cachix/cachix-action@v15
+        with:
+          name: anko9801
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Check Nix flake
         run: nix flake check --impure
       - name: Format check (treefmt)
