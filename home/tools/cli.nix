@@ -19,7 +19,6 @@
         procs
         tree
         jq
-        yq-go
         curl
         wget
         xh
