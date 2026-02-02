@@ -32,7 +32,7 @@ jobs:
       - name: Setup dbus
         run: |
           sudo apt-get update
-          sudo apt-get install -y dbus
+          sudo apt-get install -y dbus dbus-x11
           sudo mkdir -p /run/dbus
           sudo dbus-daemon --system --fork
       - name: Build Home Manager configuration
@@ -41,6 +41,7 @@ jobs:
         run: |
           sudo mkdir -p /home/ci
           sudo chown $USER:$USER /home/ci
+          eval $(dbus-launch --sh-syntax)
           USER=ci HOME=/home/ci ./result/activate
           echo "/home/ci/.nix-profile/bin" >> $GITHUB_PATH
       # Benchmark (only on push to master)
