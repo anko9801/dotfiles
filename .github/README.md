@@ -36,15 +36,19 @@ Configuration follows the [XDG Base Directory Specification](https://specificati
 ```
 dotfiles/
 ├── flake.nix           # Entry point, platform configurations
-├── home.nix            # Shared home-manager settings
-├── user.nix            # Personal settings (git, SSH)
 ├── setup               # Bootstrap script (bash/PowerShell polyglot)
-├── modules/
-│   ├── shell/          # zsh, starship
-│   ├── tools/          # CLI, dev tools, neovim, theme
-│   └── platforms/      # wsl, linux, darwin, server
-├── darwin/             # macOS (nix-darwin)
-├── nixos/              # NixOS (configuration.nix)
+├── home/
+│   ├── shell/          # zsh, starship, fzf, atuin, zoxide, eza
+│   ├── editor/         # neovim (nixvim), vim, vscode
+│   ├── dev/            # Language tools (nix, rust, go, python, node, lua)
+│   ├── tools/          # CLI, git, bat, zellij, claude
+│   ├── security/       # 1password, ssh, gpg, gitleaks, trivy
+│   └── os/             # Platform-specific (wsl, linux, darwin, server)
+├── theme/              # Stylix theming, dircolors
+├── system/
+│   ├── darwin/         # nix-darwin system config
+│   └── nixos/          # NixOS system config
+├── users/              # User-specific settings (git, SSH)
 └── windows/            # Windows (winget, wsl.conf)
 ```
 
@@ -91,7 +95,7 @@ The setup script will:
 > Username is automatically detected from `$USER`. The `--impure` flag is required for this.
 
 > [!WARNING]
-> When forking, edit `user.nix` to set your git configuration and SSH hosts.
+> When forking, edit `users/anko.nix` to set your git configuration and SSH hosts.
 
 ### Subsequent updates
 
@@ -109,12 +113,12 @@ nix flake update
 ## Customization
 
 1. Fork the repository
-2. Edit `user.nix` to set your git name, email, and SSH key
-3. Modify `modules/` to add or remove packages
+2. Edit `users/anko.nix` to set your git name, email, and SSH key
+3. Modify `home/` to add or remove packages
 4. Run `home-manager switch --impure --flake .#wsl`
 
 > [!TIP]
-> Add new packages to `home.packages` in the appropriate module under `modules/tools/`.
+> Add new packages to `home.packages` in the appropriate module under `home/tools/` or `home/dev/`.
 
 ## Development
 
