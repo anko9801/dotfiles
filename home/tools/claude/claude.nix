@@ -112,6 +112,35 @@
           "env | grep -E '^(PATH|HOME|USER|SHELL)='"
         ];
       };
+
+      # Hooks - run commands at specific lifecycle points
+      # Exit code 0 = success, 2 = blocking error (stderr fed back to Claude)
+      hooks = {
+        # After file edits, run linters if available
+        PostToolUse = [
+          {
+            matcher = "Write|Edit|MultiEdit";
+            command = ''
+              # Run project-specific linters if they exist
+              if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
+                npm run lint --if-present 2>&1 || exit 2
+              elif [ -f "Cargo.toml" ]; then
+                cargo clippy --quiet 2>&1 || exit 2
+              elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+                ruff check . 2>&1 || exit 2
+              elif [ -f "flake.nix" ]; then
+                nix flake check 2>&1 | head -20 || exit 2
+              fi
+            '';
+          }
+        ];
+        # Notify when Claude needs input
+        Notification = [
+          {
+            command = "echo '🔔 Claude needs your input' >&2";
+          }
+        ];
+      };
     };
   };
 }
