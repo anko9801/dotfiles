@@ -34,24 +34,76 @@ in
     };
   };
 
-  # Services
-  services = {
-    # Desktop environment (GNOME)
-    xserver.enable = true;
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
+  # Niri compositor
+  programs.niri = {
+    enable = true;
+    package = pkgs.niri;
+  };
 
-    # Audio
-    pulseaudio.enable = false;
-    pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
-      pulse.enable = true;
+  # Display manager (greetd + tuigreet)
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd niri-session";
+        user = "greeter";
+      };
     };
   };
 
+  # XWayland
+  programs.xwayland.enable = true;
+
+  # Audio (PipeWire)
   security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    wireplumber.enable = true;
+  };
+
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+  services.blueman.enable = true;
+
+  # Polkit (for GUI auth)
+  security.polkit.enable = true;
+  systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    description = "polkit-gnome-authentication-agent-1";
+    wantedBy = [ "graphical-session.target" ];
+    wants = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
+  };
+
+  # Fonts
+  fonts = {
+    packages = with pkgs; [
+      noto-fonts
+      noto-fonts-cjk-sans
+      noto-fonts-emoji
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.fira-code
+    ];
+    fontconfig = {
+      defaultFonts = {
+        serif = [ "Noto Serif CJK JP" ];
+        sansSerif = [ "Noto Sans CJK JP" ];
+        monospace = [ "JetBrainsMono Nerd Font" ];
+      };
+    };
+  };
 
   # System packages
   environment.systemPackages = with pkgs; [
@@ -60,7 +112,19 @@ in
     wget
     curl
     firefox
+    nautilus
+    pavucontrol
+    networkmanagerapplet
+    polkit_gnome
+    gnome-keyring
+    libsecret
   ];
+
+  # GNOME Keyring
+  services.gnome.gnome-keyring.enable = true;
+
+  # Dconf (for GTK apps)
+  programs.dconf.enable = true;
 
   # This value determines the NixOS release
   system.stateVersion = "24.11";

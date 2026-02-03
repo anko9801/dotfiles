@@ -160,6 +160,7 @@
             "os-specific"
             "tools"
             "editor"
+            "desktop"
           ]; # Imported explicitly per platform
         }
         ++ loadModulePaths { src = ./theme; }
@@ -352,6 +353,14 @@
             extraModules = [ ./home/os-specific/linux.nix ];
           };
 
+          linux-desktop = mkHome {
+            system = "x86_64-linux";
+            extraModules = [
+              ./home/os-specific/linux.nix
+              ./home/desktop
+            ];
+          };
+
           server = mkHome {
             system = "x86_64-linux";
             extraModules = [ ./home/os-specific/server.nix ];
@@ -383,14 +392,19 @@
             };
           };
 
-          # NixOS desktop
+          # NixOS desktop (Niri)
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
             extraModules = [
               ./system/nixos/desktop.nix
               ./system/nixos/xremap.nix
             ];
-            homeModule = ./home/os-specific/linux.nix;
+            homeModule = {
+              imports = [
+                ./home/os-specific/linux.nix
+                ./home/desktop
+              ];
+            };
           };
 
           # NixOS server (generic)
