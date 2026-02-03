@@ -97,22 +97,10 @@
         size = 24;
       };
 
-      # Target-specific overrides
+      # Target-specific overrides (most are auto-enabled)
       targets = {
-        # Let bat use its own theme (TwoDark)
-        bat.enable = false;
-
-        # Let starship use custom config
-        starship.enable = false;
-
-        # VSCode has its own theming
-        vscode.enable = false;
-
-        # Enable for other targets
-        fzf.enable = true;
-        tmux.enable = true;
-        vim.enable = true;
-        zellij.enable = false;
+        # Disable for apps with extensive custom config that would break
+        vscode.enable = false; # Using Zed instead
       };
     };
 

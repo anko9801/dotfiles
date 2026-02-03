@@ -9,9 +9,7 @@
     enableZshIntegration = true;
 
     settings = {
-      # Inspired by Ayu Mirage color palette
-      # Colors: #707A8C (gray) / #5CCFE6 (cyan) / #73D0FF (blue) / #FFAD66 (orange)
-      #         #87D96C (green) / #F27983 (red) / #F28779 (light red) / #DFBFFF (purple)
+      # Colors managed by Stylix (base16 palette)
 
       format = lib.concatStrings [
         "[╭─ ](bold green)"
@@ -28,36 +26,36 @@
 
       username = {
         show_always = false;
-        style_user = "fg:#DFBFFF";
-        style_root = "fg:#F27983";
+        style_user = "fg:purple";
+        style_root = "fg:base0F";
         format = "[$user]($style)";
       };
 
       hostname = {
         ssh_only = true;
         format = "[@$hostname]($style) ";
-        style = "fg:#DFBFFF";
+        style = "fg:purple";
       };
 
       directory = {
-        style = "fg:#FFAD66";
+        style = "fg:yellow";
         read_only = " ";
-        read_only_style = "fg:#707A8C";
+        read_only_style = "fg:bright-black";
         format = "[$read_only]($read_only_style)[$path]($style) ";
         truncate_to_repo = true;
         truncation_length = 3;
       };
 
       character = {
-        error_symbol = ''[╰─\(*;-;\)](bold green) [❯](bold red)'';
+        error_symbol = ''[╰─\(*;-;\)](bold green) [❯](bold base0F)'';
         success_symbol = ''[╰─\(*'-'\) ❯](bold green)'';
         vimcmd_symbol = ''[╰─\(*'o'\) ](bold cyan)'';
       };
 
       git_branch = {
         format = "[on](white) [$symbol$branch(:$remote_branch)]($style) ";
-        symbol = " ";
-        style = "fg:#5CCFE6";
+        symbol = " ";
+        style = "fg:cyan";
         truncation_length = 20;
         truncation_symbol = "…";
       };
@@ -68,12 +66,12 @@
         only_detached = true;
         tag_disabled = false;
         tag_symbol = " ";
-        style = "fg:#5CCFE6";
+        style = "fg:cyan";
       };
 
       git_state = {
         format = "[\\($state( $progress_current/$progress_total)\\) ]($style)";
-        style = "fg:#5CCFE6";
+        style = "fg:cyan";
         rebase = "REBASING";
         merge = "MERGING";
         revert = "REVERTING";
@@ -85,7 +83,7 @@
 
       git_status = {
         format = "[$conflicted$staged$modified$untracked$renamed$deleted$stashed$stashed_count$ahead_behind]($style) ";
-        style = "fg:#5CCFE6";
+        style = "fg:cyan";
         conflicted = "=";
         ahead = "⇡\${count}";
         behind = "⇣\${count}";
@@ -102,20 +100,20 @@
       cmd_duration = {
         min_time = 3000;
         format = "[ $duration]($style) ";
-        style = "fg:#F28779";
+        style = "fg:base0F";
         show_notifications = false;
       };
 
       docker_context = {
         symbol = " ";
-        style = "fg:#73D0FF";
+        style = "fg:blue";
         format = "[$symbol $context]($style) ";
       };
 
       nodejs = {
         format = "[via](white) [$symbol($version )]($style)";
         symbol = " ";
-        style = "fg:#87D96C";
+        style = "fg:green";
         detect_extensions = [
           "js"
           "mjs"
@@ -129,60 +127,60 @@
       python = {
         format = ''[via](white) [''${symbol}''${pyenv_prefix}($version )(\($virtualenv\) )]($style)'';
         symbol = " ";
-        style = "fg:#73D0FF";
+        style = "fg:blue";
       };
 
       rust = {
         format = "[via](white) [$symbol($version )]($style)";
         symbol = " ";
-        style = "fg:#F28779";
+        style = "fg:base0F";
       };
 
       golang = {
         format = "[via](white) [$symbol($version )]($style)";
         symbol = "🐹 ";
-        style = "fg:#5CCFE6";
+        style = "fg:cyan";
       };
 
       java = {
         format = "[via](white) [$symbol($version )]($style)";
         symbol = " ";
-        style = "fg:#F28779";
+        style = "fg:base0F";
       };
 
       package = {
         format = "[$symbol$version]($style) ";
         symbol = "󰏗 ";
-        style = "fg:#FFAD66";
+        style = "fg:yellow";
       };
 
       aws = {
         format = "[on](white) [☁️  ($profile )(\\($region\\))]($style) ";
-        style = "fg:#FFAD66";
+        style = "fg:yellow";
         symbol = " ";
       };
 
       gcloud = {
         format = "[on](white) [☁️  ($project )(\\($region\\))]($style) ";
-        style = "fg:#73D0FF";
+        style = "fg:blue";
       };
 
       azure = {
         format = "[on](white) [☁️  ($subscription)]($style) ";
-        style = "fg:#73D0FF";
+        style = "fg:blue";
       };
 
       memory_usage = {
         disabled = true;
         threshold = -1;
         format = "[󰍛 \${ram_pct}]($style) ";
-        style = "fg:#707A8C";
+        style = "fg:bright-black";
       };
 
       time = {
         disabled = true;
         format = "[$time]($style) ";
-        style = "fg:#707A8C";
+        style = "fg:bright-black";
         time_format = "%R";
       };
     };

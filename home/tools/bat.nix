@@ -4,7 +4,7 @@ _:
   programs.bat = {
     enable = true;
     config = {
-      theme = "TwoDark";
+      # Theme managed by Stylix
       style = "numbers,changes,header";
       pager = "less -FR";
     };
