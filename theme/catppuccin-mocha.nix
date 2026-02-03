@@ -40,34 +40,12 @@
   };
 
   config.stylix = {
-    enable = true;
-
     # Base16 color scheme
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
-    # Generate solid color wallpaper from base color
+    # Wallpaper from base color
     image = pkgs.runCommand "wallpaper.png" { buildInputs = [ pkgs.imagemagick ]; } ''
       magick -size 1920x1080 xc:#1e1e2e PNG32:$out
     '';
-
-    # Opacity settings
-    opacity = {
-      terminal = 0.95;
-      applications = 1.0;
-      desktop = 1.0;
-      popups = 0.95;
-    };
-
-    # Cursor
-    cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Modern-Classic";
-      size = 24;
-    };
-
-    # Target-specific overrides
-    targets = {
-      vscode.enable = false;
-    };
   };
 }
