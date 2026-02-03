@@ -36,6 +36,24 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Remote NixOS installation
+    nixos-anywhere = {
+      url = "github:nix-community/nixos-anywhere";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Declarative disk partitioning
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Nix-native container snapshotter for containerd/Kubernetes
+    nix-snapshotter = {
+      url = "github:pdtpartners/nix-snapshotter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Theming
     stylix.url = "github:danth/stylix";
 
@@ -368,15 +386,51 @@
           # NixOS desktop
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./system/nixos/desktop.nix ];
+            extraModules = [
+              ./system/nixos/desktop.nix
+              ./system/nixos/xremap.nix
+            ];
             homeModule = ./home/os-specific/linux.nix;
           };
 
-          # NixOS server
+          # NixOS server (generic)
           nixos-server = mkNixOS {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/server.nix ];
             homeModule = ./home/os-specific/server.nix;
+          };
+
+          # Example VPS (for nixos-anywhere deployment)
+          example-vps = mkNixOS {
+            system = "x86_64-linux";
+            extraModules = [
+              inputs.disko.nixosModules.disko
+              ./system/servers/example-vps
+              ./system/nixos/server.nix
+            ];
+            homeModule = ./home/os-specific/server.nix;
+          };
+        };
+
+        # Apps for deployment
+        apps.x86_64-linux = {
+          # Deploy to server: nix run .#deploy -- root@server example-vps
+          deploy = {
+            type = "app";
+            program = toString (
+              nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy" ''
+                set -e
+                if [ $# -lt 2 ]; then
+                  echo "Usage: nix run .#deploy -- <user@host> <config-name>"
+                  echo "Example: nix run .#deploy -- root@192.168.1.100 example-vps"
+                  exit 1
+                fi
+                TARGET="$1"
+                CONFIG="$2"
+                echo "Deploying $CONFIG to $TARGET..."
+                nix run github:nix-community/nixos-anywhere -- --flake ".#$CONFIG" "$TARGET"
+              ''
+            );
           };
         };
       };

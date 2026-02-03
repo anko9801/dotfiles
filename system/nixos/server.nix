@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   nixSettings = import ../nix-settings.nix;
@@ -6,7 +6,8 @@ in
 {
   # NOTE: Replace with hardware-configuration.nix after installing NixOS
   # imports = [ ./hardware-configuration.nix ];
-  fileSystems."/" = {
+  # Default fileSystems (override with disko or hardware-configuration.nix)
+  fileSystems."/" = lib.mkDefault {
     device = "/dev/disk/by-label/nixos";
     fsType = "ext4";
   };
@@ -17,7 +18,7 @@ in
   };
 
   networking = {
-    hostName = "nixos-server";
+    hostName = lib.mkDefault "nixos-server";
     networkmanager.enable = true;
     firewall = {
       enable = true;
@@ -42,8 +43,8 @@ in
   services.openssh = {
     enable = true;
     settings = {
-      PermitRootLogin = "no";
-      PasswordAuthentication = false;
+      PermitRootLogin = lib.mkDefault "no";
+      PasswordAuthentication = lib.mkDefault false;
     };
   };
 
