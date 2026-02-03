@@ -15,11 +15,14 @@ _:
     # Taps
     taps = [
       "charmbracelet/tap" # For crush
+      "FelixKratz/formulae" # For SketchyBar, JankyBorders
     ];
 
     # CLI tools (most are in Home Manager, these are Homebrew-only)
     brews = [
       "charmbracelet/tap/crush" # AI coding agent (avoids Nix Go build)
+      "sketchybar" # Custom macOS menu bar
+      "borders" # JankyBorders - window borders
     ];
 
     # GUI Applications (casks)
@@ -29,6 +32,7 @@ _:
 
       # Development
       "visual-studio-code"
+      "zed"
       "ghostty"
       "orbstack" # Docker replacement (2sec startup, 60% faster, 180mW)
 
