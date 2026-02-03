@@ -41,11 +41,11 @@
 
         # Container tools
         dive # Docker image layer explorer
+        lazydocker # Docker TUI (manage containers/images/volumes)
         k9s # Kubernetes TUI
 
         # Load testing
-        k6 # Modern load testing tool
-        vegeta # HTTP load testing tool
+        oha # Lightweight HTTP load generator (Rust)
 
         # File transfer & archive
         rsync # incremental file sync
