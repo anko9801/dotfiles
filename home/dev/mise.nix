@@ -25,11 +25,8 @@ _:
         pnpm = "10.28.1";
         "npm:@antfu/ni" = "28.2.0";
         "npm:@google/gemini-cli" = "0.25.2";
-        "npm:czg" = "1.12.0";
-        "npm:cz-git" = "1.12.0";
         "npm:ccmanager" = "3.6.1";
         "npm:zenn-cli" = "0.4.3";
-        "npm:gitmoji-cli" = "9.7.0";
       };
       tasks = {
         update = {

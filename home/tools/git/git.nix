@@ -99,7 +99,6 @@ in
   home = {
     packages = with pkgs; [
       difftastic
-      gibo
       git-wt
       git-absorb
       onefetch
@@ -108,13 +107,6 @@ in
     file = {
       ".config/git/allowed_signers".text = "${email} ${sshKey}";
 
-      ".gitmojirc.json".text = builtins.toJSON {
-        autoAdd = false;
-        emojiFormat = "emoji";
-        scopePrompt = false;
-        messagePrompt = true;
-        capitalizeTitle = true;
-      };
 
       ".config/git/hooks/pre-commit" = {
         executable = true;
