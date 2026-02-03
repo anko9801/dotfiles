@@ -8,8 +8,8 @@
     ./claude
     ./ghostty.nix
     ./git
-    ./ime.nix
     ./yazi.nix
     # zellij is WSL-only (Ghostty has built-in splits on macOS)
+    # ime.nix moved to home/desktop/
   ];
 }

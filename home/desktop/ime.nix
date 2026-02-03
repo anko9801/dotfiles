@@ -1,20 +1,13 @@
-# Japanese Input Method (SKK)
-# - Linux: fcitx5-skk
-# - macOS: AquaSKK (installed via Homebrew)
-# - WSL: Uses Windows IME (no config needed)
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}:
+# Japanese Input Method (SKK) for Linux Desktop
+# - fcitx5-skk with AZIK input style
+{ pkgs, lib, ... }:
 
 let
-  isLinuxDesktop = pkgs.stdenv.isLinux && !(config.targets.genericLinux.enable or false);
+  isCI = builtins.getEnv "CI" != "";
 in
 {
-  # Linux desktop only (not WSL)
-  config = lib.mkIf isLinuxDesktop {
+  # Skip IME setup in CI (no display server)
+  config = lib.mkIf (!isCI) {
     i18n.inputMethod = {
       enabled = "fcitx5";
       fcitx5.addons = with pkgs; [
@@ -62,7 +55,3 @@ in
     '';
   };
 }
-
-# Note: For macOS (AquaSKK) and Windows (CorvusSKK), enable AZIK in their respective settings:
-# - AquaSKK: Preferences > Input > AZIK
-# - CorvusSKK: Settings > Romaji Table > AZIK
