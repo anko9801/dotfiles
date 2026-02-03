@@ -56,7 +56,6 @@ let
   aliases = {
     # Status/Log
     st = "status -sb";
-    ds = "diff --staged";
     tree = "log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit";
     root = "rev-parse --show-toplevel";
 
@@ -73,6 +72,8 @@ let
     please = "push --force-with-lease --force-if-includes";
 
     # Commit
+    unstage = "restore --staged";
+    amend = "commit --amend";
     undo = "reset HEAD~1 --mixed";
     nevermind = "!git reset --hard HEAD && git clean -d -f";
 
