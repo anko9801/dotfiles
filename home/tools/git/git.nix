@@ -211,6 +211,7 @@ in
         hooksPath = "~/.config/git/hooks";
         quotepath = false;
         untrackedCache = true;
+        fsmonitor = true; # Speed up git in large repos
       };
 
       color.ui = "auto";

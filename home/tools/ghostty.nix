@@ -28,5 +28,10 @@ _:
 
     # Quick terminal (macOS)
     quick-terminal-position = center
+
+    # Terminal input compatibility (Emacs-style)
+    keybind = ctrl+m=text:\n
+    keybind = ctrl+enter=text:\n
+    keybind = ctrl+i=text:\t
   '';
 }
