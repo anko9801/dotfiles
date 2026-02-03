@@ -16,15 +16,15 @@ _:
     # Clipboard
     copy-on-select = clipboard
 
-    # Keybindings (vim-style pane navigation with Ctrl-s prefix)
-    keybind = ctrl+s>h=goto_split:left
-    keybind = ctrl+s>j=goto_split:down
-    keybind = ctrl+s>k=goto_split:up
-    keybind = ctrl+s>l=goto_split:right
-    keybind = ctrl+s>v=new_split:right
-    keybind = ctrl+s>s=new_split:down
-    keybind = ctrl+s>x=close_surface
-    keybind = ctrl+s>z=toggle_split_zoom
+    # Keybindings (vim-style pane navigation with Ctrl-q prefix, same as zellij/tmux)
+    keybind = ctrl+q>h=goto_split:left
+    keybind = ctrl+q>j=goto_split:down
+    keybind = ctrl+q>k=goto_split:up
+    keybind = ctrl+q>l=goto_split:right
+    keybind = ctrl+q>v=new_split:right
+    keybind = ctrl+q>s=new_split:down
+    keybind = ctrl+q>x=close_surface
+    keybind = ctrl+q>z=toggle_split_zoom
 
     # Quick terminal (macOS)
     quick-terminal-position = center
