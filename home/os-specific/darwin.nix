@@ -11,9 +11,6 @@
     ../editor
   ];
 
-  # macOS uses pbcopy for clipboard
-  tools.zellij.copyCommand = "pbcopy";
-
   # 1Password paths for macOS
   tools.ssh = {
     onePasswordAgentPath = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
@@ -36,6 +33,9 @@
       darwin.trash
       terminal-notifier
     ];
+
+    # Karabiner-Elements config (CapsLock -> Ctrl/Escape)
+    file.".config/karabiner/karabiner.json".source = ./karabiner.json;
   };
 
   programs = {
