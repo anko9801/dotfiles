@@ -50,5 +50,19 @@ in
       [GroupOrder]
       0=Default
     '';
+
+    # SKK config with AZIK
+    xdg.configFile."fcitx5/conf/skk.conf".text = ''
+      # Use AZIK input style for efficient Japanese typing
+      InputStyle=AZIK
+      # Punctuation style
+      PunctuationStyle=JA
+      # Show annotation
+      ShowAnnotation=True
+    '';
   };
 }
+
+# Note: For macOS (AquaSKK) and Windows (CorvusSKK), enable AZIK in their respective settings:
+# - AquaSKK: Preferences > Input > AZIK
+# - CorvusSKK: Settings > Romaji Table > AZIK

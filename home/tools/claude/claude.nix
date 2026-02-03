@@ -1,6 +1,9 @@
-{ unfreePkgs, ... }:
+{ unfreePkgs, config, ... }:
 
 {
+  # MCP settings file
+  home.file.".claude/mcp_settings.json".source = ./mcp_settings.json;
+
   programs.claude-code = {
     enable = true;
     package = unfreePkgs.claude-code;
