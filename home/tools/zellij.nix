@@ -12,10 +12,6 @@
   };
 
   config.xdg.configFile."zellij/config.kdl".text = ''
-    // ==============================================================================
-    // Zellij Configuration - tmux-like keybindings
-    // ==============================================================================
-
     // UI
     ui {
         pane_frames {
@@ -32,10 +28,7 @@
     copy_command "${config.tools.zellij.copyCommand}"
     default_layout "default"
 
-    // ==============================================================================
-    // Keybindings - Ctrl-q prefix (avoids Ctrl-b conflict with shells)
-    // Layer: Multiplexer (Super=WM, Ctrl=Editor, Ctrl-q=Multiplexer)
-    // ==============================================================================
+    // Keybindings (Ctrl-q prefix)
     keybinds {
         normal {
             bind "Ctrl q" { SwitchToMode "tmux"; }

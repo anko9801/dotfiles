@@ -1,15 +1,19 @@
 { config, ... }:
 
 {
-  # AeroSpace configuration (TOML format)
-  # Installed via Homebrew cask
-  home-manager.users.${config.system.primaryUser}.home.file.".config/aerospace/aerospace.toml".text =
-    ''
+  home-manager.users.${config.system.primaryUser}.home.file = {
+    ".config/aerospace/aerospace.toml".text = ''
       # AeroSpace - tiling window manager for macOS
       # https://github.com/nikitabobko/AeroSpace
 
       # Start at login
       start-at-login = true
+
+      # Start JankyBorders and SketchyBar with AeroSpace
+      after-startup-command = [
+        'exec-and-forget borders',
+        'exec-and-forget sketchybar',
+      ]
 
       # Normalizations
       enable-normalization-flatten-containers = true
@@ -24,13 +28,9 @@
       inner.vertical = 6
       outer.left = 12
       outer.bottom = 12
-      outer.top = 12
+      outer.top = 40  # Space for SketchyBar
       outer.right = 12
 
-      # ==============================================================================
-      # Main mode keybindings
-      # Using Cmd (Super) for WM layer - avoids conflicts with terminal/editor
-      # ==============================================================================
       [mode.main.binding]
       # Window focus (cmd + vim keys)
       cmd-h = 'focus left'
@@ -150,4 +150,117 @@
       if.app-id = 'com.logi.cp-dev-mgr.service'
       run = 'layout floating'
     '';
+
+    ".config/borders/bordersrc" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+
+        options=(
+          style=round
+          width=6.0
+          hidpi=on
+          active_color=0xff7aa2f7   # Tokyo Night blue
+          inactive_color=0xff565f89 # Tokyo Night comment
+        )
+
+        borders "''${options[@]}"
+      '';
+    };
+
+    ".config/sketchybar/sketchybarrc" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+
+        # Tokyo Night color palette
+        export BLACK=0xff1a1b26
+        export WHITE=0xffc0caf5
+        export RED=0xfff7768e
+        export GREEN=0xff9ece6a
+        export BLUE=0xff7aa2f7
+        export YELLOW=0xffe0af68
+        export ORANGE=0xffff9e64
+        export MAGENTA=0xffbb9af7
+        export GREY=0xff565f89
+        export TRANSPARENT=0x00000000
+
+        # Bar appearance
+        sketchybar --bar \
+          height=32 \
+          blur_radius=30 \
+          position=top \
+          sticky=on \
+          padding_left=10 \
+          padding_right=10 \
+          color=$BLACK
+
+        # Default item settings
+        sketchybar --default \
+          icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
+          icon.color=$WHITE \
+          label.font="JetBrainsMono Nerd Font:Bold:14.0" \
+          label.color=$WHITE \
+          background.color=$GREY \
+          background.corner_radius=5 \
+          background.height=24 \
+          padding_left=5 \
+          padding_right=5 \
+          label.padding_left=4 \
+          label.padding_right=4 \
+          icon.padding_left=4 \
+          icon.padding_right=4
+
+        # AeroSpace workspace indicators
+        for sid in $(aerospace list-workspaces --all); do
+          sketchybar --add item space.$sid left \
+            --subscribe space.$sid aerospace_workspace_change \
+            --set space.$sid \
+              background.color=$GREY \
+              background.corner_radius=5 \
+              background.height=20 \
+              background.drawing=off \
+              label="$sid" \
+              click_script="aerospace workspace $sid" \
+              script="$CONFIG_DIR/plugins/aerospace.sh $sid"
+        done
+
+        # Front app name
+        sketchybar --add item front_app left \
+          --set front_app \
+            icon.drawing=off \
+            script="sketchybar --set \$NAME label=\"\$INFO\"" \
+          --subscribe front_app front_app_switched
+
+        # Clock
+        sketchybar --add item clock right \
+          --set clock \
+            update_freq=10 \
+            script="sketchybar --set \$NAME label=\"\$(date '+%H:%M')\""
+
+        # Battery
+        sketchybar --add item battery right \
+          --set battery \
+            update_freq=120 \
+            script="sketchybar --set \$NAME label=\"\$(pmset -g batt | grep -Eo '\d+%')\""
+
+        # Initialize
+        sketchybar --update
+      '';
+    };
+
+    # AeroSpace workspace change script for SketchyBar
+    ".config/sketchybar/plugins/aerospace.sh" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+
+        if [ "$1" = "$FOCUSED_WORKSPACE" ]; then
+          sketchybar --set $NAME background.drawing=on
+        else
+          sketchybar --set $NAME background.drawing=off
+        fi
+      '';
+    };
+  };
 }
