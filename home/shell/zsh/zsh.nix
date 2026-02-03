@@ -9,7 +9,6 @@
 {
   programs.zsh = {
     enable = true;
-    enableCompletion = true;
     dotDir = "${config.xdg.configHome}/zsh"; # XDG compliant (HM 26.05+)
 
     # History configuration
@@ -38,37 +37,18 @@
     # Shell options
     autocd = true;
 
-    # Syntax highlighting
-    syntaxHighlighting.enable = true;
+    # Syntax highlighting - using fast-syntax-highlighting (much faster than zsh-syntax-highlighting)
+    syntaxHighlighting.enable = false;
 
-    # Autosuggestions
-    autosuggestion = {
-      enable = true;
-      strategy = [
-        "history"
-        "completion"
-      ];
-    };
+    # Autosuggestions - deferred for faster startup
+    autosuggestion.enable = false;
 
-    # Plugins from nixpkgs
-    plugins = [
-      {
-        name = "fzf-tab";
-        src = pkgs.zsh-fzf-tab;
-        file = "share/fzf-tab/fzf-tab.plugin.zsh";
-      }
-      {
-        name = "zsh-abbr";
-        src = unfreePkgs.zsh-abbr;
-        file = "share/zsh/zsh-abbr/zsh-abbr.plugin.zsh";
-      }
-    ];
+    # Plugins loaded via zsh-defer in initContent for faster startup
+    plugins = [ ];
 
-    # Completion styles
-    completionInit = ''
-      autoload -Uz compinit
-      compinit -C
-    '';
+    # Completion: defer compinit for instant prompt
+    enableCompletion = false;
+    completionInit = "";
 
     # Main initialization using initContent (new API)
     initContent = lib.mkMerge [
@@ -82,6 +62,27 @@
           zellij attach -c
         fi
 
+        # Starship must be loaded FIRST (before zsh-defer to avoid issues in zellij)
+        [[ $TERM != "dumb" ]] && eval "$(${pkgs.starship}/bin/starship init zsh)"
+
+        # zsh-defer: deferred execution for faster startup
+        source ${pkgs.zsh-defer}/share/zsh-defer/zsh-defer.plugin.zsh
+
+        # Deferred plugin initializers (wrapped in functions for reliable execution)
+        _init_compinit() { autoload -Uz compinit && compinit -C; }
+        _init_fzf() { source <(${pkgs.fzf}/bin/fzf --zsh); }
+        _init_direnv() { eval "$(${pkgs.direnv}/bin/direnv hook zsh)"; }
+        _init_atuin() { [[ $options[zle] = on ]] && eval "$(${pkgs.atuin}/bin/atuin init zsh)"; }
+
+        # Defer all heavy plugins
+        zsh-defer _init_compinit
+        zsh-defer _init_fzf
+        zsh-defer _init_direnv
+        zsh-defer _init_atuin
+        zsh-defer source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
+        zsh-defer source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+        zsh-defer source ${pkgs.zsh-fast-syntax-highlighting}/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
+        zsh-defer source ${unfreePkgs.zsh-abbr}/share/zsh/zsh-abbr/zsh-abbr.plugin.zsh
       '')
 
       # Shell options and completion styles
@@ -108,6 +109,8 @@
         setopt HIST_VERIFY HIST_REDUCE_BLANKS
         setopt RM_STAR_SILENT
 
+        # Deferred completion styles (loaded after compinit)
+        _init_completion_styles() {
         # Completion: fuzzy match, cache, show descriptions
         zstyle ':completion:*:default' menu select=2
         zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
@@ -153,6 +156,7 @@
         zstyle ':completion:*:descriptions' format '[%d]'
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
         zstyle ':fzf-tab:*' switch-group ',' '.'
+        zstyle ':fzf-tab:*' prefix '''
         zstyle ':fzf-tab:*' fzf-flags --height=40% --layout=reverse --border --preview-window=right:50%:wrap
 
         # File preview
@@ -298,6 +302,9 @@
 
         # tmux popup (zellij doesn't support popup yet)
         [[ -n "$TMUX" ]] && zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+        }
+        # Defer completion styles (runs after compinit and fzf-tab load)
+        zsh-defer _init_completion_styles
       ''
 
       # Machine-specific overrides

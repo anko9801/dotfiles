@@ -8,7 +8,7 @@ _:
 
   programs.fzf = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false; # Deferred in zsh.nix for faster startup
     defaultOptions = [
       "--height=40%"
       "--layout=reverse"

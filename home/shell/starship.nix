@@ -6,7 +6,7 @@
 {
   programs.starship = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false; # Deferred in zsh.nix with instant prompt fallback
 
     settings = {
       # Colors managed by Stylix (base16 palette)

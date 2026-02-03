@@ -3,7 +3,7 @@ _:
 {
   programs.atuin = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false; # Deferred in zsh.nix for faster startup
     settings = {
       search_mode = "fuzzy";
       filter_mode = "global";

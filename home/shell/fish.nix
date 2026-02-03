@@ -4,6 +4,8 @@
 }:
 
 {
+  home.packages = [ pkgs.peco ];
+
   programs = {
     fish = {
       enable = true;
