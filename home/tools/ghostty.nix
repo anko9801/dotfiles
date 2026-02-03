@@ -21,8 +21,11 @@ _:
     keybind = ctrl+q>j=goto_split:down
     keybind = ctrl+q>k=goto_split:up
     keybind = ctrl+q>l=goto_split:right
-    keybind = ctrl+q>v=new_split:right
-    keybind = ctrl+q>s=new_split:down
+    # Split: tmux/zellij compatible (- " for down, | % for right)
+    keybind = ctrl+q>minus=new_split:down
+    keybind = ctrl+q>shift+quote=new_split:down
+    keybind = ctrl+q>shift+backslash=new_split:right
+    keybind = ctrl+q>shift+five=new_split:right
     keybind = ctrl+q>x=close_surface
     keybind = ctrl+q>z=toggle_split_zoom
 
