@@ -484,6 +484,58 @@ _:
       options.desc = "Avante: Refresh";
     }
 
+    # Toggleterm
+    {
+      mode = "n";
+      key = "<leader>tf";
+      action = "<cmd>ToggleTerm direction=float<CR>";
+      options.desc = "Float terminal";
+    }
+    {
+      mode = "n";
+      key = "<leader>th";
+      action = "<cmd>ToggleTerm direction=horizontal<CR>";
+      options.desc = "Horizontal terminal";
+    }
+    {
+      mode = "n";
+      key = "<leader>tv";
+      action = "<cmd>ToggleTerm direction=vertical<CR>";
+      options.desc = "Vertical terminal";
+    }
+    {
+      mode = "t";
+      key = "<C-\\>";
+      action = "<cmd>ToggleTerm<CR>";
+      options.desc = "Toggle terminal";
+    }
+    {
+      mode = "t";
+      key = "<Esc><Esc>";
+      action = "<C-\\><C-n>";
+      options.desc = "Exit terminal mode";
+    }
+
+    # Session (persistence)
+    {
+      mode = "n";
+      key = "<leader>qs";
+      action.__raw = "function() require('persistence').load() end";
+      options.desc = "Restore session";
+    }
+    {
+      mode = "n";
+      key = "<leader>ql";
+      action.__raw = "function() require('persistence').load({ last = true }) end";
+      options.desc = "Restore last session";
+    }
+    {
+      mode = "n";
+      key = "<leader>qd";
+      action.__raw = "function() require('persistence').stop() end";
+      options.desc = "Don't save session";
+    }
+
     # Trouble (diagnostics)
     {
       mode = "n";

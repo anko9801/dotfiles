@@ -423,6 +423,54 @@
     };
 
     # ==========================================================================
+    # Terminal
+    # ==========================================================================
+    toggleterm = {
+      enable = true;
+      lazyLoad.settings.keys = [
+        "<C-\\>"
+        "<leader>tf"
+        "<leader>th"
+        "<leader>tv"
+      ];
+      settings = {
+        open_mapping = "<C-\\>";
+        direction = "float";
+        float_opts = {
+          border = "curved";
+          width = 120;
+          height = 30;
+        };
+        size.__raw = ''
+          function(term)
+            if term.direction == "horizontal" then
+              return 15
+            elseif term.direction == "vertical" then
+              return vim.o.columns * 0.4
+            end
+          end
+        '';
+      };
+    };
+
+    # ==========================================================================
+    # Session management
+    # ==========================================================================
+    persistence = {
+      enable = true;
+      lazyLoad.settings.event = [ "BufReadPre" ];
+      settings = {
+        dir.__raw = "vim.fn.stdpath('state') .. '/sessions/'";
+        options = [
+          "buffers"
+          "curdir"
+          "tabpages"
+          "winsize"
+        ];
+      };
+    };
+
+    # ==========================================================================
     # AI: avante.nvim (Cursor-like AI with Claude)
     # ==========================================================================
     avante = {
