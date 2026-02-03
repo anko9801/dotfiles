@@ -116,6 +116,19 @@
       # Hooks - run commands at specific lifecycle points
       # Exit code 0 = success, 2 = blocking error (stderr fed back to Claude)
       hooks = {
+        # Before tool use - block dangerous commands
+        PreToolUse = [
+          {
+            matcher = "Bash";
+            command = ''
+              # Block dangerous commands
+              if echo "$CLAUDE_TOOL_INPUT" | grep -qE '\b(rm\s+-rf\s+/|dd\s+if=|mkfs|:(){:|>\s*/dev/sd)'; then
+                echo "Blocked: potentially destructive command" >&2
+                exit 2
+              fi
+            '';
+          }
+        ];
         # After file edits, run linters if available
         PostToolUse = [
           {
@@ -138,6 +151,20 @@
         Notification = [
           {
             command = "echo '🔔 Claude needs your input' >&2";
+          }
+        ];
+        # Task completion notification
+        Stop = [
+          {
+            command = ''
+              # macOS notification
+              if command -v osascript &>/dev/null; then
+                osascript -e 'display notification "Task completed" with title "Claude Code"'
+              # Linux notification (notify-send)
+              elif command -v notify-send &>/dev/null; then
+                notify-send "Claude Code" "Task completed"
+              fi
+            '';
           }
         ];
       };
