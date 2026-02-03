@@ -19,8 +19,6 @@
   config = {
     targets.genericLinux.enable = true;
 
-    tools.zellij.copyCommand = "wsl-copy";
-
     # 1Password paths for WSL
     tools.ssh = {
       onePasswordAgentPath = "$HOME/.1password/agent.sock";
@@ -86,6 +84,9 @@
         # WSL-Specific Configuration
         export WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2 2>/dev/null || echo "localhost")
 
+        # Remove Windows starship from PATH (use WSL version only)
+        export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '/mnt/c/Program Files/starship' | tr '\n' ':' | sed 's/:$//')
+
         # Windows paths
         export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0"
 
@@ -118,8 +119,8 @@
 
         explorer() { explorer.exe "''${1:-.}"; }
 
-        alias pbcopy='clip.exe'
-        alias pbpaste='powershell.exe -command "Get-Clipboard" | tr -d "\r"'
+        # pbcopy uses OSC 52 (defined in functions.nix)
+        alias pbpaste='powershell.exe -command "Get-Clipboard" | tr -d "\r" | sed "s/^\xEF\xBB\xBF//"'
         alias op='op.exe'
 
         # X11 display (VcXsrv/Xming)

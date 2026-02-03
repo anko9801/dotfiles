@@ -26,10 +26,36 @@ in
     };
   };
 
+  # Global devenv config
+  xdg.configFile."devenv/config.yaml".text = ''
+    # Global devenv configuration
+    # https://devenv.sh/reference/yaml-options/
+
+    # Disable telemetry
+    disable_telemetry: true
+  '';
+
   programs = {
     direnv = {
       enable = true;
+      enableZshIntegration = false; # Deferred in zsh.nix for faster startup
       nix-direnv.enable = true;
+
+      # Custom direnvrc for devenv auto-detection
+      stdlib = ''
+        # Auto-detect and use devenv when devenv.nix exists
+        use_devenv() {
+          watch_file devenv.nix devenv.lock devenv.yaml .devenv.flake.nix
+          if has devenv; then
+            eval "$(devenv print-dev-env)"
+          fi
+        }
+
+        # Auto-use devenv if devenv.nix exists and .envrc doesn't exist or is empty
+        layout_devenv() {
+          use_devenv
+        }
+      '';
     };
     nix-index = {
       enable = true;
