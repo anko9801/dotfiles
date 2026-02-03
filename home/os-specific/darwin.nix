@@ -52,6 +52,8 @@
       # macOS-Specific Configuration
       export HOMEBREW_NO_ANALYTICS=1
       export HOMEBREW_NO_AUTO_UPDATE=1
+      # Prevent Homebrew from installing runtimes (use mise instead)
+      export HOMEBREW_FORBIDDEN_FORMULAE="node python python3 pip npm pnpm yarn"
 
       # GNU tools from Homebrew
       export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
