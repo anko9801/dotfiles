@@ -7,7 +7,8 @@
     ./cli.nix
     ./claude
     ./git
+    ./ime.nix
     ./yazi.nix
-    ./zellij.nix
+    ./zellij
   ];
 }
