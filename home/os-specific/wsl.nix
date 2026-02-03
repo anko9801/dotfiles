@@ -8,6 +8,7 @@
 {
   imports = [
     ../tools
+    ../tools/zellij # Windows Terminal needs multiplexer
     ../editor
   ];
 

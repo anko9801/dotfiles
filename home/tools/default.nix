@@ -10,6 +10,6 @@
     ./git
     ./ime.nix
     ./yazi.nix
-    ./zellij
+    # zellij is WSL-only (Ghostty has built-in splits on macOS)
   ];
 }
