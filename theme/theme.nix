@@ -59,8 +59,8 @@
       # Fonts
       fonts = {
         monospace = {
-          package = pkgs.nerd-fonts.jetbrains-mono;
-          name = "JetBrainsMono Nerd Font";
+          package = pkgs.moralerspace;
+          name = "Moralerspace Neon";
         };
         sansSerif = {
           package = pkgs.noto-fonts-cjk-sans;
@@ -103,6 +103,12 @@
         vscode.enable = false; # Using Zed instead
       };
     };
+
+    # Additional fonts (Nerd Font icons + JetBrains Mono as alternative)
+    home.packages = [
+      pkgs.nerd-fonts.symbols-only
+      pkgs.nerd-fonts.jetbrains-mono
+    ];
 
     programs.dircolors = {
       enable = true;
