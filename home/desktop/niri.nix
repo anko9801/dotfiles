@@ -104,8 +104,8 @@
       Mod+Space { spawn "fuzzel"; }
       Mod+E { spawn "nautilus"; }
 
-      // Window management
-      Mod+Q { close-window; }
+      // Window management (Shift for destructive actions)
+      Mod+Shift+Q { close-window; }
       Mod+F { maximize-column; }
       Mod+Shift+F { fullscreen-window; }
       Mod+Shift+Space { toggle-window-floating; }
