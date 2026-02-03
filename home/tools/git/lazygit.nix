@@ -37,6 +37,16 @@ _:
           quit-alt1 = "<c-c>";
         };
       };
+      customCommands = [
+        {
+          key = "C";
+          context = "files";
+          command = "czg";
+          description = "Commit with czg (conventional + emoji)";
+          loadingText = "Opening czg...";
+          subprocess = true;
+        }
+      ];
       os = {
         editPreset = "nvim";
       };

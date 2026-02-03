@@ -25,6 +25,7 @@ _:
         pnpm = "10.28.1";
         "npm:@antfu/ni" = "28.2.0";
         "npm:@google/gemini-cli" = "0.25.2";
+        "npm:czg" = "latest";
         "npm:ccmanager" = "3.6.1";
         "npm:zenn-cli" = "0.4.3";
       };
