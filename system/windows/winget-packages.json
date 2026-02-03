@@ -29,6 +29,7 @@
         { "PackageIdentifier": "Starship.Starship" },
         { "PackageIdentifier": "ajeetdsouza.zoxide" },
         { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
+        { "PackageIdentifier": "Voidmain.CorvusSKK" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
         { "PackageIdentifier": "FilesCommunity.Files" },
         { "PackageIdentifier": "voidtools.Everything" },

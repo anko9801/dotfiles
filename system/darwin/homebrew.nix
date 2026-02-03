@@ -52,6 +52,12 @@ _:
       # Media
       "spotify"
 
+      # Japanese Input
+      "aquaskk"
+
+      # Key remapping
+      "karabiner-elements"
+
       # Utilities
       "1password"
       "appcleaner"
