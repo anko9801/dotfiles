@@ -12,19 +12,6 @@
 
       # YAML/Kubernetes schema companion
       schema-companion-nvim
-
-      # Code action preview with diff
-      (pkgs.vimUtils.buildVimPlugin {
-        pname = "tiny-code-action-nvim";
-        version = "unstable-2025-01-15";
-        src = pkgs.fetchFromGitHub {
-          owner = "rachartier";
-          repo = "tiny-code-action.nvim";
-          rev = "41c22fc74f2a9f7de9d7b37eb70d2e8a01198a6f";
-          hash = "sha256-/6D40XqbLUwO8p0k8kDXINiRR7Dx22v5nJfuv+oAMpA=";
-        };
-        meta.homepage = "https://github.com/rachartier/tiny-code-action.nvim";
-      })
     ];
 
     # Configuration for external plugins
@@ -38,16 +25,6 @@
       require("schema-companion").setup({
         log_level = vim.log.levels.INFO,
       })
-
-      -- Tiny code action (code action with preview)
-      require("tiny-code-action").setup({
-        backend = "vim",
-      })
-
-      -- Override default code action keymap to use tiny-code-action
-      vim.keymap.set({ "n", "x" }, "<leader>ca", function()
-        require("tiny-code-action").code_action({})
-      end, { desc = "Code Action (preview)" })
 
       -- Schema companion keymaps
       vim.keymap.set("n", "<leader>ys", function()
