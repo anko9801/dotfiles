@@ -427,14 +427,9 @@
     # ==========================================================================
     toggleterm = {
       enable = true;
-      lazyLoad.settings.keys = [
-        "<C-\\>"
-        "<leader>tf"
-        "<leader>th"
-        "<leader>tv"
-      ];
+      lazyLoad.settings.cmd = [ "ToggleTerm" ];
       settings = {
-        open_mapping = "<C-\\>";
+        open_mapping.__raw = "[[<C-\\>]]";
         direction = "float";
         float_opts = {
           border = "curved";
