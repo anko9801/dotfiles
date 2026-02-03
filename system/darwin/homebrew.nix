@@ -54,6 +54,7 @@ _:
 
       # Japanese Input
       "aquaskk"
+      "azookey" # Neural kana-kanji converter (Zenzai)
 
       # Key remapping
       "karabiner-elements"
