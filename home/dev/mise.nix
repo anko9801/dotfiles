@@ -16,6 +16,7 @@ _:
         node = "22";
         python = "latest";
         uv = "latest";
+        "pipx:ty" = "latest"; # Python type checker (Astral)
         ruby = "latest";
         go = "latest";
         deno = "latest";
