@@ -1,4 +1,4 @@
-{ unfreePkgs, config, ... }:
+{ unfreePkgs, ... }:
 
 {
   # MCP settings file

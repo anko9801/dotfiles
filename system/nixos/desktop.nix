@@ -34,42 +34,51 @@ in
     };
   };
 
-  # Niri compositor
-  programs.niri = {
-    enable = true;
-    package = pkgs.niri;
+  programs = {
+    # Niri compositor
+    niri = {
+      enable = true;
+      package = pkgs.niri;
+    };
+    # XWayland
+    xwayland.enable = true;
+    # Dconf (for GTK apps)
+    dconf.enable = true;
   };
 
-  # Display manager (greetd + tuigreet)
-  services.greetd = {
-    enable = true;
-    settings = {
-      default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd niri-session";
-        user = "greeter";
+  services = {
+    # Display manager (greetd + tuigreet)
+    greetd = {
+      enable = true;
+      settings = {
+        default_session = {
+          command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd niri-session";
+          user = "greeter";
+        };
       };
     };
+    # Audio (PipeWire)
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      wireplumber.enable = true;
+    };
+    # Bluetooth
+    blueman.enable = true;
+    # GNOME Keyring
+    gnome.gnome-keyring.enable = true;
   };
 
-  # XWayland
-  programs.xwayland.enable = true;
-
-  # Audio (PipeWire)
+  # Audio
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    wireplumber.enable = true;
-  };
 
   # Bluetooth
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
   };
-  services.blueman.enable = true;
 
   # Polkit (for GUI auth)
   security.polkit.enable = true;
@@ -119,12 +128,6 @@ in
     gnome-keyring
     libsecret
   ];
-
-  # GNOME Keyring
-  services.gnome.gnome-keyring.enable = true;
-
-  # Dconf (for GTK apps)
-  programs.dconf.enable = true;
 
   # This value determines the NixOS release
   system.stateVersion = "24.11";
