@@ -197,8 +197,11 @@
               {
                 type = "command";
                 command = ''
+                  # WSL notification (PowerShell toast)
+                  if grep -qi microsoft /proc/version 2>/dev/null; then
+                    powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Task completed'" 2>/dev/null || true
                   # macOS notification
-                  if command -v osascript &>/dev/null; then
+                  elif command -v osascript &>/dev/null; then
                     osascript -e 'display notification "Task completed" with title "Claude Code"'
                   # Linux notification (notify-send)
                   elif command -v notify-send &>/dev/null; then
