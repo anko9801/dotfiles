@@ -46,27 +46,6 @@ _:
         abbr -S -q 'gP!'="git please"
         abbr -S -q gw="git worktree"
 
-        # Docker
-        abbr -S -q d="docker"
-        abbr -S -q dc="docker-compose"
-        abbr -S -q dps="docker ps"
-        abbr -S -q dpsa="docker ps -a"
-        abbr -S -q di="docker images"
-        abbr -S -q drm="docker rm"
-        abbr -S -q drmi="docker rmi"
-
-        # Editors
-        abbr -S -q v="vim"
-        abbr -S -q nv="nvim"
-        abbr -S -q c="code"
-
-        # zellij
-        abbr -S -q zj="zellij"
-        abbr -S -q zja="zellij attach"
-        abbr -S -q zjn="zellij -s"
-        abbr -S -q zjl="zellij list-sessions"
-        abbr -S -q zjk="zellij kill-session"
-
         # Tools
         abbr -S -q lg="lazygit"
 
@@ -82,10 +61,6 @@ _:
         abbr -S -q ghrc="gh repo clone"
         abbr -S -q ghrv="gh repo view --web"
 
-        # Misc
-        abbr -S -q h="history"
-        abbr -S -q j="jobs"
-        abbr -S -q reload="source ~/.zshrc"
 
         # Make abbreviations available in Tab completion (command position only)
         _complete_abbr() {
