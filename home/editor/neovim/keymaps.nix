@@ -101,56 +101,56 @@ _:
       action = "<Right>";
     }
 
-    # Window navigation
+    # Window navigation (smart-splits: works across nvim/tmux/zellij)
     {
       mode = "n";
       key = "<C-h>";
-      action = "<C-w>h";
+      action.__raw = "function() require('smart-splits').move_cursor_left() end";
       options.desc = "Move to left window";
     }
     {
       mode = "n";
       key = "<C-j>";
-      action = "<C-w>j";
+      action.__raw = "function() require('smart-splits').move_cursor_down() end";
       options.desc = "Move to lower window";
     }
     {
       mode = "n";
       key = "<C-k>";
-      action = "<C-w>k";
+      action.__raw = "function() require('smart-splits').move_cursor_up() end";
       options.desc = "Move to upper window";
     }
     {
       mode = "n";
       key = "<C-l>";
-      action = "<C-w>l";
+      action.__raw = "function() require('smart-splits').move_cursor_right() end";
       options.desc = "Move to right window";
     }
 
-    # Window resize
+    # Window resize (smart-splits)
     {
       mode = "n";
-      key = "<C-Up>";
-      action = "<cmd>resize -2<CR>";
-      options.desc = "Decrease window height";
+      key = "<C-Left>";
+      action.__raw = "function() require('smart-splits').resize_left() end";
+      options.desc = "Resize window left";
     }
     {
       mode = "n";
       key = "<C-Down>";
-      action = "<cmd>resize +2<CR>";
-      options.desc = "Increase window height";
+      action.__raw = "function() require('smart-splits').resize_down() end";
+      options.desc = "Resize window down";
     }
     {
       mode = "n";
-      key = "<C-Left>";
-      action = "<cmd>vertical resize -2<CR>";
-      options.desc = "Decrease window width";
+      key = "<C-Up>";
+      action.__raw = "function() require('smart-splits').resize_up() end";
+      options.desc = "Resize window up";
     }
     {
       mode = "n";
       key = "<C-Right>";
-      action = "<cmd>vertical resize +2<CR>";
-      options.desc = "Increase window width";
+      action.__raw = "function() require('smart-splits').resize_right() end";
+      options.desc = "Resize window right";
     }
 
     # Clear search highlight
@@ -416,6 +416,26 @@ _:
       key = "<leader>gs";
       action = "<cmd>FzfLua git_status<CR>";
       options.desc = "Git status";
+    }
+
+    # Octo (GitHub)
+    {
+      mode = "n";
+      key = "<leader>op";
+      action = "<cmd>Octo pr list<CR>";
+      options.desc = "List PRs";
+    }
+    {
+      mode = "n";
+      key = "<leader>oi";
+      action = "<cmd>Octo issue list<CR>";
+      options.desc = "List issues";
+    }
+    {
+      mode = "n";
+      key = "<leader>or";
+      action = "<cmd>Octo review start<CR>";
+      options.desc = "Start review";
     }
 
     # Flash keymaps

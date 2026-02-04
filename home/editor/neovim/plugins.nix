@@ -37,14 +37,17 @@
   };
 
   programs.nixvim.plugins = {
-    # Lazy loading with lz.n
+    # lz-n: Lazy loading framework for nixvim
     lz-n.enable = true;
 
     # ==========================================================================
     # UI (load immediately - needed for visual consistency)
     # ==========================================================================
+
+    # web-devicons: File type icons for various plugins
     web-devicons.enable = true;
 
+    # lualine: Fast and customizable statusline
     lualine = {
       enable = true;
       settings.options = {
@@ -61,6 +64,7 @@
       };
     };
 
+    # indent-blankline: Visual indentation guides
     indent-blankline = {
       enable = true;
       lazyLoad.settings.event = [
@@ -76,7 +80,7 @@
       };
     };
 
-    # Noice: better UI for messages, cmdline, popupmenu
+    # noice: Modern UI for messages, cmdline, and popupmenu
     noice = {
       enable = true;
       lazyLoad.settings.event = [ "VeryLazy" ];
@@ -94,6 +98,7 @@
       };
     };
 
+    # notify: Notification manager with animations
     notify = {
       enable = true;
       lazyLoad.settings.event = [ "VeryLazy" ];
@@ -107,6 +112,8 @@
     # ==========================================================================
     # File explorer & Fuzzy finder (lazy load on command)
     # ==========================================================================
+
+    # oil: Edit filesystem like a buffer
     oil = {
       enable = true;
       lazyLoad.settings.cmd = [ "Oil" ];
@@ -131,6 +138,7 @@
       };
     };
 
+    # fzf-lua: Fuzzy finder with fzf backend
     fzf-lua = {
       enable = true;
       lazyLoad.settings.cmd = [ "FzfLua" ];
@@ -153,6 +161,7 @@
       };
     };
 
+    # harpoon: Quick file navigation and marks
     harpoon = {
       enable = true;
       enableTelescope = false;
@@ -162,6 +171,20 @@
     # ==========================================================================
     # Motion & Navigation
     # ==========================================================================
+
+    # smart-splits: Seamless navigation between Neovim and tmux/zellij
+    smart-splits = {
+      enable = true;
+      lazyLoad.settings.event = [ "VeryLazy" ];
+      settings = {
+        ignored_filetypes = [ "nofile" "quickfix" "prompt" ];
+        ignored_buftypes = [ "NvimTree" ];
+        default_amount = 3;
+        at_edge = "stop";
+      };
+    };
+
+    # flash: Fast motion and search with labels
     flash = {
       enable = true;
       lazyLoad.settings = {
@@ -185,6 +208,8 @@
     # ==========================================================================
     # Treesitter (load on file open)
     # ==========================================================================
+
+    # treesitter: Syntax highlighting and code parsing
     treesitter = {
       enable = true;
       nixvimInjections = true;
@@ -233,6 +258,7 @@
       ];
     };
 
+    # treesitter-textobjects: Text objects based on syntax tree
     treesitter-textobjects = {
       enable = true;
       settings = {
@@ -263,12 +289,14 @@
       };
     };
 
+    # treesitter-context: Show code context at top of buffer
     treesitter-context = {
       enable = true;
       lazyLoad.settings.event = [ "BufReadPost" ];
       settings.max_lines = 3;
     };
 
+    # ts-autotag: Auto close and rename HTML/JSX tags
     ts-autotag = {
       enable = true;
       lazyLoad.settings.event = [ "InsertEnter" ];
@@ -277,6 +305,8 @@
     # ==========================================================================
     # Git (lazy load)
     # ==========================================================================
+
+    # gitsigns: Git signs in gutter and hunk operations
     gitsigns = {
       enable = true;
       lazyLoad.settings.event = [
@@ -330,6 +360,7 @@
       };
     };
 
+    # diffview: Git diff viewer with side-by-side comparison
     diffview = {
       enable = true;
       lazyLoad.settings.cmd = [
@@ -338,6 +369,26 @@
       ];
     };
 
+    # Octo: GitHub PR/Issue management in Neovim
+    octo = {
+      enable = true;
+      lazyLoad.settings.cmd = [ "Octo" ];
+      settings = {
+        use_local_fs = false;
+        enable_builtin = true;
+        default_remote = [ "upstream" "origin" ];
+        ssh_aliases = { };
+        picker = "fzf-lua";
+        picker_config = {
+          use_emojis = true;
+        };
+        suppress_missing_scope = {
+          projects_v2 = true;
+        };
+      };
+    };
+
+    # git-conflict: Visualize and resolve merge conflicts
     git-conflict = {
       enable = true;
       lazyLoad.settings.event = [ "BufReadPost" ];
@@ -347,12 +398,14 @@
     # ==========================================================================
     # Editing (lazy load on events)
     # ==========================================================================
+
+    # nvim-autopairs: Auto-close brackets and quotes
     nvim-autopairs = {
       enable = true;
       lazyLoad.settings.event = [ "InsertEnter" ];
     };
 
-    # mini.surround (lighter than nvim-surround)
+    # mini: Collection of minimal modules (surround, ai textobjects)
     mini = {
       enable = true;
       mockDevIcons = false;
@@ -384,8 +437,10 @@
       };
     };
 
+    # ts-comments: Context-aware commenting via treesitter
     ts-comments.enable = true;
 
+    # todo-comments: Highlight and search TODO/FIXME comments
     todo-comments = {
       enable = true;
       lazyLoad.settings.event = [
@@ -395,8 +450,10 @@
     };
 
     # ==========================================================================
-    # Diagnostics (trouble.nvim)
+    # Diagnostics
     # ==========================================================================
+
+    # trouble: Pretty diagnostics, quickfix, and location lists
     trouble = {
       enable = true;
       lazyLoad.settings.cmd = [ "Trouble" ];
@@ -413,6 +470,17 @@
     # ==========================================================================
     # Utilities
     # ==========================================================================
+
+    # image: Display and paste images in terminal Neovim
+    image = {
+      enable = true;
+      lazyLoad.settings = {
+        event = [ "BufEnter" ];
+        ft = [ "markdown" "org" "norg" ];
+      };
+    };
+
+    # which-key: Display keybinding hints in popup
     which-key = {
       enable = true;
       lazyLoad.settings.event = [ "VeryLazy" ];
@@ -425,6 +493,8 @@
     # ==========================================================================
     # Terminal
     # ==========================================================================
+
+    # toggleterm: Persistent terminal windows with toggle support
     toggleterm = {
       enable = true;
       lazyLoad.settings.cmd = [ "ToggleTerm" ];
@@ -451,6 +521,8 @@
     # ==========================================================================
     # Session management
     # ==========================================================================
+
+    # persistence: Automatic session saving and restoring
     persistence = {
       enable = true;
       lazyLoad.settings.event = [ "BufReadPre" ];
@@ -466,8 +538,10 @@
     };
 
     # ==========================================================================
-    # AI: avante.nvim (Cursor-like AI with Claude)
+    # AI
     # ==========================================================================
+
+    # avante: Cursor-like AI assistant with Claude integration
     avante = {
       enable = true;
       lazyLoad.settings.cmd = [
