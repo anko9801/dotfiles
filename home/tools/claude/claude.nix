@@ -116,7 +116,7 @@
       # Hooks - run commands at specific lifecycle points
       # Exit code 0 = success, 2 = blocking error (stderr fed back to Claude)
       hooks = {
-        # Before tool use - block dangerous commands
+        # Before tool use - block dangerous commands and track start time
         PreToolUse = [
           {
             matcher = "Bash";
@@ -129,6 +129,19 @@
                     echo "Blocked: potentially destructive command" >&2
                     exit 2
                   fi
+                '';
+              }
+            ];
+          }
+          {
+            matcher = "*";
+            hooks = [
+              {
+                type = "command";
+                command = ''
+                  # Record session start time (only if not already set)
+                  start_file="/tmp/.claude_session_start"
+                  [ ! -f "$start_file" ] && date +%s > "$start_file"
                 '';
               }
             ];
@@ -189,7 +202,7 @@
             ];
           }
         ];
-        # Task completion notification
+        # Task completion notification (only for tasks > 30s)
         Stop = [
           {
             matcher = "*";
@@ -197,15 +210,24 @@
               {
                 type = "command";
                 command = ''
-                  # WSL notification (BurntToast)
-                  if grep -qi microsoft /proc/version 2>/dev/null; then
-                    powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Task completed'" 2>/dev/null || true
-                  # macOS notification
-                  elif command -v osascript &>/dev/null; then
-                    osascript -e 'display notification "Task completed" with title "Claude Code"'
-                  # Linux notification (notify-send)
-                  elif command -v notify-send &>/dev/null; then
-                    notify-send "Claude Code" "Task completed"
+                  start_file="/tmp/.claude_session_start"
+                  if [ -f "$start_file" ]; then
+                    start_time=$(cat "$start_file")
+                    elapsed=$(($(date +%s) - start_time))
+                    rm -f "$start_file"
+                    # Only notify if task took longer than 30 seconds
+                    if [ "$elapsed" -ge 30 ]; then
+                      # WSL notification (BurntToast)
+                      if grep -qi microsoft /proc/version 2>/dev/null; then
+                        powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Task completed (''${elapsed}s)'" 2>/dev/null || true
+                      # macOS notification
+                      elif command -v osascript &>/dev/null; then
+                        osascript -e "display notification \"Task completed (''${elapsed}s)\" with title \"Claude Code\""
+                      # Linux notification (notify-send)
+                      elif command -v notify-send &>/dev/null; then
+                        notify-send "Claude Code" "Task completed (''${elapsed}s)"
+                      fi
+                    fi
                   fi
                 '';
               }
