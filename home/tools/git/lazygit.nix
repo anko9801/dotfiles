@@ -17,11 +17,13 @@ _:
         };
       };
       git = {
-        paging = {
-          colorArg = "always";
-          pager = "delta --dark --paging=never";
-          externalDiffCommand = "difft --color=always --display=inline";
-        };
+        pagers = [
+          {
+            pager = "delta --dark --paging=never";
+            colorArg = "always";
+            externalDiffCommand = "difft --color=always --display=inline";
+          }
+        ];
         commit = {
           signOff = false;
         };
@@ -43,7 +45,7 @@ _:
           command = "czg";
           description = "Commit with czg (conventional + emoji)";
           loadingText = "Opening czg...";
-          subprocess = true;
+          output = "terminal";
         }
       ];
       os = {
