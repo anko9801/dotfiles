@@ -29,6 +29,7 @@ _:
         abbr -S -q sed="sd"
 
         # Convenience flags
+        abbr -S -q curl="curl -fsSL"
         abbr -S -q df="df -h"
         abbr -S -q free="free -h"
 
