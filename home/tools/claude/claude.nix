@@ -120,51 +120,93 @@
         PreToolUse = [
           {
             matcher = "Bash";
-            command = ''
-              # Block dangerous commands
-              if echo "$CLAUDE_TOOL_INPUT" | grep -qE '\b(rm\s+-rf\s+/|dd\s+if=|mkfs|:(){:|>\s*/dev/sd)'; then
-                echo "Blocked: potentially destructive command" >&2
-                exit 2
-              fi
-            '';
+            hooks = [
+              {
+                type = "command";
+                command = ''
+                  # Block dangerous commands
+                  if echo "$CLAUDE_TOOL_INPUT" | grep -qE '\b(rm\s+-rf\s+/|dd\s+if=|mkfs\.|>\s*/dev/sd)'; then
+                    echo "Blocked: potentially destructive command" >&2
+                    exit 2
+                  fi
+                '';
+              }
+            ];
           }
         ];
         # After file edits, run linters if available
         PostToolUse = [
           {
-            matcher = "Write|Edit|MultiEdit";
-            command = ''
-              # Run project-specific linters if they exist
-              if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
-                npm run lint --if-present 2>&1 || exit 2
-              elif [ -f "Cargo.toml" ]; then
-                cargo clippy --quiet 2>&1 || exit 2
-              elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
-                ruff check . 2>&1 || exit 2
-              elif [ -f "flake.nix" ]; then
-                nix flake check 2>&1 | head -20 || exit 2
-              fi
-            '';
+            matcher = "Write";
+            hooks = [
+              {
+                type = "command";
+                command = ''
+                  # Run project-specific linters if they exist
+                  if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
+                    npm run lint --if-present 2>&1 || exit 2
+                  elif [ -f "Cargo.toml" ]; then
+                    cargo clippy --quiet 2>&1 || exit 2
+                  elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+                    ruff check . 2>&1 || exit 2
+                  elif [ -f "flake.nix" ]; then
+                    nix flake check 2>&1 | head -20 || exit 2
+                  fi
+                '';
+              }
+            ];
+          }
+          {
+            matcher = "Edit";
+            hooks = [
+              {
+                type = "command";
+                command = ''
+                  # Run project-specific linters if they exist
+                  if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
+                    npm run lint --if-present 2>&1 || exit 2
+                  elif [ -f "Cargo.toml" ]; then
+                    cargo clippy --quiet 2>&1 || exit 2
+                  elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+                    ruff check . 2>&1 || exit 2
+                  elif [ -f "flake.nix" ]; then
+                    nix flake check 2>&1 | head -20 || exit 2
+                  fi
+                '';
+              }
+            ];
           }
         ];
         # Notify when Claude needs input
         Notification = [
           {
-            command = "echo '🔔 Claude needs your input' >&2";
+            matcher = "*";
+            hooks = [
+              {
+                type = "command";
+                command = "echo '🔔 Claude needs your input' >&2";
+              }
+            ];
           }
         ];
         # Task completion notification
         Stop = [
           {
-            command = ''
-              # macOS notification
-              if command -v osascript &>/dev/null; then
-                osascript -e 'display notification "Task completed" with title "Claude Code"'
-              # Linux notification (notify-send)
-              elif command -v notify-send &>/dev/null; then
-                notify-send "Claude Code" "Task completed"
-              fi
-            '';
+            matcher = "*";
+            hooks = [
+              {
+                type = "command";
+                command = ''
+                  # macOS notification
+                  if command -v osascript &>/dev/null; then
+                    osascript -e 'display notification "Task completed" with title "Claude Code"'
+                  # Linux notification (notify-send)
+                  elif command -v notify-send &>/dev/null; then
+                    notify-send "Claude Code" "Task completed"
+                  fi
+                '';
+              }
+            ];
           }
         ];
       };
