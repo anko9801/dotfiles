@@ -56,7 +56,7 @@ let
   aliases = {
     # Status/Log
     st = "status -sb";
-    tree = "log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit";
+    lg = "log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit";
     root = "rev-parse --show-toplevel";
 
     # Branch
@@ -205,7 +205,8 @@ in
       gpg.ssh.allowedSignersFile = "~/.config/git/allowed_signers";
       alias = aliases;
 
-      # Core
+      # === Core ===
+      # fsmonitor + untrackedCache で大規模リポジトリを高速化
       core = {
         inherit editor;
         autocrlf = false;
@@ -215,14 +216,17 @@ in
         hooksPath = "~/.config/git/hooks";
         quotepath = false;
         untrackedCache = true;
-        fsmonitor = true; # Speed up git in large repos
+        fsmonitor = true;
       };
 
       color.ui = "auto";
       column.ui = "auto";
       init.defaultBranch = "main";
 
-      # Diff/Merge
+      # === Diff/Merge ===
+      # histogram: patience より高速で、コードブロック移動の検出に強い
+      # difft: 構文解析で意味のある差分を表示 (ノイズ削減)
+      # zdiff3: ||| base ||| を表示し、どちらが何を変えたか明確に
       diff = {
         algorithm = "histogram";
         renames = true;
@@ -238,7 +242,7 @@ in
 
       interactive.diffFilter = "delta --color-only";
 
-      # Pull/Push/Fetch
+      # === Pull/Push ===
       pull = {
         ff = "only";
         rebase = true;
@@ -250,6 +254,8 @@ in
         followTags = true;
       };
 
+      # === Fetch ===
+      # fsckobjects: 破損オブジェクトの転送を防止
       fetch = {
         prune = true;
         pruneTags = true;
@@ -259,19 +265,22 @@ in
 
       submodule.recurse = true;
 
-      # Rebase
+      # === Rebase ===
+      # autosquash: fixup!/squash! コミットを自動で並べ替え
+      # updateRefs: A→B→C のスタックを rebase 時に全て更新
       rebase = {
         autostash = true;
         autosquash = true;
         updateRefs = true;
       };
 
+      # rerere: 同じコンフリクトを二度解決しない
       rerere = {
         enabled = true;
         autoupdate = true;
       };
 
-      # Branch/Tag
+      # === Branch/Tag ===
       branch = {
         autosetupmerge = "always";
         autosetuprebase = "always";
@@ -283,7 +292,7 @@ in
         sort = "version:refname";
       };
 
-      # Misc
+      # === Misc ===
       wt.basedir = ".worktrees";
       blame.ignoreRevsFile = ".git-blame-ignore-revs";
       commit.verbose = true;
