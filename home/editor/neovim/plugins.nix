@@ -116,7 +116,19 @@
     # oil: Edit filesystem like a buffer
     oil = {
       enable = true;
-      lazyLoad.settings.cmd = [ "Oil" ];
+      lazyLoad.settings = {
+        cmd = [ "Oil" ];
+        keys = [
+          {
+            __unkeyed-1 = "-";
+            desc = "Open parent directory";
+          }
+          {
+            __unkeyed-1 = "<leader>e";
+            desc = "File explorer";
+          }
+        ];
+      };
       settings = {
         view_options.show_hidden = true;
         skip_confirm_for_simple_edits = true;
@@ -141,7 +153,39 @@
     # fzf-lua: Fuzzy finder with fzf backend
     fzf-lua = {
       enable = true;
-      lazyLoad.settings.cmd = [ "FzfLua" ];
+      lazyLoad.settings = {
+        cmd = [ "FzfLua" ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>ff";
+            desc = "Find files";
+          }
+          {
+            __unkeyed-1 = "<leader>fg";
+            desc = "Live grep";
+          }
+          {
+            __unkeyed-1 = "<leader>fb";
+            desc = "Buffers";
+          }
+          {
+            __unkeyed-1 = "<leader>fh";
+            desc = "Help tags";
+          }
+          {
+            __unkeyed-1 = "<leader>fr";
+            desc = "Recent files";
+          }
+          {
+            __unkeyed-1 = "<leader>gc";
+            desc = "Git commits";
+          }
+          {
+            __unkeyed-1 = "<leader>gs";
+            desc = "Git status";
+          }
+        ];
+      };
       settings = {
         winopts = {
           height = 0.85;
@@ -165,7 +209,32 @@
     harpoon = {
       enable = true;
       enableTelescope = false;
-      lazyLoad.settings.event = [ "VeryLazy" ];
+      lazyLoad.settings.keys = [
+        {
+          __unkeyed-1 = "<leader>a";
+          desc = "Harpoon add";
+        }
+        {
+          __unkeyed-1 = "<leader>h";
+          desc = "Harpoon menu";
+        }
+        {
+          __unkeyed-1 = "<leader>1";
+          desc = "Harpoon 1";
+        }
+        {
+          __unkeyed-1 = "<leader>2";
+          desc = "Harpoon 2";
+        }
+        {
+          __unkeyed-1 = "<leader>3";
+          desc = "Harpoon 3";
+        }
+        {
+          __unkeyed-1 = "<leader>4";
+          desc = "Harpoon 4";
+        }
+      ];
     };
 
     # ==========================================================================
@@ -367,16 +436,44 @@
     # diffview: Git diff viewer with side-by-side comparison
     diffview = {
       enable = true;
-      lazyLoad.settings.cmd = [
-        "DiffviewOpen"
-        "DiffviewFileHistory"
-      ];
+      lazyLoad.settings = {
+        cmd = [
+          "DiffviewOpen"
+          "DiffviewFileHistory"
+        ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>gd";
+            desc = "Git diff";
+          }
+          {
+            __unkeyed-1 = "<leader>gD";
+            desc = "Close diff";
+          }
+        ];
+      };
     };
 
     # Octo: GitHub PR/Issue management in Neovim
     octo = {
       enable = true;
-      lazyLoad.settings.cmd = [ "Octo" ];
+      lazyLoad.settings = {
+        cmd = [ "Octo" ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>op";
+            desc = "List PRs";
+          }
+          {
+            __unkeyed-1 = "<leader>oi";
+            desc = "List issues";
+          }
+          {
+            __unkeyed-1 = "<leader>or";
+            desc = "Start review";
+          }
+        ];
+      };
       settings = {
         use_local_fs = false;
         enable_builtin = true;
@@ -463,7 +560,35 @@
     # trouble: Pretty diagnostics, quickfix, and location lists
     trouble = {
       enable = true;
-      lazyLoad.settings.cmd = [ "Trouble" ];
+      lazyLoad.settings = {
+        cmd = [ "Trouble" ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>xx";
+            desc = "Diagnostics";
+          }
+          {
+            __unkeyed-1 = "<leader>xX";
+            desc = "Buffer diagnostics";
+          }
+          {
+            __unkeyed-1 = "<leader>cs";
+            desc = "Symbols";
+          }
+          {
+            __unkeyed-1 = "<leader>cl";
+            desc = "LSP";
+          }
+          {
+            __unkeyed-1 = "<leader>xL";
+            desc = "Location list";
+          }
+          {
+            __unkeyed-1 = "<leader>xQ";
+            desc = "Quickfix list";
+          }
+        ];
+      };
       settings = {
         modes = {
           diagnostics = {
@@ -498,6 +623,48 @@
       settings = {
         delay = 200;
         icons.mappings = false;
+        spec = [
+          {
+            __unkeyed-1 = "<leader>f";
+            group = "find";
+          }
+          {
+            __unkeyed-1 = "<leader>g";
+            group = "git";
+          }
+          {
+            __unkeyed-1 = "<leader>h";
+            group = "harpoon/hunk";
+          }
+          {
+            __unkeyed-1 = "<leader>o";
+            group = "octo";
+          }
+          {
+            __unkeyed-1 = "<leader>q";
+            group = "session";
+          }
+          {
+            __unkeyed-1 = "<leader>s";
+            group = "split";
+          }
+          {
+            __unkeyed-1 = "<leader>t";
+            group = "terminal/tab";
+          }
+          {
+            __unkeyed-1 = "<leader>x";
+            group = "diagnostics";
+          }
+          {
+            __unkeyed-1 = "<leader>a";
+            group = "ai";
+          }
+          {
+            __unkeyed-1 = "<leader>c";
+            group = "code";
+          }
+        ];
       };
     };
 
@@ -508,7 +675,27 @@
     # toggleterm: Persistent terminal windows with toggle support
     toggleterm = {
       enable = true;
-      lazyLoad.settings.cmd = [ "ToggleTerm" ];
+      lazyLoad.settings = {
+        cmd = [ "ToggleTerm" ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>tf";
+            desc = "Float terminal";
+          }
+          {
+            __unkeyed-1 = "<leader>th";
+            desc = "Horizontal terminal";
+          }
+          {
+            __unkeyed-1 = "<leader>tv";
+            desc = "Vertical terminal";
+          }
+          {
+            __unkeyed-1 = "<C-\\>";
+            desc = "Toggle terminal";
+          }
+        ];
+      };
       settings = {
         open_mapping.__raw = "[[<C-\\>]]";
         direction = "float";
@@ -536,7 +723,23 @@
     # persistence: Automatic session saving and restoring
     persistence = {
       enable = true;
-      lazyLoad.settings.event = [ "BufReadPre" ];
+      lazyLoad.settings = {
+        event = [ "BufReadPre" ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>qs";
+            desc = "Restore session";
+          }
+          {
+            __unkeyed-1 = "<leader>ql";
+            desc = "Restore last session";
+          }
+          {
+            __unkeyed-1 = "<leader>qd";
+            desc = "Don't save session";
+          }
+        ];
+      };
       settings = {
         dir.__raw = "vim.fn.stdpath('state') .. '/sessions/'";
         options = [
@@ -555,11 +758,31 @@
     # avante: Cursor-like AI assistant with Claude integration
     avante = {
       enable = true;
-      lazyLoad.settings.cmd = [
-        "AvanteAsk"
-        "AvanteEdit"
-        "AvanteToggle"
-      ];
+      lazyLoad.settings = {
+        cmd = [
+          "AvanteAsk"
+          "AvanteEdit"
+          "AvanteToggle"
+        ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>aa";
+            desc = "Ask AI";
+          }
+          {
+            __unkeyed-1 = "<leader>ae";
+            desc = "Edit with AI";
+          }
+          {
+            __unkeyed-1 = "<leader>at";
+            desc = "Toggle Avante";
+          }
+          {
+            __unkeyed-1 = "<leader>ar";
+            desc = "Refresh Avante";
+          }
+        ];
+      };
       settings = {
         provider = "claude";
         claude = {

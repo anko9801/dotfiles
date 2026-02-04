@@ -10,7 +10,10 @@ _:
       ];
       key = "j";
       action = "gj";
-      options.silent = true;
+      options = {
+        silent = true;
+        desc = "Down (wrapped)";
+      };
     }
     {
       mode = [
@@ -19,7 +22,10 @@ _:
       ];
       key = "k";
       action = "gk";
-      options.silent = true;
+      options = {
+        silent = true;
+        desc = "Up (wrapped)";
+      };
     }
 
     # Yank to end of line (consistent with D and C)
@@ -27,6 +33,7 @@ _:
       mode = "n";
       key = "Y";
       action = "y$";
+      options.desc = "Yank to end of line";
     }
 
     # Keep cursor centered when searching
@@ -84,21 +91,25 @@ _:
       mode = "c";
       key = "<C-a>";
       action = "<Home>";
+      options.desc = "Beginning of line";
     }
     {
       mode = "c";
       key = "<C-e>";
       action = "<End>";
+      options.desc = "End of line";
     }
     {
       mode = "c";
       key = "<C-b>";
       action = "<Left>";
+      options.desc = "Left";
     }
     {
       mode = "c";
       key = "<C-f>";
       action = "<Right>";
+      options.desc = "Right";
     }
 
     # Window navigation (smart-splits: works across nvim/tmux/zellij)
@@ -166,11 +177,13 @@ _:
       mode = "v";
       key = "<";
       action = "<gv";
+      options.desc = "Indent left";
     }
     {
       mode = "v";
       key = ">";
       action = ">gv";
+      options.desc = "Indent right";
     }
 
     # Move lines
