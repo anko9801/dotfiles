@@ -37,10 +37,6 @@ _:
         abbr -S -q ..="cd .."
         abbr -S -q ...="cd ../.."
         abbr -S -q ....="cd ../../.."
-        abbr -S -q dl="cd ~/Downloads"
-        abbr -S -q dt="cd ~/Desktop"
-        abbr -S -q pj="cd ~/repos"
-        abbr -S -q dot="cd ~/dotfiles"
 
         # Git (minimal - editor/Claude handles most operations)
         abbr -S -q G="git status"
