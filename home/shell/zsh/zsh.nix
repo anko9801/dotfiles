@@ -54,27 +54,26 @@
     initContent = lib.mkMerge [
       # Early initialization
       (lib.mkBefore ''
-        # GPG TTY
-        export GPG_TTY=$(tty)
-
-        # Auto-start zellij (if not already in zellij, interactive, and has TTY)
+        # Auto-start zellij (CANNOT DEFER: must attach before shell is ready)
         if [[ -z "$ZELLIJ" && -z "$INSIDE_EMACS" && -z "$VSCODE_TERMINAL" && -z "$CI" && -t 0 ]] && command -v zellij &>/dev/null; then
           zellij attach -c
         fi
 
-        # Starship must be loaded FIRST (before zsh-defer to avoid issues in zellij)
-        [[ $TERM != "dumb" ]] && eval "$(${pkgs.starship}/bin/starship init zsh)"
-
-        # zsh-defer: deferred execution for faster startup
+        # zsh-defer: deferred execution for faster startup (CANNOT DEFER: other defers depend on it)
         source ${pkgs.zsh-defer}/share/zsh-defer/zsh-defer.plugin.zsh
 
-        # Deferred plugin initializers (wrapped in functions for reliable execution)
+        # Starship (CANNOT DEFER: breaks prompt display in zellij, causes visual glitches)
+        [[ $TERM != "dumb" ]] && eval "$(${pkgs.starship}/bin/starship init zsh)"
+
+        # Deferred initializers
+        _init_gpg_tty() { export GPG_TTY=$(tty); }
         _init_compinit() { autoload -Uz compinit && compinit -C; }
         _init_fzf() { source <(${pkgs.fzf}/bin/fzf --zsh); }
         _init_direnv() { eval "$(${pkgs.direnv}/bin/direnv hook zsh)"; }
         _init_atuin() { [[ $options[zle] = on ]] && eval "$(${pkgs.atuin}/bin/atuin init zsh)"; }
 
-        # Defer all heavy plugins
+        # Defer everything possible
+        zsh-defer _init_gpg_tty
         zsh-defer _init_compinit
         zsh-defer _init_fzf
         zsh-defer _init_direnv
@@ -85,29 +84,33 @@
         zsh-defer source ${unfreePkgs.zsh-abbr}/share/zsh/zsh-abbr/zsh-abbr.plugin.zsh
       '')
 
-      # Shell options and completion styles
+      # Shell options and completion styles (all deferred)
       ''
-        # Directory stack for `cd -N` navigation
-        setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
+        # Deferred shell options
+        _init_shell_options() {
+          # Directory stack for `cd -N` navigation
+          setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
 
-        # Tab completion behavior
-        setopt AUTO_MENU AUTO_PARAM_SLASH AUTO_PARAM_KEYS
-        setopt COMPLETE_IN_WORD ALWAYS_LAST_PROMPT
-        setopt LIST_PACKED LIST_TYPES MARK_DIRS
+          # Tab completion behavior
+          setopt AUTO_MENU AUTO_PARAM_SLASH AUTO_PARAM_KEYS
+          setopt COMPLETE_IN_WORD ALWAYS_LAST_PROMPT
+          setopt LIST_PACKED LIST_TYPES MARK_DIRS
 
-        # Glob patterns: ** recursive, .* hidden files
-        setopt EXTENDED_GLOB GLOBDOTS MAGIC_EQUAL_SUBST
+          # Glob patterns: ** recursive, .* hidden files
+          setopt EXTENDED_GLOB GLOBDOTS MAGIC_EQUAL_SUBST
 
-        # UX improvements
-        setopt INTERACTIVE_COMMENTS PRINT_EIGHT_BIT
-        setopt NO_FLOW_CONTROL CORRECT NO_BEEP
+          # UX improvements
+          setopt INTERACTIVE_COMMENTS PRINT_EIGHT_BIT
+          setopt NO_FLOW_CONTROL CORRECT NO_BEEP
 
-        # Background jobs
-        setopt LONG_LIST_JOBS NOTIFY NO_HUP
+          # Background jobs
+          setopt LONG_LIST_JOBS NOTIFY NO_HUP
 
-        # History
-        setopt HIST_VERIFY HIST_REDUCE_BLANKS
-        setopt RM_STAR_SILENT
+          # History
+          setopt HIST_VERIFY HIST_REDUCE_BLANKS
+          setopt RM_STAR_SILENT
+        }
+        zsh-defer _init_shell_options
 
         # Deferred completion styles (loaded after compinit)
         _init_completion_styles() {
@@ -307,7 +310,7 @@
         zsh-defer _init_completion_styles
       ''
 
-      # Obsidian functions
+      # Obsidian functions (CANNOT DEFER: nested function definitions become local and are lost when outer function exits)
       ''
         # Convert date format from Obsidian style to date command style
         # YYYY-MM-DD HH:mm:ss → %Y-%m-%d %H:%M:%S
@@ -401,9 +404,9 @@ EOF
           $EDITOR + "$un_path"
         }
 
-        # Aliases
-        alias od='obsidian-daily-note'
-        alias ou='obsidian-unique-note'
+        # Aliases (odn/oun to avoid conflict with system 'od' command)
+        alias odn='obsidian-daily-note'
+        alias oun='obsidian-unique-note'
       ''
 
       # Machine-specific overrides
