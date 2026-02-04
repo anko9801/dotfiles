@@ -177,7 +177,11 @@
       enable = true;
       lazyLoad.settings.event = [ "VeryLazy" ];
       settings = {
-        ignored_filetypes = [ "nofile" "quickfix" "prompt" ];
+        ignored_filetypes = [
+          "nofile"
+          "quickfix"
+          "prompt"
+        ];
         ignored_buftypes = [ "NvimTree" ];
         default_amount = 3;
         at_edge = "stop";
@@ -376,7 +380,10 @@
       settings = {
         use_local_fs = false;
         enable_builtin = true;
-        default_remote = [ "upstream" "origin" ];
+        default_remote = [
+          "upstream"
+          "origin"
+        ];
         ssh_aliases = { };
         picker = "fzf-lua";
         picker_config = {
@@ -476,7 +483,11 @@
       enable = true;
       lazyLoad.settings = {
         event = [ "BufEnter" ];
-        ft = [ "markdown" "org" "norg" ];
+        ft = [
+          "markdown"
+          "org"
+          "norg"
+        ];
       };
     };
 
