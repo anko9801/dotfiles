@@ -89,12 +89,12 @@
 
     { "command": { "action": "newTab" }, "keys": "ctrl+t" },
     { "command": { "action": "closeTab" }, "keys": "ctrl+w" },
-    { "command": { "action": "nextTab" }, "keys": "ctrl+tab" },
     { "command": { "action": "prevTab" }, "keys": "ctrl+shift+tab" },
-    { "command": { "action": "switchToTab", "index": 0 }, "keys": "ctrl+q 1" },
-    { "command": { "action": "switchToTab", "index": 1 }, "keys": "ctrl+q 2" },
-    { "command": { "action": "switchToTab", "index": 2 }, "keys": "ctrl+q 3" },
-    { "command": { "action": "switchToTab", "index": 3 }, "keys": "ctrl+q 4" },
-    { "command": { "action": "switchToTab", "index": 4 }, "keys": "ctrl+q 5" }
+    { "command": { "action": "nextTab" }, "keys": "ctrl+tab" },
+    { "command": { "action": "switchToTab", "index": 0 }, "keys": "ctrl+1" },
+    { "command": { "action": "switchToTab", "index": 1 }, "keys": "ctrl+2" },
+    { "command": { "action": "switchToTab", "index": 2 }, "keys": "ctrl+3" },
+    { "command": { "action": "switchToTab", "index": 3 }, "keys": "ctrl+4" },
+    { "command": { "action": "switchToTab", "index": 4 }, "keys": "ctrl+5" }
   ]
 }
