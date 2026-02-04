@@ -271,9 +271,95 @@
       };
 
       keybindings = [
+        # Terminal
         {
           key = "ctrl+`";
           command = "workbench.action.terminal.toggleTerminal";
+        }
+
+        # Suggestions (Ctrl+j/k for navigation)
+        {
+          key = "ctrl+j";
+          command = "selectNextSuggestion";
+          when = "suggestWidgetVisible";
+        }
+        {
+          key = "ctrl+k";
+          command = "selectPrevSuggestion";
+          when = "suggestWidgetVisible";
+        }
+
+        # Quick open (Ctrl+j/k for navigation)
+        {
+          key = "ctrl+j";
+          command = "workbench.action.quickOpenSelectNext";
+          when = "inQuickOpen";
+        }
+        {
+          key = "ctrl+k";
+          command = "workbench.action.quickOpenSelectPrevious";
+          when = "inQuickOpen";
+        }
+
+        # Panel navigation
+        {
+          key = "ctrl+h";
+          command = "workbench.action.focusLeftGroup";
+          when = "editorFocus";
+        }
+        {
+          key = "ctrl+l";
+          command = "workbench.action.focusRightGroup";
+          when = "editorFocus";
+        }
+
+        # Explorer (Vim-like)
+        {
+          key = "a";
+          command = "explorer.newFile";
+          when = "filesExplorerFocus && !inputFocus";
+        }
+        {
+          key = "shift+a";
+          command = "explorer.newFolder";
+          when = "filesExplorerFocus && !inputFocus";
+        }
+        {
+          key = "r";
+          command = "renameFile";
+          when = "filesExplorerFocus && !inputFocus";
+        }
+        {
+          key = "d";
+          command = "deleteFile";
+          when = "filesExplorerFocus && !inputFocus";
+        }
+        {
+          key = "x";
+          command = "filesExplorer.cut";
+          when = "filesExplorerFocus && !inputFocus";
+        }
+        {
+          key = "y";
+          command = "filesExplorer.copy";
+          when = "filesExplorerFocus && !inputFocus";
+        }
+        {
+          key = "p";
+          command = "filesExplorer.paste";
+          when = "filesExplorerFocus && !inputFocus";
+        }
+
+        # Sidebar toggle
+        {
+          key = "ctrl+e";
+          command = "workbench.action.toggleSidebarVisibility";
+          when = "!filesExplorerFocus";
+        }
+        {
+          key = "ctrl+e";
+          command = "workbench.action.focusActiveEditorGroup";
+          when = "filesExplorerFocus";
         }
       ];
     };
