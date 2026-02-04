@@ -197,7 +197,7 @@
               {
                 type = "command";
                 command = ''
-                  # WSL notification (PowerShell toast)
+                  # WSL notification (BurntToast)
                   if grep -qi microsoft /proc/version 2>/dev/null; then
                     powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Task completed'" 2>/dev/null || true
                   # macOS notification

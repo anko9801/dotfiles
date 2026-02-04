@@ -252,6 +252,13 @@ if (Test-Path $json) {
     winget import -i $json --accept-package-agreements --accept-source-agreements --ignore-unavailable
 }
 
+# PowerShell modules
+Write-Host "  Installing PowerShell modules..." -ForegroundColor Gray
+if (-not (Get-Module -ListAvailable -Name BurntToast)) {
+    Install-Module -Name BurntToast -Force -Scope CurrentUser
+    Write-Host "  BurntToast installed" -ForegroundColor Green
+}
+
 # Git config
 Write-Host "[4/6] Git config..." -ForegroundColor Yellow
 git config --global core.autocrlf input
