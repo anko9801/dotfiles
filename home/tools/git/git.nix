@@ -102,6 +102,9 @@ in
       onefetch
     ];
 
+    # difftastic: auto-fallback to text diff for large changes
+    sessionVariables.DFT_GRAPH_LIMIT = "10000";
+
     file = {
       ".config/git/allowed_signers".text = "${email} ${sshKey}";
 
