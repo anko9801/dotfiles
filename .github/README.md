@@ -37,6 +37,10 @@ Configuration follows the [XDG Base Directory Specification](https://specificati
 dotfiles/
 ├── flake.nix           # Flake entry point
 ├── setup               # Bootstrap script (Unix/Windows polyglot)
+├── system/             # System-level config
+│   ├── darwin/         # nix-darwin, Homebrew
+│   ├── nixos/          # NixOS modules
+│   └── windows/        # winget, Windows Terminal, wsl.conf
 ├── home/               # Home Manager modules
 │   ├── shell/          # zsh, starship, fzf, atuin, zoxide
 │   ├── editor/         # neovim (nixvim), vscode, zed
@@ -46,10 +50,6 @@ dotfiles/
 │   ├── security/       # 1password, ssh, gitleaks
 │   └── os-specific/    # wsl, darwin, linux
 ├── theme/              # Stylix: colors, fonts, cursor
-├── system/             # System-level config
-│   ├── darwin/         # nix-darwin, Homebrew
-│   ├── nixos/          # NixOS modules
-│   └── windows/        # winget, Windows Terminal, wsl.conf
 └── users/              # Per-user settings (setup generates)
 ```
 
