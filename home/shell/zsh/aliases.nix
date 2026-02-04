@@ -90,8 +90,10 @@ _:
         abbr -S -q j="jobs"
         abbr -S -q reload="source ~/.zshrc"
 
-        # Make abbreviations available in Tab completion
+        # Make abbreviations available in Tab completion (command position only)
         _complete_abbr() {
+          # Only complete abbreviations for first word (command position)
+          [[ $CURRENT -ne 1 ]] && return 1
           local -a _abbrs
           _abbrs=(''${(f)"$(abbr list-abbreviations 2>/dev/null | cut -d= -f1 | tr -d \")"})
           [[ ''${#_abbrs} -gt 0 ]] && compadd -V abbr -X 'abbreviations' -- "''${_abbrs[@]}"
