@@ -253,12 +253,30 @@ if (Test-Path $json) {
 }
 
 # Git config
-Write-Host "[4/5] Git config..." -ForegroundColor Yellow
+Write-Host "[4/6] Git config..." -ForegroundColor Yellow
 git config --global core.autocrlf input
 git config --global init.defaultBranch main
 
+# Windows Terminal
+Write-Host "[5/6] Windows Terminal..." -ForegroundColor Yellow
+$wtSettings = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+$wtSource = "$dotfiles\system\windows\windows-terminal.json"
+if (Test-Path $wtSource) {
+    $wtDir = Split-Path $wtSettings
+    if (Test-Path $wtDir) {
+        if (Test-Path $wtSettings) {
+            Copy-Item $wtSettings "$wtSettings.bak" -Force
+            Write-Host "  Backed up existing settings" -ForegroundColor Gray
+        }
+        Copy-Item $wtSource $wtSettings -Force
+        Write-Host "  Windows Terminal settings installed" -ForegroundColor Green
+    } else {
+        Write-Host "  Windows Terminal not installed, skipping" -ForegroundColor Yellow
+    }
+}
+
 # WSL config
-Write-Host "[5/5] WSL config..." -ForegroundColor Yellow
+Write-Host "[6/6] WSL config..." -ForegroundColor Yellow
 $wslConf = "$dotfiles\system\windows\wsl.conf"
 if (Test-Path $wslConf) {
     $wslPath = $wslConf -replace '\\','/' -replace 'C:','/mnt/c'
@@ -272,4 +290,4 @@ if (Test-Path $wslConf) {
     }
 }
 
-Write-Host "`n  Done! Run 'wsl --shutdown' to apply wsl.conf" -ForegroundColor Cyan
+Write-Host "`n  Done! Restart Windows Terminal and run 'wsl --shutdown' to apply changes" -ForegroundColor Cyan
