@@ -61,7 +61,7 @@ let
 
     # Branch
     sw = "switch";
-    safe-switch = "!git stash push -m 'switch backup' && git stash apply && git switch \"$@\"";
+    safe-switch = "!git stash push -m \"switch: $(git branch --show-current) -> $1\" && git stash apply && git switch \"$@\"";
     current = "rev-parse --abbrev-ref HEAD";
     remember = "!git diff $(git merge-base HEAD $(git symbolic-ref refs/remotes/origin/HEAD | sed 's@refs/remotes/origin/@@'))";
     prune = "!git fetch --prune && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d";

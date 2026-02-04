@@ -17,12 +17,11 @@ _:
         };
       };
       git = {
-        pagers = [
-          {
-            colorArg = "always";
-            pager = "delta --dark --paging=never";
-          }
-        ];
+        paging = {
+          colorArg = "always";
+          pager = "delta --dark --paging=never";
+          externalDiffCommand = "difft --color=always --display=inline";
+        };
         commit = {
           signOff = false;
         };
