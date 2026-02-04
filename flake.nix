@@ -397,7 +397,7 @@
             system = "x86_64-linux";
             extraModules = [
               ./system/nixos/desktop.nix
-              ./system/nixos/xremap.nix
+              ./system/nixos/kanata.nix
             ];
             homeModule = {
               imports = [

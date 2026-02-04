@@ -2,7 +2,7 @@
 # https://github.com/jtroo/kanata
 # Shared configuration for Linux (NixOS) and macOS (nix-darwin)
 # Note: Does NOT work on WSL (no access to input devices)
-{ ... }:
+_:
 
 {
   # Generate Kanata config file at ~/.config/kanata/kanata.kbd

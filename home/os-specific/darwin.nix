@@ -33,9 +33,6 @@
       darwin.trash
       terminal-notifier
     ];
-
-    # Karabiner-Elements config (CapsLock -> Ctrl/Escape)
-    file.".config/karabiner/karabiner.json".source = ./karabiner.json;
   };
 
   programs = {

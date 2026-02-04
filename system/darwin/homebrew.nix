@@ -21,6 +21,7 @@ _:
     # CLI tools (most are in Home Manager, these are Homebrew-only)
     brews = [
       "charmbracelet/tap/crush" # AI coding agent (avoids Nix Go build)
+      "kanata" # Cross-platform key remapper
       "sketchybar" # Custom macOS menu bar
       "borders" # JankyBorders - window borders
     ];
@@ -56,7 +57,7 @@ _:
       "aquaskk"
       "azookey" # Neural kana-kanji converter (Zenzai)
 
-      # Key remapping
+      # Karabiner-DriverKit (required for Kanata virtual keyboard)
       "karabiner-elements"
 
       # Utilities

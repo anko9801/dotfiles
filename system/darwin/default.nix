@@ -10,6 +10,7 @@ in
   imports = [
     ./homebrew.nix
     ./aerospace.nix
+    ./kanata.nix
     ./system.nix
   ];
 
