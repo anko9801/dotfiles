@@ -15,8 +15,8 @@
       extensions =
         with unfreePkgs.vscode-extensions;
         [
-          # Vim
-          vscodevim.vim
+          # Neovim integration (uses actual Neovim instance)
+          asvetliakov.vscode-neovim
 
           # Languages
           ms-python.python
@@ -202,64 +202,11 @@
         "diffEditor.ignoreTrimWhitespace" = false;
 
         # ─────────────────────────────────────────────────────────────
-        # Vim
+        # vscode-neovim (uses actual Neovim instance)
         # ─────────────────────────────────────────────────────────────
-        "vim.hlsearch" = true;
-        "vim.incsearch" = true;
-        "vim.ignorecase" = true;
-        "vim.sneak" = true;
-        "vim.foldfix" = true;
-        "vim.useCtrlKeys" = true;
-        "vim.useSystemClipboard" = false;
-        "vim.normalModeKeyBindingsNonRecursive" = [
-          {
-            "before" = [ "<Esc>" ];
-            "commands" = [ ":nohl" ];
-          }
-        ];
-        "vim.normalModeKeyBindings" = [
-          {
-            "before" = [ "j" ];
-            "after" = [
-              "g"
-              "j"
-            ];
-          }
-          {
-            "before" = [ "k" ];
-            "after" = [
-              "g"
-              "k"
-            ];
-          }
-        ];
-        "vim.visualModeKeyBindings" = [
-          {
-            "before" = [ "<C-c>" ];
-            "after" = [
-              "\""
-              "+"
-              "y"
-            ];
-          }
-          {
-            "before" = [ "<C-v>" ];
-            "after" = [
-              "\""
-              "+"
-              "p"
-            ];
-          }
-        ];
-        "vim.insertModeKeyBindings" = [
-          {
-            "before" = [
-              "j"
-              "k"
-            ];
-            "after" = [ "<Esc>" ];
-          }
-        ];
+        "vscode-neovim.neovimExecutablePaths.linux" = "nvim";
+        "vscode-neovim.neovimExecutablePaths.darwin" = "nvim";
+        "extensions.experimental.affinity"."asvetliakov.vscode-neovim" = 1;
 
         # ─────────────────────────────────────────────────────────────
         # Privacy
@@ -360,6 +307,130 @@
           key = "ctrl+e";
           command = "workbench.action.focusActiveEditorGroup";
           when = "filesExplorerFocus";
+        }
+
+        # ─────────────────────────────────────────────────────────────
+        # Neovim Normal mode (space leader)
+        # ─────────────────────────────────────────────────────────────
+        # Find
+        {
+          key = "space f f";
+          command = "workbench.action.quickOpen";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space f g";
+          command = "workbench.action.findInFiles";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space f b";
+          command = "workbench.action.showAllEditors";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space f r";
+          command = "workbench.action.openRecent";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+
+        # Git
+        {
+          key = "space g g";
+          command = "workbench.view.scm";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space g d";
+          command = "git.openChange";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space g b";
+          command = "gitlens.toggleFileBlame";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+
+        # Code actions
+        {
+          key = "space c a";
+          command = "editor.action.quickFix";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space c r";
+          command = "editor.action.rename";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space c f";
+          command = "editor.action.formatDocument";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+
+        # Diagnostics
+        {
+          key = "space x x";
+          command = "workbench.actions.view.problems";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "[ d";
+          command = "editor.action.marker.prev";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "] d";
+          command = "editor.action.marker.next";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+
+        # Buffer/Window
+        {
+          key = "space w";
+          command = "workbench.action.files.save";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space q";
+          command = "workbench.action.closeActiveEditor";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space s v";
+          command = "workbench.action.splitEditorRight";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+        {
+          key = "space s h";
+          command = "workbench.action.splitEditorDown";
+          when = "neovim.mode == 'normal' && editorTextFocus";
+        }
+
+        # ─────────────────────────────────────────────────────────────
+        # runCommands (multiple actions)
+        # ─────────────────────────────────────────────────────────────
+        # Save all and format
+        {
+          key = "ctrl+shift+s";
+          command = "runCommands";
+          args.commands = [
+            "editor.action.formatDocument"
+            "workbench.action.files.saveAll"
+          ];
+          when = "editorTextFocus";
+        }
+        # Duplicate line and comment original
+        {
+          key = "ctrl+alt+c";
+          command = "runCommands";
+          args.commands = [
+            "editor.action.copyLinesDownAction"
+            "cursorUp"
+            "editor.action.addCommentLine"
+            "cursorDown"
+          ];
+          when = "editorTextFocus && !editorReadonly";
         }
       ];
     };
