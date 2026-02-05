@@ -39,14 +39,17 @@ else
   nvim_startup=0
 fi
 
-# starship prompt (10 iterations)
+# starship prompt render (10 iterations)
 echo "==> Benchmarking starship prompt..."
 starship_time=0
 if command -v starship >/dev/null 2>&1; then
   total_starship=0
   for i in $(seq 1 10); do
-    elapsed=$(starship timings 2>/dev/null | head -1 | awk '{print $NF}' | sed 's/ms//' || echo "0")
-    total_starship=$((total_starship + ${elapsed:-0}))
+    start=$(date +%s%N)
+    starship prompt >/dev/null 2>&1 || true
+    end=$(date +%s%N)
+    elapsed=$(((end - start) / 1000000))
+    total_starship=$((total_starship + elapsed))
   done
   starship_time=$((total_starship / 10))
   echo "starship average: ${starship_time}ms"
