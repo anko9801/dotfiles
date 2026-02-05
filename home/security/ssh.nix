@@ -87,7 +87,7 @@ in
       }
       // (lib.mapAttrs (_: host: {
         inherit (host) hostname user;
-        identityFile = "~/.ssh/id_ed25519";
+        identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
       }) userConfig.sshHosts);
     };
 
