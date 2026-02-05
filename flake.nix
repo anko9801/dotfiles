@@ -121,7 +121,6 @@
         # Dev
         ./home/dev/build-tools.nix
         ./home/dev/go.nix
-        ./home/dev/lua.nix
         ./home/dev/mise.nix
         ./home/dev/nix.nix
         ./home/dev/node.nix

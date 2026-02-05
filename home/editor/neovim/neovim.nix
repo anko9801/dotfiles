@@ -48,6 +48,7 @@
       eslint_d
 
       # LSPs (not managed by dev modules)
+      lua-language-server
       yaml-language-server
     ];
   };

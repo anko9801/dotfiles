@@ -9,7 +9,7 @@ _:
         # All LSPs use package = null to share with VSCode/other editors via PATH
         nixd = {
           enable = true;
-          package = null;
+          package = null; # dev/nix.nix
           settings.nixd = {
             nixpkgs.expr = "import (builtins.getFlake \"nixpkgs\") { }";
             formatting.command = [ "nixfmt" ];
@@ -17,7 +17,7 @@ _:
         };
         lua_ls = {
           enable = true;
-          package = null;
+          package = null; # neovim.nix extraPackages
           settings.Lua = {
             runtime.version = "LuaJIT";
             diagnostics.globals = [ "vim" ];
@@ -27,30 +27,30 @@ _:
         };
         ts_ls = {
           enable = true;
-          package = null;
+          package = null; # dev/node.nix
         };
         rust_analyzer = {
           enable = true;
-          package = null; # Provided by rustup
+          package = null; # dev/rust.nix (rustup)
           installCargo = false;
           installRustc = false;
           settings.rust-analyzer.check.command = "clippy";
         };
         ty = {
           enable = true;
-          package = null;
+          package = null; # dev/python.nix (mise)
         };
         ruff = {
           enable = true;
-          package = null; # Installed in linters.nix
+          package = null; # neovim.nix extraPackages
         };
         gopls = {
           enable = true;
-          package = null;
+          package = null; # dev/go.nix
         };
         yamlls = {
           enable = true;
-          package = null;
+          package = null; # neovim.nix extraPackages
           settings.yaml = {
             schemas = {
               kubernetes = "/*.k8s.yaml";
@@ -65,14 +65,14 @@ _:
         };
         helm_ls = {
           enable = true;
-          package = null;
+          package = null; # mise
           settings.helm-ls = {
             yamlls.path = "yaml-language-server";
           };
         };
         terraformls = {
           enable = true;
-          package = null;
+          package = null; # mise
         };
       };
       keymaps = {

@@ -66,12 +66,7 @@
         # bd - go back to directory
         {
           name = "fish-bd";
-          src = pkgs.fetchFromGitHub {
-            owner = "0rax";
-            repo = "fish-bd";
-            rev = "v1.3.3";
-            hash = "sha256-GeWjoakXa0t2TsMC/wpLEmsSVGhHFhBVK3v9eyQdzv0=";
-          };
+          inherit (pkgs.fishPlugins.fish-bd) src;
         }
         # Done - notification when long command finishes
         {

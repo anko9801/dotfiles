@@ -97,7 +97,6 @@ _:
     # harpoon: Quick file navigation and marks
     harpoon = {
       enable = true;
-      enableTelescope = false;
       lazyLoad.settings.keys = [
         {
           __unkeyed-1 = "<leader>a";
