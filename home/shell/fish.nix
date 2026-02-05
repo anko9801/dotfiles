@@ -46,32 +46,10 @@
         # Directory
         ".." = "cd ..";
         "..." = "cd ../..";
-        ll = "eza -la";
-        la = "eza -a";
-        lt = "eza --tree";
-
-        # Safety
-        rm = "rm -i";
-        cp = "cp -i";
-        mv = "mv -i";
       };
 
       shellAliases = {
-        # Modern replacements
-        cat = "bat";
-        ls = "eza";
-        find = "fd";
-        grep = "rg";
-        top = "btm";
-        du = "dust";
         df = "duf";
-        ps = "procs";
-
-        # Shortcuts
-        v = "nvim";
-        vim = "nvim";
-        lg = "lazygit";
-        y = "yazi";
       };
 
       plugins = [

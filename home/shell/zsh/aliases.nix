@@ -2,18 +2,8 @@ _:
 
 {
   programs.zsh = {
-    # Keep safety aliases (don't expand, just run)
     shellAliases = {
-      ls = "eza";
-      ll = "eza -l";
-      la = "eza -la";
-      lt = "eza --tree";
       lta = "eza --tree -a";
-      cat = "bat";
-      rm = "trash";
-      cp = "cp -i";
-      mv = "mv -i";
-      mkdir = "mkdir -p";
     };
 
     # Abbreviations (expand when typed) - deferred with zsh-abbr
