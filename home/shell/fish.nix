@@ -22,10 +22,7 @@
         uv generate-shell-completion fish | source
         git wt --init fish | source
 
-        # PATH additions
-        fish_add_path -g $HOME/.local/bin
-        fish_add_path -g $HOME/go/bin
-        fish_add_path -g $HOME/.cargo/bin
+        # PATH additions (paths in home.sessionPath are inherited automatically)
         fish_add_path -g $HOME/.rye/shims
         fish_add_path -g $HOME/.juliaup/bin
 
