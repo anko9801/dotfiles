@@ -15,15 +15,6 @@
 
   home = {
     file = {
-      # WSL clipboard script (iconv to UTF-16 required since WSL 1.1.3+)
-      ".local/bin/wsl-copy" = {
-        text = ''
-          #!/bin/bash
-          iconv -t utf16 | clip.exe
-        '';
-        executable = true;
-      };
-
       # Docker CLI plugins (for Docker Desktop integration)
       ".docker/cli-plugins/docker-buildx".source = "${pkgs.docker-buildx}/bin/docker-buildx";
       ".docker/cli-plugins/docker-compose".source = "${pkgs.docker-compose}/bin/docker-compose";
