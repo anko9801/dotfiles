@@ -1,5 +1,21 @@
 { unfreePkgs, ... }:
 
+let
+  sessionStartFile = "\${XDG_RUNTIME_DIR:-/tmp}/.claude_session_start";
+
+  lintHook = ''
+    # Run project-specific linters if they exist
+    if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
+      npm run lint --if-present 2>&1 || exit 2
+    elif [ -f "Cargo.toml" ]; then
+      cargo clippy --quiet 2>&1 || exit 2
+    elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+      ruff check . 2>&1 || exit 2
+    elif [ -f "flake.nix" ]; then
+      nix flake check 2>&1 | head -20 || exit 2
+    fi
+  '';
+in
 {
   # MCP settings file
   home.file.".claude/mcp_settings.json".source = ./mcp_settings.json;
@@ -140,7 +156,7 @@
                 type = "command";
                 command = ''
                   # Record session start time (only if not already set)
-                  start_file="/tmp/.claude_session_start"
+                  start_file="${sessionStartFile}"
                   [ ! -f "$start_file" ] && date +%s > "$start_file"
                 '';
               }
@@ -148,48 +164,21 @@
           }
         ];
         # After file edits, run linters if available
-        PostToolUse = [
-          {
-            matcher = "Write";
-            hooks = [
-              {
-                type = "command";
-                command = ''
-                  # Run project-specific linters if they exist
-                  if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
-                    npm run lint --if-present 2>&1 || exit 2
-                  elif [ -f "Cargo.toml" ]; then
-                    cargo clippy --quiet 2>&1 || exit 2
-                  elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
-                    ruff check . 2>&1 || exit 2
-                  elif [ -f "flake.nix" ]; then
-                    nix flake check 2>&1 | head -20 || exit 2
-                  fi
-                '';
-              }
+        PostToolUse =
+          map
+            (matcher: {
+              inherit matcher;
+              hooks = [
+                {
+                  type = "command";
+                  command = lintHook;
+                }
+              ];
+            })
+            [
+              "Write"
+              "Edit"
             ];
-          }
-          {
-            matcher = "Edit";
-            hooks = [
-              {
-                type = "command";
-                command = ''
-                  # Run project-specific linters if they exist
-                  if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
-                    npm run lint --if-present 2>&1 || exit 2
-                  elif [ -f "Cargo.toml" ]; then
-                    cargo clippy --quiet 2>&1 || exit 2
-                  elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
-                    ruff check . 2>&1 || exit 2
-                  elif [ -f "flake.nix" ]; then
-                    nix flake check 2>&1 | head -20 || exit 2
-                  fi
-                '';
-              }
-            ];
-          }
-        ];
         # Notify when Claude needs input
         Notification = [
           {
@@ -210,7 +199,7 @@
               {
                 type = "command";
                 command = ''
-                  start_file="/tmp/.claude_session_start"
+                  start_file="${sessionStartFile}"
                   if [ -f "$start_file" ]; then
                     start_time=$(cat "$start_file")
                     elapsed=$(($(date +%s) - start_time))
