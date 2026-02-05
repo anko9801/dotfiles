@@ -99,11 +99,11 @@ _:
       enable = true;
       lazyLoad.settings.keys = [
         {
-          __unkeyed-1 = "<leader>a";
+          __unkeyed-1 = "<leader>ha";
           desc = "Harpoon add";
         }
         {
-          __unkeyed-1 = "<leader>h";
+          __unkeyed-1 = "<leader>hh";
           desc = "Harpoon menu";
         }
         {

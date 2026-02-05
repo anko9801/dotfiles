@@ -21,13 +21,13 @@ _:
     # Harpoon
     {
       mode = "n";
-      key = "<leader>a";
+      key = "<leader>ha";
       action.__raw = "function() require('harpoon'):list():add() end";
       options.desc = "Harpoon add file";
     }
     {
       mode = "n";
-      key = "<leader>h";
+      key = "<leader>hh";
       action.__raw = "function() require('harpoon').ui:toggle_quick_menu(require('harpoon'):list()) end";
       options.desc = "Harpoon menu";
     }
