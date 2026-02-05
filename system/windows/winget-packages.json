@@ -28,7 +28,7 @@
         { "PackageIdentifier": "Parsec.Parsec" },
         { "PackageIdentifier": "Starship.Starship" },
         { "PackageIdentifier": "ajeetdsouza.zoxide" },
-        { "PackageIdentifier": "AutoHotkey.AutoHotkey" },
+        { "PackageIdentifier": "jtroo.kanata_gui" },
         { "PackageIdentifier": "Voidmain.CorvusSKK" },
         { "PackageIdentifier": "AntibodySoftware.WizTree" },
         { "PackageIdentifier": "FilesCommunity.Files" },
