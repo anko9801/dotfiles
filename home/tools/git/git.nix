@@ -95,9 +95,10 @@ let
     #!/usr/bin/env bash
     set -euo pipefail
     if ! command -v gitleaks &>/dev/null; then
-        echo "Warning: gitleaks not found. Install it to scan for secrets."
-        exit 0
+        echo "Error: gitleaks not found. Skipping with: SKIP=gitleaks git commit"
+        exit 1
     fi
+    [ "$SKIP" = "gitleaks" ] && exit 0
     gitleaks protect --staged --redact --exit-code 1
   '';
 in
@@ -210,7 +211,7 @@ in
 
     settings = {
       user = { inherit name email; };
-      gpg.ssh.allowedSignersFile = "~/.config/git/allowed_signers";
+      gpg.ssh.allowedSignersFile = "${config.home.homeDirectory}/.config/git/allowed_signers";
       alias = aliases;
 
       # === Core ===
@@ -221,7 +222,7 @@ in
         safecrlf = true;
         filemode = false;
         pager = "delta";
-        hooksPath = "~/.config/git/hooks";
+        hooksPath = "${config.home.homeDirectory}/.config/git/hooks";
         quotepath = false;
         untrackedCache = true;
         fsmonitor = true;
