@@ -1,6 +1,15 @@
-{ pkgs, userConfig, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  userConfig,
+  ...
+}:
 
 let
+  inherit (pkgs.stdenv) isDarwin;
+  isWSL = config.programs.wsl.windowsUser != null;
+
   inherit (userConfig) editor;
   inherit (userConfig.git) name email sshKey;
 
@@ -312,6 +321,12 @@ in
         commitBeforeMerge = false;
         detachedHead = false;
       };
+    }
+    // lib.optionalAttrs isDarwin {
+      credential.helper = "osxkeychain";
+    }
+    // lib.optionalAttrs isWSL {
+      credential.helper = "/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe";
     };
   };
 

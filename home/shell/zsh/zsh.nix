@@ -6,6 +6,10 @@
   ...
 }:
 
+let
+  inherit (pkgs.stdenv) isDarwin isLinux;
+  isWSL = config.programs.wsl.windowsUser != null;
+in
 {
   programs.zsh = {
     enable = true;
@@ -408,6 +412,80 @@
                 alias odn='obsidian-daily-note'
                 alias oun='obsidian-unique-note'
       ''
+
+      # Platform-specific: Linux package managers
+      (lib.mkIf isLinux (
+        lib.mkAfter ''
+          # Linux package managers
+          [[ -d "/snap/bin" ]] && export PATH="/snap/bin:$PATH"
+          [[ -d "/var/lib/flatpak/exports/bin" ]] && export PATH="/var/lib/flatpak/exports/bin:$PATH"
+        ''
+      ))
+
+      # Platform-specific: WSL
+      (lib.mkIf isWSL (
+        lib.mkAfter ''
+          # WSL-Specific Configuration
+          export WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2 2>/dev/null || echo "localhost")
+
+          # Remove Windows starship from PATH (use WSL version only)
+          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '/mnt/c/Program Files/starship' | tr '\n' ':' | sed 's/:$//')
+
+          # Windows paths
+          export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0"
+
+          # Docker
+          [[ -S "/var/run/docker.sock" ]] && export DOCKER_HOST="unix:///var/run/docker.sock"
+
+          # WSL utilities
+          wsl2_fix_time() {
+            echo "Syncing WSL2 time..."
+            if command -v ntpdate &>/dev/null; then
+              sudo ntpdate ntp.nict.jp || sudo ntpdate time.google.com
+            elif command -v hwclock &>/dev/null; then
+              sudo hwclock -s
+            else
+              echo "No time sync tool found"
+              return 1
+            fi
+            echo "Time synced!"
+          }
+
+          wsl2_compact_memory() {
+            echo "Compacting WSL2 memory..."
+            echo 1 | sudo tee /proc/sys/vm/drop_caches >/dev/null
+            echo "Memory compacted!"
+          }
+
+          explorer() { explorer.exe "''${1:-.}"; }
+
+          # pbcopy uses OSC 52 (defined in functions.nix)
+          alias pbpaste='powershell.exe -command "Get-Clipboard" | tr -d "\r" | sed "s/^\xEF\xBB\xBF//"'
+          alias op='op.exe'
+
+          # X11 display (VcXsrv/Xming)
+          (command -v vcxsrv.exe &>/dev/null || command -v xming.exe &>/dev/null) && export DISPLAY="''${WSL_HOST}:0"
+        ''
+      ))
+
+      # Platform-specific: macOS
+      (lib.mkIf isDarwin (
+        lib.mkAfter ''
+          # macOS-Specific Configuration
+          export HOMEBREW_NO_ANALYTICS=1
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          # Prevent Homebrew from installing runtimes (use mise instead)
+          export HOMEBREW_FORBIDDEN_FORMULAE="node python python3 pip npm pnpm yarn"
+
+          # GNU tools from Homebrew
+          export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+          export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+          export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
+
+          # iTerm2 integration
+          [[ -e "''${HOME}/.iterm2_shell_integration.zsh" ]] && source "''${HOME}/.iterm2_shell_integration.zsh"
+        ''
+      ))
 
       # Machine-specific overrides
       (lib.mkAfter ''

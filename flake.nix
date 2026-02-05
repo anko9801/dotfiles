@@ -157,7 +157,6 @@
         loadModulePaths {
           src = ./home;
           exclude = [
-            "os-specific"
             "tools"
             "editor"
             "desktop"
@@ -235,7 +234,7 @@
                 users.${username} =
                   { lib, ... }:
                   {
-                    imports = commonHomeModules ++ [ ./home/os-specific/darwin.nix ];
+                    imports = commonHomeModules ++ [ ./system/darwin/home.nix ];
                     home = {
                       username = lib.mkForce username;
                       homeDirectory = lib.mkForce "/Users/${username}";
@@ -343,27 +342,22 @@
           wsl = mkHome {
             system = "x86_64-linux";
             extraModules = [
-              ./home/os-specific/wsl.nix
+              ./system/wsl.nix
               { programs.wsl.windowsUser = username; }
             ];
-          };
-
-          linux = mkHome {
-            system = "x86_64-linux";
-            extraModules = [ ./home/os-specific/linux.nix ];
           };
 
           linux-desktop = mkHome {
             system = "x86_64-linux";
             extraModules = [
-              ./home/os-specific/linux.nix
+              ./system/linux-desktop.nix
               ./home/desktop
             ];
           };
 
           server = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./home/os-specific/server.nix ];
+            extraModules = [ ./system/linux-server.nix ];
           };
         };
 
@@ -387,7 +381,7 @@
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/wsl.nix ];
             homeModule = {
-              imports = [ ./home/os-specific/wsl.nix ];
+              imports = [ ./system/wsl.nix ];
               programs.wsl.windowsUser = username;
             };
           };
@@ -401,7 +395,7 @@
             ];
             homeModule = {
               imports = [
-                ./home/os-specific/linux.nix
+                ./system/linux-desktop.nix
                 ./home/desktop
               ];
             };
@@ -411,7 +405,7 @@
           nixos-server = mkNixOS {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/server.nix ];
-            homeModule = ./home/os-specific/server.nix;
+            homeModule = ./system/linux-server.nix;
           };
 
           # Example VPS (for nixos-anywhere deployment)
@@ -419,10 +413,10 @@
             system = "x86_64-linux";
             extraModules = [
               inputs.disko.nixosModules.disko
-              ./system/servers/example-vps
+              ./system/nixos/example-vps
               ./system/nixos/server.nix
             ];
-            homeModule = ./home/os-specific/server.nix;
+            homeModule = ./system/linux-server.nix;
           };
         };
 
