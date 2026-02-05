@@ -4,7 +4,7 @@
   imports = [
     ./neovim
     ./vim.nix
-    ./vscode.nix
+    ./vscode
     ./zed.nix
   ];
 }
