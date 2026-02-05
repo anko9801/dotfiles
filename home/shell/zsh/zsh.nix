@@ -69,19 +69,15 @@ in
         # Starship (CANNOT DEFER: breaks prompt display in zellij, causes visual glitches)
         [[ $TERM != "dumb" ]] && eval "$(${pkgs.starship}/bin/starship init zsh)"
 
-        # Deferred initializers
-        _init_gpg_tty() { export GPG_TTY=$(tty); }
-        _init_compinit() { autoload -Uz compinit && compinit -C; }
-        _init_fzf() { source <(${pkgs.fzf}/bin/fzf --zsh); }
-        _init_direnv() { eval "$(${pkgs.direnv}/bin/direnv hook zsh)"; }
-        _init_atuin() { [[ $options[zle] = on ]] && eval "$(${pkgs.atuin}/bin/atuin init zsh)"; }
-
-        # Defer everything possible
-        zsh-defer _init_gpg_tty
-        zsh-defer _init_compinit
-        zsh-defer _init_fzf
-        zsh-defer _init_direnv
-        zsh-defer _init_atuin
+        # Deferred initializer (single function to minimize zsh-defer overhead)
+        _init_deferred() {
+          export GPG_TTY=$(tty)
+          autoload -Uz compinit && compinit -C
+          source <(${pkgs.fzf}/bin/fzf --zsh)
+          eval "$(${pkgs.direnv}/bin/direnv hook zsh)"
+          [[ $options[zle] = on ]] && eval "$(${pkgs.atuin}/bin/atuin init zsh)"
+        }
+        zsh-defer _init_deferred
         zsh-defer source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
         zsh-defer source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
         zsh-defer source ${pkgs.zsh-fast-syntax-highlighting}/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh

@@ -10,7 +10,7 @@
     ./git
     ./kanata.nix
     ./yazi.nix
-    # zellij is WSL-only (Ghostty has built-in splits on macOS)
+    # zellij: imported separately in platform configs (WSL uses zellij, macOS uses Ghostty splits)
     # ime.nix moved to home/desktop/
   ];
 }

@@ -59,7 +59,7 @@ in
     };
     nix-index = {
       enable = true;
-      enableZshIntegration = true;
+      enableZshIntegration = false; # Handled by nix-index-database flake module
     };
     nix-index-database.comma.enable = true;
   };
