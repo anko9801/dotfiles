@@ -29,44 +29,6 @@ Cognitive load is reduced across multiple dimensions:
 
 The result: low friction compounds. This configuration is the result of hundreds of iterations. Fork it and get a bug-free, high-performance, productivity-boosting setup on day one.
 
-## Implementation
-
-Configuration follows the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/latest/). Nix garbage collection runs weekly automatically. Security is layered: destructive commands require confirmation, secrets are caught before commit, and sensitive commands are filtered from shell history.
-
-```
-dotfiles/
-├── flake.nix           # Flake entry point
-├── setup               # Bootstrap script (Unix/Windows polyglot)
-├── system/             # System-level config
-│   ├── darwin/         # nix-darwin, Homebrew
-│   ├── nixos/          # NixOS modules
-│   └── windows/        # winget, Windows Terminal, wsl.conf
-├── home/               # Home Manager modules
-│   ├── shell/          # zsh, starship, fzf, atuin, zoxide
-│   ├── editor/         # neovim (nixvim), vscode, zed
-│   ├── tools/          # git, lazygit, ghostty, CLI tools (rg, fd, jq...)
-│   ├── dev/            # mise, language toolchains
-│   ├── desktop/        # niri, fuzzel, swaync (Linux Wayland)
-│   ├── security/       # 1password, ssh, gitleaks
-│   └── os-specific/    # wsl, darwin, linux
-├── theme/              # Stylix: colors, fonts, cursor
-└── users/              # Per-user settings (setup generates)
-```
-
-| Component | Choice | Reason |
-|-----------|--------|--------|
-| Theme | Stylix | Unified theming across all tools |
-| Terminal | Ghostty, Windows Terminal | GPU-accelerated, native feel |
-| Desktop | niri, fuzzel, swaync | Wayland tiling compositor (Linux) |
-| Multiplexer | Windows Terminal, zellij | WT for tabs/panes, zellij optional for session persistence |
-| Shell | zsh, zsh-abbr, fzf-tab, atuin | POSIX-compliant with fish-like UX |
-| Prompt | starship | Fast, customizable, cross-shell |
-| Dev env | mise, direnv | Per-project runtimes and shell environments |
-| Editor | Neovim (nixvim), Zed | Declarative config, modern alternatives |
-| CLI | rg, fd, zoxide, claude | Fast search, smart cd, AI assistant |
-| Git | lazygit, delta, difftastic, jj | Visual workflow, syntax-aware diffs |
-| Secrets | 1Password, gitleaks | E2E encryption, pre-commit secret scanning |
-
 ## Setup
 
 ### Quick Start
