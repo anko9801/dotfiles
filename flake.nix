@@ -6,7 +6,10 @@
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -43,7 +46,10 @@
     };
 
     # Theming
-    stylix.url = "github:danth/stylix";
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -128,6 +134,7 @@
         ./home/security/ssh.nix
         ./home/security/trivy.nix
         # Shell
+        ./home/shell/aliases.nix
         ./home/shell/atuin.nix
         ./home/shell/bash.nix
         ./home/shell/eza.nix
