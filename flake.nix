@@ -36,32 +36,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Remote NixOS installation
-    nixos-anywhere = {
-      url = "github:nix-community/nixos-anywhere";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Declarative disk partitioning
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Nix-native container snapshotter for containerd/Kubernetes
-    nix-snapshotter = {
-      url = "github:pdtpartners/nix-snapshotter";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Theming
     stylix.url = "github:danth/stylix";
-
-    # Filesystem-based module loader
-    haumea = {
-      url = "github:nix-community/haumea";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -73,35 +55,9 @@
       nix-darwin,
       nix-index-database,
       nix-homebrew,
-      haumea,
       ...
     }:
     let
-      # Load all module paths from a directory using haumea
-      loadModulePaths =
-        {
-          src,
-          exclude ? [ ],
-        }:
-        let
-          paths = haumea.lib.load {
-            inherit src;
-            loader = haumea.lib.loaders.path;
-          };
-          # Remove excluded keys from attrset
-          filterExcluded = attrs: builtins.removeAttrs attrs exclude;
-          flatten =
-            attrs:
-            builtins.concatLists (
-              builtins.attrValues (
-                builtins.mapAttrs (_: value: if builtins.isAttrs value then flatten value else [ value ]) (
-                  filterExcluded attrs
-                )
-              )
-            );
-        in
-        flatten paths;
-
       # Get username from environment (use --impure flag for actual username)
       username =
         let
@@ -152,22 +108,47 @@
           config.allowUnfree = true;
         }) "unfreePkgs";
 
-      # Common modules for home-manager (loaded via haumea)
-      commonHomeModules =
-        loadModulePaths {
-          src = ./home;
-          exclude = [
-            "tools"
-            "editor"
-            "desktop"
-          ]; # Imported explicitly per platform
-        }
-        ++ loadModulePaths { src = ./theme; }
-        ++ [
-          nix-index-database.homeModules.nix-index
-          inputs.nixvim.homeModules.nixvim
-          inputs.stylix.homeModules.stylix
-        ];
+      # Common modules for home-manager
+      commonHomeModules = [
+        # Core
+        ./home/core.nix
+        # Dev
+        ./home/dev/build-tools.nix
+        ./home/dev/go.nix
+        ./home/dev/lua.nix
+        ./home/dev/mise.nix
+        ./home/dev/nix.nix
+        ./home/dev/node.nix
+        ./home/dev/python.nix
+        ./home/dev/rust.nix
+        # Security
+        ./home/security/1password.nix
+        ./home/security/gitleaks.nix
+        ./home/security/gpg.nix
+        ./home/security/ssh.nix
+        ./home/security/trivy.nix
+        # Shell
+        ./home/shell/atuin.nix
+        ./home/shell/bash.nix
+        ./home/shell/eza.nix
+        ./home/shell/fish.nix
+        ./home/shell/fzf.nix
+        ./home/shell/readline.nix
+        ./home/shell/starship.nix
+        ./home/shell/zoxide.nix
+        ./home/shell/zsh/aliases.nix
+        ./home/shell/zsh/completion.nix
+        ./home/shell/zsh/functions.nix
+        ./home/shell/zsh/obsidian.nix
+        ./home/shell/zsh/zsh.nix
+        # Theme
+        ./theme/catppuccin-mocha.nix
+        ./theme/default.nix
+        # External
+        nix-index-database.homeModules.nix-index
+        inputs.nixvim.homeModules.nixvim
+        inputs.stylix.homeModules.stylix
+      ];
 
       # Standalone home-manager configuration (for Linux/WSL)
       mkHome =
