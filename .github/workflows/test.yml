@@ -36,7 +36,7 @@ jobs:
           sudo mkdir -p /run/dbus
           sudo dbus-daemon --system --fork
       - name: Build Home Manager configuration
-        run: USER=ci nix build --impure .#homeConfigurations.linux.activationPackage
+        run: USER=ci nix build --impure .#homeConfigurations.server.activationPackage
       - name: Activate Home Manager
         run: |
           sudo mkdir -p /home/ci
