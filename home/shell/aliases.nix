@@ -1,6 +1,6 @@
 # Common shell aliases shared across zsh, fish, and bash
 # Shell-specific abbreviations remain in their respective configs
-_:
+{ pkgs, ... }:
 
 {
   home.shellAliases = {
@@ -16,8 +16,8 @@ _:
     du = "dust";
     ps = "procs";
 
-    # Safety
-    rm = "trash";
+    # Safety (trashy is Linux-only; macOS uses trash from Homebrew)
+    rm = if pkgs.stdenv.isLinux then "trash" else "rm -i";
     cp = "cp -i";
     mv = "mv -i";
     mkdir = "mkdir -p";

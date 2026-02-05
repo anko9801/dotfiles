@@ -67,7 +67,7 @@ in
           IdentityAgent "${config.tools.ssh.onePasswordAgentPath}"
         '')
         (lib.mkIf (isLinux && !isWSL) ''
-          IdentityAgent ${config.tools.ssh.onePasswordAgentPath}
+          IdentityAgent "${config.tools.ssh.onePasswordAgentPath}"
         '')
       ];
 

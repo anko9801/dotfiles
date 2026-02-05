@@ -327,7 +327,8 @@ in
       credential.helper = "osxkeychain";
     }
     // lib.optionalAttrs isWSL {
-      credential.helper = "/mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe";
+      # Uses WSL PATH interop to find GCM regardless of install location
+      credential.helper = "!git-credential-manager.exe";
     };
   };
 
