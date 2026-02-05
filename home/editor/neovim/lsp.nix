@@ -36,7 +36,7 @@ _:
           installRustc = false;
           settings.rust-analyzer.check.command = "clippy";
         };
-        pyright = {
+        ty = {
           enable = true;
           package = null;
         };
