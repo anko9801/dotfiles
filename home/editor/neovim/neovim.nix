@@ -46,6 +46,9 @@
 
       # Linters
       eslint_d
+
+      # LSPs (not managed by dev modules)
+      yaml-language-server
     ];
   };
 }
