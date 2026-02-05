@@ -14,6 +14,7 @@ jobs:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Check Nix flake
+        # --impure: required for builtins.getEnv "USER" in flake.nix
         run: nix flake check --impure
       - name: Format check (treefmt)
         run: nix fmt -- --fail-on-change
