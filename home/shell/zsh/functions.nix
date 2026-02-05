@@ -52,6 +52,7 @@
 
       # Git branch switch with fzf
       fbr() {
+          git rev-parse --is-inside-work-tree &>/dev/null || { echo "Not a git repository"; return 1; }
           local branches branch
           branches=$(git branch --all | grep -v HEAD) &&
           branch=$(echo "$branches" | fzf --height=40% --layout=reverse --border -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
@@ -60,8 +61,12 @@
 
       # Docker container exec with fzf
       dexec() {
+          command -v docker &>/dev/null || { echo "docker not found"; return 1; }
+          local containers
+          containers=$(docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}" | sed 1d)
+          [[ -z "$containers" ]] && { echo "No running containers"; return 1; }
           local container
-          container=$(docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}" | sed 1d | fzf --height=40% --layout=reverse --border | awk '{print $1}')
+          container=$(echo "$containers" | fzf --height=40% --layout=reverse --border | awk '{print $1}')
           if [[ -n "$container" ]]; then
               docker exec -it "$container" /bin/bash || docker exec -it "$container" /bin/sh
           fi
