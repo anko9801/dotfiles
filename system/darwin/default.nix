@@ -50,8 +50,31 @@ in
 
   # Primary user is set in flake.nix based on the user parameter
 
-  # Home Manager backup for existing files
+  # Home Manager
   home-manager.backupFileExtension = "backup";
+  home-manager.sharedModules = [
+    ../../home/tools
+    ../../home/editor
+    (
+      { pkgs, ... }:
+      {
+        home = {
+          sessionPath = [
+            "/opt/homebrew/bin"
+            "/opt/homebrew/sbin"
+          ];
+          packages = with pkgs; [
+            coreutils
+            findutils
+            gnugrep
+            gnutar
+            darwin.trash
+            terminal-notifier
+          ];
+        };
+      }
+    )
+  ];
 
   # Used for backwards compatibility
   system.stateVersion = 5;

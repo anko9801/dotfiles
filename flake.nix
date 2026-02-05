@@ -222,7 +222,7 @@
                 users.${username} =
                   { lib, ... }:
                   {
-                    imports = commonHomeModules ++ [ ./system/darwin/home.nix ];
+                    imports = commonHomeModules;
                     home = {
                       username = lib.mkForce username;
                       homeDirectory = lib.mkForce "/Users/${username}";
