@@ -4,6 +4,7 @@
   imports = [
     ../../home/tools
     ../../home/editor
+    ../../home/desktop
   ];
 
   home = {

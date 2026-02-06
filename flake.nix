@@ -142,10 +142,7 @@
 
           linux-desktop = mkHome {
             system = "x86_64-linux";
-            extraModules = [
-              ./system/linux/linux-desktop.nix
-              ./home/desktop
-            ];
+            extraModules = [ ./system/linux/linux-desktop.nix ];
           };
 
           server = mkHome {
@@ -175,12 +172,7 @@
               ./system/nixos/desktop.nix
               ./system/nixos/kanata.nix
             ];
-            homeModule = {
-              imports = [
-                ./system/linux/linux-desktop.nix
-                ./home/desktop
-              ];
-            };
+            homeModule = ./system/linux/linux-desktop.nix;
           };
 
           nixos-server = mkNixOS {
