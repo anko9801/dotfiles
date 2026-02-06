@@ -10,10 +10,11 @@
 let
   inherit (common) username mkSpecialArgs;
 
-  # Workstation modules (tools + editor) - added when workstation = true
+  # Workstation modules (tools + editor + terminal) - added when workstation = true
   workstationModules = [
     ../../home/tools
     ../../home/editor
+    ../../home/terminal
   ];
 
   # Common modules for home-manager (also used by darwin/nixos)
