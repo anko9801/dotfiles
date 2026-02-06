@@ -18,17 +18,16 @@ alias -g Y='| pbcopy'
 # Usage: file.md → $EDITOR file.md, script.py → python script.py
 # ─────────────────────────────────────────────────────────────────
 alias -s {md,markdown,txt,nix,json,yaml,yml,toml}="$EDITOR"
+alias -s {gz,tgz,zip,bz2,tbz,xz,tar,7z,rar,zst}='ouch decompress'
 alias -s py='python'
 alias -s rb='ruby'
 alias -s js='node'
-alias -s ts='npx ts-node'
+alias -s ts='deno run'
 alias -s go='go run'
-alias -s rs='rustc'
 alias -s lua='lua'
 alias -s sh='bash'
-
-# Archives - use ouch for extraction
-alias -s {gz,tgz,zip,bz2,tbz,xz,tar,7z,rar,zst}='ouch decompress'
+# Git clone by pasting URL: git@github.com:user/repo.git → git clone ...
+alias -s git='git clone'
 
 # ─────────────────────────────────────────────────────────────────
 # Regular Aliases
@@ -49,16 +48,6 @@ alias cn='claude --continue'
 
 # Quick reload
 alias rez='exec zsh'
-
-# ─────────────────────────────────────────────────────────────────
-# Hash Directories (quick navigation)
-# Usage: cd ~dot, cd ~nvim
-# ─────────────────────────────────────────────────────────────────
-hash -d dot=~/dotfiles
-hash -d cfg=~/.config
-hash -d data=~/.local/share
-hash -d nvim=~/.local/share/nvim
-hash -d nvimplugins=~/.local/share/nvim/lazy
 
 # ─────────────────────────────────────────────────────────────────
 # Abbreviations (deferred to run after zsh-abbr loads)
