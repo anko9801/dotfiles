@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (config.platform) isDarwin isLinux isWSL;
+  inherit (config.platform) isDarwin isWSL;
 in
 {
   options.tools.ssh = {
