@@ -11,6 +11,7 @@
 let
   # Only enable on NixOS desktop (not WSL)
   isDesktop = !(config.wsl.enable or false);
+  kanataConfig = import ../../home/tools/kanata-config.nix;
 in
 {
   config = lib.mkIf isDesktop {
@@ -19,31 +20,7 @@ in
       keyboards.default = {
         # Empty list = auto-detect all keyboards
         devices = [ ];
-        config = ''
-          ;; Kanata configuration
-          ;; Key remappings for Japanese input and Vim-friendly editing
-
-          (defcfg
-            process-unmapped-keys yes
-          )
-
-          (defsrc
-            caps lmet rmet
-          )
-
-          (defalias
-            ;; CapsLock: tap=Escape, hold=Ctrl (Vim-friendly)
-            cap (tap-hold 200 200 esc lctl)
-            ;; Left Meta: tap=英数 (Eisuu/lang2), hold=Meta
-            lm  (tap-hold 200 200 lang2 lmet)
-            ;; Right Meta: tap=かな (Kana/lang1), hold=Meta
-            rm  (tap-hold 200 200 lang1 rmet)
-          )
-
-          (deflayer default
-            @cap @lm @rm
-          )
-        '';
+        config = kanataConfig;
       };
     };
   };
