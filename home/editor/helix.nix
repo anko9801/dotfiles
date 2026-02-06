@@ -1,6 +1,6 @@
 # Helix - A post-modern modal text editor
 # https://helix-editor.com/
-{ pkgs, ... }:
+{ lib, ... }:
 
 {
   programs.helix = {
@@ -8,7 +8,7 @@
     defaultEditor = false; # Keep nvim as default
 
     settings = {
-      theme = "catppuccin_mocha";
+      # Theme managed by stylix
 
       editor = {
         # Line numbers
