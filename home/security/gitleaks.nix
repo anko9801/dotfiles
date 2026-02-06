@@ -1,7 +1,11 @@
 { pkgs, ... }:
 
 {
-  home.packages = [ pkgs.gitleaks ];
+  # Security scanning tools
+  home.packages = with pkgs; [
+    gitleaks # Secret detection in git repos
+    trivy # Container/filesystem vulnerability scanner
+  ];
 
   xdg.configFile."gitleaks/config.toml".text = ''
     title = "gitleaks config"

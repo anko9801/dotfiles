@@ -141,7 +141,6 @@
         ./home/security/gitleaks.nix
         ./home/security/gpg.nix
         ./home/security/ssh.nix
-        ./home/security/trivy.nix
         # Shell
         ./home/shell/aliases.nix
         ./home/shell/atuin.nix
