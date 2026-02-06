@@ -31,7 +31,7 @@ in
     inherit (nixSettings) settings;
     optimise.automatic = true;
     gc = nixSettings.gc // {
-      dates = "weekly";
+      dates = nixSettings.gcSchedule.frequency;
     };
   };
 

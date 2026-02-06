@@ -20,11 +20,7 @@ in
     inherit (nixSettings) settings;
     optimise.automatic = true;
     gc = nixSettings.gc // {
-      interval = {
-        Weekday = 0;
-        Hour = 3;
-        Minute = 0;
-      };
+      interval = nixSettings.gcSchedule.darwin;
     };
   };
 

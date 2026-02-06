@@ -24,9 +24,21 @@
     max-jobs = "auto";
   };
 
-  # GC options (platform provides timing via dates/interval)
+  # GC configuration (unified across platforms)
   gc = {
     automatic = true;
     options = "--delete-older-than 30d";
+  };
+
+  # GC schedule: weekly (platform-specific formats)
+  gcSchedule = {
+    # nix-darwin (launchd interval: Sunday 3:00 AM)
+    darwin = {
+      Weekday = 0; # 0 = Sunday
+      Hour = 3;
+      Minute = 0;
+    };
+    # NixOS / home-manager (systemd timer)
+    frequency = "weekly";
   };
 }

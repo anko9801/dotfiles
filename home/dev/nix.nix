@@ -20,9 +20,8 @@ in
   # (NixOS/darwin with useGlobalPkgs=true provides it from system)
   nix = {
     inherit (nixSettings) settings;
-    gc = {
-      automatic = true;
-      options = "--delete-older-than 7d"; # Shorter retention for user-level gc
+    gc = nixSettings.gc // {
+      frequency = nixSettings.gcSchedule.frequency;
     };
   };
 
