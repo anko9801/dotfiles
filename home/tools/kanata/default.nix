@@ -10,6 +10,5 @@
 
 {
   xdg.configFile."kanata/kanata.kbd".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/dotfiles/home/tools/kanata/config.kbd";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/home/tools/kanata/config.kbd";
 }

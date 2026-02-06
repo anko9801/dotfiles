@@ -154,17 +154,7 @@ in
                     echo "Blocked: potentially destructive command" >&2
                     exit 2
                   fi
-                '';
-              }
-            ];
-          }
-          {
-            matcher = "*";
-            hooks = [
-              {
-                type = "command";
-                command = ''
-                  # Record session start time (only if not already set)
+                  # Record session start time (only on first Bash command)
                   start_file="${sessionStartFile}"
                   [ ! -f "$start_file" ] && date +%s > "$start_file"
                 '';
