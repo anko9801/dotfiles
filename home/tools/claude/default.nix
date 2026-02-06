@@ -1,27 +1,14 @@
 { unfreePkgs, ... }:
 
 let
-  sessionStartFile = "\${XDG_RUNTIME_DIR:-/tmp}/.claude_session_start";
+  sessionDir = "\${XDG_RUNTIME_DIR:-/tmp}/claude-session";
 
+  # Lightweight linting (only fast linters, skip slow ones like cargo clippy)
   lintHook = ''
-    # Run linters based on edited file type
     file="$CLAUDE_FILE_PATH"
     case "$file" in
-      *.nix)
-        statix check "$file" 2>&1 || exit 2
-        deadnix "$file" 2>&1 || exit 2
-        ;;
-      *.rs)
-        cargo clippy --quiet 2>&1 || exit 2
-        ;;
-      *.py)
-        ruff check "$file" 2>&1 || exit 2
-        ;;
-      *.js|*.ts|*.jsx|*.tsx)
-        if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
-          npm run lint --if-present 2>&1 || exit 2
-        fi
-        ;;
+      *.nix) statix check "$file" 2>&1 || exit 2 ;;
+      *.py) ruff check --quiet "$file" 2>&1 || exit 2 ;;
     esac
   '';
 in
@@ -141,7 +128,7 @@ in
       # Hooks - run commands at specific lifecycle points
       # Exit code 0 = success, 2 = blocking error (stderr fed back to Claude)
       hooks = {
-        # Before tool use - block dangerous commands and track start time
+        # Block dangerous commands (uses case for speed, no subprocess)
         PreToolUse = [
           {
             matcher = "Bash";
@@ -149,14 +136,14 @@ in
               {
                 type = "command";
                 command = ''
-                  # Block dangerous commands
-                  if echo "$CLAUDE_TOOL_INPUT" | grep -qE '\b(rm\s+-rf\s+/|dd\s+if=|mkfs\.|>\s*/dev/sd)'; then
-                    echo "Blocked: potentially destructive command" >&2
-                    exit 2
-                  fi
-                  # Record session start time (only on first Bash command)
-                  start_file="${sessionStartFile}"
-                  [ ! -f "$start_file" ] && date +%s > "$start_file"
+                  case "$CLAUDE_TOOL_INPUT" in
+                    *"rm -rf /"*|*"dd if="*|*"mkfs."*|*"> /dev/sd"*)
+                      echo "Blocked: potentially destructive command" >&2
+                      exit 2 ;;
+                  esac
+                  # Track session start time
+                  mkdir -p "${sessionDir}"
+                  [ ! -f "${sessionDir}/start" ] && date +%s > "${sessionDir}/start"
                 '';
               }
             ];
@@ -198,25 +185,21 @@ in
               {
                 type = "command";
                 command = ''
-                  start_file="${sessionStartFile}"
-                  if [ -f "$start_file" ]; then
-                    start_time=$(cat "$start_file")
-                    elapsed=$(($(date +%s) - start_time))
-                    rm -f "$start_file"
-                    # Only notify if task took longer than 30 seconds
-                    if [ "$elapsed" -ge 30 ]; then
-                      # WSL notification (BurntToast)
-                      if grep -qi microsoft /proc/version 2>/dev/null; then
-                        powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Task completed (''${elapsed}s)'" 2>/dev/null || true
-                      # macOS notification
-                      elif command -v osascript &>/dev/null; then
-                        osascript -e "display notification \"Task completed (''${elapsed}s)\" with title \"Claude Code\""
-                      # Linux notification (notify-send)
-                      elif command -v notify-send &>/dev/null; then
-                        notify-send "Claude Code" "Task completed (''${elapsed}s)"
-                      fi
+                  [ -f "${sessionDir}/start" ] || exit 0
+                  start=$(cat "${sessionDir}/start")
+                  elapsed=$(($(date +%s) - start))
+                  rm -rf "${sessionDir}"
+                  [ "$elapsed" -lt 30 ] && exit 0
+                  # Send notification in background (non-blocking)
+                  (
+                    if [ -n "$WSL_DISTRO_NAME" ]; then
+                      powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Done (''${elapsed}s)'" 2>/dev/null
+                    elif [ "$(uname)" = "Darwin" ]; then
+                      osascript -e "display notification \"Done (''${elapsed}s)\" with title \"Claude Code\""
+                    elif command -v notify-send >/dev/null; then
+                      notify-send "Claude Code" "Done (''${elapsed}s)"
                     fi
-                  fi
+                  ) &
                 '';
               }
             ];
