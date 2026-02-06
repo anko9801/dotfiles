@@ -78,6 +78,13 @@
         in
         if builtins.pathExists userFile then import userFile else import ./users/default.nix;
 
+      # Centralized version management
+      versions = {
+        home = "24.11"; # Home Manager stateVersion
+        nixos = "24.11"; # NixOS stateVersion
+        darwin = 5; # nix-darwin stateVersion (integer)
+      };
+
       # Log unfree package usage at build time (helps track non-FOSS dependencies)
       setUnfreeWarning =
         maybeAttrs: prefix:
@@ -116,12 +123,36 @@
 
       # Common specialArgs for home-manager
       mkSpecialArgs = system: {
-        inherit userConfig;
+        inherit userConfig versions;
         unfreePkgs = mkUnfreePkgs system;
       };
 
       # System-level specialArgs (for nix-darwin and NixOS modules)
       mkSystemSpecialArgs = system: mkSpecialArgs system // { inherit self inputs username; };
+
+      # Common home-manager configuration for system modules (darwin/nixos)
+      mkHomeManagerConfig =
+        {
+          system,
+          homeDir,
+          extraImports ? [ ],
+        }:
+        {
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            extraSpecialArgs = mkSpecialArgs system;
+            users.${username} =
+              { lib, ... }:
+              {
+                imports = commonHomeModules ++ extraImports;
+                home = {
+                  username = lib.mkForce username;
+                  homeDirectory = lib.mkForce "${homeDir}/${username}";
+                };
+              };
+          };
+        };
 
       # Common modules for home-manager
       commonHomeModules = [
@@ -142,6 +173,7 @@
         ./home/security/gpg.nix
         ./home/security/ssh.nix
         # Shell
+        ./home/shell/defaults.nix
         ./home/shell/aliases.nix
         ./home/shell/atuin.nix
         ./home/shell/bash.nix
@@ -213,22 +245,10 @@
 
             # Home Manager as nix-darwin module
             home-manager.darwinModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                extraSpecialArgs = mkSpecialArgs system;
-                users.${username} =
-                  { lib, ... }:
-                  {
-                    imports = commonHomeModules;
-                    home = {
-                      username = lib.mkForce username;
-                      homeDirectory = lib.mkForce "/Users/${username}";
-                    };
-                  };
-              };
-            }
+            (mkHomeManagerConfig {
+              inherit system;
+              homeDir = "/Users";
+            })
 
             # Override system.primaryUser for the specific user
             {
@@ -261,22 +281,11 @@
 
             # Home Manager as NixOS module
             home-manager.nixosModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                extraSpecialArgs = mkSpecialArgs system;
-                users.${username} =
-                  { lib, ... }:
-                  {
-                    imports = commonHomeModules ++ [ homeModule ];
-                    home = {
-                      username = lib.mkForce username;
-                      homeDirectory = lib.mkForce "/home/${username}";
-                    };
-                  };
-              };
-            }
+            (mkHomeManagerConfig {
+              inherit system;
+              homeDir = "/home";
+              extraImports = [ homeModule ];
+            })
           ]
           ++ extraModules;
         };

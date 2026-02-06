@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, versions, ... }:
 
 let
   nixSettings = import ../nix-settings.nix;
@@ -117,5 +117,5 @@ in
   environment.systemPackages = basePkgs.base ++ basePkgs.nixos ++ basePkgs.desktop;
 
   # This value determines the NixOS release
-  system.stateVersion = "24.11";
+  system.stateVersion = versions.nixos;
 }

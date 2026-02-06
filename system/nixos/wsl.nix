@@ -2,6 +2,7 @@
   inputs,
   pkgs,
   username,
+  versions,
   ...
 }:
 
@@ -38,5 +39,5 @@ in
   environment.systemPackages = basePkgs.base ++ basePkgs.nixos;
 
   # This value determines the NixOS release
-  system.stateVersion = "24.11";
+  system.stateVersion = versions.nixos;
 }

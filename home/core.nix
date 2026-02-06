@@ -1,11 +1,11 @@
-_:
+{ versions, ... }:
 
 let
   isCI = builtins.getEnv "CI" != "";
 in
 {
   home = {
-    stateVersion = "24.11";
+    stateVersion = versions.home;
     sessionVariables.LANG = "ja_JP.UTF-8";
     sessionPath = [ "$HOME/.local/bin" ];
   };

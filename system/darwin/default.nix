@@ -1,5 +1,6 @@
 {
   pkgs,
+  versions,
   ...
 }:
 
@@ -54,7 +55,7 @@ in
   ];
 
   # Used for backwards compatibility
-  system.stateVersion = 5;
+  system.stateVersion = versions.darwin;
 
   # The platform is set by flake.nix based on the system parameter
 }

@@ -1,6 +1,6 @@
 # Example VPS server configuration
 # Copy this directory and customize for your server
-{ ... }:
+{ versions, ... }:
 
 {
   imports = [
@@ -48,5 +48,5 @@
   };
 
   # This value determines the NixOS release
-  system.stateVersion = "24.11";
+  system.stateVersion = versions.nixos;
 }
