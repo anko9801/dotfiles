@@ -8,7 +8,7 @@
     historyControl = [
       "ignoreboth"
     ];
-    historySize = config.shell.historySize;
+    inherit (config.shell) historySize;
     historyFileSize = config.shell.historySize;
 
     shellOptions = [
