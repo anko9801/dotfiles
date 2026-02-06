@@ -25,8 +25,20 @@
 
 let
   inherit (config.platform) isDarwin isLinux isWSL;
+  fzfFlags = config.shell.fzf.defaultFlags;
+
+  # External scripts (proper syntax highlighting, no Nix escaping needed)
+  scripts = {
+    abbr = builtins.readFile ./scripts/abbr.zsh;
+    completion = builtins.readFile ./scripts/completion.zsh;
+    functions = builtins.replaceStrings [ "@FZF_FLAGS@" ] [ fzfFlags ] (
+      builtins.readFile ./scripts/functions.zsh
+    );
+    obsidian = builtins.readFile ./scripts/obsidian.zsh;
+  };
 in
 {
+
   programs.zsh = {
     enable = true;
     dotDir = "${config.xdg.configHome}/zsh"; # XDG compliant (HM 26.05+)
@@ -119,6 +131,12 @@ in
         }
         zsh-defer _init_shell_options
       ''
+
+      # External scripts
+      scripts.functions
+      scripts.completion
+      scripts.abbr
+      scripts.obsidian
 
       # Platform-specific: Linux package managers
       (lib.mkIf isLinux (

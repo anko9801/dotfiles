@@ -183,10 +183,6 @@
         ./home/shell/readline.nix
         ./home/shell/starship.nix
         ./home/shell/zoxide.nix
-        ./home/shell/zsh/aliases.nix
-        ./home/shell/zsh/completion.nix
-        ./home/shell/zsh/functions.nix
-        ./home/shell/zsh/obsidian.nix
         ./home/shell/zsh/zsh.nix
         # Theme
         ./theme/catppuccin-mocha.nix
