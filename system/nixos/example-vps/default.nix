@@ -1,6 +1,6 @@
 # Example VPS server configuration
 # Copy this directory and customize for your server
-{ versions, ... }:
+{ versions, userConfig, ... }:
 
 {
   imports = [
@@ -30,15 +30,14 @@
     };
   };
 
-  # Authorized SSH keys (add your public key)
-  users.users.root.openssh.authorizedKeys.keys = [
-    # "ssh-ed25519 AAAA... your-key"
-  ];
+  # Authorized SSH keys from userConfig (set in users/$USER.nix)
+  users.users.root.openssh.authorizedKeys.keys =
+    if userConfig.git.sshKey != "" then [ userConfig.git.sshKey ] else [ ];
 
   # Automatic updates
   system.autoUpgrade = {
     enable = true;
-    flake = "github:YOUR_USER/dotfiles#example-vps";
+    flake = "github:anko9801/dotfiles#example-vps";
     flags = [
       "--update-input"
       "nixpkgs"

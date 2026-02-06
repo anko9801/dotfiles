@@ -47,6 +47,11 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -192,20 +197,45 @@
           };
         };
 
+        # deploy-rs configuration
+        deploy.nodes = {
+          example-vps = {
+            hostname = "example-vps"; # Replace with actual hostname/IP
+            profiles.system = {
+              user = "root";
+              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.example-vps;
+            };
+          };
+          nixos-server = {
+            hostname = "nixos-server"; # Replace with actual hostname/IP
+            profiles.system = {
+              user = "root";
+              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nixos-server;
+            };
+          };
+        };
+
         apps.x86_64-linux = {
+          # deploy-rs for updates
           deploy = {
             type = "app";
+            program = toString inputs.deploy-rs.packages.x86_64-linux.default;
+          };
+
+          # nixos-anywhere for initial deployment
+          deploy-anywhere = {
+            type = "app";
             program = toString (
-              nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy" ''
+              nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-anywhere" ''
                 set -e
                 if [ $# -lt 2 ]; then
-                  echo "Usage: nix run .#deploy -- <user@host> <config-name>"
-                  echo "Example: nix run .#deploy -- root@192.168.1.100 example-vps"
+                  echo "Usage: nix run .#deploy-anywhere -- <user@host> <config-name>"
+                  echo "Example: nix run .#deploy-anywhere -- root@192.168.1.100 example-vps"
                   exit 1
                 fi
                 TARGET="$1"
                 CONFIG="$2"
-                echo "Deploying $CONFIG to $TARGET..."
+                echo "Deploying $CONFIG to $TARGET with nixos-anywhere..."
                 nix run github:nix-community/nixos-anywhere -- --flake ".#$CONFIG" "$TARGET"
               ''
             );
