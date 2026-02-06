@@ -7,6 +7,7 @@
 
 let
   nixSettings = import ../nix-settings.nix;
+  basePkgs = import ../base-packages.nix pkgs;
 in
 {
   imports = [
@@ -34,12 +35,7 @@ in
   };
 
   # System packages
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    wget
-    curl
-  ];
+  environment.systemPackages = basePkgs.base ++ basePkgs.nixos;
 
   # This value determines the NixOS release
   system.stateVersion = "24.11";

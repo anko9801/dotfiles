@@ -5,6 +5,7 @@
 
 let
   nixSettings = import ../nix-settings.nix;
+  basePkgs = import ../base-packages.nix pkgs;
 in
 {
   imports = [
@@ -27,11 +28,7 @@ in
   };
 
   # System packages (available to all users)
-  environment.systemPackages = with pkgs; [
-    vim
-    git
-    curl
-  ];
+  environment.systemPackages = basePkgs.base;
 
   # Fonts
   fonts.packages = with pkgs; [

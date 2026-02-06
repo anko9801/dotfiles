@@ -2,6 +2,7 @@
 
 let
   nixSettings = import ../nix-settings.nix;
+  basePkgs = import ../base-packages.nix pkgs;
 in
 {
   # NOTE: Replace with hardware-configuration.nix after installing NixOS
@@ -47,13 +48,7 @@ in
   };
 
   # System packages
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    wget
-    curl
-    htop
-  ];
+  environment.systemPackages = basePkgs.base ++ basePkgs.nixos ++ basePkgs.server;
 
   # This value determines the NixOS release
   system.stateVersion = "24.11";
