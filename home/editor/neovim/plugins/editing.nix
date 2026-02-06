@@ -52,6 +52,49 @@ _:
       ];
     };
 
+    # dial: Enhanced increment/decrement
+    dial = {
+      enable = true;
+      lazyLoad.settings.keys = [
+        {
+          __unkeyed-1 = "<C-a>";
+          __unkeyed-2.__raw = ''function() require("dial.map").manipulate("increment", "normal") end'';
+          mode = "n";
+          desc = "Increment";
+        }
+        {
+          __unkeyed-1 = "<C-x>";
+          __unkeyed-2.__raw = ''function() require("dial.map").manipulate("decrement", "normal") end'';
+          mode = "n";
+          desc = "Decrement";
+        }
+        {
+          __unkeyed-1 = "g<C-a>";
+          __unkeyed-2.__raw = ''function() require("dial.map").manipulate("increment", "gnormal") end'';
+          mode = "n";
+          desc = "Increment (additive)";
+        }
+        {
+          __unkeyed-1 = "g<C-x>";
+          __unkeyed-2.__raw = ''function() require("dial.map").manipulate("decrement", "gnormal") end'';
+          mode = "n";
+          desc = "Decrement (additive)";
+        }
+        {
+          __unkeyed-1 = "<C-a>";
+          __unkeyed-2.__raw = ''function() require("dial.map").manipulate("increment", "visual") end'';
+          mode = "v";
+          desc = "Increment";
+        }
+        {
+          __unkeyed-1 = "<C-x>";
+          __unkeyed-2.__raw = ''function() require("dial.map").manipulate("decrement", "visual") end'';
+          mode = "v";
+          desc = "Decrement";
+        }
+      ];
+    };
+
     # trouble: Pretty diagnostics, quickfix, and location lists
     trouble = {
       enable = true;
