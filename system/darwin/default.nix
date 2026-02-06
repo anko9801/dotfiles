@@ -50,25 +50,7 @@ in
   home-manager.sharedModules = [
     ../../home/tools
     ../../home/editor
-    (
-      { pkgs, ... }:
-      {
-        home = {
-          sessionPath = [
-            "/opt/homebrew/bin"
-            "/opt/homebrew/sbin"
-          ];
-          packages = with pkgs; [
-            coreutils
-            findutils
-            gnugrep
-            gnutar
-            darwin.trash
-            terminal-notifier
-          ];
-        };
-      }
-    )
+    ./home.nix
   ];
 
   # Used for backwards compatibility
