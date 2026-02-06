@@ -7,8 +7,7 @@
 }:
 
 let
-  inherit (pkgs.stdenv) isDarwin;
-  isWSL = config.programs.wsl.windowsUser != null;
+  inherit (config.platform) isDarwin isWSL;
 
   inherit (userConfig) editor;
   inherit (userConfig.git) name email sshKey;

@@ -7,8 +7,7 @@
 }:
 
 let
-  inherit (pkgs.stdenv) isDarwin isLinux;
-  isWSL = config.programs.wsl.windowsUser != null;
+  inherit (config.platform) isDarwin isLinux isWSL;
 in
 {
   programs.zsh = {

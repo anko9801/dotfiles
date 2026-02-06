@@ -1,35 +1,25 @@
 {
   lib,
-  pkgs,
   config,
   userConfig,
   ...
 }:
 
 let
-  inherit (pkgs.stdenv) isDarwin isLinux;
-  isWSL = config.programs.wsl.windowsUser != null;
+  inherit (config.platform) isDarwin isLinux isWSL;
 in
 {
-  options = {
-    tools.ssh = {
-      onePasswordAgentPath = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = "~/.1password/agent.sock";
-        description = "Path to 1Password SSH agent socket (null to disable)";
-      };
-
-      onePasswordSignProgram = lib.mkOption {
-        type = lib.types.str;
-        default = "op-ssh-sign";
-        description = "Path to 1Password SSH signing program";
-      };
+  options.tools.ssh = {
+    onePasswordAgentPath = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = "~/.1password/agent.sock";
+      description = "Path to 1Password SSH agent socket (null to disable)";
     };
 
-    programs.wsl.windowsUser = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "Windows username for WSL integration paths";
+    onePasswordSignProgram = lib.mkOption {
+      type = lib.types.str;
+      default = "op-ssh-sign";
+      description = "Path to 1Password SSH signing program";
     };
   };
 
@@ -66,7 +56,7 @@ in
         (lib.mkIf isDarwin ''
           IdentityAgent "${config.tools.ssh.onePasswordAgentPath}"
         '')
-        (lib.mkIf (isLinux && !isWSL) ''
+        (lib.mkIf config.platform.isLinuxDesktop ''
           IdentityAgent "${config.tools.ssh.onePasswordAgentPath}"
         '')
       ];

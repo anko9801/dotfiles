@@ -5,12 +5,9 @@
   ...
 }:
 
-let
-  isWSL = config.programs.wsl.windowsUser or null != null;
-in
 {
   # WSL uses op.exe from Windows, so skip Nix 1password-cli
-  home.packages = lib.optionals (!isWSL) [
+  home.packages = lib.optionals (!config.platform.isWSL) [
     unfreePkgs._1password-cli
   ];
 

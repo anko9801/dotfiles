@@ -67,7 +67,7 @@
         yamllint
         markdownlint-cli
       ]
-      ++ lib.optionals pkgs.stdenv.isLinux [
+      ++ lib.optionals config.platform.isLinux [
         trashy # rm alternative (move to trash)
       ];
 
