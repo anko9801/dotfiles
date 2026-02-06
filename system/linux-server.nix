@@ -39,17 +39,8 @@
     # Use Vim as default editor on servers
     vim.defaultEditor = true;
 
-    # Basic shell setup
-    bash = {
-      enable = true;
-      shellAliases = lib.mkForce {
-        ll = "ls -la";
-        la = "ls -A";
-        l = "ls -CF";
-        ".." = "cd ..";
-        "..." = "cd ../..";
-      };
-    };
+    # Basic shell setup (inherits aliases from home/shell/aliases.nix)
+    bash.enable = true;
 
     # Git with minimal config
     git = {
