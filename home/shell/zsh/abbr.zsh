@@ -1,4 +1,48 @@
+# ─────────────────────────────────────────────────────────────────
+# Global Aliases (pipe shortcuts)
+# Usage: dmesg G CPU, cat file L, ls W
+# ─────────────────────────────────────────────────────────────────
+alias -g G='| grep'
+alias -g L='| less'
+alias -g H='| head'
+alias -g T='| tail'
+alias -g W='| wc'
+alias -g S='| sort'
+alias -g U='| uniq'
+alias -g J='| jq'
+# Y (yank to clipboard) - uses pbcopy from functions.zsh (OSC 52)
+alias -g Y='| pbcopy'
+
+# ─────────────────────────────────────────────────────────────────
+# Suffix Aliases (open files by extension)
+# Usage: file.md → $EDITOR file.md, script.py → python script.py
+# ─────────────────────────────────────────────────────────────────
+alias -s {md,markdown,txt,nix,json,yaml,yml,toml}="$EDITOR"
+alias -s py='python'
+alias -s rb='ruby'
+alias -s js='node'
+alias -s ts='npx ts-node'
+alias -s go='go run'
+alias -s rs='rustc'
+alias -s lua='lua'
+alias -s sh='bash'
+
+# Archives - use ouch for extraction
+alias -s {gz,tgz,zip,bz2,tbz,xz,tar,7z,rar,zst}='ouch decompress'
+
+# ─────────────────────────────────────────────────────────────────
+# Hash Directories (quick navigation)
+# Usage: cd ~dot, cd ~nvim
+# ─────────────────────────────────────────────────────────────────
+hash -d dot=~/dotfiles
+hash -d cfg=~/.config
+hash -d data=~/.local/share
+hash -d nvim=~/.local/share/nvim
+hash -d nvimplugins=~/.local/share/nvim/lazy
+
+# ─────────────────────────────────────────────────────────────────
 # Abbreviations (deferred to run after zsh-abbr loads)
+# ─────────────────────────────────────────────────────────────────
 _init_abbr() {
   # Modern CLI replacements (abbr for learning, see expansion)
   abbr -S -q find="fd"
@@ -19,15 +63,17 @@ _init_abbr() {
   abbr -S -q ....="cd ../../.."
 
   # Git (minimal - editor/Claude handles most operations)
-  abbr -S -q G="git status"
-  abbr -S -q gl="git l"
+  abbr -S -q gs="git status"
+  abbr -S -q gl="git lg"
   abbr -S -q gp="git pull"
   abbr -S -q gP="git push"
   abbr -S -q 'gP!'="git please"
   abbr -S -q gw="git worktree"
+  abbr -S -q gwip="git wip"
 
   # Tools
-  abbr -S -q lg="lazygit"
+  abbr -S -q lzg="lazygit"
+  abbr -S -q lzd="lazydocker"
 
   # Development
   abbr -S -q py="python3"
