@@ -121,7 +121,7 @@
       };
 
       # System-level specialArgs (for nix-darwin and NixOS modules)
-      mkSystemSpecialArgs = system: mkSpecialArgs system // { inherit self inputs; };
+      mkSystemSpecialArgs = system: mkSpecialArgs system // { inherit self inputs username; };
 
       # Common modules for home-manager
       commonHomeModules = [

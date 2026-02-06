@@ -1,16 +1,12 @@
 {
   inputs,
   pkgs,
+  username,
   ...
 }:
 
 let
   nixSettings = import ../nix-settings.nix;
-  username =
-    let
-      envUser = builtins.getEnv "USER";
-    in
-    if envUser != "" then envUser else "nixuser";
 in
 {
   imports = [
@@ -30,12 +26,10 @@ in
   networking.hostName = "nixos-wsl";
 
   nix = {
-    settings = nixSettings;
+    inherit (nixSettings) settings;
     optimise.automatic = true;
-    gc = {
-      automatic = true;
+    gc = nixSettings.gc // {
       dates = "weekly";
-      options = "--delete-older-than 30d";
     };
   };
 
