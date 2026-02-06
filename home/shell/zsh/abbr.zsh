@@ -30,26 +30,6 @@ alias -s sh='bash'
 alias -s git='git clone'
 
 # ─────────────────────────────────────────────────────────────────
-# Regular Aliases
-# ─────────────────────────────────────────────────────────────────
-# History
-alias history-mem='fc -rl'           # List history from memory
-alias history-import='fc -RI'        # Import history from file
-
-# Chmod shortcuts
-alias 644='chmod 644'
-alias 755='chmod 755'
-alias 777='chmod 777'
-
-# Claude Code
-alias c='claude'
-alias cr='claude --resume'
-alias cn='claude --continue'
-
-# Quick reload
-alias rez='exec zsh'
-
-# ─────────────────────────────────────────────────────────────────
 # Abbreviations (deferred to run after zsh-abbr loads)
 # ─────────────────────────────────────────────────────────────────
 _init_abbr() {
@@ -71,14 +51,13 @@ _init_abbr() {
   abbr -S -q ...="cd ../.."
   abbr -S -q ....="cd ../../.."
 
-  # Git (minimal - editor/Claude handles most operations)
-  abbr -S -q gs="git status"
+  # Git
+  abbr -S -q gs="git st"
   abbr -S -q gl="git lg"
   abbr -S -q gp="git pull"
   abbr -S -q gP="git push"
   abbr -S -q 'gP!'="git please"
-  abbr -S -q gw="git worktree"
-  abbr -S -q gwip="git wip"
+  abbr -S -q gw="git wt"
 
   # Tools
   abbr -S -q lzg="lazygit"
@@ -95,6 +74,10 @@ _init_abbr() {
   abbr -S -q ghpl="gh pr list"
   abbr -S -q ghrc="gh repo clone"
   abbr -S -q ghrv="gh repo view --web"
+
+  # Claude Code (claude → YOLO mode, c → safe mode)
+  abbr -S -q c="claude"
+  abbr -S -q claude="claude --dangerously-skip-permissions"
 
 
   # Make abbreviations available in Tab completion (command position only)
