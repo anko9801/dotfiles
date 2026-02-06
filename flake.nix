@@ -33,19 +33,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # NixOS-WSL
     nixos-wsl = {
       url = "github:nix-community/NixOS-WSL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Declarative disk partitioning
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Theming
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -64,226 +61,43 @@
       ...
     }:
     let
-      # Get username from environment (use --impure flag for actual username)
-      username =
-        let
-          envUser = builtins.getEnv "USER";
-        in
-        if envUser != "" then envUser else "nixuser";
+      # Import system builders
+      common = import ./system/common.nix { inherit nixpkgs; };
 
-      # User-specific configuration (with fallback to default)
-      userConfig =
-        let
-          userFile = ./users/${username}.nix;
-        in
-        if builtins.pathExists userFile then import userFile else import ./users/default.nix;
-
-      # Centralized version management
-      versions = {
-        home = "24.11"; # Home Manager stateVersion
-        nixos = "24.11"; # NixOS stateVersion
-        darwin = 5; # nix-darwin stateVersion (integer)
+      linux = import ./system/linux {
+        inherit
+          nixpkgs
+          home-manager
+          nix-index-database
+          common
+          ;
+        nixvim = inputs.nixvim;
+        stylix = inputs.stylix;
       };
 
-      # Log unfree package usage at build time (helps track non-FOSS dependencies)
-      setUnfreeWarning =
-        maybeAttrs: prefix:
-        let
-          # Skip derivation outputs to avoid duplicate warnings (foo and foo.out)
-          outputNames = [
-            "out"
-            "dev"
-            "lib"
-            "bin"
-            "man"
-            "doc"
-            "info"
-          ];
-          withoutWarning =
-            if builtins.isAttrs maybeAttrs then
-              builtins.mapAttrs (
-                name: value:
-                if builtins.elem name outputNames then value else setUnfreeWarning value "${prefix}.${name}"
-              ) maybeAttrs
-            else
-              maybeAttrs;
-        in
-        if nixpkgs.lib.isDerivation withoutWarning then
-          builtins.warn "Using UNFREE package: ${prefix}" withoutWarning
-        else
-          withoutWarning;
-
-      # Unfree packages helper
-      mkUnfreePkgs =
-        system:
-        setUnfreeWarning (import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        }) "unfreePkgs";
-
-      # Common specialArgs for home-manager
-      mkSpecialArgs = system: {
-        inherit userConfig versions;
-        unfreePkgs = mkUnfreePkgs system;
+      darwin = import ./system/darwin {
+        inherit
+          nix-darwin
+          nix-homebrew
+          home-manager
+          common
+          ;
+        home = linux;
       };
 
-      # System-level specialArgs (for nix-darwin and NixOS modules)
-      mkSystemSpecialArgs = system: mkSpecialArgs system // { inherit self inputs username; };
+      nixos = import ./system/nixos {
+        inherit
+          nixpkgs
+          home-manager
+          common
+          ;
+        home = linux;
+      };
 
-      # Common home-manager configuration for system modules (darwin/nixos)
-      mkHomeManagerConfig =
-        {
-          system,
-          homeDir,
-          extraImports ? [ ],
-        }:
-        {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            extraSpecialArgs = mkSpecialArgs system;
-            users.${username} =
-              { lib, ... }:
-              {
-                imports = commonHomeModules ++ extraImports;
-                home = {
-                  username = lib.mkForce username;
-                  homeDirectory = lib.mkForce "${homeDir}/${username}";
-                };
-              };
-          };
-        };
-
-      # Common modules for home-manager
-      commonHomeModules = [
-        # Core
-        ./home/core.nix
-        # Dev
-        ./home/dev/build-tools.nix
-        ./home/dev/go.nix
-        ./home/dev/mise.nix
-        ./home/dev/nix.nix
-        ./home/dev/node.nix
-        ./home/dev/python.nix
-        ./home/dev/rust.nix
-        # Security
-        ./home/security/1password.nix
-        ./home/security/gitleaks.nix
-        ./home/security/gpg.nix
-        ./home/security/ssh.nix
-        # Shell
-        ./home/shell/defaults.nix
-        ./home/shell/aliases.nix
-        ./home/shell/atuin.nix
-        ./home/shell/bash.nix
-        ./home/shell/eza.nix
-        ./home/shell/fish.nix
-        ./home/shell/fzf.nix
-        ./home/shell/readline.nix
-        ./home/shell/starship.nix
-        ./home/shell/zoxide.nix
-        ./home/shell/zsh
-        # Theme
-        ./theme/catppuccin-mocha.nix
-        ./theme/default.nix
-        # External
-        nix-index-database.homeModules.nix-index
-        inputs.nixvim.homeModules.nixvim
-        inputs.stylix.homeModules.stylix
-      ];
-
-      # Standalone home-manager configuration (for Linux/WSL)
-      mkHome =
-        {
-          system,
-          extraModules ? [ ],
-        }:
-        let
-          pkgs = import nixpkgs { inherit system; };
-        in
-        home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          extraSpecialArgs = mkSpecialArgs system;
-          modules =
-            commonHomeModules
-            ++ extraModules
-            ++ [
-              {
-                home = {
-                  inherit username;
-                  homeDirectory = "/home/${username}";
-                };
-                nix.package = pkgs.nix; # Required for standalone home-manager
-              }
-            ];
-        };
-
-      # nix-darwin configuration (for macOS)
-      mkDarwin =
-        { system }:
-        nix-darwin.lib.darwinSystem {
-          inherit system;
-          specialArgs = mkSystemSpecialArgs system;
-          modules = [
-            ./system/darwin
-
-            # Homebrew management
-            nix-homebrew.darwinModules.nix-homebrew
-            {
-              nix-homebrew = {
-                enable = true;
-                enableRosetta = system == "aarch64-darwin";
-                user = username;
-                autoMigrate = true;
-              };
-            }
-
-            # Home Manager as nix-darwin module
-            home-manager.darwinModules.home-manager
-            (mkHomeManagerConfig {
-              inherit system;
-              homeDir = "/Users";
-            })
-
-            # Override system.primaryUser for the specific user
-            {
-              system.primaryUser = username;
-            }
-          ];
-        };
-
-      # NixOS configuration
-      mkNixOS =
-        {
-          system,
-          extraModules ? [ ],
-          homeModule,
-        }:
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = mkSystemSpecialArgs system;
-          modules = [
-            # User configuration
-            {
-              users.users.${username} = {
-                isNormalUser = true;
-                extraGroups = [
-                  "wheel"
-                  "networkmanager"
-                ];
-              };
-            }
-
-            # Home Manager as NixOS module
-            home-manager.nixosModules.home-manager
-            (mkHomeManagerConfig {
-              inherit system;
-              homeDir = "/home";
-              extraImports = [ homeModule ];
-            })
-          ]
-          ++ extraModules;
-        };
+      # Bind self and inputs to builders
+      mkHome = linux.mkHome;
+      mkDarwin = darwin.mkDarwin { inherit self inputs; };
+      mkNixOS = nixos.mkNixOS { inherit self inputs; };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
@@ -293,14 +107,11 @@
         "aarch64-darwin"
       ];
 
-      imports = [
-        inputs.treefmt-nix.flakeModule
-      ];
+      imports = [ inputs.treefmt-nix.flakeModule ];
 
       perSystem =
         { pkgs, ... }:
         {
-          # Unified formatting with treefmt
           treefmt = {
             projectRootFile = "flake.nix";
             programs = {
@@ -310,68 +121,54 @@
             };
           };
 
-          # Development shell for working on this config (minimal)
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
-              statix # Linter
-              deadnix # Dead code finder
-              nvd # Version diff (lightweight)
-              # Heavy tools (nix-tree, nix-du, nix-diff, manix) available via `nix run nixpkgs#<tool>`
+              statix
+              deadnix
+              nvd
             ];
           };
         };
 
       flake = {
-        # Standalone Home Manager configurations (Linux/WSL)
         homeConfigurations = {
           wsl = mkHome {
             system = "x86_64-linux";
             extraModules = [
-              ./system/wsl.nix
-              { programs.wsl.windowsUser = username; }
+              ./system/linux/wsl.nix
+              { programs.wsl.windowsUser = common.username; }
             ];
           };
 
           linux-desktop = mkHome {
             system = "x86_64-linux";
             extraModules = [
-              ./system/linux-desktop.nix
+              ./system/linux/linux-desktop.nix
               ./home/desktop
             ];
           };
 
           server = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./system/linux-server.nix ];
+            extraModules = [ ./system/linux/linux-server.nix ];
           };
         };
 
-        # nix-darwin configurations (macOS)
         darwinConfigurations = {
-          # Apple Silicon Mac
-          mac = mkDarwin {
-            system = "aarch64-darwin";
-          };
-
-          # Intel Mac
-          mac-intel = mkDarwin {
-            system = "x86_64-darwin";
-          };
+          mac = mkDarwin { system = "aarch64-darwin"; };
+          mac-intel = mkDarwin { system = "x86_64-darwin"; };
         };
 
-        # NixOS configurations
         nixosConfigurations = {
-          # NixOS on WSL
           nixos-wsl = mkNixOS {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/wsl.nix ];
             homeModule = {
-              imports = [ ./system/wsl.nix ];
-              programs.wsl.windowsUser = username;
+              imports = [ ./system/linux/wsl.nix ];
+              programs.wsl.windowsUser = common.username;
             };
           };
 
-          # NixOS desktop (Niri)
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
             extraModules = [
@@ -380,20 +177,18 @@
             ];
             homeModule = {
               imports = [
-                ./system/linux-desktop.nix
+                ./system/linux/linux-desktop.nix
                 ./home/desktop
               ];
             };
           };
 
-          # NixOS server (generic)
           nixos-server = mkNixOS {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/server.nix ];
-            homeModule = ./system/linux-server.nix;
+            homeModule = ./system/linux/linux-server.nix;
           };
 
-          # Example VPS (for nixos-anywhere deployment)
           example-vps = mkNixOS {
             system = "x86_64-linux";
             extraModules = [
@@ -401,13 +196,11 @@
               ./system/nixos/example-vps
               ./system/nixos/server.nix
             ];
-            homeModule = ./system/linux-server.nix;
+            homeModule = ./system/linux/linux-server.nix;
           };
         };
 
-        # Apps for deployment
         apps.x86_64-linux = {
-          # Deploy to server: nix run .#deploy -- root@server example-vps
           deploy = {
             type = "app";
             program = toString (

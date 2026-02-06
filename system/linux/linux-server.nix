@@ -4,11 +4,11 @@
 
 {
   imports = [
-    ../home/editor/vim.nix
-    ../home/tools/git
-    ../home/tools/cli.nix
-    ../home/tools/bat.nix
-    ../home/tools/tmux.nix
+    ../../home/editor/vim.nix
+    ../../home/tools/git
+    ../../home/tools/cli.nix
+    ../../home/tools/bat.nix
+    ../../home/tools/tmux.nix
   ];
 
   home = {

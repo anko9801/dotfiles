@@ -6,9 +6,9 @@
 
 {
   imports = [
-    ../home/tools
-    ../home/editor
-    ../home/tools/zellij
+    ../../home/tools
+    ../../home/editor
+    ../../home/tools/zellij
   ];
 
   targets.genericLinux.enable = true;

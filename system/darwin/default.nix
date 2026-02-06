@@ -1,61 +1,49 @@
+# nix-darwin configuration (for macOS)
 {
-  pkgs,
-  versions,
-  ...
+  nix-darwin,
+  nix-homebrew,
+  home-manager,
+  home,
+  common,
 }:
-
 let
-  nixSettings = import ../nix-settings.nix;
-  basePkgs = import ../base-packages.nix pkgs;
+  inherit (common) username mkSystemSpecialArgs;
+  inherit (home) mkHomeManagerConfig;
+
+  mkDarwin =
+    { self, inputs }:
+    { system }:
+    nix-darwin.lib.darwinSystem {
+      inherit system;
+      specialArgs = mkSystemSpecialArgs { inherit self inputs; } system;
+      modules = [
+        ./modules.nix
+
+        # Homebrew management
+        nix-homebrew.darwinModules.nix-homebrew
+        {
+          nix-homebrew = {
+            enable = true;
+            enableRosetta = system == "aarch64-darwin";
+            user = username;
+            autoMigrate = true;
+          };
+        }
+
+        # Home Manager as nix-darwin module
+        home-manager.darwinModules.home-manager
+        (mkHomeManagerConfig {
+          inherit system;
+          homeDir = "/Users";
+        })
+
+        # Override system.primaryUser for the specific user
+        {
+          system.primaryUser = username;
+        }
+      ];
+    };
 in
 {
-  imports = [
-    ./homebrew.nix
-    ./aerospace.nix
-    ./kanata.nix
-    ./system.nix
-  ];
-
-  nix = {
-    inherit (nixSettings) settings;
-    optimise.automatic = true;
-    gc = nixSettings.gc // {
-      interval = {
-        Weekday = 0;
-        Hour = 3;
-        Minute = 0;
-      };
-    };
-  };
-
-  # System packages (available to all users)
-  environment.systemPackages = basePkgs.base;
-
-  # Fonts
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-    nerd-fonts.fira-code
-    nerd-fonts.hack
-  ];
-
-  # Enable Touch ID for sudo
-  security.pam.services.sudo_local.touchIdAuth = true;
-
-  # Create /etc/zshrc that loads nix-darwin environment
-  programs.zsh.enable = true;
-
-  # Primary user is set in flake.nix based on the user parameter
-
-  # Home Manager
-  home-manager.backupFileExtension = "backup";
-  home-manager.sharedModules = [
-    ../../home/tools
-    ../../home/editor
-    ./home.nix
-  ];
-
-  # Used for backwards compatibility
-  system.stateVersion = versions.darwin;
-
-  # The platform is set by flake.nix based on the system parameter
+  inherit mkDarwin;
 }

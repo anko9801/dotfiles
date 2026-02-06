@@ -2,8 +2,8 @@
 
 {
   imports = [
-    ../home/tools
-    ../home/editor
+    ../../home/tools
+    ../../home/editor
   ];
 
   home = {
