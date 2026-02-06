@@ -31,6 +31,26 @@ alias -s sh='bash'
 alias -s {gz,tgz,zip,bz2,tbz,xz,tar,7z,rar,zst}='ouch decompress'
 
 # ─────────────────────────────────────────────────────────────────
+# Regular Aliases
+# ─────────────────────────────────────────────────────────────────
+# History
+alias history-mem='fc -rl'           # List history from memory
+alias history-import='fc -RI'        # Import history from file
+
+# Chmod shortcuts
+alias 644='chmod 644'
+alias 755='chmod 755'
+alias 777='chmod 777'
+
+# Claude Code
+alias c='claude'
+alias cr='claude --resume'
+alias cn='claude --continue'
+
+# Quick reload
+alias rez='exec zsh'
+
+# ─────────────────────────────────────────────────────────────────
 # Hash Directories (quick navigation)
 # Usage: cd ~dot, cd ~nvim
 # ─────────────────────────────────────────────────────────────────
