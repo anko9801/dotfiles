@@ -157,7 +157,6 @@
       # Common modules for home-manager
       commonHomeModules = [
         # Core
-        ./home/platform.nix
         ./home/core.nix
         # Dev
         ./home/dev/build-tools.nix
