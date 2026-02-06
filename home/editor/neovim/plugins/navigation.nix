@@ -128,7 +128,7 @@ _:
     # smart-splits: Seamless navigation between Neovim and tmux/zellij
     smart-splits = {
       enable = true;
-      lazyLoad.settings.event = [ "VeryLazy" ];
+      lazyLoad.settings.event = [ "BufEnter" ];
       settings = {
         ignored_filetypes = [
           "nofile"
@@ -165,7 +165,6 @@ _:
     flash = {
       enable = true;
       lazyLoad.settings = {
-        event = [ "VeryLazy" ];
         keys = [
           "s"
           "S"

@@ -41,7 +41,10 @@ _:
     # noice: Modern UI for messages, cmdline, and popupmenu
     noice = {
       enable = true;
-      lazyLoad.settings.event = [ "VeryLazy" ];
+      lazyLoad.settings.event = [
+        "BufReadPost"
+        "BufNewFile"
+      ];
       settings = {
         lsp.override = {
           "vim.lsp.util.convert_input_to_markdown_lines" = true;
@@ -59,7 +62,10 @@ _:
     # notify: Notification manager with animations
     notify = {
       enable = true;
-      lazyLoad.settings.event = [ "VeryLazy" ];
+      lazyLoad.settings.event = [
+        "BufReadPost"
+        "BufNewFile"
+      ];
       settings = {
         timeout = 3000;
         max_height.__raw = "function() return math.floor(vim.o.lines * 0.75) end";
@@ -70,7 +76,10 @@ _:
     # which-key: Display keybinding hints in popup
     which-key = {
       enable = true;
-      lazyLoad.settings.event = [ "VeryLazy" ];
+      lazyLoad.settings.event = [
+        "BufReadPost"
+        "BufNewFile"
+      ];
       settings = {
         delay = 200;
         icons.mappings = false;

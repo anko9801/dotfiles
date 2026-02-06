@@ -9,7 +9,8 @@ in
   # Skip IME setup in CI (no display server)
   config = lib.mkIf (!isCI) {
     i18n.inputMethod = {
-      enabled = "fcitx5";
+      enable = true;
+      type = "fcitx5";
       fcitx5.addons = with pkgs; [
         fcitx5-skk
         fcitx5-gtk
