@@ -1,3 +1,20 @@
+# Zsh configuration with deferred initialization for fast startup
+#
+# Initialization order:
+# 1. EARLY (mkBefore) - Cannot defer, must run immediately:
+#    - Zellij auto-attach (must happen before shell is ready)
+#    - zsh-defer plugin load (other defers depend on it)
+#    - Starship prompt (breaks in zellij if deferred)
+#
+# 2. DEFERRED (_init_deferred) - Runs after prompt via zsh-defer:
+#    - GPG_TTY, compinit, fzf, direnv, zoxide, atuin
+#
+# 3. DEFERRED PLUGINS - Loaded via zsh-defer:
+#    - fzf-tab, autosuggestions, fast-syntax-highlighting, zsh-abbr
+#
+# 4. PLATFORM-SPECIFIC (mkAfter) - Linux, WSL, macOS paths
+#
+# 5. LOCAL OVERRIDES - ~/.zshrc.local for machine-specific config
 {
   pkgs,
   lib,
@@ -14,27 +31,17 @@ in
     enable = true;
     dotDir = "${config.xdg.configHome}/zsh"; # XDG compliant (HM 26.05+)
 
-    # History configuration
+    # History configuration (size from shell.historySize)
     history = {
-      size = 10000;
-      save = 10000;
+      size = config.shell.historySize;
+      save = config.shell.historySize;
       path = "$HOME/.zhistory";
       extended = true;
       share = true;
       ignoreDups = true;
       ignoreAllDups = true;
       ignoreSpace = true;
-      ignorePatterns = [
-        "ls *"
-        "cd *"
-        "pwd"
-        "exit"
-        "clear"
-        "history *"
-        "fg"
-        "bg"
-        "jobs"
-      ];
+      ignorePatterns = map (p: "${p} *") config.shell.historyIgnorePatterns;
     };
 
     # Shell options

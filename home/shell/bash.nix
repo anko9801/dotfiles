@@ -1,4 +1,4 @@
-_:
+{ config, ... }:
 
 {
   programs.bash = {
@@ -8,8 +8,8 @@ _:
     historyControl = [
       "ignoreboth"
     ];
-    historySize = 1000;
-    historyFileSize = 2000;
+    historySize = config.shell.historySize;
+    historyFileSize = config.shell.historySize;
 
     shellOptions = [
       "histappend"

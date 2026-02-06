@@ -1,4 +1,4 @@
-_:
+{ config, ... }:
 
 {
   programs.atuin = {
@@ -12,15 +12,8 @@ _:
       invert = false;
       exit_mode = "return-query";
       style = "auto";
-      max_history_length = 10000;
-      history_filter = [
-        "^ls"
-        "^cd"
-        "^pwd"
-        "^exit"
-        "^history"
-        "^clear"
-      ];
+      max_history_length = config.shell.historySize;
+      history_filter = map (p: "^${p}") config.shell.historyIgnorePatterns;
       enter_accept = true;
       secrets_filter = true;
       show_help = false;
