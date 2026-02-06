@@ -30,33 +30,6 @@ _:
         "npm:ccmanager" = "3.6.1";
         "npm:zenn-cli" = "0.4.3";
       };
-      tasks = {
-        update = {
-          description = "Update all tools to latest versions";
-          run = ''
-            echo "📦 Updating mise tools..."
-            mise update
-            mise prune
-            echo "✅ All tools updated!"
-          '';
-        };
-        doctor = {
-          description = "Check mise configuration and health";
-          run = ''
-            mise doctor
-            echo "---"
-            mise list
-          '';
-        };
-        clean = {
-          description = "Clean up old tool versions";
-          run = ''
-            echo "🧹 Cleaning up old versions..."
-            mise prune --yes
-            echo "✅ Cleanup complete!"
-          '';
-        };
-      };
     };
   };
 }
