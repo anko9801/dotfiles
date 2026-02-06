@@ -151,6 +151,7 @@
 
           server = mkHome {
             system = "x86_64-linux";
+            workstation = false;
             extraModules = [ ./system/linux/linux-server.nix ];
           };
         };

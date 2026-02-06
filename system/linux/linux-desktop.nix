@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./workstation.nix
     ../../home/desktop
   ];
 

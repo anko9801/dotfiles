@@ -6,7 +6,6 @@
 
 {
   imports = [
-    ./workstation.nix
     ../../home/tools/zellij
   ];
 

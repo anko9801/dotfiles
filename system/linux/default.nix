@@ -10,6 +10,12 @@
 let
   inherit (common) username mkSpecialArgs;
 
+  # Workstation modules (tools + editor) - added when workstation = true
+  workstationModules = [
+    ../../home/tools
+    ../../home/editor
+  ];
+
   # Common modules for home-manager (also used by darwin/nixos)
   commonModules = [
     # Core
@@ -76,6 +82,7 @@ let
   mkHome =
     {
       system,
+      workstation ? true, # Include tools + editor (false for servers)
       extraModules ? [ ],
     }:
     let
@@ -86,6 +93,7 @@ let
       extraSpecialArgs = mkSpecialArgs system;
       modules =
         commonModules
+        ++ (if workstation then workstationModules else [ ])
         ++ extraModules
         ++ [
           {
