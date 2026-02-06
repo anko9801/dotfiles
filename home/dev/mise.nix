@@ -29,6 +29,7 @@ _:
         "npm:czg" = "latest";
         "npm:ccmanager" = "3.6.1";
         "npm:zenn-cli" = "0.4.3";
+        "cargo:keifu" = "latest"; # Lightweight git history viewer
       };
     };
   };
