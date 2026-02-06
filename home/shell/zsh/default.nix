@@ -104,30 +104,69 @@ in
       '')
 
       # Shell options (all deferred)
+      # Reference: man zshoptions
       ''
-        # Deferred shell options
         _init_shell_options() {
-          # Directory stack for `cd -N` navigation
-          setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
+          # ═══════════════════════════════════════════════════════════════
+          # Directory Navigation
+          # ═══════════════════════════════════════════════════════════════
+          setopt AUTO_PUSHD           # cd pushes to directory stack (use: cd -N, dirs -v)
+          setopt PUSHD_IGNORE_DUPS    # Don't push duplicates to stack
+          setopt PUSHD_SILENT         # Don't print stack after pushd/popd
 
-          # Tab completion behavior
-          setopt AUTO_MENU AUTO_PARAM_SLASH AUTO_PARAM_KEYS
-          setopt COMPLETE_IN_WORD ALWAYS_LAST_PROMPT
-          setopt LIST_PACKED LIST_TYPES MARK_DIRS
+          # ═══════════════════════════════════════════════════════════════
+          # Completion
+          # ═══════════════════════════════════════════════════════════════
+          setopt AUTO_MENU            # Show completion menu on successive Tab
+          setopt AUTO_PARAM_SLASH     # Add trailing slash to directory completions
+          setopt AUTO_PARAM_KEYS      # Smart handling of characters after completion
+          setopt AUTO_REMOVE_SLASH    # Remove trailing slash if next char is delimiter
+          setopt COMPLETE_IN_WORD     # Complete from both ends of cursor
+          setopt ALWAYS_LAST_PROMPT   # Keep cursor on same line during completion
+          setopt LIST_PACKED          # Compact completion list (variable column widths)
+          setopt LIST_TYPES           # Show file types in completion (like ls -F)
+          setopt MARK_DIRS            # Append / to directories in glob expansion
+          unsetopt MENU_COMPLETE      # Don't auto-insert first match immediately
 
-          # Glob patterns: ** recursive, .* hidden files
-          setopt EXTENDED_GLOB GLOBDOTS MAGIC_EQUAL_SUBST
+          # ═══════════════════════════════════════════════════════════════
+          # Globbing & Expansion
+          # ═══════════════════════════════════════════════════════════════
+          setopt EXTENDED_GLOB        # Enable #, ~, ^ in glob patterns
+          setopt GLOBDOTS             # Include hidden files in globs (no explicit .*)
+          setopt MAGIC_EQUAL_SUBST    # Enable completion after = (--prefix=/usr)
+          setopt NUMERIC_GLOB_SORT    # Sort numerically: file1, file2, file10
+          setopt NONOMATCH            # Pass unmatched globs to command (don't error)
 
-          # UX improvements
-          setopt INTERACTIVE_COMMENTS PRINT_EIGHT_BIT
-          setopt NO_FLOW_CONTROL CORRECT NO_BEEP
+          # ═══════════════════════════════════════════════════════════════
+          # Input/Output
+          # ═══════════════════════════════════════════════════════════════
+          setopt INTERACTIVE_COMMENTS # Allow # comments in interactive shell
+          setopt PRINT_EIGHT_BIT      # Print 8-bit chars literally (Japanese, etc.)
+          setopt NO_FLOW_CONTROL      # Disable Ctrl-S/Ctrl-Q flow control
+          setopt NO_BEEP              # Disable terminal beep on errors
+          setopt MULTIOS              # Enable multiple redirects: echo "x" >a >b
+          setopt CORRECT              # Suggest corrections for commands
 
-          # Background jobs
-          setopt LONG_LIST_JOBS NOTIFY NO_HUP
+          # ═══════════════════════════════════════════════════════════════
+          # Jobs & Background
+          # ═══════════════════════════════════════════════════════════════
+          setopt LONG_LIST_JOBS       # Show PID in jobs output
+          setopt NOTIFY               # Report background job status immediately
+          setopt NO_HUP               # Don't send HUP to background jobs on exit
 
+          # ═══════════════════════════════════════════════════════════════
           # History
-          setopt HIST_VERIFY HIST_REDUCE_BLANKS
-          setopt RM_STAR_SILENT
+          # ═══════════════════════════════════════════════════════════════
+          setopt HIST_VERIFY          # Show expanded history before executing
+          setopt HIST_REDUCE_BLANKS   # Remove extra whitespace from history
+          setopt HIST_NO_STORE        # Don't store history/fc commands
+          setopt HIST_EXPAND          # Expand history on Tab completion
+
+          # ═══════════════════════════════════════════════════════════════
+          # Safety
+          # ═══════════════════════════════════════════════════════════════
+          setopt RM_STAR_SILENT       # Don't confirm rm * (use trash instead)
+          setopt IGNORE_EOF           # Require 'exit' to close shell (no Ctrl-D)
         }
         zsh-defer _init_shell_options
       ''
