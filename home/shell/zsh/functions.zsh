@@ -142,6 +142,86 @@ opsecret() {
     op read "op://Personal/$1" 2>/dev/null || op read "op://Private/$1" 2>/dev/null
 }
 
+# === Development Environment ===
+
+# tcode: 3-pane development layout (yazi + keifu + claude)
+# Layout:  [yazi  ] [      ]
+#          [keifu ] [claude]
+tcode() {
+    local dir="${1:-$(pwd)}"
+    cd "$dir" || return 1
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS: use osascript
+        osascript <<EOF
+tell application "Ghostty"
+    activate
+    delay 0.3
+end tell
+tell application "System Events"
+    tell process "Ghostty"
+        -- Split right for claude
+        keystroke "d" using {command down}
+        delay 0.2
+        -- Move to left pane
+        keystroke "h" using {control down, option down}
+        delay 0.1
+        -- Split down for keifu
+        keystroke "D" using {command down, shift down}
+        delay 0.2
+        -- Run yazi in top-left
+        keystroke "yazi"
+        keystroke return
+        delay 0.1
+        -- Move to bottom-left, run keifu
+        keystroke "j" using {control down, shift down}
+        delay 0.1
+        keystroke "keifu"
+        keystroke return
+        -- Move to right pane, run claude
+        keystroke "l" using {control down, option down}
+        delay 0.1
+        keystroke "claude"
+        keystroke return
+    end tell
+end tell
+EOF
+    elif command -v xdotool &>/dev/null; then
+        # Linux with X11: use xdotool
+        local wid=$(xdotool getactivewindow)
+        xdotool key --window "$wid" super+d
+        sleep 0.2
+        xdotool key --window "$wid" ctrl+q h
+        sleep 0.1
+        xdotool key --window "$wid" super+shift+d
+        sleep 0.2
+        xdotool type --window "$wid" "yazi"
+        xdotool key --window "$wid" Return
+        sleep 0.1
+        xdotool key --window "$wid" ctrl+q j
+        sleep 0.1
+        xdotool type --window "$wid" "keifu"
+        xdotool key --window "$wid" Return
+        xdotool key --window "$wid" ctrl+q l
+        sleep 0.1
+        xdotool type --window "$wid" "claude"
+        xdotool key --window "$wid" Return
+    else
+        # Fallback: manual instructions
+        echo "tcode: 3-pane layout setup"
+        echo ""
+        echo "Manual steps:"
+        echo "  1. super+d        (split right)"
+        echo "  2. Ctrl-q h       (go left)"
+        echo "  3. super+shift+d  (split down)"
+        echo "  4. yazi           (top-left)"
+        echo "  5. Ctrl-q j       (go down)"
+        echo "  6. keifu          (bottom-left)"
+        echo "  7. Ctrl-q l       (go right)"
+        echo "  8. claude         (right)"
+    fi
+}
+
 # === NixOS Server Deployment ===
 
 # Deploy NixOS to a remote server
