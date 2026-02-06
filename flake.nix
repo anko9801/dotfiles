@@ -114,6 +114,12 @@
           config.allowUnfree = true;
         }) "unfreePkgs";
 
+      # Common specialArgs for home-manager (used by all mkHome/mkDarwin/mkNixOS)
+      mkSpecialArgs = system: {
+        inherit userConfig;
+        unfreePkgs = mkUnfreePkgs system;
+      };
+
       # Common modules for home-manager
       commonHomeModules = [
         # Core
@@ -168,10 +174,7 @@
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-          extraSpecialArgs = {
-            inherit userConfig;
-            unfreePkgs = mkUnfreePkgs system;
-          };
+          extraSpecialArgs = mkSpecialArgs system;
           modules =
             commonHomeModules
             ++ extraModules
@@ -215,10 +218,7 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit userConfig;
-                  unfreePkgs = mkUnfreePkgs system;
-                };
+                extraSpecialArgs = mkSpecialArgs system;
                 users.${username} =
                   { lib, ... }:
                   {
@@ -269,10 +269,7 @@
               home-manager = {
                 useGlobalPkgs = true;
                 useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit userConfig;
-                  unfreePkgs = mkUnfreePkgs system;
-                };
+                extraSpecialArgs = mkSpecialArgs system;
                 users.${username} =
                   { lib, ... }:
                   {
