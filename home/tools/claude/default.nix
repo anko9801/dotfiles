@@ -4,16 +4,25 @@ let
   sessionStartFile = "\${XDG_RUNTIME_DIR:-/tmp}/.claude_session_start";
 
   lintHook = ''
-    # Run project-specific linters if they exist
-    if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
-      npm run lint --if-present 2>&1 || exit 2
-    elif [ -f "Cargo.toml" ]; then
-      cargo clippy --quiet 2>&1 || exit 2
-    elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
-      ruff check . 2>&1 || exit 2
-    elif [ -f "flake.nix" ]; then
-      nix flake check 2>&1 | head -20 || exit 2
-    fi
+    # Run linters based on edited file type
+    file="$CLAUDE_FILE_PATH"
+    case "$file" in
+      *.nix)
+        statix check "$file" 2>&1 || exit 2
+        deadnix "$file" 2>&1 || exit 2
+        ;;
+      *.rs)
+        cargo clippy --quiet 2>&1 || exit 2
+        ;;
+      *.py)
+        ruff check "$file" 2>&1 || exit 2
+        ;;
+      *.js|*.ts|*.jsx|*.tsx)
+        if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
+          npm run lint --if-present 2>&1 || exit 2
+        fi
+        ;;
+    esac
   '';
 in
 {
@@ -163,7 +172,7 @@ in
             ];
           }
         ];
-        # After file edits, run linters if available
+        # After file edits, run linters
         PostToolUse =
           map
             (matcher: {
