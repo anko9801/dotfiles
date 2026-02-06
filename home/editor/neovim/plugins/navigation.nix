@@ -141,6 +141,26 @@ _:
       };
     };
 
+    # portal: Enhanced jumplist/changelist navigation
+    portal = {
+      enable = true;
+      lazyLoad.settings.keys = [
+        {
+          __unkeyed-1 = "<leader>o";
+          __unkeyed-2.__raw = ''function() require("portal.builtin").jumplist.backward() end'';
+          desc = "Portal backward";
+        }
+        {
+          __unkeyed-1 = "<leader>i";
+          __unkeyed-2.__raw = ''function() require("portal.builtin").jumplist.forward() end'';
+          desc = "Portal forward";
+        }
+      ];
+      settings = {
+        window_options.border = "rounded";
+      };
+    };
+
     # flash: Fast motion and search with labels
     flash = {
       enable = true;

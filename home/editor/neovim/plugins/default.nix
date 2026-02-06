@@ -3,6 +3,7 @@
 {
   imports = [
     ./ai.nix
+    ./debug.nix
     ./editing.nix
     ./git.nix
     ./navigation.nix

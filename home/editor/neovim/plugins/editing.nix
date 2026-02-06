@@ -52,6 +52,26 @@ _:
       ];
     };
 
+    # undotree: Visualize undo history as a tree
+    undotree = {
+      enable = true;
+      lazyLoad.settings = {
+        cmd = [ "UndotreeToggle" ];
+        keys = [
+          {
+            __unkeyed-1 = "<leader>u";
+            __unkeyed-2 = "<cmd>UndotreeToggle<cr>";
+            desc = "Toggle undotree";
+          }
+        ];
+      };
+      settings = {
+        WindowLayout = 2;
+        ShortIndicators = true;
+        SetFocusWhenToggle = true;
+      };
+    };
+
     # dial: Enhanced increment/decrement
     dial = {
       enable = true;
