@@ -29,12 +29,12 @@ let
 
   # External scripts (proper syntax highlighting, no Nix escaping needed)
   scripts = {
-    abbr = builtins.readFile ./scripts/abbr.zsh;
-    completion = builtins.readFile ./scripts/completion.zsh;
+    abbr = builtins.readFile ./abbr.zsh;
+    completion = builtins.readFile ./completion.zsh;
     functions = builtins.replaceStrings [ "@FZF_FLAGS@" ] [ fzfFlags ] (
-      builtins.readFile ./scripts/functions.zsh
+      builtins.readFile ./functions.zsh
     );
-    obsidian = builtins.readFile ./scripts/obsidian.zsh;
+    obsidian = builtins.readFile ./obsidian.zsh;
   };
 in
 {
