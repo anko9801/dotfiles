@@ -15,16 +15,14 @@ in
   ];
 
   nix = {
-    settings = nixSettings;
+    inherit (nixSettings) settings;
     optimise.automatic = true;
-    gc = {
-      automatic = true;
+    gc = nixSettings.gc // {
       interval = {
         Weekday = 0;
         Hour = 3;
         Minute = 0;
       };
-      options = "--delete-older-than 30d";
     };
   };
 

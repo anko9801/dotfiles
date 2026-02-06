@@ -25,12 +25,10 @@ in
   i18n.defaultLocale = "ja_JP.UTF-8";
 
   nix = {
-    settings = nixSettings;
+    inherit (nixSettings) settings;
     optimise.automatic = true;
-    gc = {
-      automatic = true;
+    gc = nixSettings.gc // {
       dates = "weekly";
-      options = "--delete-older-than 30d";
     };
   };
 

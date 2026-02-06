@@ -19,10 +19,10 @@ in
   # nix.package is set in flake.nix for standalone home-manager only
   # (NixOS/darwin with useGlobalPkgs=true provides it from system)
   nix = {
-    settings = nixSettings;
+    settings = nixSettings.settings;
     gc = {
       automatic = true;
-      options = "--delete-older-than 7d";
+      options = "--delete-older-than 7d"; # Shorter retention for user-level gc
     };
   };
 
