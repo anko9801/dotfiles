@@ -36,15 +36,11 @@ in
       })
     ];
 
-    # Platform-specific SSH_AUTH_SOCK
-    home.sessionVariables = lib.mkMerge [
-      (lib.mkIf isDarwin {
-        SSH_AUTH_SOCK = "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
-      })
-      (lib.mkIf isLinux {
-        SSH_AUTH_SOCK = "$HOME/.1password/agent.sock";
-      })
-    ];
+    # Platform-specific SSH_AUTH_SOCK (uses the same path as onePasswordAgentPath)
+    home.sessionVariables = lib.mkIf (config.tools.ssh.onePasswordAgentPath != null) {
+      # Replace ~ with $HOME for shell expansion
+      SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] config.tools.ssh.onePasswordAgentPath;
+    };
 
     programs.ssh = {
       enable = true;
