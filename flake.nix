@@ -76,8 +76,7 @@
           nix-index-database
           common
           ;
-        nixvim = inputs.nixvim;
-        stylix = inputs.stylix;
+        inherit (inputs) nixvim stylix;
       };
 
       darwin = import ./system/darwin {
@@ -100,7 +99,7 @@
       };
 
       # Bind self and inputs to builders
-      mkHome = linux.mkHome;
+      inherit (linux) mkHome;
       mkDarwin = darwin.mkDarwin { inherit self inputs; };
       mkNixOS = nixos.mkNixOS { inherit self inputs; };
     in

@@ -1,6 +1,6 @@
 # Helix - A post-modern modal text editor
 # https://helix-editor.com/
-{ lib, ... }:
+_:
 
 {
   programs.helix = {
