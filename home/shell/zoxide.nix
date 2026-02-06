@@ -5,7 +5,7 @@ _:
 
   programs.zoxide = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false; # Deferred in zsh.nix for faster startup
     options = [
       "--cmd"
       "cd"

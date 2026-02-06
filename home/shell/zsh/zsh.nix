@@ -74,6 +74,7 @@ in
           autoload -Uz compinit && compinit -C
           source <(${pkgs.fzf}/bin/fzf --zsh)
           eval "$(${pkgs.direnv}/bin/direnv hook zsh)"
+          eval "$(${pkgs.zoxide}/bin/zoxide init zsh --cmd cd)"
           [[ $options[zle] = on ]] && eval "$(${pkgs.atuin}/bin/atuin init zsh)"
         }
         zsh-defer _init_deferred
