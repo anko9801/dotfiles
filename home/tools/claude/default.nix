@@ -165,19 +165,7 @@ in
               "Write"
               "Edit"
             ];
-        # Notify when Claude needs input
-        Notification = [
-          {
-            matcher = "*";
-            hooks = [
-              {
-                type = "command";
-                command = "echo '🔔 Claude needs your input' >&2";
-              }
-            ];
-          }
-        ];
-        # Task completion notification (only for tasks > 30s)
+        # Task completion notification (only for tasks > 30s, runs async)
         Stop = [
           {
             matcher = "*";
@@ -185,21 +173,17 @@ in
               {
                 type = "command";
                 command = ''
-                  [ -f "${sessionDir}/start" ] || exit 0
-                  start=$(cat "${sessionDir}/start")
-                  elapsed=$(($(date +%s) - start))
-                  rm -rf "${sessionDir}"
-                  [ "$elapsed" -lt 30 ] && exit 0
-                  # Send notification in background (non-blocking)
-                  (
-                    if [ -n "$WSL_DISTRO_NAME" ]; then
-                      powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Done (''${elapsed}s)'" 2>/dev/null
-                    elif [ "$(uname)" = "Darwin" ]; then
-                      osascript -e "display notification \"Done (''${elapsed}s)\" with title \"Claude Code\""
-                    elif command -v notify-send >/dev/null; then
-                      notify-send "Claude Code" "Done (''${elapsed}s)"
-                    fi
-                  ) &
+                  f="${sessionDir}/start"; [ -f "$f" ] || exit 0
+                  read -r start < "$f"; rm "$f"
+                  elapsed=$(($(date +%s) - start)); [ "$elapsed" -ge 30 ] || exit 0
+                  # Async notification
+                  if [ -n "$WSL_DISTRO_NAME" ]; then
+                    powershell.exe -Command "New-BurntToastNotification -Text 'Claude Code', 'Done (''${elapsed}s)'" 2>/dev/null &
+                  elif [ -n "$DISPLAY" ]; then
+                    notify-send "Claude Code" "Done (''${elapsed}s)" 2>/dev/null &
+                  elif [ "$(uname)" = Darwin ]; then
+                    osascript -e "display notification \"Done (''${elapsed}s)\" with title \"Claude Code\"" &
+                  fi
                 '';
               }
             ];
