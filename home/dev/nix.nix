@@ -21,7 +21,7 @@ in
   nix = {
     inherit (nixSettings) settings;
     gc = nixSettings.gc // {
-      frequency = nixSettings.gcSchedule.frequency;
+      dates = nixSettings.gcSchedule.frequency;
     };
   };
 
