@@ -114,11 +114,14 @@
           config.allowUnfree = true;
         }) "unfreePkgs";
 
-      # Common specialArgs for home-manager (used by all mkHome/mkDarwin/mkNixOS)
+      # Common specialArgs for home-manager
       mkSpecialArgs = system: {
         inherit userConfig;
         unfreePkgs = mkUnfreePkgs system;
       };
+
+      # System-level specialArgs (for nix-darwin and NixOS modules)
+      mkSystemSpecialArgs = system: mkSpecialArgs system // { inherit self inputs; };
 
       # Common modules for home-manager
       commonHomeModules = [
@@ -194,10 +197,7 @@
         { system }:
         nix-darwin.lib.darwinSystem {
           inherit system;
-          specialArgs = {
-            inherit self inputs userConfig;
-            unfreePkgs = mkUnfreePkgs system;
-          };
+          specialArgs = mkSystemSpecialArgs system;
           modules = [
             ./system/darwin
 
@@ -247,10 +247,7 @@
         }:
         nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = {
-            inherit self inputs userConfig;
-            unfreePkgs = mkUnfreePkgs system;
-          };
+          specialArgs = mkSystemSpecialArgs system;
           modules = [
             # User configuration
             {
