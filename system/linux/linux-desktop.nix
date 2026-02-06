@@ -2,8 +2,7 @@
 
 {
   imports = [
-    ../../home/tools
-    ../../home/editor
+    ./workstation.nix
     ../../home/desktop
   ];
 
