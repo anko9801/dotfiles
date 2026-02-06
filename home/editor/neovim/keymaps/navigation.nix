@@ -1,119 +1,74 @@
-_:
+# Navigation and file finder keymaps
+{ lib, ... }:
 
+let
+  mkKey = mode: key: action: desc: {
+    inherit mode key action;
+    options = {
+      inherit desc;
+      silent = true;
+    };
+  };
+
+  mkLuaKey = mode: key: lua: desc: {
+    inherit mode key;
+    action.__raw = lua;
+    options = {
+      inherit desc;
+      silent = true;
+    };
+  };
+
+  # File explorer
+  explorer = [
+    (mkKey "n" "<leader>e" "<cmd>Oil<CR>" "File explorer")
+    (mkKey "n" "-" "<cmd>Oil<CR>" "Parent directory")
+  ];
+
+  # Harpoon
+  harpoon =
+    let
+      mkHarpoon =
+        n:
+        mkLuaKey "n" "<leader>${toString n}"
+          "function() require('harpoon'):list():select(${toString n}) end"
+          "Harpoon ${toString n}";
+    in
+    [
+      (mkLuaKey "n" "<leader>ha" "function() require('harpoon'):list():add() end" "Harpoon add")
+      (mkLuaKey "n" "<leader>hh"
+        "function() require('harpoon').ui:toggle_quick_menu(require('harpoon'):list()) end"
+        "Harpoon menu"
+      )
+    ]
+    ++ map mkHarpoon [
+      1
+      2
+      3
+      4
+    ];
+
+  # fzf-lua
+  fzf = [
+    (mkKey "n" "<leader>ff" "<cmd>FzfLua files<CR>" "Find files")
+    (mkKey "n" "<leader>fg" "<cmd>FzfLua live_grep<CR>" "Live grep")
+    (mkKey "n" "<leader>fb" "<cmd>FzfLua buffers<CR>" "Buffers")
+    (mkKey "n" "<leader>fh" "<cmd>FzfLua help_tags<CR>" "Help tags")
+    (mkKey "n" "<leader>fr" "<cmd>FzfLua oldfiles<CR>" "Recent files")
+  ];
+
+  # Flash
+  flash = [
+    (mkLuaKey [ "n" "x" "o" ] "s" "function() require('flash').jump() end" "Flash jump")
+    (mkLuaKey [ "n" "x" "o" ] "S" "function() require('flash').treesitter() end" "Flash treesitter")
+    (mkLuaKey "o" "r" "function() require('flash').remote() end" "Flash remote")
+  ];
+in
 {
-  programs.nixvim.keymaps = [
-    # File explorer (oil.nvim)
-    {
-      mode = "n";
-      key = "<leader>e";
-      action = "<cmd>Oil<CR>";
-      options.desc = "Open file explorer";
-    }
-
-    # Oil.nvim (edit filesystem like buffer)
-    {
-      mode = "n";
-      key = "-";
-      action = "<cmd>Oil<CR>";
-      options.desc = "Open parent directory";
-    }
-
-    # Harpoon
-    {
-      mode = "n";
-      key = "<leader>ha";
-      action.__raw = "function() require('harpoon'):list():add() end";
-      options.desc = "Harpoon add file";
-    }
-    {
-      mode = "n";
-      key = "<leader>hh";
-      action.__raw = "function() require('harpoon').ui:toggle_quick_menu(require('harpoon'):list()) end";
-      options.desc = "Harpoon menu";
-    }
-    {
-      mode = "n";
-      key = "<leader>1";
-      action.__raw = "function() require('harpoon'):list():select(1) end";
-      options.desc = "Harpoon file 1";
-    }
-    {
-      mode = "n";
-      key = "<leader>2";
-      action.__raw = "function() require('harpoon'):list():select(2) end";
-      options.desc = "Harpoon file 2";
-    }
-    {
-      mode = "n";
-      key = "<leader>3";
-      action.__raw = "function() require('harpoon'):list():select(3) end";
-      options.desc = "Harpoon file 3";
-    }
-    {
-      mode = "n";
-      key = "<leader>4";
-      action.__raw = "function() require('harpoon'):list():select(4) end";
-      options.desc = "Harpoon file 4";
-    }
-
-    # fzf-lua keymaps
-    {
-      mode = "n";
-      key = "<leader>ff";
-      action = "<cmd>FzfLua files<CR>";
-      options.desc = "Find files";
-    }
-    {
-      mode = "n";
-      key = "<leader>fg";
-      action = "<cmd>FzfLua live_grep<CR>";
-      options.desc = "Live grep";
-    }
-    {
-      mode = "n";
-      key = "<leader>fb";
-      action = "<cmd>FzfLua buffers<CR>";
-      options.desc = "Buffers";
-    }
-    {
-      mode = "n";
-      key = "<leader>fh";
-      action = "<cmd>FzfLua help_tags<CR>";
-      options.desc = "Help tags";
-    }
-    {
-      mode = "n";
-      key = "<leader>fr";
-      action = "<cmd>FzfLua oldfiles<CR>";
-      options.desc = "Recent files";
-    }
-
-    # Flash keymaps
-    {
-      mode = [
-        "n"
-        "x"
-        "o"
-      ];
-      key = "s";
-      action.__raw = "function() require('flash').jump() end";
-      options.desc = "Flash jump";
-    }
-    {
-      mode = [
-        "n"
-        "x"
-        "o"
-      ];
-      key = "S";
-      action.__raw = "function() require('flash').treesitter() end";
-      options.desc = "Flash treesitter";
-    }
-    {
-      mode = "o";
-      key = "r";
-      action.__raw = "function() require('flash').remote() end";
-      options.desc = "Flash remote";
-    }
+  programs.nixvim.keymaps = lib.flatten [
+    explorer
+    harpoon
+    fzf
+    flash
   ];
 }
