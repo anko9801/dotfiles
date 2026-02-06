@@ -7,7 +7,7 @@ _:
     ./cli.nix
     ./claude
     ./git
-    ./kanata.nix
+    ./kanata
     ./yazi.nix
   ];
 }
