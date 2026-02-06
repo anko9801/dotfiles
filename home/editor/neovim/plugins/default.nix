@@ -3,7 +3,7 @@
 {
   imports = [
     ./ai.nix
-    ./debug.nix
+    # ./debug.nix  # Excluded: heavy packages (vscode-js-debug, lldb) slow CI builds
     ./editing.nix
     ./git.nix
     ./navigation.nix
