@@ -188,49 +188,95 @@
           };
 
           # Flake apps for common operations
-          apps = {
-            switch = {
-              type = "app";
-              program = toString (
-                pkgs.writeShellScript "switch" ''
-                  set -e
-                  case "$(uname)" in
-                    Darwin) sudo nix run nix-darwin -- switch --flake .#mac ;;
-                    *) home-manager switch --impure --flake .#wsl ;;
-                  esac
-                ''
-              );
+          apps =
+            let
+              detectTarget = ''
+                if [ "$(uname)" = "Darwin" ]; then
+                  if [ "$(uname -m)" = "arm64" ]; then
+                    echo "mac"
+                  else
+                    echo "mac-intel"
+                  fi
+                elif [ -f /etc/NIXOS ]; then
+                  if [ -n "''${WSL_DISTRO_NAME:-}" ]; then
+                    echo "nixos-wsl"
+                  elif [ -n "''${DISPLAY:-}" ] || [ -n "''${WAYLAND_DISPLAY:-}" ]; then
+                    echo "nixos-desktop"
+                  else
+                    echo "nixos-server"
+                  fi
+                else
+                  if [ -n "''${WSL_DISTRO_NAME:-}" ]; then
+                    echo "wsl"
+                  elif [ -n "''${DISPLAY:-}" ] || [ -n "''${WAYLAND_DISPLAY:-}" ]; then
+                    echo "linux-desktop"
+                  else
+                    echo "server"
+                  fi
+                fi
+              '';
+            in
+            {
+              switch = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "switch" ''
+                    set -e
+                    target=$(${detectTarget})
+                    echo "Detected target: $target"
+                    case "$target" in
+                      mac|mac-intel)
+                        sudo nix run nix-darwin -- switch --flake ".#$target"
+                        ;;
+                      nixos-*)
+                        sudo nixos-rebuild switch --flake ".#$target"
+                        ;;
+                      *)
+                        home-manager switch --impure --flake ".#$target"
+                        ;;
+                    esac
+                  ''
+                );
+              };
+              build = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "build" ''
+                    set -e
+                    target=$(${detectTarget})
+                    echo "Detected target: $target"
+                    case "$target" in
+                      mac|mac-intel)
+                        nix build ".#darwinConfigurations.$target.system"
+                        ;;
+                      nixos-*)
+                        nix build ".#nixosConfigurations.$target.config.system.build.toplevel"
+                        ;;
+                      *)
+                        nix build --impure ".#homeConfigurations.$target.activationPackage"
+                        ;;
+                    esac
+                  ''
+                );
+              };
+              update = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "update" ''
+                    nix flake update
+                    echo "Run 'nix run .#switch' to apply"
+                  ''
+                );
+              };
+              fmt = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "fmt" ''
+                    exec ${config.treefmt.build.wrapper}/bin/treefmt "$@"
+                  ''
+                );
+              };
             };
-            build = {
-              type = "app";
-              program = toString (
-                pkgs.writeShellScript "build" ''
-                  set -e
-                  case "$(uname)" in
-                    Darwin) nix build .#darwinConfigurations.mac.system ;;
-                    *) nix build --impure .#homeConfigurations.wsl.activationPackage ;;
-                  esac
-                ''
-              );
-            };
-            update = {
-              type = "app";
-              program = toString (
-                pkgs.writeShellScript "update" ''
-                  nix flake update
-                  echo "Run 'nix run .#switch' to apply"
-                ''
-              );
-            };
-            fmt = {
-              type = "app";
-              program = toString (
-                pkgs.writeShellScript "fmt" ''
-                  exec ${config.treefmt.build.wrapper}/bin/treefmt "$@"
-                ''
-              );
-            };
-          };
         };
 
       flake = {
