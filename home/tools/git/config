@@ -103,16 +103,21 @@
 	remotes = remote -v
 	untracked = ls-files --others --exclude-standard
 	ignored = ls-files --ignored --exclude-standard --others
+	aliases = !git config --get-regexp '^alias\\.' | sed 's/alias\\.\\([^ ]*\\) \\(.*\\)/\\1\t=> \\2/'
 
 	# Branch
 	sw = switch
 	current = rev-parse --abbrev-ref HEAD
+	branch-diff = !git diff $(git merge-base HEAD $(git symbolic-ref refs/remotes/origin/HEAD | sed 's@refs/remotes/origin/@@'))
 
 	# Push/Pull
 	ps = push
+	pl = !git pull && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -d
 	please = push --force-with-lease --force-if-includes
 
 	# Commit
 	unstage = restore --staged
 	amend = commit --amend
 	uncommit = reset --mixed HEAD~
+	nevermind = !git reset --hard HEAD && git clean -d -f
+	absorb = absorb --and-rebase
