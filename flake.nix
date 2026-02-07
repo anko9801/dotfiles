@@ -397,69 +397,7 @@
           # Setup Windows from WSL
           setup-windows = {
             type = "app";
-            program = toString (
-              nixpkgs.legacyPackages.x86_64-linux.writeShellScript "setup-windows" ''
-                set -e
-
-                # Get Windows user
-                WIN_USER="''${WINDOWS_USER:-$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')}"
-                WIN_HOME="/mnt/c/Users/$WIN_USER"
-
-                if [ ! -d "$WIN_HOME" ]; then
-                  echo "Error: Windows home not found: $WIN_HOME"
-                  exit 1
-                fi
-
-                echo "=== Setting up Windows for $WIN_USER ==="
-
-                # Build Windows config
-                echo "[1/4] Building Windows configuration..."
-                out=$(nix build .#homeConfigurations.windows.activationPackage \
-                  --no-link --print-out-paths --impure)
-                src="$out/home-files"
-                echo "  Built: $out"
-
-                # Deploy config files
-                echo "[2/4] Deploying configuration files..."
-
-                # Git
-                if [ -f "$src/.config/git/config" ]; then
-                  cp "$src/.config/git/config" "$WIN_HOME/.gitconfig"
-                  echo "  Deployed .gitconfig"
-                fi
-
-                # VS Code
-                vscode_dir="$WIN_HOME/AppData/Roaming/Code/User"
-                if [ -d "$vscode_dir" ]; then
-                  [ -f "$src/.config/Code/User/settings.json" ] && \
-                    cp "$src/.config/Code/User/settings.json" "$vscode_dir/settings.json" && \
-                    echo "  Deployed VS Code settings"
-                fi
-
-                # Fonts
-                echo "[3/4] Installing fonts..."
-                fonts_dir="$WIN_HOME/AppData/Local/Microsoft/Windows/Fonts"
-                mkdir -p "$fonts_dir"
-                font_pkg=$(nix build nixpkgs#moralerspace --no-link --print-out-paths 2>/dev/null)
-                if [ -n "$font_pkg" ]; then
-                  cp "$font_pkg"/share/fonts/moralerspace/MoralerspaceNeon*.ttf "$fonts_dir/" 2>/dev/null && \
-                    echo "  Installed Moralerspace Neon fonts"
-                fi
-
-                # Install packages
-                echo "[4/4] Installing packages..."
-                if command -v winget.exe &>/dev/null; then
-                  winget.exe import -i "${./system/windows/winget-packages.json}" \
-                    --accept-package-agreements --accept-source-agreements \
-                    --ignore-unavailable 2>/dev/null || true
-                  echo "  Packages installed"
-                else
-                  echo "  winget not found, skipping packages"
-                fi
-
-                echo "=== Windows setup complete! ==="
-              ''
-            );
+            program = toString ./system/windows/setup.sh;
           };
         };
       };
