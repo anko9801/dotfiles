@@ -4,8 +4,8 @@
 $ErrorActionPreference = "Stop"
 
 $dotfiles = Split-Path $PSScriptRoot
-$sharedConfig = "$dotfiles\git\config"
-$sharedIgnore = "$dotfiles\git\ignore"
+$sharedConfig = "$dotfiles\home\tools\git\config"
+$sharedIgnore = "$dotfiles\home\tools\git\ignore"
 
 Write-Host "Configuring Git..." -ForegroundColor Cyan
 
