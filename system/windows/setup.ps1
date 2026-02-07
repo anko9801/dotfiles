@@ -2,7 +2,7 @@
 # Run as Administrator: .\setup.ps1
 
 $ErrorActionPreference = "Stop"
-$dotfiles = Split-Path $PSScriptRoot
+$dotfiles = Split-Path (Split-Path $PSScriptRoot)
 
 Write-Host @"
 
@@ -85,6 +85,6 @@ if (Test-Path $wtSource) {
 
 # VS Code settings
 Write-Host "[7/7] VS Code settings..." -ForegroundColor Yellow
-& "$dotfiles\windows\sync-vscode.ps1"
+& "$PSScriptRoot\sync-vscode.ps1"
 
 Write-Host "`n  Done! Restart Windows Terminal to apply changes." -ForegroundColor Cyan

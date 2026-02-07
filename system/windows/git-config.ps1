@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$dotfiles = Split-Path $PSScriptRoot
+$dotfiles = Split-Path (Split-Path $PSScriptRoot)
 $sharedConfig = "$dotfiles\home\tools\git\config"
 $sharedIgnore = "$dotfiles\home\tools\git\ignore"
 

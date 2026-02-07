@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$dotfilesPath = Split-Path $PSScriptRoot
+$dotfilesPath = Split-Path (Split-Path $PSScriptRoot)
 $vscodeUserPath = "$env:APPDATA\Code\User"
 $sourceSettings = "$dotfilesPath\home\editor\vscode\settings.json"
 $targetSettings = "$vscodeUserPath\settings.json"

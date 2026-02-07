@@ -247,5 +247,5 @@ if (-not (Test-Path $dotfiles)) {
 }
 
 # Run setup script
-Write-Host "`nRunning windows/setup.ps1...`n" -ForegroundColor Cyan
-& "$dotfiles\windows\setup.ps1"
+Write-Host "`nRunning system/windows/setup.ps1...`n" -ForegroundColor Cyan
+& "$dotfiles\system\windows\setup.ps1"
