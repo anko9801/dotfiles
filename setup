@@ -213,54 +213,8 @@ Write-Host @"
 
 "@ -ForegroundColor Cyan
 
-# Check admin
-$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-if (-not $isAdmin) {
-    Write-Host "Please run as Administrator!" -ForegroundColor Red
-    Write-Host "Right-click PowerShell -> Run as Administrator" -ForegroundColor Yellow
-    exit 1
-}
-
-# [1/3] winget
-Write-Host "[1/3] Checking winget..." -ForegroundColor Yellow
-if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    Write-Host "  Installing winget..." -ForegroundColor Yellow
-    $ProgressPreference = 'SilentlyContinue'
-    Invoke-WebRequest -Uri https://aka.ms/getwinget -OutFile "$env:TEMP\winget.msixbundle"
-    Add-AppxPackage "$env:TEMP\winget.msixbundle"
-    Remove-Item "$env:TEMP\winget.msixbundle"
-}
-Write-Host "  OK" -ForegroundColor Green
-
-# [2/3] WSL2
-Write-Host "[2/3] Checking WSL..." -ForegroundColor Yellow
-$wsl = Get-Command wsl -ErrorAction SilentlyContinue
-if (-not $wsl) {
-    Write-Host "  Installing WSL2..." -ForegroundColor Yellow
-    winget install --id Microsoft.WSL --accept-package-agreements --accept-source-agreements
-    Write-Host "  WSL2 installed" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "  Please restart your computer, then:" -ForegroundColor Cyan
-    Write-Host "    1. Open PowerShell as Admin" -ForegroundColor White
-    Write-Host "    2. Run: wsl --install Ubuntu" -ForegroundColor White
-    Write-Host "    3. Open Ubuntu and run:" -ForegroundColor White
-    Write-Host "       curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh" -ForegroundColor White
-    exit 0
-}
-Write-Host "  OK" -ForegroundColor Green
-
-# [3/3] Check for distro
-Write-Host "[3/3] Checking Linux distro..." -ForegroundColor Yellow
-$distros = wsl --list --quiet 2>$null | Where-Object { $_ -and $_ -notmatch "^Windows" }
-if (-not $distros) {
-    Write-Host "  No Linux distro found. Installing Ubuntu..." -ForegroundColor Yellow
-    wsl --install Ubuntu --no-launch
-    Write-Host "  Ubuntu installed" -ForegroundColor Green
-}
-Write-Host "  OK" -ForegroundColor Green
-
-# [4/4] Install packages via winget
-Write-Host "[4/4] Installing packages..." -ForegroundColor Yellow
+# Install packages via winget
+Write-Host "Installing packages..." -ForegroundColor Yellow
 $packagesUrl = "https://raw.githubusercontent.com/anko9801/dotfiles/master/system/windows/winget-packages.json"
 $packagesFile = "$env:TEMP\winget-packages.json"
 Invoke-WebRequest -Uri $packagesUrl -OutFile $packagesFile
@@ -268,15 +222,5 @@ winget import -i $packagesFile --accept-package-agreements --accept-source-agree
 Remove-Item $packagesFile -ErrorAction SilentlyContinue
 Write-Host "  OK" -ForegroundColor Green
 
-Write-Host @"
-
-  ╔═══════════════════════════════════════╗
-  ║            Setup Complete!            ║
-  ╚═══════════════════════════════════════╝
-
-  Next steps:
-    1. Open WSL:  wsl
-    2. Run setup: curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
-    3. Deploy Windows configs: nix run ~/dotfiles#setup-windows
-
-"@ -ForegroundColor Green
+Write-Host ""
+Write-Host "Done!" -ForegroundColor Green
