@@ -222,23 +222,23 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     exit 1
 }
 
-# winget
+# [1/8] winget
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    Write-Host "[1/2] Installing winget..." -ForegroundColor Yellow
+    Write-Host "[1/8] Installing winget..." -ForegroundColor Yellow
     Invoke-WebRequest -Uri https://aka.ms/getwinget -OutFile winget.msixbundle
     Add-AppxPackage winget.msixbundle
     Remove-Item winget.msixbundle
 } else {
-    Write-Host "[1/2] winget OK" -ForegroundColor Green
+    Write-Host "[1/8] winget OK" -ForegroundColor Green
 }
 
-# Git + clone
+# [2/8] Git + clone
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     winget install -e --id Git.Git --accept-package-agreements --accept-source-agreements
     $env:PATH += ";C:\Program Files\Git\cmd"
 }
 
-Write-Host "[2/2] Cloning dotfiles..." -ForegroundColor Yellow
+Write-Host "[2/8] Cloning dotfiles..." -ForegroundColor Yellow
 if (-not (Test-Path $dotfiles)) {
     git clone $repo $dotfiles
     Write-Host "  Cloned to $dotfiles" -ForegroundColor Green
@@ -246,6 +246,5 @@ if (-not (Test-Path $dotfiles)) {
     Write-Host "  Already exists: $dotfiles" -ForegroundColor Green
 }
 
-# Run setup script
-Write-Host "`nRunning system/windows/setup.ps1...`n" -ForegroundColor Cyan
-& "$dotfiles\system\windows\setup.ps1"
+# Continue with setup.ps1
+& "$dotfiles\system\windows\setup.ps1" -StartStep 3
