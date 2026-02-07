@@ -51,7 +51,7 @@ nix run .#update  # Update flake inputs
 ## Troubleshooting
 
 **Build fails with "file not found"**
-- Run `git add .` to track new files before building
+- Nix flakes only see git-tracked files. Run `git add .` before building.
 
 **Conflict with existing dotfiles**
-- Backup and remove conflicting files in `~/.config/`
+- Home Manager can't overwrite existing files. Backup and remove conflicting files in `~/.config/`.
