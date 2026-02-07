@@ -10,17 +10,12 @@ let
   inherit (config.platform) isDarwin isWSL isWindows;
   inherit (userConfig) editor;
   inherit (userConfig.git) name email sshKey;
+  inherit (import ../../lib.nix) mkPlatformValue;
+
+  mkAlias = mkPlatformValue config;
 
   czgConfig = import ./czg.nix;
   globalIgnores = import ./ignores.nix;
-
-  # Platform-aware alias helper
-  mkAlias =
-    {
-      default,
-      windows ? default,
-    }:
-    if isWindows then windows else default;
 
   preCommitHook = ''
     #!/usr/bin/env bash
