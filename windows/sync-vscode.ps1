@@ -3,10 +3,8 @@
 
 $ErrorActionPreference = "Stop"
 
-$wslDistro = "Ubuntu-24.04"
-$dotfilesPath = "\\wsl$\$wslDistro\home\anko\dotfiles"
+$dotfilesPath = Split-Path $PSScriptRoot
 $vscodeUserPath = "$env:APPDATA\Code\User"
-
 $sourceSettings = "$dotfilesPath\home\editor\vscode\settings.json"
 $targetSettings = "$vscodeUserPath\settings.json"
 
