@@ -39,8 +39,12 @@ The setup script will:
 ### Applying Changes
 
 ```sh
+# macOS / Linux / WSL
 nix run .#switch  # Apply (auto-detects platform)
 nix run .#update  # Update flake inputs
+
+# Windows (PowerShell as Admin)
+.\system\windows\setup.ps1
 ```
 
 ## Customization
