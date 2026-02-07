@@ -34,9 +34,6 @@ The setup script will:
 3. Prompt for git config (name, email, SSH key)
 4. Generate `users/$USER.nix` and apply the configuration
 
-> [!NOTE]
-> Username is detected from `$USER` environment variable (requires `--impure` flag).
-
 ### Applying Changes
 
 ```sh
@@ -51,16 +48,10 @@ nix run .#update  # Update flake inputs
 3. Modify `home/` to add or remove packages
 4. Run `nix run .#switch`
 
-> [!TIP]
-> Add new packages to `home.packages` in the appropriate module under `home/tools/` or `home/dev/`.
-
 ## Troubleshooting
 
 **Build fails with "file not found"**
 - Run `git add .` to track new files before building
-
-**Evaluation requires --impure**
-- Username is detected from `$USER` environment variable
 
 **Conflict with existing dotfiles**
 - Backup and remove conflicting files in `~/.config/`
