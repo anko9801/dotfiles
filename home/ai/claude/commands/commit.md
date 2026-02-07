@@ -1,114 +1,171 @@
-# Git Commit with Conventional Format
+---
+name: commit
+description: Creates atomic git commits following Conventional Commits specification with detailed, well-structured messages. Analyzes changes and splits them into logical units.
+---
 
-Create atomic, well-structured commits following conventional commit format.
+Arguments:
 
-## Philosophy: Revertability First
+- push: whether to push after committing (default: false). Set to true to push to remote.
 
-Each commit should be:
-- **Atomic**: One logical change per commit
-- **Revertable**: Can be reverted without breaking other changes
-- **Self-contained**: Includes all related changes (code, tests, docs)
+You are an expert git commit architect creating fine-grained, independently revertable commits following Conventional Commits specification.
 
-## Current State
+**Current status:** `!git status --short`
 
-**Status:**
+**Changes:**
+
+```diff
+!git diff HEAD
 ```
-!git status --short
-```
 
-**Staged Changes:**
-```
-!git diff --cached --stat
-```
+**Recent commits:** `!git log --oneline -10`
+
+## Core Philosophy
+
+**Revertability First**: Each commit must be revertable independently without breaking other functionality. Prefer smaller, granular commits over large groupings. Split by hunks within files, not just entire files.
 
 ## Workflow
 
-### 1. Analyze Changes
+1. **Analyse the changes above**: Review the git state already provided
+2. **Review history**: Match existing commit patterns (structure, scope naming, message style) from the log above
+3. **Identify revertable units**: Examine each hunk separately - can it be reverted independently?
+4. **For each unit**:
+   - Extract specific hunks using `git diff <file>`
+   - Create patch with only desired hunks
+   - Reset file: `git checkout -- <file>`
+   - Apply patch (see detailed guidance below)
+   - Stage: `git add <file>`
+   - Craft message following format below
+   - Commit and verify with `git show HEAD`
 
-Review all staged changes and identify logical groups:
-- Feature additions
-- Bug fixes
-- Refactoring
-- Documentation updates
-- Style/formatting changes
+**NEVER use `git add -p` or `git add --interactive`** - Claude Code cannot handle interactive commands.
 
-### 2. Split if Necessary
+## Git Apply Best Practices
 
-If changes span multiple concerns, split into separate commits:
+When applying patches, follow these guidelines to avoid common failures:
 
-**File-level splitting:**
+### Basic Usage
+
 ```bash
-git reset HEAD  # Unstage all
-git add <specific-files>  # Stage first logical group
-git commit -m "type(scope): message"
-# Repeat for remaining groups
+# Always verify first before applying
+git apply --check patch_file.patch
+
+# Apply with verbose output for debugging
+git apply -v patch_file.patch
+
+# Or pipe directly from git diff
+git diff <file> | git apply -v
 ```
 
-**Hunk-level splitting** (for mixed changes in single file):
+### Essential Flags
+
+- **`-v, --verbose`**: Always use this for detailed feedback during application
+- **`--check`**: Verify whether patch can be applied cleanly without making changes
+- **`--stat`**: Display affected files before applying
+- **`--whitespace=fix`**: Automatically correct trailing whitespace issues (common failure cause)
+- **`--reject`**: Create .rej files for failed sections instead of aborting entirely
+- **`--reverse/-R`**: Revert previously applied patches
+
+### Troubleshooting Failed Applies
+
+**Common Issues**:
+
+1. **Trailing Whitespace**: Patches may fail due to whitespace differences
+
+   ```bash
+   git apply --whitespace=fix -v patch_file.patch
+   ```
+
+2. **Partial Failures**: When some hunks fail, use `--reject` to apply what works
+
+   ```bash
+   git apply --reject -v patch_file.patch
+   # Manually resolve conflicts in generated .rej files
+   ```
+
+3. **Context Mismatch**: If patch was created from different base, try with more context
+
+   ```bash
+   git apply --ignore-whitespace -v patch_file.patch
+   ```
+
+4. **Line Ending Issues**: Different platforms may have CRLF vs LF issues
+   ```bash
+   git apply --ignore-space-change -v patch_file.patch
+   ```
+
+### Workflow Recommendation
+
 ```bash
-# Extract specific hunks using git diff and apply
-git diff HEAD -- file.ext > /tmp/all-changes.patch
-# Edit patch to keep only relevant hunks
-git checkout HEAD -- file.ext  # Reset file
-git apply /tmp/selected-hunks.patch  # Apply specific changes
-git add file.ext
-git commit -m "type(scope): message"
+# 1. Always check first
+git apply --check patch_file.patch
+
+# 2. If check passes, apply with verbose output
+git apply -v patch_file.patch
+
+# 3. If check fails, try with whitespace fix
+git apply --check --whitespace=fix patch_file.patch
+git apply -v --whitespace=fix patch_file.patch
+
+# 4. If still fails, use reject for partial application
+git apply --reject -v patch_file.patch
+# Then manually fix .rej files
 ```
 
-### 3. Commit Format
+## Commit Message Format
 
 ```
-type(scope): subject
+<type>(<scope>): <subject>
 
-[optional body]
+<body>
 
-[optional footer]
-Assisted-by: Claude (model: <model-name>)
+<footer>
 ```
 
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Formatting, no code change
-- `refactor`: Code change that neither fixes nor adds
-- `perf`: Performance improvement
-- `test`: Adding or fixing tests
-- `chore`: Maintenance, dependencies
-- `ci`: CI/CD changes
-- `build`: Build system changes
+**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
 
-**Subject rules:**
-- Imperative mood ("add" not "added")
-- No period at end
-- Max 50 characters
-- Lowercase first letter
+**Body should explain**:
 
-### 4. Pre-commit Verification
+- WHAT changed and WHY
+- Problem context and solution rationale
+- Implementation decisions
+- Potential impacts
+- Wrap at 72 characters
 
-Before committing, verify:
-```bash
-nix fmt  # Format code
-statix check .  # Nix linting
-deadnix .  # Dead code detection
-```
+## Quality Checks
 
-## Examples
+- Can this be reverted without breaking other functionality?
+- Is this the smallest logical unit?
+- Does message clearly explain the change?
+- Does it match project's commit patterns?
+- No debugging statements or commented code without explanation
 
-**Single concern:**
-```
-feat(shell): add tcode command for 3-pane dev layout
+## Key Principles
 
-Assisted-by: Claude (model: claude-opus-4-5-20251101)
-```
+- Always use **English** for commit messages
+- When in doubt, prefer smaller commits (can squash later, can't easily split)
+- Match project's established scope naming and conventions
+- Include issue/PR references when applicable
+- Each commit must pass: "If I revert this, will it break other features?"
+- Add trailer: `Assisted-by: Claude (model: <model-name>)`
 
-**Breaking change:**
-```
-feat(api)!: change authentication to use JWT
+## Push (if push=true)
 
-BREAKING CHANGE: API now requires Bearer token instead of API key
+After all commits are complete, push to remote:
 
-Assisted-by: Claude (model: claude-opus-4-5-20251101)
-```
+1. Check if the branch has an upstream:
+
+   ```bash
+   git rev-parse --abbrev-ref --symbolic-full-name @{u}
+   ```
+
+2. If upstream exists, push directly:
+
+   ```bash
+   git push
+   ```
+
+3. If no upstream (command fails), **ask the user** whether to set upstream and push:
+   - If yes: `git push -u origin HEAD`
+   - If no: skip pushing
 
 $ARGUMENTS

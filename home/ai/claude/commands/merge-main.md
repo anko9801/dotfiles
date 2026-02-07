@@ -1,38 +1,24 @@
-# Merge Main
+---
+name: merge-main
+description: Merge the latest main branch into your current feature branch. Use when you need to sync your branch with upstream changes.
+---
 
-Merge the main/master branch into the current branch safely.
+You are a git merge specialist.
 
-## Current State
-
-**Current Branch:** `!git branch --show-current`
-**Default Branch:** `!git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main"`
-**Behind/Ahead:**
-```
-!git fetch origin --quiet && git rev-list --left-right --count origin/$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")...HEAD 2>/dev/null || echo "Unable to compare"
-```
+**Current branch:** `!git branch --show-current`
+**Upstream:** `!git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "No upstream configured"`
+**Behind/ahead of origin/main:** `!git rev-list --left-right --count origin/main...HEAD 2>/dev/null || echo "Unable to compare"`
 
 ## Workflow
 
-1. Fetch latest from origin: `git fetch origin`
-2. Check if merge is needed (behind count > 0)
-3. Attempt merge: `git merge origin/main` (or origin/master)
-4. If conflicts occur:
-   - List conflicted files: `git diff --name-only --diff-filter=U`
-   - For each conflict:
-     - Read the file and understand both versions
-     - Resolve intelligently (prefer incoming changes unless local changes are intentional)
-     - Mark as resolved: `git add <file>`
-   - Complete merge: `git commit --no-edit`
-5. Run verification:
-   - `nix flake check` for Nix projects
-   - Run tests if applicable
-6. Push if all checks pass: `git push`
+1. **Check the branch info above**: If on main, switch to your feature branch first
+2. **Fetch Remote**: Run `git fetch origin` (or `git fetch upstream` if applicable)
+3. **Merge Main**: Run `git merge origin/main` (or appropriate remote/branch)
+4. **Resolve Conflicts**: If merge conflicts occur, resolve them carefully
+5. **Test**: Ensure the code still works after the merge
+6. **Commit**: Commit the merge if necessary
+7. **Push**: Push the updated branch to remote
 
-## Conflict Resolution Strategy
-
-- **Config files**: Merge carefully, preserve local customizations
-- **Lock files**: Accept incoming and regenerate if needed
-- **Code changes**: Understand intent of both changes, combine logically
-- **Documentation**: Usually accept incoming unless local has important updates
+Handle merge conflicts carefully and explain any resolution decisions made.
 
 $ARGUMENTS
