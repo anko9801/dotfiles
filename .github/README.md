@@ -60,26 +60,6 @@ nix flake update
 > [!TIP]
 > Add new packages to `home.packages` in the appropriate module under `home/tools/` or `home/dev/`.
 
-## Development
-
-Enter the development environment:
-
-```sh
-# With nix-direnv (recommended)
-echo "use flake" > .envrc && direnv allow
-
-# Or manually
-nix develop
-```
-
-Available commands:
-
-```sh
-nix fmt                                        # Format Nix files
-nix shell nixpkgs#statix -c statix check .     # Lint Nix files
-nix shell nixpkgs#deadnix -c deadnix .         # Find dead code
-```
-
 ## Troubleshooting
 
 **Build fails with "file not found"**
