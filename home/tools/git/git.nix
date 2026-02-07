@@ -14,8 +14,8 @@ let
   czgConfig = import ./czg.nix;
 
   # Shared config path (SSoT for common settings)
-  sharedConfigPath = "${config.home.homeDirectory}/dotfiles/shared/git/config";
-  sharedIgnorePath = "${config.home.homeDirectory}/dotfiles/shared/git/ignore";
+  sharedConfigPath = "${config.home.homeDirectory}/dotfiles/git/config";
+  sharedIgnorePath = "${config.home.homeDirectory}/dotfiles/git/ignore";
 
   preCommitHook = ''
     #!/usr/bin/env bash
