@@ -23,7 +23,7 @@ let
         echo "Error: gitleaks not found. Skipping with: SKIP=gitleaks git commit"
         exit 1
     fi
-    [ "$SKIP" = "gitleaks" ] && exit 0
+    [ "''${SKIP:-}" = "gitleaks" ] && exit 0
     gitleaks protect --staged --redact --exit-code 1
   '';
 in
