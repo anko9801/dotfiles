@@ -70,7 +70,3 @@ nix flake update
 
 **Conflict with existing dotfiles**
 - Backup and remove conflicting files in `~/.config/`
-
-## License
-
-MIT
