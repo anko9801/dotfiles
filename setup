@@ -259,6 +259,15 @@ if (-not $distros) {
 }
 Write-Host "  OK" -ForegroundColor Green
 
+# [4/4] Install packages via winget
+Write-Host "[4/4] Installing packages..." -ForegroundColor Yellow
+$packagesUrl = "https://raw.githubusercontent.com/anko9801/dotfiles/master/system/windows/winget-packages.json"
+$packagesFile = "$env:TEMP\winget-packages.json"
+Invoke-WebRequest -Uri $packagesUrl -OutFile $packagesFile
+winget import -i $packagesFile --accept-package-agreements --accept-source-agreements --ignore-unavailable 2>$null
+Remove-Item $packagesFile -ErrorAction SilentlyContinue
+Write-Host "  OK" -ForegroundColor Green
+
 Write-Host @"
 
   ╔═══════════════════════════════════════╗
