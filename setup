@@ -1,17 +1,23 @@
 #!/bin/sh
-# Dotfiles setup script for macOS / Linux / WSL
+# Polyglot setup script: works in bash/sh AND PowerShell
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
+#   curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh   (Unix)
+#   iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex         (Windows)
 #
-# Flags:
+# Flags (Unix):
 #   --git-name NAME     Git user.name
 #   --git-email EMAIL   Git user.email
 #   --git-key KEY       SSH public key for signing
 #   --editor EDITOR     Preferred editor (nvim, code, hx)
-#   --theme THEME       Color theme (catppuccin, nord, gruvbox)
 #   --non-interactive   Skip all prompts
 
+echo --% > /dev/null ; : ' | out-null
+<#'
+
+# ============================================================================
+# UNIX (bash/sh)
+# ============================================================================
 set -eu
 
 REPO="https://github.com/anko9801/dotfiles.git"
@@ -58,7 +64,6 @@ GIT_NAME=""
 GIT_EMAIL=""
 GIT_KEY=""
 EDITOR_PREF=""
-THEME_PREF=""
 NON_INTERACTIVE=""
 
 while [ $# -gt 0 ]; do
@@ -67,7 +72,6 @@ while [ $# -gt 0 ]; do
         --git-email)      GIT_EMAIL="$2"; shift 2 ;;
         --git-key)        GIT_KEY="$2"; shift 2 ;;
         --editor)         EDITOR_PREF="$2"; shift 2 ;;
-        --theme)          THEME_PREF="$2"; shift 2 ;;
         --non-interactive) NON_INTERACTIVE="1"; shift ;;
         *) shift ;;
     esac
@@ -144,7 +148,6 @@ GIT_NAME="${GIT_NAME:-$(prompt "Git name" "$(whoami)")}"
 GIT_EMAIL="${GIT_EMAIL:-$(prompt "Git email" "$GIT_NAME@users.noreply.github.com")}"
 GIT_KEY="${GIT_KEY:-$(prompt "SSH public key (for signing)" "")}"
 EDITOR_PREF="${EDITOR_PREF:-$(prompt "Editor (nvim, code, hx)" "nvim")}"
-THEME_PREF="${THEME_PREF:-$(prompt "Theme (catppuccin, nord, gruvbox)" "catppuccin")}"
 
 mkdir -p "$DOTFILES/users"
 cat > "$DOTFILES/users/$USER.nix" << EOF
@@ -152,7 +155,7 @@ cat > "$DOTFILES/users/$USER.nix" << EOF
 # Regenerate with: ./setup --non-interactive --git-name NAME --git-email EMAIL
 {
   editor = "$EDITOR_PREF";
-  theme = "$THEME_PREF";
+  theme = "catppuccin";
 
   git = {
     name = "$GIT_NAME";
@@ -189,8 +192,82 @@ echo ""
 success "Done!"
 echo ""
 echo "  Next steps:"
-echo "    exec zsh              # Reload shell"
+echo "    exec zsh                 # Reload shell"
 if [ "$OS" = "wsl" ]; then
 echo "    nix run .#setup-windows  # Deploy Windows configs"
 fi
 echo ""
+exit 0
+#>
+
+# ============================================================================
+# WINDOWS (PowerShell)
+# ============================================================================
+$ErrorActionPreference = "Stop"
+
+Write-Host @"
+
+  ╔═══════════════════════════════════════╗
+  ║       Dotfiles Setup (Windows)        ║
+  ╚═══════════════════════════════════════╝
+
+"@ -ForegroundColor Cyan
+
+# Check admin
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin) {
+    Write-Host "Please run as Administrator!" -ForegroundColor Red
+    Write-Host "Right-click PowerShell -> Run as Administrator" -ForegroundColor Yellow
+    exit 1
+}
+
+# [1/3] winget
+Write-Host "[1/3] Checking winget..." -ForegroundColor Yellow
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "  Installing winget..." -ForegroundColor Yellow
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri https://aka.ms/getwinget -OutFile "$env:TEMP\winget.msixbundle"
+    Add-AppxPackage "$env:TEMP\winget.msixbundle"
+    Remove-Item "$env:TEMP\winget.msixbundle"
+}
+Write-Host "  OK" -ForegroundColor Green
+
+# [2/3] WSL2
+Write-Host "[2/3] Checking WSL..." -ForegroundColor Yellow
+$wsl = Get-Command wsl -ErrorAction SilentlyContinue
+if (-not $wsl) {
+    Write-Host "  Installing WSL2..." -ForegroundColor Yellow
+    winget install --id Microsoft.WSL --accept-package-agreements --accept-source-agreements
+    Write-Host "  WSL2 installed" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "  Please restart your computer, then:" -ForegroundColor Cyan
+    Write-Host "    1. Open PowerShell as Admin" -ForegroundColor White
+    Write-Host "    2. Run: wsl --install Ubuntu" -ForegroundColor White
+    Write-Host "    3. Open Ubuntu and run:" -ForegroundColor White
+    Write-Host "       curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh" -ForegroundColor White
+    exit 0
+}
+Write-Host "  OK" -ForegroundColor Green
+
+# [3/3] Check for distro
+Write-Host "[3/3] Checking Linux distro..." -ForegroundColor Yellow
+$distros = wsl --list --quiet 2>$null | Where-Object { $_ -and $_ -notmatch "^Windows" }
+if (-not $distros) {
+    Write-Host "  No Linux distro found. Installing Ubuntu..." -ForegroundColor Yellow
+    wsl --install Ubuntu --no-launch
+    Write-Host "  Ubuntu installed" -ForegroundColor Green
+}
+Write-Host "  OK" -ForegroundColor Green
+
+Write-Host @"
+
+  ╔═══════════════════════════════════════╗
+  ║            Setup Complete!            ║
+  ╚═══════════════════════════════════════╝
+
+  Next steps:
+    1. Open WSL:  wsl
+    2. Run setup: curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
+    3. Deploy Windows configs: nix run ~/dotfiles#setup-windows
+
+"@ -ForegroundColor Green
