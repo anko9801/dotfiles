@@ -40,14 +40,8 @@ The setup script will:
 ### Applying Changes
 
 ```sh
-# macOS
-darwin-rebuild switch --impure --flake ~/dotfiles#mac
-
-# Linux / WSL
-home-manager switch --impure --flake ~/dotfiles#wsl
-
-# Update flake inputs
-nix flake update
+nix run .#switch  # Apply (auto-detects platform)
+nix run .#update  # Update flake inputs
 ```
 
 ## Customization
@@ -55,7 +49,7 @@ nix flake update
 1. Fork the repository
 2. Run `./setup` to generate `users/$USER.nix` with your settings
 3. Modify `home/` to add or remove packages
-4. Run `home-manager switch --impure --flake .#wsl`
+4. Run `nix run .#switch`
 
 > [!TIP]
 > Add new packages to `home.packages` in the appropriate module under `home/tools/` or `home/dev/`.
