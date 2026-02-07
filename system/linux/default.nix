@@ -12,6 +12,7 @@ let
 
   # Workstation modules (tools + editor + terminal) - added when workstation = true
   workstationModules = [
+    ../../home/ai
     ../../home/tools
     ../../home/editor
     ../../home/terminal
