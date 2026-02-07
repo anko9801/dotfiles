@@ -15,28 +15,45 @@
   "editor.stickyScroll.enabled": true,
   "editor.foldingImportsByDefault": true,
   "editor.showFoldingControls": "always",
-  "editor.fontFamily": "'Moralerspace Neon', 'JetBrains Mono', monospace",
+  "editor.fontFamily": "'Moralerspace Neon HWNF', 'JetBrains Mono', monospace",
   "editor.fontLigatures": "'dlig', 'calt', 'liga'",
   "editor.lineNumbers": "relative",
-  "editor.cursorBlinking": "solid",
+  "editor.cursorBlinking": "expand",
+  "editor.cursorStyle": "line-thin",
   "editor.minimap.enabled": false,
-  "editor.renderWhitespace": "boundary",
+  "editor.minimap.maxColumn": 80,
+  "editor.minimap.showSlider": "always",
+  "editor.renderWhitespace": "all",
   "editor.renderControlCharacters": true,
+  "editor.renderLineHighlight": "all",
   "editor.rulers": [
     { "column": 80, "color": "#00FF0010" },
     { "column": 100, "color": "#BDB76B15" },
     { "column": 120, "color": "#FA807219" }
   ],
   "editor.bracketPairColorization.enabled": true,
-  "editor.guides.bracketPairs": "active",
+  "editor.guides.bracketPairs": true,
+  "editor.dragAndDrop": false,
+  "editor.mouseWheelZoom": true,
+  "editor.smoothScrolling": true,
+  "editor.wordSegmenterLocales": ["ja"],
+  "editor.wrappingIndent": "indent",
+
+  // ─────────────────────────────────────────────────────────────
+  // Diff Editor
+  // ─────────────────────────────────────────────────────────────
+  "diffEditor.experimental.useTrueInlineView": true,
+  "diffEditor.ignoreTrimWhitespace": false,
 
   // ─────────────────────────────────────────────────────────────
   // Files
   // ─────────────────────────────────────────────────────────────
   "files.eol": "\n",
   "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
   "files.trimTrailingWhitespace": true,
   "files.autoGuessEncoding": true,
+  "files.candidateGuessEncodings": ["utf8", "shiftjis", "eucjp"],
   "files.associations": {
     "*.sage": "python"
   },
@@ -44,6 +61,11 @@
     "**/__pycache__": true,
     "**/.pytest_cache": true
   },
+
+  // ─────────────────────────────────────────────────────────────
+  // Search
+  // ─────────────────────────────────────────────────────────────
+  "search.showLineNumbers": true,
 
   // ─────────────────────────────────────────────────────────────
   // Language-specific
@@ -95,6 +117,7 @@
   "workbench.tree.indent": 20,
   "workbench.tree.expandMode": "singleClick",
   "workbench.list.smoothScrolling": true,
+  "workbench.view.alwaysShowHeaderActions": true,
   "workbench.colorCustomizations": {
     "editor.lineHighlightBackground": "#1073cf2d",
     "editor.lineHighlightBorder": "#9fced11f"
@@ -109,16 +132,23 @@
   "workbench.editor.revealIfOpen": true,
   "workbench.editor.limit.enabled": true,
   "workbench.editor.limit.value": 8,
+  "workbench.editor.closeOnFileDelete": true,
+  "workbench.editor.pinnedTabsOnSeparateRow": true,
+  "workbench.editor.scrollToSwitchTabs": true,
+  "workbench.editor.wrapTabs": true,
   // Explorer
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "explorer.openEditors.visible": 0,
   "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
     "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb",
     "tsconfig.json": "tsconfig.*.json",
     ".env": ".env.*"
   },
+  "explorer.compactFolders": false,
+  "explorer.excludeGitIgnore": true,
   // Window
   "window.commandCenter": false,
 
@@ -130,20 +160,34 @@
   "terminal.integrated.tabs.hideCondition": "never",
   "terminal.integrated.enableMultiLinePasteWarning": "never",
   "terminal.integrated.enablePersistentSessions": false,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.enableImages": true,
+  "terminal.integrated.enableVisualBell": true,
+  "terminal.integrated.mouseWheelZoom": true,
+  "terminal.integrated.smoothScrolling": true,
 
   // ─────────────────────────────────────────────────────────────
-  // Git
+  // Git / SCM
   // ─────────────────────────────────────────────────────────────
-  "git.autofetch": true,
+  "git.autofetch": "all",
   "git.confirmSync": false,
   "git.openRepositoryInParentFolders": "never",
+  "git.pruneOnFetch": true,
+  "git.suggestSmartCommit": false,
   "gitlens.gitCommands.skipConfirmations": [
     "fetch:command",
     "stash-push:command",
     "switch:command",
     "push:command"
   ],
-  "diffEditor.ignoreTrimWhitespace": false,
+  "scm.alwaysShowRepositories": true,
+  "scm.compactFolders": false,
+  "scm.defaultViewMode": "tree",
+  "scm.diffDecorationsGutterWidth": 5,
+  "scm.graph.badges": "all",
+  "scm.inputFontFamily": "editor",
+  "scm.inputFontSize": 14,
 
   // ─────────────────────────────────────────────────────────────
   // vscode-neovim
