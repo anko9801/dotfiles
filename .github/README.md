@@ -12,7 +12,7 @@
 
 Personal dotfiles for declaratively managing development environments across macOS, Linux, WSL, and Windows.
 
-Nix flakes pin every dependency for reproducibility. Fork it and get a consistent setup on day one.
+Designed to minimize cognitive load: reproducible across machines, consistent across tools, self-documenting code.
 
 > [!NOTE]
 > This is a personal configuration. Feel free to fork and adapt for your own needs.
