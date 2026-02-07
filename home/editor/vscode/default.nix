@@ -6,10 +6,7 @@
 }:
 
 {
-  imports = [
-    ./settings.nix
-    ./keybindings.nix
-  ];
+  imports = [ ./keybindings.nix ];
 
   # VSCode - Only enable on non-WSL/non-genericLinux platforms
   # WSL should use Windows VSCode with Remote-WSL extension
@@ -17,6 +14,9 @@
     enable = true;
     package = unfreePkgs.vscode;
     profiles.default = {
+      # Use external JSON file for settings
+      userSettings = builtins.fromJSON (builtins.readFile ./settings.json);
+
       extensions =
         with unfreePkgs.vscode-extensions;
         [
