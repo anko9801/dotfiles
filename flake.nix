@@ -413,14 +413,14 @@
                 echo "=== Setting up Windows for $WIN_USER ==="
 
                 # Build Windows config
-                echo "[1/3] Building Windows configuration..."
+                echo "[1/4] Building Windows configuration..."
                 out=$(nix build .#homeConfigurations.windows.activationPackage \
                   --no-link --print-out-paths --impure)
                 src="$out/home-files"
                 echo "  Built: $out"
 
                 # Deploy config files
-                echo "[2/3] Deploying configuration files..."
+                echo "[2/4] Deploying configuration files..."
 
                 # Git
                 if [ -f "$src/.config/git/config" ]; then
@@ -436,8 +436,18 @@
                     echo "  Deployed VS Code settings"
                 fi
 
+                # Fonts
+                echo "[3/4] Installing fonts..."
+                fonts_dir="$WIN_HOME/AppData/Local/Microsoft/Windows/Fonts"
+                mkdir -p "$fonts_dir"
+                font_pkg=$(nix build nixpkgs#moralerspace --no-link --print-out-paths 2>/dev/null)
+                if [ -n "$font_pkg" ]; then
+                  cp "$font_pkg"/share/fonts/moralerspace/MoralerspaceNeon*.ttf "$fonts_dir/" 2>/dev/null && \
+                    echo "  Installed Moralerspace Neon fonts"
+                fi
+
                 # Install packages
-                echo "[3/3] Installing packages..."
+                echo "[4/4] Installing packages..."
                 if command -v winget.exe &>/dev/null; then
                   winget.exe import -i "${./system/windows/winget-packages.json}" \
                     --accept-package-agreements --accept-source-agreements \

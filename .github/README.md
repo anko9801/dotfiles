@@ -54,13 +54,6 @@ nix run .#setup-windows  # Build and deploy Windows config
 3. Modify `home/` to add or remove packages
 4. Run `nix run .#switch`
 
-## Windows Manual Setup
-
-Some components require manual installation on Windows:
-
-**Fonts**
-- [Moralerspace](https://github.com/yuru7/moralerspace/releases) - Download and install `.ttf` files manually (not available via winget)
-
 ## Troubleshooting
 
 **Build fails with "file not found"**
