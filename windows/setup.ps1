@@ -60,8 +60,7 @@ if (-not (Get-Module -ListAvailable -Name BurntToast)) {
 
 # Git config
 Write-Host "[5/7] Git config..." -ForegroundColor Yellow
-git config --global core.autocrlf input
-git config --global init.defaultBranch main
+& "$PSScriptRoot\git-config.ps1"
 
 # Windows Terminal
 Write-Host "[6/7] Windows Terminal..." -ForegroundColor Yellow
