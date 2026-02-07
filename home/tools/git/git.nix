@@ -11,11 +11,12 @@ let
   inherit (userConfig) editor;
   inherit (userConfig.git) name email sshKey;
 
-  aliases = import ./aliases.nix;
-  globalIgnores = import ./ignores.nix;
   czgConfig = import ./czg.nix;
 
-  # Pre-commit hook for secret detection
+  # Shared config path (SSoT for common settings)
+  sharedConfigPath = "${config.home.homeDirectory}/dotfiles/shared/git/config";
+  sharedIgnorePath = "${config.home.homeDirectory}/dotfiles/shared/git/ignore";
+
   preCommitHook = ''
     #!/usr/bin/env bash
     set -euo pipefail
@@ -38,7 +39,6 @@ in
       onefetch
     ];
 
-    # difftastic: auto-fallback to text diff for large changes
     sessionVariables.DFT_GRAPH_LIMIT = "10000";
 
     file = {
@@ -54,118 +54,41 @@ in
   programs.git = {
     enable = true;
     lfs.enable = true;
-    ignores = globalIgnores;
 
     signing = {
       key = sshKey;
       signByDefault = true;
     };
 
+    # Platform-specific settings only (common settings via include)
     settings = {
+      include.path = sharedConfigPath;
+
       user = { inherit name email; };
       gpg.ssh.allowedSignersFile = "${config.home.homeDirectory}/.config/git/allowed_signers";
-      alias = aliases;
 
-      # === Core ===
       core = {
         inherit editor;
-        autocrlf = false;
-        safecrlf = true;
         filemode = false;
         pager = "delta";
         hooksPath = "${config.home.homeDirectory}/.config/git/hooks";
-        quotepath = false;
-        untrackedCache = true;
-        fsmonitor = true;
+        excludesFile = sharedIgnorePath;
       };
 
-      color.ui = "auto";
-      column.ui = "auto";
-      init.defaultBranch = "main";
-
-      # === Diff/Merge ===
-      diff = {
-        algorithm = "histogram";
-        renames = true;
-        colorMoved = "plain";
-        mnemonicPrefix = true;
-        external = "difft";
-      };
-
-      merge = {
-        tool = "vimdiff";
-        conflictstyle = "zdiff3";
-      };
-
+      diff.external = "difft";
+      merge.tool = "vimdiff";
       interactive.diffFilter = "delta --color-only";
 
-      # === Pull/Push ===
-      pull = {
-        ff = "only";
-        rebase = true;
-      };
-
-      push = {
-        autoSetupRemote = true;
-        default = "current";
-        followTags = true;
-      };
-
-      # === Fetch ===
-      fetch = {
-        prune = true;
-        pruneTags = true;
-        all = true;
-        fsckobjects = true;
-      };
-
-      submodule.recurse = true;
-
-      # === Rebase ===
-      rebase = {
-        autostash = true;
-        autosquash = true;
-        updateRefs = true;
-      };
-
-      rerere = {
-        enabled = true;
-        autoupdate = true;
-      };
-
-      # === Branch/Tag ===
-      branch = {
-        autosetupmerge = "always";
-        autosetuprebase = "always";
-        sort = "-committerdate";
-      };
-
-      tag = {
-        gpgsign = true;
-        sort = "version:refname";
-      };
-
-      # === Misc ===
-      wt.basedir = ".worktrees";
-      blame.ignoreRevsFile = ".git-blame-ignore-revs";
-      commit.verbose = true;
-      help.autocorrect = "prompt";
-      status.showUntrackedFiles = "all";
-      log.date = "iso";
-      feature.manyFiles = true;
-      maintenance.auto = true;
-
+      fetch.fsckobjects = true;
       transfer.fsckobjects = true;
       receive.fsckObjects = true;
 
-      url."ssh://git@github.com/".insteadOf = "https://github.com/";
+      tag.gpgsign = true;
+      wt.basedir = ".worktrees";
+      blame.ignoreRevsFile = ".git-blame-ignore-revs";
+      maintenance.auto = true;
 
-      advice = {
-        addIgnoredFile = false;
-        statusHints = false;
-        commitBeforeMerge = false;
-        detachedHead = false;
-      };
+      url."ssh://git@github.com/".insteadOf = "https://github.com/";
     }
     // lib.optionalAttrs isDarwin { credential.helper = "osxkeychain"; }
     // lib.optionalAttrs isWSL { credential.helper = "!git-credential-manager.exe"; };
