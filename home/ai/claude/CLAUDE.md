@@ -1,23 +1,26 @@
-# Global Claude Memory
+# User Memory
 
-Personal preferences for AI-assisted development.
+Personal preferences that apply to all projects.
 
-## Coding Style
+## About Me
 
-- **Simplicity**: Clear, simple code. Refactor often.
-- **Immutability**: Create new objects, don't mutate.
-- **Small files**: 200-400 lines typical, 800 max.
-- **Minimal changes**: Only what's necessary.
+- My name is anko
+- 日本語で話しかけてOK、ただしコード関連（コミット、コメント、ドキュメント、PR）は英語で
 
-## Security
+## Code Style
 
-- Never hardcode secrets
-- Validate user inputs
-- Parameterized queries over string interpolation
+- Simplicity first: clear, simple code
+- Immutability: create new objects, don't mutate
+- Small files: 200-400 lines typical, 800 max
+
+## Code Comments Policy
+
+- Do NOT add comments explaining what was changed
+- Only add comments when logic is genuinely complex
+- Use git commit messages for change explanations
 
 ## Communication
 
-- Concise and direct
-- Explain "why" not "what"
+- Be concise and direct
 - No filler or excessive praise
 - Technical accuracy over politeness
