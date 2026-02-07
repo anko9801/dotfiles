@@ -48,6 +48,11 @@
         readOnly = true;
         description = "Whether running on native Linux (not WSL)";
       };
+      isWindows = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Whether generating config for Windows";
+      };
     };
   };
 

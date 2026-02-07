@@ -43,8 +43,8 @@ The setup script will:
 nix run .#switch  # Apply (auto-detects platform)
 nix run .#update  # Update flake inputs
 
-# Windows (PowerShell as Admin)
-.\system\windows\setup.ps1
+# Windows (from WSL)
+nix run .#setup-windows  # Build and deploy Windows config
 ```
 
 ## Customization
