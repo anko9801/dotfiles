@@ -88,9 +88,9 @@ Current hooks in `home/ai/claude/default.nix`:
 | Hook | Trigger | Action |
 |------|---------|--------|
 | PreToolUse | Bash | Block dangerous commands (`rm -rf /`, `dd`, `mkfs`) |
-| PostToolUse | Write/Edit `.nix` | Run `statix check` |
-| PostToolUse | Write/Edit `.py` | Run `ruff check` |
 | Stop | Session end (>30s) | Desktop notification |
+
+Note: Linting is handled by pre-commit hooks (`nix develop` to install).
 
 ## Available Commands
 

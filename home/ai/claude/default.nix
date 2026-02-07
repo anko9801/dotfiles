@@ -2,15 +2,6 @@
 
 let
   sessionDir = "\${XDG_RUNTIME_DIR:-/tmp}/claude-session";
-
-  # Lightweight linting (only fast linters, skip slow ones like cargo clippy)
-  lintHook = ''
-    file="$CLAUDE_FILE_PATH"
-    case "$file" in
-      *.nix) statix check "$file" 2>&1 || exit 2 ;;
-      *.py) ruff check --quiet "$file" 2>&1 || exit 2 ;;
-    esac
-  '';
 in
 {
   # MCP settings file
@@ -149,22 +140,6 @@ in
             ];
           }
         ];
-        # After file edits, run linters
-        PostToolUse =
-          map
-            (matcher: {
-              inherit matcher;
-              hooks = [
-                {
-                  type = "command";
-                  command = lintHook;
-                }
-              ];
-            })
-            [
-              "Write"
-              "Edit"
-            ];
         # Task completion notification (only for tasks > 30s, runs async)
         Stop = [
           {
