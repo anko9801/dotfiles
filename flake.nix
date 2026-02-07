@@ -52,6 +52,11 @@
       url = "github:serokell/deploy-rs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -111,11 +116,28 @@
         "aarch64-darwin"
       ];
 
-      imports = [ inputs.treefmt-nix.flakeModule ];
+      imports = [
+        inputs.treefmt-nix.flakeModule
+        inputs.git-hooks.flakeModule
+      ];
 
       perSystem =
-        { pkgs, ... }:
+        { config, pkgs, ... }:
         {
+          # Pre-commit hooks
+          pre-commit = {
+            check.enable = false;
+            settings.hooks = {
+              treefmt = {
+                enable = true;
+                package = config.treefmt.build.wrapper;
+              };
+              deadnix.enable = true;
+              statix.enable = true;
+            };
+          };
+
+          # Treefmt with extended formatters
           treefmt = {
             projectRootFile = "flake.nix";
             programs = {
@@ -123,14 +145,91 @@
               shfmt.enable = true;
               yamlfmt.enable = true;
             };
+            settings = {
+              global.excludes = [
+                ".git/**"
+                "*.lock"
+              ];
+              formatter = {
+                fish-indent = {
+                  command = "${pkgs.fish}/bin/fish_indent";
+                  options = [ "--write" ];
+                  includes = [ "*.fish" ];
+                };
+                gitleaks = {
+                  command = "${pkgs.gitleaks}/bin/gitleaks";
+                  options = [
+                    "detect"
+                    "--no-git"
+                    "--exit-code"
+                    "0"
+                  ];
+                  includes = [ "*" ];
+                  excludes = [
+                    "*.png"
+                    "*.jpg"
+                    "*.gif"
+                    "node_modules/**"
+                    ".direnv/**"
+                  ];
+                };
+              };
+            };
           };
 
+          # DevShell with pre-commit hooks
           devShells.default = pkgs.mkShell {
+            shellHook = config.pre-commit.installationScript;
             packages = with pkgs; [
               statix
               deadnix
               nvd
             ];
+          };
+
+          # Flake apps for common operations
+          apps = {
+            switch = {
+              type = "app";
+              program = toString (
+                pkgs.writeShellScript "switch" ''
+                  set -e
+                  case "$(uname)" in
+                    Darwin) sudo nix run nix-darwin -- switch --flake .#mac ;;
+                    *) home-manager switch --impure --flake .#wsl ;;
+                  esac
+                ''
+              );
+            };
+            build = {
+              type = "app";
+              program = toString (
+                pkgs.writeShellScript "build" ''
+                  set -e
+                  case "$(uname)" in
+                    Darwin) nix build .#darwinConfigurations.mac.system ;;
+                    *) nix build --impure .#homeConfigurations.wsl.activationPackage ;;
+                  esac
+                ''
+              );
+            };
+            update = {
+              type = "app";
+              program = toString (
+                pkgs.writeShellScript "update" ''
+                  nix flake update
+                  echo "Run 'nix run .#switch' to apply"
+                ''
+              );
+            };
+            fmt = {
+              type = "app";
+              program = toString (
+                pkgs.writeShellScript "fmt" ''
+                  exec ${config.treefmt.build.wrapper}/bin/treefmt "$@"
+                ''
+              );
+            };
           };
         };
 
