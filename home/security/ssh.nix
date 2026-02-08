@@ -7,13 +7,13 @@
 
 let
   inherit (config.platform) isDarwin isLinuxDesktop;
-  op = config.tools.onePassword;
+  inherit (config.programs) onePassword;
 in
 {
   # SSH_AUTH_SOCK points to 1Password agent socket
   home.sessionVariables = {
     # Replace ~ with $HOME for shell expansion
-    SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] op.agentSocket;
+    SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] onePassword.agentSocket;
   };
 
   programs.ssh = {
@@ -23,7 +23,7 @@ in
     # WSL: no IdentityAgent (agent forwarded via npiperelay)
     # macOS/Linux: IdentityAgent pointing to 1Password socket
     extraConfig = lib.mkIf (isDarwin || isLinuxDesktop) ''
-      IdentityAgent "${op.agentSocket}"
+      IdentityAgent "${onePassword.agentSocket}"
     '';
 
     matchBlocks = {
@@ -49,6 +49,6 @@ in
   # Git SSH signing configuration (uses 1Password sign program)
   programs.git.settings = {
     gpg.format = "ssh";
-    gpg.ssh.program = op.signProgram;
+    gpg.ssh.program = onePassword.signProgram;
   };
 }

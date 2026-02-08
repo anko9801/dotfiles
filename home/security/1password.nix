@@ -1,3 +1,4 @@
+# 1Password CLI configuration
 {
   config,
   lib,
@@ -7,48 +8,50 @@
 
 let
   inherit (config.platform) isDarwin isWSL;
+  winApps = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft";
+  macApp = "/Applications/1Password.app/Contents/MacOS";
 in
 {
-  options.tools.onePassword = {
+  options.programs.onePassword = {
     agentSocket = lib.mkOption {
       type = lib.types.str;
+      readOnly = true;
       description = "Path to 1Password SSH agent socket";
+      default =
+        if isDarwin then
+          "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+        else if isWSL then
+          "$HOME/.1password/agent.sock"
+        else
+          "~/.1password/agent.sock";
     };
-
     signProgram = lib.mkOption {
       type = lib.types.str;
+      readOnly = true;
       description = "Path to 1Password SSH signing program";
+      default =
+        if isDarwin then
+          "${macApp}/op-ssh-sign"
+        else if isWSL then
+          "${winApps}/WindowsApps/op-ssh-sign-wsl.exe"
+        else
+          "op-ssh-sign";
     };
-
     cliPath = lib.mkOption {
       type = lib.types.str;
+      readOnly = true;
       description = "Path to 1Password CLI (op)";
+      default =
+        if isDarwin then
+          "${macApp}/op"
+        else if isWSL then
+          "${winApps}/WinGet/Links/op.exe"
+        else
+          "op";
     };
   };
 
   config = {
-    # Platform-specific 1Password paths
-    tools.onePassword = lib.mkMerge [
-      # Default (Linux desktop)
-      {
-        agentSocket = lib.mkDefault "~/.1password/agent.sock";
-        signProgram = lib.mkDefault "op-ssh-sign";
-        cliPath = lib.mkDefault "op";
-      }
-      # macOS
-      (lib.mkIf isDarwin {
-        agentSocket = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
-        signProgram = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
-        cliPath = "/Applications/1Password.app/Contents/MacOS/op";
-      })
-      # WSL (uses Windows binaries)
-      (lib.mkIf isWSL {
-        agentSocket = "$HOME/.1password/agent.sock";
-        signProgram = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
-        cliPath = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WinGet/Links/op.exe";
-      })
-    ];
-
     # WSL uses op.exe from Windows, so skip Nix 1password-cli
     home.packages = lib.optionals (!isWSL) [
       unfreePkgs._1password-cli
