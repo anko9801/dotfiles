@@ -7,9 +7,13 @@
 }:
 
 let
-  inherit (config.platform) isDarwin isWSL;
-  winApps = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft";
-  macApp = "/Applications/1Password.app/Contents/MacOS";
+  inherit (config.platform)
+    isDarwin
+    isWSL
+    winAppsPath
+    macAppsPath
+    ;
+  macApp = "${macAppsPath}/1Password.app/Contents/MacOS";
 in
 {
   options.programs.onePassword = {
@@ -33,7 +37,7 @@ in
         if isDarwin then
           "${macApp}/op-ssh-sign"
         else if isWSL then
-          "${winApps}/WindowsApps/op-ssh-sign-wsl.exe"
+          "${winAppsPath}/WindowsApps/op-ssh-sign-wsl.exe"
         else
           "op-ssh-sign";
     };
@@ -45,7 +49,7 @@ in
         if isDarwin then
           "${macApp}/op"
         else if isWSL then
-          "${winApps}/WinGet/Links/op.exe"
+          "${winAppsPath}/WinGet/Links/op.exe"
         else
           "op";
     };

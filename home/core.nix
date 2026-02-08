@@ -53,6 +53,18 @@
         default = false;
         description = "Whether generating config for Windows";
       };
+      winAppsPath = lib.mkOption {
+        type = lib.types.str;
+        readOnly = true;
+        default = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft";
+        description = "Windows AppData/Local/Microsoft path (WSL only)";
+      };
+      macAppsPath = lib.mkOption {
+        type = lib.types.str;
+        readOnly = true;
+        default = "/Applications";
+        description = "macOS Applications path";
+      };
     };
   };
 
