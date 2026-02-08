@@ -74,12 +74,14 @@ flake.nix                    # Entry point
 - Use `home.packages` when `programs.*` exists
 - Skip `nix fmt` before committing
 - Create modules > 400 lines (split them)
+- Auto-commit without user confirmation
 
 ### ALWAYS Do
 - Run `nix flake check` before pushing
 - Use `--impure` flag for home-manager (env vars needed)
 - Prefer `mkOutOfStoreSymlink` for frequently edited configs
 - Test on both WSL and macOS when possible
+- Write all code, comments, and commits in English
 
 ## Hooks Configuration
 
@@ -138,7 +140,7 @@ Located in `home/ai/claude/agents/`:
 - **ALWAYS run `nix fmt && statix check . && deadnix .` before committing**
 - Conventional Commits: `<type>(<scope>): <subject>`
 - Split commits by concern
-- Add `Assisted-by: Claude (model: <model-name>)` trailer
+- Add `Assisted-by: {{agent}} (model: {{model}})` trailer
 
 ### Tool Management
 

@@ -2,6 +2,6 @@ result
 .pre-commit-config.yaml
 
 # Claude/Codex local config
-.agents
+CLAUDE.md
 .claude
 .codex
