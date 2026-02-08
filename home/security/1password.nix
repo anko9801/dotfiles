@@ -13,7 +13,6 @@ let
     winAppsPath
     macAppsPath
     ;
-  macApp = "${macAppsPath}/1Password.app/Contents/MacOS";
 in
 {
   options.programs.onePassword = {
@@ -35,7 +34,7 @@ in
       description = "Path to 1Password SSH signing program";
       default =
         if isDarwin then
-          "${macApp}/op-ssh-sign"
+          "${macAppsPath}/1Password.app/Contents/MacOS/op-ssh-sign"
         else if isWSL then
           "${winAppsPath}/WindowsApps/op-ssh-sign-wsl.exe"
         else
@@ -47,7 +46,7 @@ in
       description = "Path to 1Password CLI (op)";
       default =
         if isDarwin then
-          "${macApp}/op"
+          "${macAppsPath}/1Password.app/Contents/MacOS/op"
         else if isWSL then
           "${winAppsPath}/WinGet/Links/op.exe"
         else
