@@ -4,14 +4,14 @@
   "editor.fontFamily": "'Moralerspace Neon', 'JetBrains Mono', monospace",
   "editor.fontLigatures": "'dlig', 'calt', 'liga'",
   "editor.wordWrap": "on",
-  "editor.wrappingIndent": "indent",
+  "editor.wrappingIndent": "same",
   "editor.rulers": [
     { "column": 80, "color": "#00FF0010" },
     { "column": 100, "color": "#BDB76B15" },
     { "column": 120, "color": "#FA807219" }
   ],
 
-  "editor.cursorBlinking": "expand",
+  "editor.cursorBlinking": "solid",
   "editor.cursorStyle": "line-thin",
   "editor.cursorSmoothCaretAnimation": "on",
   "editor.smoothScrolling": true,
