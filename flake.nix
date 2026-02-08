@@ -57,6 +57,21 @@
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+    };
+
+    agent-skills = {
+      url = "github:Kyure-A/agent-skills-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # External skills
+    antfu-skills = {
+      url = "github:antfu/skills";
+      flake = false;
+    };
   };
 
   outputs =
@@ -81,7 +96,13 @@
           nix-index-database
           common
           ;
-        inherit (inputs) nixvim stylix;
+        inherit (inputs)
+          nixvim
+          stylix
+          llm-agents
+          agent-skills
+          antfu-skills
+          ;
       };
 
       darwin = import ./system/darwin {

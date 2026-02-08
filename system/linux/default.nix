@@ -6,6 +6,9 @@
   nixvim,
   stylix,
   common,
+  llm-agents ? null,
+  agent-skills ? null,
+  antfu-skills ? null,
 }:
 let
   inherit (common) username mkSpecialArgs;
@@ -54,7 +57,8 @@ let
     nix-index-database.homeModules.nix-index
     nixvim.homeModules.nixvim
     stylix.homeModules.stylix
-  ];
+  ]
+  ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
 
   # Configuration for system modules (darwin/nixos)
   mkHomeManagerConfig =
@@ -89,10 +93,14 @@ let
     }:
     let
       pkgs = import nixpkgs { inherit system; };
+      # AI tools from llm-agents flake
+      llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
     in
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
-      extraSpecialArgs = mkSpecialArgs system;
+      extraSpecialArgs = mkSpecialArgs system // {
+        inherit llmAgentsPkgs antfu-skills;
+      };
       modules =
         commonModules
         ++ (if workstation then workstationModules else [ ])
