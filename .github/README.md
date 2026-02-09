@@ -73,7 +73,7 @@ nix run .#setup-windows  # Build and deploy Windows config
 
 1. Fork the repository
 2. Run `./setup` to generate `users/$USER.nix` with your settings
-3. Modify `home/` to add or remove packages
+3. Modify modules (ai/, shell/, tools/, etc.) to add or remove packages
 4. Run `nix run .#switch`
 
 ## Troubleshooting

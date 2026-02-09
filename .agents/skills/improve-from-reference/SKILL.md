@@ -16,8 +16,8 @@ Thoroughly analyze external references (articles, repositories, configs) and ide
 
 2. **Compare with current setup**: Read the current configuration files:
    - `flake.nix` - Flake structure and inputs
-   - `system/` - Platform-specific builders
-   - `home/` - Home Manager modules
+   - `system/` - Platform-specific builders and core modules
+   - `ai/`, `shell/`, `tools/`, `editor/`, etc. - Home Manager modules
    - `theme/` - Stylix configuration
 
 3. **Identify improvements**: Look for:

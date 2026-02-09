@@ -75,7 +75,7 @@ flake.nix                    # Entry point
 
 ```nix
 # workstation = true (default)
-# → includes home/ai + home/tools + home/editor + home/terminal
+# → includes ai/ + tools/ + editor/ + terminal/
 
 # workstation = false
 # → minimal config, no GUI tools

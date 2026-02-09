@@ -22,12 +22,12 @@ Identify configuration files to migrate:
 ```
 Source File                → Target Location
 ─────────────────────────────────────────────────────
-.zshrc aliases             → home/shell/zsh/aliases.nix
-.zshrc functions           → home/shell/zsh/functions.nix
-.gitconfig                 → home/tools/git/default.nix
-VSCode settings.json       → home/editor/vscode/settings.json
-Neovim plugins             → home/editor/neovim/plugins/
-SSH config                 → home/security/ssh.nix
+.zshrc aliases             → shell/zsh/aliases.nix
+.zshrc functions           → shell/zsh/functions.nix
+.gitconfig                 → tools/git/default.nix
+VSCode settings.json       → editor/vscode/settings.json
+Neovim plugins             → editor/neovim/plugins/
+SSH config                 → security/ssh.nix
 ```
 
 ### 3. Convert to Nix
@@ -72,9 +72,9 @@ fd -H '^\.' ~ --max-depth 2 --type f
 
 ### Shell Aliases/Functions
 1. Read source `.zshrc` or `.bashrc`
-2. Extract aliases → `home/shell/zsh/aliases.nix`
-3. Extract functions → `home/shell/zsh/functions.nix`
-4. Extract env vars → `home/core.nix` or tool-specific module
+2. Extract aliases → `shell/zsh/aliases.nix`
+3. Extract functions → `shell/zsh/functions.nix`
+4. Extract env vars → `system/home-manager/core.nix` or tool-specific module
 
 ### Git Configuration
 1. Read `.gitconfig`
@@ -83,7 +83,7 @@ fd -H '^\.' ~ --max-depth 2 --type f
 
 ### VS Code
 1. Read `settings.json` from Windows/Mac
-2. Merge into `home/editor/vscode/settings.json`
+2. Merge into `editor/vscode/settings.json`
 3. Extensions → `programs.vscode.extensions` (if using Nix)
 
 ### SSH Config
