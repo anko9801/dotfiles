@@ -1,11 +1,29 @@
-{ unfreePkgs, ... }:
+{
+  unfreePkgs,
+  antfu-skills ? null,
+  lib,
+  ...
+}:
 
 let
   sessionDir = "\${XDG_RUNTIME_DIR:-/tmp}/claude-session";
+
 in
 {
   # MCP settings file
   home.file.".claude/mcp_settings.json".source = ./mcp_settings.json;
+
+  # External skills (antfu/skills - Vue/Vite/Nuxt ecosystem)
+  programs.agent-skills = lib.mkIf (antfu-skills != null) {
+    enable = true;
+    sources.antfu.path = antfu-skills;
+    skills.enableAll = [ "antfu" ];
+    targets.claude = {
+      enable = true;
+      dest = ".claude/skills";
+      structure = "symlink-tree";
+    };
+  };
 
   programs.claude-code = {
     enable = true;
