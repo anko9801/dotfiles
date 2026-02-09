@@ -27,13 +27,9 @@ flake.nix                    # Entry point
 
 ## Targets
 
-| Target | Command |
-|--------|---------|
-| `wsl` | `nix run .#switch` (auto-detect) |
-| `desktop` | `nix run .#switch` |
-| `server` | `nix run .#switch` |
-| `mac` | `nix run .#switch` |
-| `nixos-*` | `sudo nixos-rebuild switch --flake .#nixos-wsl` |
+`wsl`, `desktop`, `server`, `mac`, `nixos-wsl`, `nixos-desktop`, `nixos-server`
+
+Apply: `nix run .#switch` (auto-detects platform)
 
 ## Critical Rules
 
