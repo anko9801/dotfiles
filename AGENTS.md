@@ -40,17 +40,6 @@ flake.nix                    # Entry point
 - Use `lib.mkIf` for platform-specific code
 - Lint with `statix check` and `deadnix`
 
-## File Mapping
-
-```
-.zshrc aliases     → shell/zsh/aliases.nix
-.zshrc functions   → shell/zsh/functions.nix
-.gitconfig         → tools/git/git.nix
-VSCode settings    → editor/vscode/settings.json
-Neovim plugins     → editor/neovim/plugins/
-SSH config         → security/ssh.nix
-```
-
 ## Flake Apps
 
 ```bash
