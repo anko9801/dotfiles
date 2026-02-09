@@ -57,6 +57,21 @@
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+    };
+
+    agent-skills = {
+      url = "github:Kyure-A/agent-skills-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # External skills
+    antfu-skills = {
+      url = "github:antfu/skills";
+      flake = false;
+    };
   };
 
   outputs =
@@ -81,7 +96,13 @@
           nix-index-database
           common
           ;
-        inherit (inputs) nixvim stylix;
+        inherit (inputs)
+          nixvim
+          stylix
+          llm-agents
+          agent-skills
+          antfu-skills
+          ;
       };
 
       darwin = import ./system/darwin {
@@ -289,6 +310,14 @@
             ];
           };
 
+          # Windows config (built from WSL, deployed separately)
+          windows = mkHome {
+            system = "x86_64-linux";
+            extraModules = [
+              { platform.isWindows = true; }
+            ];
+          };
+
           linux-desktop = mkHome {
             system = "x86_64-linux";
             extraModules = [ ./system/linux/linux-desktop.nix ];
@@ -384,6 +413,12 @@
                 nix run github:nix-community/nixos-anywhere -- --flake ".#$CONFIG" "$TARGET"
               ''
             );
+          };
+
+          # Setup Windows from WSL
+          setup-windows = {
+            type = "app";
+            program = toString ./system/windows/setup.sh;
           };
         };
       };
