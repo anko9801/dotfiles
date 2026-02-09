@@ -53,3 +53,13 @@ nix run .#fmt      # Format code
 workstation = true   # ai/ + tools/ + editor/ + terminal/
 workstation = false  # minimal, no GUI
 ```
+
+## Reference Analysis
+
+When user shares a URL (article, repository, dotfiles):
+
+1. **Fetch**: Clone repo to `/tmp/` or WebFetch article
+2. **Analyze**: Read all Nix files, README, structure
+3. **Compare**: Identify patterns/tools not in this repo
+4. **Plan**: List improvements with priority (high/medium/low)
+5. **Propose**: Enter plan mode, get user approval before implementing
