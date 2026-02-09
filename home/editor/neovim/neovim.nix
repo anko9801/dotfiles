@@ -4,6 +4,9 @@
 }:
 
 {
+  # Disable vim's defaultEditor when using nixvim
+  programs.vim.defaultEditor = false;
+
   programs.nixvim = {
     enable = true;
     defaultEditor = true;
