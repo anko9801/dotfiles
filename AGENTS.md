@@ -15,7 +15,7 @@ Declarative development environment powered by Nix. Write once, reproduce anywhe
 ```
 flake.nix                    # Entry point
 ├── system/
-│   ├── shared.nix           # Shared config (user, versions, nix settings)
+│   ├── shared.nix           # Shared config (user, versions, nix settings, helpers)
 │   ├── home-manager.nix     # Home Manager builders & modules
 │   ├── darwin/
 │   │   ├── builder.nix      # nix-darwin builder
@@ -24,7 +24,7 @@ flake.nix                    # Entry point
 │       ├── builder.nix      # NixOS builder
 │       └── *.nix            # nixos system configs
 ├── home/                    # User config (home-manager modules)
-│   ├── core.nix             # Base settings
+│   ├── core.nix             # Base settings, platform detection
 │   ├── ai/                  # AI tools (claude, aider, ollama)
 │   ├── dev/                 # Dev tools (mise, rust, go, python)
 │   ├── editor/              # Neovim (nixvim)
@@ -36,6 +36,16 @@ flake.nix                    # Entry point
 ├── theme/                   # Stylix theme
 └── users/                   # Per-user config
 ```
+
+### Shared Helpers (system/shared.nix)
+
+| Function | Purpose |
+|----------|---------|
+| `mkNixConfig { isDarwin }` | Unified nix daemon config for darwin/nixos |
+| `basePackages pkgs` | Common system packages (git, vim, curl, wget) |
+| `desktopFonts pkgs` | Common fonts (JetBrainsMono, FiraCode, Hack) |
+| `mkStandaloneHome` | Standalone home-manager config |
+| `mkSystemHomeConfig` | Home-manager for darwin/nixos integration |
 
 ## Module Locations
 
@@ -54,11 +64,12 @@ flake.nix                    # Entry point
 | Target | Use Case | Command |
 |--------|----------|---------|
 | `wsl` | WSL (home-manager) | `home-manager switch --impure --flake .#wsl` |
-| `linux-desktop` | Linux desktop | `home-manager switch --impure --flake .#linux-desktop` |
+| `desktop` | Linux desktop | `home-manager switch --impure --flake .#desktop` |
 | `server` | Server (minimal) | `home-manager switch --impure --flake .#server` |
-| `mac` | macOS | `darwin-rebuild switch --flake .#mac` |
+| `mac` / `mac-intel` | macOS | `darwin-rebuild switch --flake .#mac` |
 | `nixos-wsl` | NixOS on WSL | `nixos-rebuild switch --flake .#nixos-wsl` |
 | `nixos-desktop` | NixOS desktop | `nixos-rebuild switch --flake .#nixos-desktop` |
+| `nixos-server` | NixOS server | `nixos-rebuild switch --flake .#nixos-server` |
 
 ## Workstation vs Server
 

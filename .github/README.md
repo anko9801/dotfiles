@@ -17,6 +17,29 @@ Designed to minimize cognitive load: reproducible across machines, consistent ac
 > [!NOTE]
 > This is a personal configuration. Feel free to fork and adapt for your own needs.
 
+## Features
+
+| Category | Tools |
+|----------|-------|
+| Shell | Zsh, Fish, Bash |
+| Editor | Neovim (nixvim) |
+| Terminal | Ghostty, Zellij |
+| Theme | Catppuccin Mocha (Stylix) |
+| AI | Claude Code, Aider, Ollama |
+| Dev | mise (node, python, go), Rust |
+
+## Targets
+
+| Target | Platform | Manager |
+|--------|----------|---------|
+| `wsl` | WSL | home-manager |
+| `desktop` | Linux | home-manager |
+| `server` | Linux (minimal) | home-manager |
+| `mac` / `mac-intel` | macOS | nix-darwin |
+| `nixos-wsl` | NixOS on WSL | NixOS |
+| `nixos-desktop` | NixOS | NixOS |
+| `nixos-server` | NixOS (minimal) | NixOS |
+
 ## Setup
 
 ### Quick Start
