@@ -77,7 +77,7 @@ _init_abbr() {
 
   # Claude Code (claude → YOLO mode, c → safe mode)
   abbr -S -q c="claude"
-  abbr -S -q claude="claude --dangerously-skip-permissions"
+  abbr -S -q cc="claude --dangerously-skip-permissions"
 
 
   # Make abbreviations available in Tab completion (command position only)
