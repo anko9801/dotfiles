@@ -12,7 +12,6 @@
   ".idea/"
   ".vscode/"
   "*.sublime-*"
-  ".*.un~"
 
   # Build artifacts
   "node_modules/"
