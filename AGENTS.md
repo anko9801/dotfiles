@@ -60,6 +60,20 @@ When user shares a URL (article, repository, dotfiles):
 
 1. **Fetch**: Clone repo to `/tmp/` or WebFetch article
 2. **Analyze**: Read all Nix files, README, structure
-3. **Compare**: Identify patterns/tools not in this repo
-4. **Plan**: List improvements with priority (high/medium/low)
-5. **Propose**: Enter plan mode, get user approval before implementing
+3. **Compare**: Look for:
+   - Missing flake inputs (sops-nix, agenix, etc.)
+   - Better module patterns
+   - Unused Home Manager options
+   - Performance/security improvements
+   - New tools worth adding
+4. **Prioritize**:
+   - High: significant benefit, easy to implement
+   - Medium: good benefit, moderate effort
+   - Low: nice to have, defer
+5. **Plan**: Enter plan mode with specific file changes
+6. **Apply**: After approval, implement → `nix run .#fmt` → `nix run .#build`
+
+**Rules:**
+- Adapt patterns to fit this structure, don't blindly copy
+- Prefer `programs.*` over raw config files
+- Test before committing
