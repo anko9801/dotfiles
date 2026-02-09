@@ -1,2 +1,7 @@
 result
 .pre-commit-config.yaml
+
+# Claude/Codex local config
+CLAUDE.md
+.claude
+.codex
