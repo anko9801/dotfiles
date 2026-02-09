@@ -15,44 +15,57 @@ let
 
   # Workstation modules (tools + editor + terminal) - added when workstation = true
   workstationModules = [
-    ../../home/ai
-    ../../home/tools
-    ../../home/editor
-    ../../home/terminal
+    ../home/ai
+    ../home/tools
+    ../home/editor
+    ../home/terminal
   ];
+
+  # Platform-specific modules
+  platformModules = {
+    wsl = [ ../home/terminal/zellij ];
+    desktop = [ ../home/desktop ];
+    server = [
+      ../home/editor/vim.nix
+      ../home/tools/git
+      ../home/tools/cli.nix
+      ../home/tools/bat.nix
+      ../home/terminal/tmux.nix
+    ];
+  };
 
   # Common modules for home-manager (also used by darwin/nixos)
   commonModules = [
     # Core
-    ../../home/core.nix
+    ../home/core.nix
     # Dev
-    ../../home/dev/build-tools.nix
-    ../../home/dev/go.nix
-    ../../home/dev/mise.nix
-    ../../home/dev/nix.nix
-    ../../home/dev/node.nix
-    ../../home/dev/python.nix
-    ../../home/dev/rust.nix
+    ../home/dev/build-tools.nix
+    ../home/dev/go.nix
+    ../home/dev/mise.nix
+    ../home/dev/nix.nix
+    ../home/dev/node.nix
+    ../home/dev/python.nix
+    ../home/dev/rust.nix
     # Security
-    ../../home/security/1password.nix
-    ../../home/security/gitleaks.nix
-    ../../home/security/gpg.nix
-    ../../home/security/ssh.nix
+    ../home/security/1password.nix
+    ../home/security/gitleaks.nix
+    ../home/security/gpg.nix
+    ../home/security/ssh.nix
     # Shell
-    ../../home/shell/defaults.nix
-    ../../home/shell/aliases.nix
-    ../../home/shell/atuin.nix
-    ../../home/shell/bash.nix
-    ../../home/shell/eza.nix
-    ../../home/shell/fish.nix
-    ../../home/shell/fzf.nix
-    ../../home/shell/readline.nix
-    ../../home/shell/starship.nix
-    ../../home/shell/zoxide.nix
-    ../../home/shell/zsh
+    ../home/shell/aliases.nix
+    ../home/shell/atuin.nix
+    ../home/shell/bash.nix
+    ../home/shell/defaults.nix
+    ../home/shell/eza.nix
+    ../home/shell/fish.nix
+    ../home/shell/fzf.nix
+    ../home/shell/readline.nix
+    ../home/shell/starship.nix
+    ../home/shell/zoxide.nix
+    ../home/shell/zsh
     # Theme
-    ../../theme/catppuccin-mocha.nix
-    ../../theme/default.nix
+    ../theme/catppuccin-mocha.nix
+    ../theme/default.nix
     # External
     nix-index-database.homeModules.nix-index
     nixvim.homeModules.nixvim
@@ -119,6 +132,7 @@ in
 {
   inherit
     commonModules
+    platformModules
     mkHomeManagerConfig
     mkHome
     ;

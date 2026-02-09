@@ -94,16 +94,71 @@ in
   };
 
   config = {
+    # Enable generic Linux target for non-NixOS Linux
+    targets.genericLinux.enable = config.platform.isLinux;
+
     home = {
       stateVersion = versions.home;
-      sessionVariables.LANG = "ja_JP.UTF-8";
-      sessionPath = [ "$HOME/.local/bin" ];
+      sessionVariables = {
+        LANG = "ja_JP.UTF-8";
+        # Default editor (workstation modules override with neovim)
+        EDITOR = lib.mkDefault "vim";
+        VISUAL = lib.mkDefault "vim";
+      }
+      // lib.optionalAttrs config.platform.isWSL {
+        DISPLAY = ":0";
+        WSL_INTEROP = "/run/WSL/1_interop";
+        BROWSER = "xdg-open";
+      }
+      // lib.optionalAttrs config.platform.isLinuxDesktop {
+        MOZ_ENABLE_WAYLAND = "1";
+        QT_QPA_PLATFORM = "wayland;xcb";
+      };
+      sessionPath = [
+        "$HOME/.local/bin"
+      ]
+      ++ lib.optionals config.platform.isDarwin [
+        "/opt/homebrew/bin"
+        "/opt/homebrew/sbin"
+      ];
+
+      # WSL: Docker CLI plugins (for Docker Desktop integration)
+      file = lib.mkIf config.platform.isWSL {
+        ".docker/cli-plugins/docker-buildx".source = "${pkgs.docker-buildx}/bin/docker-buildx";
+        ".docker/cli-plugins/docker-compose".source = "${pkgs.docker-compose}/bin/docker-compose";
+      };
+
+      # WSL: xdg-open browser setup
+      activation = lib.mkIf config.platform.isWSL {
+        setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+            $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
+            cat > $HOME/.local/share/applications/wslview.desktop << 'DESKTOP'
+          [Desktop Entry]
+          Type=Application
+          Version=1.0
+          Name=WSL Browser
+          NoDisplay=true
+          Exec=wslview %u
+          MimeType=x-scheme-handler/http;x-scheme-handler/https;
+          DESKTOP
+            $DRY_RUN_CMD xdg-settings set default-web-browser wslview.desktop 2>/dev/null || true
+          fi
+        '';
+      };
     };
 
     # Disable systemd user service management in CI (runner/activation user mismatch)
     systemd.user.startServices = if config.platform.isCI then false else "sd-switch";
 
     xdg.enable = true;
-    programs.home-manager.enable = true;
+
+    programs = {
+      home-manager.enable = true;
+      # Default editor setup (workstation modules override)
+      vim.defaultEditor = lib.mkDefault true;
+      bash.enable = lib.mkDefault true;
+      git.settings.core.editor = lib.mkDefault "vim";
+    };
   };
 }

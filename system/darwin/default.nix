@@ -3,12 +3,12 @@
   nix-darwin,
   nix-homebrew,
   home-manager,
-  home,
+  homeManager,
   common,
 }:
 let
   inherit (common) username mkSystemSpecialArgs;
-  inherit (home) mkHomeManagerConfig;
+  inherit (homeManager) mkHomeManagerConfig;
 
   mkDarwin =
     { self, inputs }:

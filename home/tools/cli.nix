@@ -5,61 +5,66 @@
   ...
 }:
 
+let
+  isWorkstation = config.platform.isDarwin || config.platform.isWSL || config.platform.isLinuxDesktop;
+in
 {
   home = {
     packages =
       with pkgs;
       [
-        # Search & replace
+        # Essential (always installed)
         ripgrep # rg: fast grep
         fd # find alternative
-        sd # sed alternative (simpler syntax)
-        ast-grep # structural code search
-
-        # File & disk info
-        dust # du alternative (visual)
-        duf # df alternative (visual)
-        tree # directory tree
-        ouch # universal archive tool (compress/decompress)
-
-        # Process monitoring
-        bottom # btm: top/htop alternative
-        procs # ps alternative
-
-        # Data processing
         jq # JSON processor
-        jless # JSON viewer
-        dasel # universal data selector (JSON/YAML/TOML/XML)
-        dyff # YAML/JSON diff tool (semantic diff)
-        yq-go # YAML processor (like jq for YAML)
-
-        # Network
         curl # HTTP client
         wget # HTTP downloader
-        xh # httpie alternative (colored output)
-        nmap # network scanner
-
-        # Container tools
-        dive # Docker image layer explorer
-        lazydocker # Docker TUI (manage containers/images/volumes)
-        k9s # Kubernetes TUI
-
-        # Load testing
-        oha # Lightweight HTTP load generator (Rust)
-
-        # File transfer & archive
+        tree # directory tree
+        htop # process monitor
         rsync # incremental file sync
         zip
         unzip
         p7zip # 7z
-
-        # Text processing (POSIX compatibility)
         gawk # GNU awk
         gnused # GNU sed
+        netcat # network utility
+        dig # DNS lookup
+      ]
+      ++ lib.optionals isWorkstation [
+        # Workstation extras
+        sd # sed alternative (simpler syntax)
+        ast-grep # structural code search
 
-        # Other
+        # Fancy alternatives
+        dust # du alternative (visual)
+        duf # df alternative (visual)
+        ouch # universal archive tool
+        bottom # btm: top/htop alternative
+        procs # ps alternative
+
+        # Data processing
+        jless # JSON viewer
+        dasel # universal data selector
+        dyff # YAML/JSON diff tool
+        yq-go # YAML processor
+
+        # Network extras
+        xh # httpie alternative
+        nmap # network scanner
+
+        # Container tools
+        dive # Docker image layer explorer
+        lazydocker # Docker TUI
+        k9s # Kubernetes TUI
+
+        # Load testing
+        oha # HTTP load generator
+
+        # Dev tools
         sqlite # embedded database
-        watchexec # file watcher (run command on change)
+        watchexec # file watcher
+
+        # Document tools
         glow # terminal markdown renderer
         typst # modern LaTeX alternative
 
@@ -69,6 +74,24 @@
       ]
       ++ lib.optionals config.platform.isLinux [
         trashy # rm alternative (move to trash)
+      ]
+      ++ lib.optionals config.platform.isWSL [
+        wslu # WSL utilities (wslview, etc.)
+      ]
+      ++ lib.optionals config.platform.isLinuxDesktop [
+        xdg-utils
+        xclip
+        wl-clipboard
+      ]
+      ++ lib.optionals config.platform.isDarwin [
+        # GNU coreutils (macOS ships BSD versions)
+        coreutils
+        findutils
+        gnugrep
+        gnutar
+        # macOS utilities
+        darwin.trash # trash command
+        terminal-notifier # notifications
       ];
 
     sessionVariables = {
@@ -134,7 +157,7 @@
 
   programs = {
     tealdeer = {
-      enable = true;
+      enable = isWorkstation;
       settings = {
         display = {
           compact = false;

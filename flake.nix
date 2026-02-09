@@ -89,7 +89,7 @@
       # Import system builders
       common = import ./system/common.nix { inherit nixpkgs; };
 
-      linux = import ./system/linux {
+      homeManager = import ./system/home-manager.nix {
         inherit
           nixpkgs
           home-manager
@@ -111,8 +111,8 @@
           nix-homebrew
           home-manager
           common
+          homeManager
           ;
-        home = linux;
       };
 
       nixos = import ./system/nixos {
@@ -120,12 +120,12 @@
           nixpkgs
           home-manager
           common
+          homeManager
           ;
-        home = linux;
       };
 
       # Bind self and inputs to builders
-      inherit (linux) mkHome;
+      inherit (homeManager) mkHome platformModules;
       mkDarwin = darwin.mkDarwin { inherit self inputs; };
       mkNixOS = nixos.mkNixOS { inherit self inputs; };
     in
@@ -304,8 +304,7 @@
         homeConfigurations = {
           wsl = mkHome {
             system = "x86_64-linux";
-            homeModules = [
-              ./system/linux/home-wsl.nix
+            homeModules = platformModules.wsl ++ [
               { programs.wsl.windowsUser = common.username; }
             ];
           };
@@ -320,33 +319,31 @@
 
           desktop = mkHome {
             system = "x86_64-linux";
-            homeModules = [ ./system/linux/home-desktop.nix ];
+            homeModules = platformModules.desktop;
           };
 
           server = mkHome {
             system = "x86_64-linux";
             workstation = false;
-            homeModules = [ ./system/linux/home-server.nix ];
+            homeModules = platformModules.server;
           };
         };
 
         darwinConfigurations = {
           mac = mkDarwin {
             system = "aarch64-darwin";
-            extraModules = [ ./system/darwin/system-desktop.nix ];
+            extraModules = [ ./system/darwin/desktop.nix ];
             homeModules = [
               ./home/tools
               ./home/editor
-              ./system/darwin/home-desktop.nix
             ];
           };
           mac-intel = mkDarwin {
             system = "x86_64-darwin";
-            extraModules = [ ./system/darwin/system-desktop.nix ];
+            extraModules = [ ./system/darwin/desktop.nix ];
             homeModules = [
               ./home/tools
               ./home/editor
-              ./system/darwin/home-desktop.nix
             ];
           };
         };
@@ -354,9 +351,8 @@
         nixosConfigurations = {
           nixos-wsl = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./system/nixos/system-wsl.nix ];
-            homeModules = [
-              ./system/linux/home-wsl.nix
+            extraModules = [ ./system/nixos/wsl.nix ];
+            homeModules = platformModules.wsl ++ [
               { programs.wsl.windowsUser = common.username; }
             ];
           };
@@ -364,16 +360,16 @@
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
             extraModules = [
-              ./system/nixos/system-desktop.nix
+              ./system/nixos/desktop.nix
               ./system/nixos/kanata.nix
             ];
-            homeModules = [ ./system/linux/home-desktop.nix ];
+            homeModules = platformModules.desktop;
           };
 
           nixos-server = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./system/nixos/system-server.nix ];
-            homeModules = [ ./system/linux/home-server.nix ];
+            extraModules = [ ./system/nixos/server.nix ];
+            homeModules = platformModules.server;
           };
 
           example-vps = mkNixOS {
@@ -381,9 +377,9 @@
             extraModules = [
               inputs.disko.nixosModules.disko
               ./system/nixos/example-vps
-              ./system/nixos/system-server.nix
+              ./system/nixos/server.nix
             ];
-            homeModules = [ ./system/linux/home-server.nix ];
+            homeModules = platformModules.server;
           };
         };
 

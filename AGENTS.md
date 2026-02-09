@@ -16,7 +16,8 @@ Declarative development environment powered by Nix. Write once, reproduce anywhe
 flake.nix                    # Entry point
 ├── system/
 │   ├── common.nix           # Shared config (username, versions, unfreePkgs)
-│   ├── linux/               # Home Manager standalone
+│   ├── nix.nix              # Nix daemon settings
+│   ├── home-manager.nix     # Home Manager builders & modules
 │   ├── darwin/              # macOS (nix-darwin)
 │   └── nixos/               # NixOS
 ├── home/                    # User config (home-manager modules)
