@@ -10,9 +10,8 @@ let
   inherit (config.platform) isDarwin isWSL isWindows;
   inherit (userConfig) editor;
   inherit (userConfig.git) name email sshKey;
-  inherit (import ../../lib.nix) mkPlatformValue;
 
-  mkAlias = mkPlatformValue config;
+  mkAlias = config.helpers.mkPlatformValue config;
 
   czgConfig = import ./czg.nix;
   globalIgnores = import ./ignores.nix;

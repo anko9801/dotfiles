@@ -7,8 +7,33 @@
   ...
 }:
 
+let
+  # Create platform-specific value
+  # Usage: mkPlatformValue config { default = ...; windows = ...; darwin = ...; }
+  mkPlatformValue =
+    cfg:
+    {
+      default,
+      windows ? default,
+      darwin ? default,
+    }:
+    if cfg.platform.isWindows then
+      windows
+    else if cfg.platform.isDarwin then
+      darwin
+    else
+      default;
+in
 {
   options = {
+    # Platform-aware utility function
+    helpers.mkPlatformValue = lib.mkOption {
+      type = lib.types.unspecified;
+      default = mkPlatformValue;
+      readOnly = true;
+      description = "Create platform-specific value";
+    };
+
     # WSL username (set in flake.nix for WSL configs)
     programs.wsl.windowsUser = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
