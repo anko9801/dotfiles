@@ -1,7 +1,9 @@
 {
   pkgs,
   versions,
-  nixSettings,
+  mkNixConfig,
+  basePackages,
+  desktopFonts,
   ...
 }:
 
@@ -12,27 +14,11 @@
     ./kanata.nix
   ];
 
-  nix = {
-    inherit (nixSettings) settings;
-    optimise.automatic = true;
-    gc = nixSettings.gc // {
-      interval = nixSettings.gcSchedule.darwin;
-    };
-  };
+  nix = mkNixConfig { isDarwin = true; };
 
-  # System packages (available to all users)
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    curl
-  ];
+  environment.systemPackages = basePackages pkgs;
 
-  # Fonts
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-    nerd-fonts.fira-code
-    nerd-fonts.hack
-  ];
+  fonts.packages = desktopFonts pkgs;
 
   # Enable Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;

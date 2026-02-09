@@ -37,6 +37,42 @@ let
     };
   };
 
+  # Creates unified nix configuration for darwin/nixos
+  # isDarwin: true for macOS (uses interval), false for Linux (uses dates)
+  mkNixConfig =
+    {
+      isDarwin ? false,
+    }:
+    {
+      inherit (nixSettings) settings;
+      optimise.automatic = true;
+      gc =
+        nixSettings.gc
+        // (
+          if isDarwin then
+            { interval = nixSettings.gcSchedule.darwin; }
+          else
+            { dates = nixSettings.gcSchedule.frequency; }
+        );
+    };
+
+  # Common system packages (git, vim, curl, wget)
+  basePackages =
+    pkgs: with pkgs; [
+      git
+      vim
+      curl
+      wget
+    ];
+
+  # Common fonts for desktop environments
+  desktopFonts =
+    pkgs: with pkgs; [
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.fira-code
+      nerd-fonts.hack
+    ];
+
   # Get username from environment (use --impure flag for actual username)
   username =
     let
@@ -93,7 +129,14 @@ let
     }) "unfreePkgs";
 
   mkSpecialArgs = system: {
-    inherit userConfig versions nixSettings;
+    inherit
+      userConfig
+      versions
+      nixSettings
+      mkNixConfig
+      basePackages
+      desktopFonts
+      ;
     unfreePkgs = mkUnfreePkgs system;
   };
 
@@ -106,6 +149,9 @@ in
     userConfig
     versions
     nixSettings
+    mkNixConfig
+    basePackages
+    desktopFonts
     mkSpecialArgs
     mkSystemSpecialArgs
     ;

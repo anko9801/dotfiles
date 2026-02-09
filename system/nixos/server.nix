@@ -2,7 +2,8 @@
   pkgs,
   lib,
   versions,
-  nixSettings,
+  mkNixConfig,
+  basePackages,
   ...
 }:
 
@@ -32,13 +33,7 @@
   time.timeZone = "Asia/Tokyo";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  nix = {
-    inherit (nixSettings) settings;
-    optimise.automatic = true;
-    gc = nixSettings.gc // {
-      dates = nixSettings.gcSchedule.frequency;
-    };
-  };
+  nix = mkNixConfig { };
 
   # SSH
   services.openssh = {
@@ -50,13 +45,7 @@
   };
 
   # System packages
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    curl
-    wget
-    htop
-  ];
+  environment.systemPackages = basePackages pkgs ++ [ pkgs.htop ];
 
   # This value determines the NixOS release
   system.stateVersion = versions.nixos;

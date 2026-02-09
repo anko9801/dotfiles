@@ -1,7 +1,9 @@
 {
   pkgs,
   versions,
-  nixSettings,
+  mkNixConfig,
+  basePackages,
+  desktopFonts,
   ...
 }:
 
@@ -26,13 +28,7 @@
   time.timeZone = "Asia/Tokyo";
   i18n.defaultLocale = "ja_JP.UTF-8";
 
-  nix = {
-    inherit (nixSettings) settings;
-    optimise.automatic = true;
-    gc = nixSettings.gc // {
-      dates = nixSettings.gcSchedule.frequency;
-    };
-  };
+  nix = mkNixConfig { };
 
   programs = {
     # Niri compositor
@@ -98,13 +94,13 @@
 
   # Fonts
   fonts = {
-    packages = with pkgs; [
-      noto-fonts
-      noto-fonts-cjk-sans
-      noto-fonts-emoji
-      nerd-fonts.jetbrains-mono
-      nerd-fonts.fira-code
-    ];
+    packages =
+      desktopFonts pkgs
+      ++ (with pkgs; [
+        noto-fonts
+        noto-fonts-cjk-sans
+        noto-fonts-emoji
+      ]);
     fontconfig = {
       defaultFonts = {
         serif = [ "Noto Serif CJK JP" ];
@@ -115,19 +111,17 @@
   };
 
   # System packages
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    curl
-    wget
-    firefox
-    nautilus
-    pavucontrol
-    networkmanagerapplet
-    polkit_gnome
-    gnome-keyring
-    libsecret
-  ];
+  environment.systemPackages =
+    basePackages pkgs
+    ++ (with pkgs; [
+      firefox
+      nautilus
+      pavucontrol
+      networkmanagerapplet
+      polkit_gnome
+      gnome-keyring
+      libsecret
+    ]);
 
   # This value determines the NixOS release
   system.stateVersion = versions.nixos;

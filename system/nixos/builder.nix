@@ -7,7 +7,7 @@
 }:
 let
   inherit (shared) username mkSystemSpecialArgs;
-  inherit (homeManager) mkHomeManagerConfig;
+  inherit (homeManager) mkSystemHomeConfig;
 
   mkNixOS =
     { self, inputs }:
@@ -33,7 +33,7 @@ let
 
         # Home Manager as NixOS module
         home-manager.nixosModules.home-manager
-        (mkHomeManagerConfig {
+        (mkSystemHomeConfig {
           inherit system;
           homeDir = "/home";
           extraImports = homeModules;

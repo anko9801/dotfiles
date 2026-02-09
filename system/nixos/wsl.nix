@@ -3,7 +3,8 @@
   pkgs,
   username,
   versions,
-  nixSettings,
+  mkNixConfig,
+  basePackages,
   ...
 }:
 
@@ -24,21 +25,9 @@
 
   networking.hostName = "nixos-wsl";
 
-  nix = {
-    inherit (nixSettings) settings;
-    optimise.automatic = true;
-    gc = nixSettings.gc // {
-      dates = nixSettings.gcSchedule.frequency;
-    };
-  };
+  nix = mkNixConfig { };
 
-  # System packages
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    curl
-    wget
-  ];
+  environment.systemPackages = basePackages pkgs;
 
   # This value determines the NixOS release
   system.stateVersion = versions.nixos;

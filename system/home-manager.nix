@@ -73,8 +73,9 @@ let
   ]
   ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
 
-  # Configuration for system modules (darwin/nixos)
-  mkHomeManagerConfig =
+  # Home Manager config for system integration (darwin/nixos modules)
+  # Used when home-manager is embedded in nix-darwin or NixOS
+  mkSystemHomeConfig =
     {
       system,
       homeDir,
@@ -97,8 +98,9 @@ let
       };
     };
 
-  # Standalone home-manager configuration
-  mkHome =
+  # Standalone home-manager configuration (no system integration)
+  # Used for pure home-manager setups (WSL, non-NixOS Linux)
+  mkStandaloneHome =
     {
       system,
       workstation ? true, # Include tools + editor (false for servers)
@@ -133,7 +135,7 @@ in
   inherit
     commonModules
     platformModules
-    mkHomeManagerConfig
-    mkHome
+    mkSystemHomeConfig
+    mkStandaloneHome
     ;
 }

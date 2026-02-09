@@ -125,7 +125,7 @@
       };
 
       # Bind self and inputs to builders
-      inherit (homeManager) mkHome platformModules;
+      inherit (homeManager) mkStandaloneHome platformModules;
       mkDarwin = darwin.mkDarwin { inherit self inputs; };
       mkNixOS = nixos.mkNixOS { inherit self inputs; };
     in
@@ -302,7 +302,7 @@
 
       flake = {
         homeConfigurations = {
-          wsl = mkHome {
+          wsl = mkStandaloneHome {
             system = "x86_64-linux";
             homeModules = platformModules.wsl ++ [
               { programs.wsl.windowsUser = shared.username; }
@@ -310,19 +310,19 @@
           };
 
           # Windows config (built from WSL, deployed separately)
-          windows = mkHome {
+          windows = mkStandaloneHome {
             system = "x86_64-linux";
             homeModules = [
               { platform.isWindows = true; }
             ];
           };
 
-          desktop = mkHome {
+          desktop = mkStandaloneHome {
             system = "x86_64-linux";
             homeModules = platformModules.desktop;
           };
 
-          server = mkHome {
+          server = mkStandaloneHome {
             system = "x86_64-linux";
             workstation = false;
             homeModules = platformModules.server;

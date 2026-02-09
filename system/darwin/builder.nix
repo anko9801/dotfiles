@@ -8,7 +8,7 @@
 }:
 let
   inherit (shared) username mkSystemSpecialArgs;
-  inherit (homeManager) mkHomeManagerConfig;
+  inherit (homeManager) mkSystemHomeConfig;
 
   mkDarwin =
     { self, inputs }:
@@ -34,7 +34,7 @@ let
 
         # Home Manager as nix-darwin module
         home-manager.darwinModules.home-manager
-        (mkHomeManagerConfig {
+        (mkSystemHomeConfig {
           inherit system;
           homeDir = "/Users";
           extraImports = homeModules;
