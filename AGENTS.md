@@ -25,12 +25,6 @@ flake.nix                    # Entry point
 └── users/                   # Per-user config
 ```
 
-## Targets
-
-`wsl`, `desktop`, `server`, `mac`, `nixos-wsl`, `nixos-desktop`, `nixos-server`
-
-Apply: `nix run .#switch` (auto-detects platform)
-
 ## Critical Rules
 
 **NEVER:**
