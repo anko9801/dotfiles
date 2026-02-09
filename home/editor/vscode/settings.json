@@ -1,17 +1,17 @@
 {
   "editor.tabSize": 2,
   "editor.fontSize": 14,
-  "editor.fontFamily": "'Moralerspace Neon HWNF', 'JetBrains Mono', monospace",
+  "editor.fontFamily": "'Moralerspace Neon', 'JetBrains Mono', monospace",
   "editor.fontLigatures": "'dlig', 'calt', 'liga'",
   "editor.wordWrap": "on",
-  "editor.wrappingIndent": "indent",
+  "editor.wrappingIndent": "same",
   "editor.rulers": [
     { "column": 80, "color": "#00FF0010" },
     { "column": 100, "color": "#BDB76B15" },
     { "column": 120, "color": "#FA807219" }
   ],
 
-  "editor.cursorBlinking": "expand",
+  "editor.cursorBlinking": "solid",
   "editor.cursorStyle": "line-thin",
   "editor.cursorSmoothCaretAnimation": "on",
   "editor.smoothScrolling": true,
@@ -193,6 +193,20 @@
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[tex]": {
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.wordBasedSuggestions": "off",
+    "editor.tabSize": 2
+  },
+  "[latex]": {
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.wordBasedSuggestions": "off",
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "James-Yu.latex-workshop"
+  },
+  "[bibtex]": {
+    "editor.tabSize": 2
+  },
 
   "python.analysis.typeCheckingMode": "strict",
   "rust-analyzer.check.command": "clippy",
@@ -212,6 +226,50 @@
   "cSpell.diagnosticLevel": "Hint",
   "cSpell.language": "en,ja",
   "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+
+  "latex-workshop.intellisense.package.enabled": true,
+  "latex-workshop.message.log.show": true,
+  "latex-workshop.message.badbox.show": "both",
+  "latex-workshop.view.pdf.viewer": "external",
+  "latex-workshop.view.pdf.external.synctex.args": [
+    "-forward-search",
+    "%TEX%",
+    "%LINE%",
+    "-reuse-instance",
+    "-inverse-search",
+    "code -r -g \"%f:%l\"",
+    "%PDF%"
+  ],
+  "latex-workshop.latex.autoBuild.run": "onFileChange",
+  "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": true,
+  "latex-workshop.latex.clean.method": "glob",
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.aux", "*.bbl", "*.blg", "*.idx", "*.ind", "*.lof", "*.lot",
+    "*.out", "*.toc", "*.acn", "*.acr", "*.alg", "*.glg", "*.glo",
+    "*.gls", "*.ist", "*.fls", "*.log", "*.fdb_latexmk", "*.snm",
+    "*.nav", "*.dvi", "*.synctex.gz"
+  ],
+  "latex-workshop.latex.recipes": [
+    { "name": "latexmk", "tools": ["latexmk"] },
+    { "name": "ptex2pdf", "tools": ["ptex2pdf"] }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk",
+      "command": "latexmk",
+      "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-pdf", "%DOC%"]
+    },
+    {
+      "name": "ptex2pdf",
+      "command": "ptex2pdf",
+      "args": ["-l", "-ot", "-kanji=utf8 -synctex=1", "%DOC%"]
+    }
+  ],
+  "latex-workshop.formatting.latexindent.path": "latexindent",
+  "latex-workshop.formatting.latexindent.args": ["%TMPFILE%", "-c=%DIR%/", "-y=defaultIndent: '%INDENT%'"],
+  "latex-workshop.hover.preview.mathjax.extensions": [
+    "physics", "braket", "cases", "mathtools", "textcomp", "boldsymbol"
+  ],
 
   "workbench.startupEditor": "none",
   "workbench.iconTheme": "vscode-icons",
@@ -315,9 +373,34 @@
 
   "vscode-neovim.neovimExecutablePaths.linux": "nvim",
   "vscode-neovim.neovimExecutablePaths.darwin": "nvim",
+  "vscode-neovim.compositeKeys": {
+    "jk": { "command": "vscode-neovim.escape" }
+  },
   "extensions.experimental.affinity": {
     "asvetliakov.vscode-neovim": 1
   },
+
+  "vim.useSystemClipboard": false,
+  "vim.hlsearch": true,
+  "vim.useCtrlKeys": true,
+  "vim.ignorecase": true,
+  "vim.incsearch": true,
+  "vim.sneak": true,
+  "vim.foldfix": true,
+  "vim.normalModeKeyBindingsNonRecursive": [
+    { "before": ["<Esc>"], "commands": [":nohl"] }
+  ],
+  "vim.visualModeKeyBindings": [
+    { "before": ["<C-c>"], "after": ["\"", "+", "y"] },
+    { "before": ["<C-v>"], "after": ["\"", "+", "p"] }
+  ],
+  "vim.normalModeKeyBindings": [
+    { "before": ["j"], "after": ["g", "j"] },
+    { "before": ["k"], "after": ["g", "k"] }
+  ],
+  "vim.insertModeKeyBindings": [
+    { "before": ["j", "k"], "after": ["<Esc>"] }
+  ],
 
   "debug.console.fontSize": 14,
   "debug.internalConsoleOptions": "neverOpen",

@@ -1,14 +1,15 @@
 #!/bin/sh
-# Polyglot script: works in bash/sh AND PowerShell
-# Usage: curl -fsSL URL/setup | sh    (Unix)
-#        iwr URL/setup | iex          (Windows)
+# Polyglot setup script: works in bash/sh AND PowerShell
+#
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh   (Unix)
+#   iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex         (Windows)
 #
 # Flags (Unix):
 #   --git-name NAME     Git user.name
 #   --git-email EMAIL   Git user.email
 #   --git-key KEY       SSH public key for signing
 #   --editor EDITOR     Preferred editor (nvim, code, hx)
-#   --theme THEME       Color theme (catppuccin, nord, gruvbox)
 #   --non-interactive   Skip all prompts
 
 echo --% > /dev/null ; : ' | out-null
@@ -22,7 +23,7 @@ set -eu
 REPO="https://github.com/anko9801/dotfiles.git"
 DOTFILES="$HOME/dotfiles"
 
-# Colors (ANSI)
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -63,7 +64,6 @@ GIT_NAME=""
 GIT_EMAIL=""
 GIT_KEY=""
 EDITOR_PREF=""
-THEME_PREF=""
 NON_INTERACTIVE=""
 
 while [ $# -gt 0 ]; do
@@ -72,7 +72,6 @@ while [ $# -gt 0 ]; do
         --git-email)      GIT_EMAIL="$2"; shift 2 ;;
         --git-key)        GIT_KEY="$2"; shift 2 ;;
         --editor)         EDITOR_PREF="$2"; shift 2 ;;
-        --theme)          THEME_PREF="$2"; shift 2 ;;
         --non-interactive) NON_INTERACTIVE="1"; shift ;;
         *) shift ;;
     esac
@@ -80,7 +79,7 @@ done
 
 echo ""
 echo "  ╔═══════════════════════════════════════╗"
-echo "  ║         Dotfiles Setup (Unix)         ║"
+echo "  ║           Dotfiles Setup              ║"
 echo "  ╚═══════════════════════════════════════╝"
 echo ""
 
@@ -94,21 +93,20 @@ case "$(uname -s)" in
             OS="linux"
         fi
         ;;
-    *) error "Unsupported OS" ;;
+    *) error "Unsupported OS. Run this on macOS, Linux, or WSL." ;;
 esac
 
 # Detect architecture
 ARCH="$(uname -m)"
 case "$ARCH" in
-    arm64|aarch64) ARCH_NAME="ARM64 (Apple Silicon)" ;;
-    x86_64)        ARCH_NAME="x86_64 (Intel)" ;;
+    arm64|aarch64) ARCH_NAME="ARM64" ;;
+    x86_64)        ARCH_NAME="x86_64" ;;
     *)             ARCH_NAME="$ARCH" ;;
 esac
 
 info "Detected: $OS ($ARCH_NAME)"
 echo ""
 
-# Confirm before proceeding
 if ! confirm "Proceed with installation?"; then
     echo "Aborted."
     exit 0
@@ -133,10 +131,10 @@ fi
 info "[2/4] Setting up dotfiles..."
 if [ ! -d "$DOTFILES" ]; then
     git clone "$REPO" "$DOTFILES"
-    success "Cloned dotfiles to $DOTFILES"
+    success "Cloned to $DOTFILES"
 else
-    git -C "$DOTFILES" pull --rebase
-    success "Updated dotfiles"
+    git -C "$DOTFILES" pull --rebase 2>/dev/null || true
+    success "Updated $DOTFILES"
 fi
 
 # Step 3: Configure user
@@ -146,31 +144,25 @@ echo "  Configure your personal settings."
 echo "  Press Enter to keep default values."
 echo ""
 
-# Prompt for values (or use flags)
 GIT_NAME="${GIT_NAME:-$(prompt "Git name" "$(whoami)")}"
 GIT_EMAIL="${GIT_EMAIL:-$(prompt "Git email" "$GIT_NAME@users.noreply.github.com")}"
-GIT_KEY="${GIT_KEY:-$(prompt "SSH public key (for git signing, leave empty to skip)" "")}"
+GIT_KEY="${GIT_KEY:-$(prompt "SSH public key (for signing)" "")}"
 EDITOR_PREF="${EDITOR_PREF:-$(prompt "Editor (nvim, code, hx)" "nvim")}"
-THEME_PREF="${THEME_PREF:-$(prompt "Theme (catppuccin, nord, gruvbox)" "catppuccin")}"
 
-# Generate users/$USER.nix
 mkdir -p "$DOTFILES/users"
 cat > "$DOTFILES/users/$USER.nix" << EOF
 # User-specific configuration
 # Regenerate with: ./setup --non-interactive --git-name NAME --git-email EMAIL
 {
-  # Preferences
-  editor = "$EDITOR_PREF"; # nvim, code, hx
-  theme = "$THEME_PREF"; # catppuccin, nord, gruvbox
+  editor = "$EDITOR_PREF";
+  theme = "catppuccin";
 
-  # Git configuration
   git = {
     name = "$GIT_NAME";
     email = "$GIT_EMAIL";
     sshKey = "$GIT_KEY";
   };
 
-  # SSH hosts (add your servers here)
   sshHosts = { };
 }
 EOF
@@ -178,18 +170,18 @@ success "Generated users/$USER.nix"
 
 # Step 4: Apply config
 info "[4/4] Applying configuration..."
-if confirm "Apply Nix configuration for $OS?"; then
+if confirm "Apply configuration for $OS?"; then
     cd "$DOTFILES"
     case "$OS" in
         darwin)
             if ! command -v darwin-rebuild >/dev/null 2>&1; then
-                nix run nix-darwin --impure -- switch --flake ".#mac"
+                nix run nix-darwin -- switch --flake ".#mac"
             else
-                sudo darwin-rebuild switch --impure --flake ".#mac"
+                sudo darwin-rebuild switch --flake ".#mac"
             fi
             ;;
-        wsl)   nix run home-manager --impure -- switch --flake ".#wsl" ;;
-        linux) nix run home-manager --impure -- switch --flake ".#linux" ;;
+        wsl)   nix run home-manager -- switch --impure --flake ".#wsl" ;;
+        linux) nix run home-manager -- switch --impure --flake ".#linux-desktop" ;;
     esac
     success "Configuration applied"
 else
@@ -197,7 +189,14 @@ else
 fi
 
 echo ""
-success "Done! Run: exec zsh"
+success "Done!"
+echo ""
+echo "  Next steps:"
+echo "    exec zsh                 # Reload shell"
+if [ "$OS" = "wsl" ]; then
+echo "    nix run .#setup-windows  # Deploy Windows configs"
+fi
+echo ""
 exit 0
 #>
 
@@ -205,8 +204,6 @@ exit 0
 # WINDOWS (PowerShell)
 # ============================================================================
 $ErrorActionPreference = "Stop"
-$dotfiles = "$env:USERPROFILE\dotfiles"
-$repo = "https://github.com/anko9801/dotfiles.git"
 
 Write-Host @"
 
@@ -216,85 +213,14 @@ Write-Host @"
 
 "@ -ForegroundColor Cyan
 
-# Check admin
-if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "Please run as Administrator!" -ForegroundColor Red
-    exit 1
-}
+# Install packages via winget
+Write-Host "Installing packages..." -ForegroundColor Yellow
+$packagesUrl = "https://raw.githubusercontent.com/anko9801/dotfiles/master/system/windows/winget-packages.json"
+$packagesFile = "$env:TEMP\winget-packages.json"
+Invoke-WebRequest -Uri $packagesUrl -OutFile $packagesFile
+winget import -i $packagesFile --accept-package-agreements --accept-source-agreements --ignore-unavailable 2>$null
+Remove-Item $packagesFile -ErrorAction SilentlyContinue
+Write-Host "  OK" -ForegroundColor Green
 
-# winget
-if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    Write-Host "[1/6] Installing winget..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri https://aka.ms/getwinget -OutFile winget.msixbundle
-    Add-AppxPackage winget.msixbundle
-    Remove-Item winget.msixbundle
-} else {
-    Write-Host "[1/6] winget OK" -ForegroundColor Green
-}
-
-# Git + clone
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    winget install -e --id Git.Git --accept-package-agreements --accept-source-agreements
-    $env:PATH += ";C:\Program Files\Git\cmd"
-}
-
-Write-Host "[2/6] Dotfiles..." -ForegroundColor Yellow
-if (-not (Test-Path $dotfiles)) {
-    git clone $repo $dotfiles
-} else {
-    Push-Location $dotfiles; git pull --rebase; Pop-Location
-}
-
-# Packages
-Write-Host "[3/6] Packages..." -ForegroundColor Yellow
-$json = "$dotfiles\system\windows\winget-packages.json"
-if (Test-Path $json) {
-    winget import -i $json --accept-package-agreements --accept-source-agreements --ignore-unavailable
-}
-
-# PowerShell modules
-Write-Host "  Installing PowerShell modules..." -ForegroundColor Gray
-if (-not (Get-Module -ListAvailable -Name BurntToast)) {
-    Install-Module -Name BurntToast -Force -Scope CurrentUser
-    Write-Host "  BurntToast installed" -ForegroundColor Green
-}
-
-# Git config
-Write-Host "[4/6] Git config..." -ForegroundColor Yellow
-git config --global core.autocrlf input
-git config --global init.defaultBranch main
-
-# Windows Terminal
-Write-Host "[5/6] Windows Terminal..." -ForegroundColor Yellow
-$wtSettings = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
-$wtSource = "$dotfiles\system\windows\windows-terminal.json"
-if (Test-Path $wtSource) {
-    $wtDir = Split-Path $wtSettings
-    if (Test-Path $wtDir) {
-        if (Test-Path $wtSettings) {
-            Copy-Item $wtSettings "$wtSettings.bak" -Force
-            Write-Host "  Backed up existing settings" -ForegroundColor Gray
-        }
-        Copy-Item $wtSource $wtSettings -Force
-        Write-Host "  Windows Terminal settings installed" -ForegroundColor Green
-    } else {
-        Write-Host "  Windows Terminal not installed, skipping" -ForegroundColor Yellow
-    }
-}
-
-# WSL config
-Write-Host "[6/6] WSL config..." -ForegroundColor Yellow
-$wslConf = "$dotfiles\system\windows\wsl.conf"
-if (Test-Path $wslConf) {
-    $wslPath = $wslConf -replace '\\','/' -replace 'C:','/mnt/c'
-    $diff = wsl -u root sh -c "diff -q '$wslPath' /etc/wsl.conf 2>/dev/null"
-    if ($LASTEXITCODE -ne 0) {
-        wsl -u root sh -c "[ -f /etc/wsl.conf ] && cp /etc/wsl.conf /etc/wsl.conf.bak"
-        wsl -u root cp "$wslPath" /etc/wsl.conf
-        Write-Host "  wsl.conf installed (backup: /etc/wsl.conf.bak)" -ForegroundColor Green
-    } else {
-        Write-Host "  wsl.conf unchanged" -ForegroundColor Green
-    }
-}
-
-Write-Host "`n  Done! Restart Windows Terminal and run 'wsl --shutdown' to apply changes" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Done!" -ForegroundColor Green

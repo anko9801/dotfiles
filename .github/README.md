@@ -24,10 +24,9 @@ Designed to minimize cognitive load: reproducible across machines, consistent ac
 ```sh
 # macOS / Linux / WSL
 curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
-
-# Windows (PowerShell as Admin)
-iwr https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | iex
 ```
+
+**Windows**: Install WSL first (`wsl --install`), then run the above command from WSL.
 
 The setup script will:
 
@@ -39,8 +38,12 @@ The setup script will:
 ### Applying Changes
 
 ```sh
+# macOS / Linux / WSL
 nix run .#switch  # Apply (auto-detects platform)
 nix run .#update  # Update flake inputs
+
+# Windows (from WSL)
+nix run .#setup-windows  # Build and deploy Windows config
 ```
 
 ## Customization
