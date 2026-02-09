@@ -1,8 +1,5 @@
-{ pkgs, ... }:
+{ pkgs, nixSettings, ... }:
 
-let
-  nixSettings = import ../../system/nix-settings.nix;
-in
 {
   home.packages = with pkgs; [
     nix # Nix package manager itself

@@ -2,13 +2,10 @@
   pkgs,
   lib,
   versions,
+  nixSettings,
   ...
 }:
 
-let
-  nixSettings = import ../nix-settings.nix;
-  basePkgs = import ../base-packages.nix pkgs;
-in
 {
   # NOTE: Replace with hardware-configuration.nix after installing NixOS
   # imports = [ ./hardware-configuration.nix ];
@@ -53,7 +50,13 @@ in
   };
 
   # System packages
-  environment.systemPackages = basePkgs.base ++ basePkgs.nixos ++ basePkgs.server;
+  environment.systemPackages = with pkgs; [
+    git
+    vim
+    curl
+    wget
+    htop
+  ];
 
   # This value determines the NixOS release
   system.stateVersion = versions.nixos;

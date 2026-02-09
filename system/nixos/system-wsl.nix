@@ -3,13 +3,10 @@
   pkgs,
   username,
   versions,
+  nixSettings,
   ...
 }:
 
-let
-  nixSettings = import ../nix-settings.nix;
-  basePkgs = import ../base-packages.nix pkgs;
-in
 {
   imports = [
     inputs.nixos-wsl.nixosModules.default
@@ -36,7 +33,12 @@ in
   };
 
   # System packages
-  environment.systemPackages = basePkgs.base ++ basePkgs.nixos;
+  environment.systemPackages = with pkgs; [
+    git
+    vim
+    curl
+    wget
+  ];
 
   # This value determines the NixOS release
   system.stateVersion = versions.nixos;
