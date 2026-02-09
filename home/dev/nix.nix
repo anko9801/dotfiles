@@ -5,6 +5,7 @@ let
 in
 {
   home.packages = with pkgs; [
+    nix # Nix package manager itself
     nix-tree # Visualize nix store dependencies
     nix-du # Disk usage analyzer for nix store
     manix # Nix documentation search
