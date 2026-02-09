@@ -5,9 +5,9 @@
   theme = "catppuccin";
 
   git = {
-    name = "nixuser";
-    email = "nixuser@example.com";
-    sshKey = "";
+    name = "anko9801";
+    email = "37263451+anko9801@users.noreply.github.com";
+    sshKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M";
   };
 
   sshHosts = { };
