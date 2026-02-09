@@ -12,13 +12,15 @@ let
 
   mkDarwin =
     { self, inputs }:
-    { system }:
+    {
+      system,
+      extraModules ? [ ],
+      homeModules ? [ ],
+    }:
     nix-darwin.lib.darwinSystem {
       inherit system;
       specialArgs = mkSystemSpecialArgs { inherit self inputs; } system;
       modules = [
-        ./modules.nix
-
         # Homebrew management
         nix-homebrew.darwinModules.nix-homebrew
         {
@@ -35,13 +37,15 @@ let
         (mkHomeManagerConfig {
           inherit system;
           homeDir = "/Users";
+          extraImports = homeModules;
         })
 
         # Override system.primaryUser for the specific user
         {
           system.primaryUser = username;
         }
-      ];
+      ]
+      ++ extraModules;
     };
 in
 {

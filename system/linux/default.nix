@@ -89,7 +89,7 @@ let
     {
       system,
       workstation ? true, # Include tools + editor (false for servers)
-      extraModules ? [ ],
+      homeModules ? [ ],
     }:
     let
       pkgs = import nixpkgs { inherit system; };
@@ -104,7 +104,7 @@ let
       modules =
         commonModules
         ++ (if workstation then workstationModules else [ ])
-        ++ extraModules
+        ++ homeModules
         ++ [
           {
             home = {

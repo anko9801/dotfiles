@@ -14,7 +14,7 @@ let
     {
       system,
       extraModules ? [ ],
-      homeModule,
+      homeModules ? [ ],
     }:
     nixpkgs.lib.nixosSystem {
       inherit system;
@@ -36,7 +36,7 @@ let
         (mkHomeManagerConfig {
           inherit system;
           homeDir = "/home";
-          extraImports = [ homeModule ];
+          extraImports = homeModules;
         })
       ]
       ++ extraModules;

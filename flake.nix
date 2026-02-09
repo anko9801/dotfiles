@@ -230,7 +230,7 @@
                   if [ -n "''${WSL_DISTRO_NAME:-}" ]; then
                     echo "wsl"
                   elif [ -n "''${DISPLAY:-}" ] || [ -n "''${WAYLAND_DISPLAY:-}" ]; then
-                    echo "linux-desktop"
+                    echo "desktop"
                   else
                     echo "server"
                   fi
@@ -304,8 +304,8 @@
         homeConfigurations = {
           wsl = mkHome {
             system = "x86_64-linux";
-            extraModules = [
-              ./system/linux/wsl.nix
+            homeModules = [
+              ./system/linux/home-wsl.nix
               { programs.wsl.windowsUser = common.username; }
             ];
           };
@@ -313,51 +313,67 @@
           # Windows config (built from WSL, deployed separately)
           windows = mkHome {
             system = "x86_64-linux";
-            extraModules = [
+            homeModules = [
               { platform.isWindows = true; }
             ];
           };
 
-          linux-desktop = mkHome {
+          desktop = mkHome {
             system = "x86_64-linux";
-            extraModules = [ ./system/linux/linux-desktop.nix ];
+            homeModules = [ ./system/linux/home-desktop.nix ];
           };
 
           server = mkHome {
             system = "x86_64-linux";
             workstation = false;
-            extraModules = [ ./system/linux/linux-server.nix ];
+            homeModules = [ ./system/linux/home-server.nix ];
           };
         };
 
         darwinConfigurations = {
-          mac = mkDarwin { system = "aarch64-darwin"; };
-          mac-intel = mkDarwin { system = "x86_64-darwin"; };
+          mac = mkDarwin {
+            system = "aarch64-darwin";
+            extraModules = [ ./system/darwin/system-desktop.nix ];
+            homeModules = [
+              ./home/tools
+              ./home/editor
+              ./system/darwin/home-desktop.nix
+            ];
+          };
+          mac-intel = mkDarwin {
+            system = "x86_64-darwin";
+            extraModules = [ ./system/darwin/system-desktop.nix ];
+            homeModules = [
+              ./home/tools
+              ./home/editor
+              ./system/darwin/home-desktop.nix
+            ];
+          };
         };
 
         nixosConfigurations = {
           nixos-wsl = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./system/nixos/wsl.nix ];
-            homeModule = {
-              imports = [ ./system/linux/wsl.nix ];
-              programs.wsl.windowsUser = common.username;
-            };
+            extraModules = [ ./system/nixos/system-wsl.nix ];
+            homeModules = [
+              ./system/linux/home-wsl.nix
+              { programs.wsl.windowsUser = common.username; }
+            ];
           };
 
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
             extraModules = [
-              ./system/nixos/desktop.nix
+              ./system/nixos/system-desktop.nix
               ./system/nixos/kanata.nix
             ];
-            homeModule = ./system/linux/linux-desktop.nix;
+            homeModules = [ ./system/linux/home-desktop.nix ];
           };
 
           nixos-server = mkNixOS {
             system = "x86_64-linux";
-            extraModules = [ ./system/nixos/server.nix ];
-            homeModule = ./system/linux/linux-server.nix;
+            extraModules = [ ./system/nixos/system-server.nix ];
+            homeModules = [ ./system/linux/home-server.nix ];
           };
 
           example-vps = mkNixOS {
@@ -365,9 +381,9 @@
             extraModules = [
               inputs.disko.nixosModules.disko
               ./system/nixos/example-vps
-              ./system/nixos/server.nix
+              ./system/nixos/system-server.nix
             ];
-            homeModule = ./system/linux/linux-server.nix;
+            homeModules = [ ./system/linux/home-server.nix ];
           };
         };
 
