@@ -1,7 +1,7 @@
 # Kanata - Cross-platform key remapper for NixOS
 # https://github.com/jtroo/kanata
 # Uses NixOS built-in services.kanata module
-# Config shared with macOS/Windows: home/tools/kanata/config.kbd
+# Config shared with macOS/Windows: tools/kanata/config.kbd
 {
   lib,
   config,
@@ -11,7 +11,7 @@
 let
   # Only enable on NixOS desktop (not WSL)
   isDesktop = !(config.wsl.enable or false);
-  kanataConfig = builtins.readFile ../../home/tools/kanata/config.kbd;
+  kanataConfig = builtins.readFile ../../tools/kanata/config.kbd;
 in
 {
   config = lib.mkIf isDesktop {

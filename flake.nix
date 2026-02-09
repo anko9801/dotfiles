@@ -89,7 +89,7 @@
       # Import system builders
       shared = import ./system/shared.nix { inherit nixpkgs; };
 
-      homeManager = import ./system/home-manager.nix {
+      homeManager = import ./system/home-manager/builder.nix {
         inherit
           nixpkgs
           home-manager
@@ -334,16 +334,16 @@
             system = "aarch64-darwin";
             extraModules = [ ./system/darwin/desktop.nix ];
             homeModules = [
-              ./home/tools
-              ./home/editor
+              ./tools
+              ./editor
             ];
           };
           mac-intel = mkDarwin {
             system = "x86_64-darwin";
             extraModules = [ ./system/darwin/desktop.nix ];
             homeModules = [
-              ./home/tools
-              ./home/editor
+              ./tools
+              ./editor
             ];
           };
         };

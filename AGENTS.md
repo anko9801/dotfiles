@@ -16,23 +16,23 @@ Declarative development environment powered by Nix. Write once, reproduce anywhe
 flake.nix                    # Entry point
 ├── system/
 │   ├── shared.nix           # Shared config (user, versions, nix settings, helpers)
-│   ├── home-manager.nix     # Home Manager builders & modules
+│   ├── home-manager/
+│   │   ├── builder.nix      # Home Manager builders
+│   │   └── core.nix         # Base settings, platform detection
 │   ├── darwin/
 │   │   ├── builder.nix      # nix-darwin builder
 │   │   └── *.nix            # darwin system configs
 │   └── nixos/
 │       ├── builder.nix      # NixOS builder
 │       └── *.nix            # nixos system configs
-├── home/                    # User config (home-manager modules)
-│   ├── core.nix             # Base settings, platform detection
-│   ├── ai/                  # AI tools (claude, aider, ollama)
-│   ├── dev/                 # Dev tools (mise, rust, go, python)
-│   ├── editor/              # Neovim (nixvim)
-│   ├── shell/               # Shell (zsh, fish, bash)
-│   ├── terminal/            # Terminal (ghostty, tmux, zellij)
-│   ├── tools/               # CLI (git, yazi, bat)
-│   ├── desktop/             # Desktop (IME)
-│   └── security/            # Security (1Password, GPG, SSH)
+├── ai/                      # AI tools (claude, aider, ollama)
+├── dev/                     # Dev tools (mise, rust, go, python)
+├── editor/                  # Neovim (nixvim)
+├── shell/                   # Shell (zsh, fish, bash)
+├── terminal/                # Terminal (ghostty, tmux, zellij)
+├── tools/                   # CLI (git, yazi, bat)
+├── desktop/                 # Desktop (IME)
+├── security/                # Security (1Password, GPG, SSH)
 ├── theme/                   # Stylix theme
 └── users/                   # Per-user config
 ```
@@ -51,13 +51,13 @@ flake.nix                    # Entry point
 
 | Config | Location | Notes |
 |--------|----------|-------|
-| Zsh | `home/shell/zsh/` | Modular: aliases, functions, abbr |
-| Neovim | `home/editor/neovim/` | nixvim, plugins in `plugins/` |
-| Git | `home/tools/git/` | git, lazygit, gh, jujutsu |
-| Ghostty | `home/terminal/ghostty.nix` | Keybindings, window settings |
-| Claude | `home/ai/claude/` | Hooks, agents, commands |
-| AI Tools | `home/ai/` | aider, ollama, llm, shell-gpt |
-| SSH | `home/security/ssh.nix` | 1Password agent integration |
+| Zsh | `shell/zsh/` | Modular: aliases, functions, abbr |
+| Neovim | `editor/neovim/` | nixvim, plugins in `plugins/` |
+| Git | `tools/git/` | git, lazygit, gh, jujutsu |
+| Ghostty | `terminal/ghostty.nix` | Keybindings, window settings |
+| Claude | `ai/claude/` | Hooks, agents, commands |
+| AI Tools | `ai/` | aider, ollama, llm, shell-gpt |
+| SSH | `security/ssh.nix` | 1Password agent integration |
 
 ## Configuration Targets
 
@@ -100,7 +100,7 @@ flake.nix                    # Entry point
 
 ## Hooks Configuration
 
-Current hooks in `home/ai/claude/default.nix`:
+Current hooks in `ai/claude/default.nix`:
 
 | Hook | Trigger | Action |
 |------|---------|--------|
@@ -111,7 +111,7 @@ Note: Linting is handled by pre-commit hooks (`nix develop` to install).
 
 ## Available Commands
 
-Located in `home/ai/claude/commands/`:
+Located in `ai/claude/commands/`:
 
 | Command | Purpose |
 |---------|---------|
@@ -123,7 +123,7 @@ Located in `home/ai/claude/commands/`:
 
 ## Available Agents
 
-Located in `home/ai/claude/agents/`:
+Located in `ai/claude/agents/`:
 
 | Agent | Purpose |
 |-------|---------|
