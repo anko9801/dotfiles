@@ -6,81 +6,49 @@
 }:
 
 let
-  inherit (config.platform) isDarwin isWSL;
+  inherit (config.platform) isDarwin isLinuxDesktop;
+  inherit (config.programs) onePassword;
 in
 {
-  options.tools.ssh = {
-    onePasswordAgentPath = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = "~/.1password/agent.sock";
-      description = "Path to 1Password SSH agent socket (null to disable)";
-    };
-
-    onePasswordSignProgram = lib.mkOption {
-      type = lib.types.str;
-      default = "op-ssh-sign";
-      description = "Path to 1Password SSH signing program";
-    };
+  # SSH_AUTH_SOCK points to 1Password agent socket
+  home.sessionVariables = {
+    # Replace ~ with $HOME for shell expansion
+    SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] onePassword.agentSocket;
   };
 
-  config = {
-    # Platform-specific 1Password paths
-    tools.ssh = lib.mkMerge [
-      (lib.mkIf isDarwin {
-        onePasswordAgentPath = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
-        onePasswordSignProgram = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
-      })
-      (lib.mkIf isWSL {
-        onePasswordAgentPath = "$HOME/.1password/agent.sock";
-        onePasswordSignProgram = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe";
-      })
-    ];
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = lib.mkDefault false;
 
-    # Platform-specific SSH_AUTH_SOCK (uses the same path as onePasswordAgentPath)
-    home.sessionVariables = lib.mkIf (config.tools.ssh.onePasswordAgentPath != null) {
-      # Replace ~ with $HOME for shell expansion
-      SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] config.tools.ssh.onePasswordAgentPath;
-    };
+    # WSL: no IdentityAgent (agent forwarded via npiperelay)
+    # macOS/Linux: IdentityAgent pointing to 1Password socket
+    extraConfig = lib.mkIf (isDarwin || isLinuxDesktop) ''
+      IdentityAgent "${onePassword.agentSocket}"
+    '';
 
-    programs.ssh = {
-      enable = true;
-      enableDefaultConfig = lib.mkDefault false;
+    matchBlocks = {
+      "*" = {
+        addKeysToAgent = "yes";
+      };
 
-      # WSL: no IdentityAgent (agent forwarded via npiperelay)
-      # macOS/Linux: IdentityAgent pointing to 1Password socket
-      extraConfig = lib.mkMerge [
-        (lib.mkIf isDarwin ''
-          IdentityAgent "${config.tools.ssh.onePasswordAgentPath}"
-        '')
-        (lib.mkIf config.platform.isLinuxDesktop ''
-          IdentityAgent "${config.tools.ssh.onePasswordAgentPath}"
-        '')
-      ];
+      "github.com" = {
+        hostname = "github.com";
+        user = "git";
+      };
+      "gitlab.com" = {
+        hostname = "gitlab.com";
+        user = "git";
+      };
+    }
+    // (lib.mapAttrs (_: host: {
+      inherit (host) hostname user;
+      identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
+    }) userConfig.sshHosts);
+  };
 
-      matchBlocks = {
-        "*" = {
-          addKeysToAgent = "yes";
-        };
-
-        "github.com" = {
-          hostname = "github.com";
-          user = "git";
-        };
-        "gitlab.com" = {
-          hostname = "gitlab.com";
-          user = "git";
-        };
-      }
-      // (lib.mapAttrs (_: host: {
-        inherit (host) hostname user;
-        identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
-      }) userConfig.sshHosts);
-    };
-
-    # Git SSH signing configuration (uses platform-specific program)
-    programs.git.settings = {
-      gpg.format = "ssh";
-      gpg.ssh.program = config.tools.ssh.onePasswordSignProgram;
-    };
+  # Git SSH signing configuration (uses 1Password sign program)
+  programs.git.settings = {
+    gpg.format = "ssh";
+    gpg.ssh.program = onePassword.signProgram;
   };
 }
