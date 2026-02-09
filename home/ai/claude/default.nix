@@ -32,6 +32,9 @@ in
     # CLAUDE.md (memory)
     memory.source = ./CLAUDE.md;
 
+    # Rules directory (always loaded)
+    rulesDir = ./rules;
+
     # Agents directory
     agentsDir = ./agents;
 
