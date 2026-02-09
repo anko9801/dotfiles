@@ -4,10 +4,10 @@
   nix-homebrew,
   home-manager,
   homeManager,
-  common,
+  shared,
 }:
 let
-  inherit (common) username mkSystemSpecialArgs;
+  inherit (shared) username mkSystemSpecialArgs;
   inherit (homeManager) mkHomeManagerConfig;
 
   mkDarwin =

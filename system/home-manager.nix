@@ -5,13 +5,13 @@
   nix-index-database,
   nixvim,
   stylix,
-  common,
+  shared,
   llm-agents ? null,
   agent-skills ? null,
   antfu-skills ? null,
 }:
 let
-  inherit (common) username mkSpecialArgs;
+  inherit (shared) username mkSpecialArgs;
 
   # Workstation modules (tools + editor + terminal) - added when workstation = true
   workstationModules = [

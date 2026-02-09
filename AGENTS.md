@@ -15,11 +15,14 @@ Declarative development environment powered by Nix. Write once, reproduce anywhe
 ```
 flake.nix                    # Entry point
 ├── system/
-│   ├── common.nix           # Shared config (username, versions, unfreePkgs)
-│   ├── nix.nix              # Nix daemon settings
+│   ├── shared.nix           # Shared config (user, versions, nix settings)
 │   ├── home-manager.nix     # Home Manager builders & modules
-│   ├── darwin/              # macOS (nix-darwin)
-│   └── nixos/               # NixOS
+│   ├── darwin/
+│   │   ├── builder.nix      # nix-darwin builder
+│   │   └── *.nix            # darwin system configs
+│   └── nixos/
+│       ├── builder.nix      # NixOS builder
+│       └── *.nix            # nixos system configs
 ├── home/                    # User config (home-manager modules)
 │   ├── core.nix             # Base settings
 │   ├── ai/                  # AI tools (claude, aider, ollama)

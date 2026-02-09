@@ -87,14 +87,14 @@
     }:
     let
       # Import system builders
-      common = import ./system/common.nix { inherit nixpkgs; };
+      shared = import ./system/shared.nix { inherit nixpkgs; };
 
       homeManager = import ./system/home-manager.nix {
         inherit
           nixpkgs
           home-manager
           nix-index-database
-          common
+          shared
           ;
         inherit (inputs)
           nixvim
@@ -105,21 +105,21 @@
           ;
       };
 
-      darwin = import ./system/darwin {
+      darwin = import ./system/darwin/builder.nix {
         inherit
           nix-darwin
           nix-homebrew
           home-manager
-          common
+          shared
           homeManager
           ;
       };
 
-      nixos = import ./system/nixos {
+      nixos = import ./system/nixos/builder.nix {
         inherit
           nixpkgs
           home-manager
-          common
+          shared
           homeManager
           ;
       };
@@ -305,7 +305,7 @@
           wsl = mkHome {
             system = "x86_64-linux";
             homeModules = platformModules.wsl ++ [
-              { programs.wsl.windowsUser = common.username; }
+              { programs.wsl.windowsUser = shared.username; }
             ];
           };
 
@@ -353,7 +353,7 @@
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/wsl.nix ];
             homeModules = platformModules.wsl ++ [
-              { programs.wsl.windowsUser = common.username; }
+              { programs.wsl.windowsUser = shared.username; }
             ];
           };
 
