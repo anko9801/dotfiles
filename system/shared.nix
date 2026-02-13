@@ -80,12 +80,18 @@ let
     in
     if envUser != "" then envUser else "nixuser";
 
-  # User-specific configuration (with fallback to default)
+  # Fleet config (users + hosts)
+  fleetConfig = import ../config.nix;
+
+  # User-specific configuration (with fallback)
   userConfig =
-    let
-      userFile = ../users/${username}.nix;
-    in
-    if builtins.pathExists userFile then import userFile else import ../users/default.nix;
+    fleetConfig.users.${username} or {
+      name = username;
+      email = "${username}@localhost";
+    };
+
+  # All hosts
+  allHosts = fleetConfig.hosts;
 
   # Centralized version management
   versions = {
@@ -131,6 +137,7 @@ let
   mkSpecialArgs = system: {
     inherit
       userConfig
+      allHosts
       versions
       nixSettings
       mkNixConfig

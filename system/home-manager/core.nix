@@ -4,6 +4,7 @@
   pkgs,
   config,
   versions,
+  userConfig,
   ...
 }:
 
@@ -97,23 +98,30 @@ in
     # Enable generic Linux target for non-NixOS Linux
     targets.genericLinux.enable = config.platform.isLinux;
 
+    # Platform-specific defaults + user identity
+    defaults = {
+      locale.lang = "ja_JP.UTF-8";
+      browser = lib.mkIf config.platform.isWSL "xdg-open";
+      identity = {
+        name = userConfig.git.name or userConfig.name or null;
+        email = userConfig.git.email or userConfig.email or null;
+        signingKey = userConfig.git.signingKey or userConfig.signingKey or null;
+        sshKey = userConfig.git.sshKey or userConfig.sshKey or "";
+      };
+    };
+
     home = {
       stateVersion = versions.home;
-      sessionVariables = {
-        LANG = "ja_JP.UTF-8";
-        # Default editor (workstation modules override with neovim)
-        EDITOR = lib.mkDefault "vim";
-        VISUAL = lib.mkDefault "vim";
-      }
-      // lib.optionalAttrs config.platform.isWSL {
-        DISPLAY = ":0";
-        WSL_INTEROP = "/run/WSL/1_interop";
-        BROWSER = "xdg-open";
-      }
-      // lib.optionalAttrs config.platform.isLinuxDesktop {
-        MOZ_ENABLE_WAYLAND = "1";
-        QT_QPA_PLATFORM = "wayland;xcb";
-      };
+      # Platform-specific env vars (not covered by defaults.nix)
+      sessionVariables =
+        lib.optionalAttrs config.platform.isWSL {
+          DISPLAY = ":0";
+          WSL_INTEROP = "/run/WSL/1_interop";
+        }
+        // lib.optionalAttrs config.platform.isLinuxDesktop {
+          MOZ_ENABLE_WAYLAND = "1";
+          QT_QPA_PLATFORM = "wayland;xcb";
+        };
       sessionPath = [
         "$HOME/.local/bin"
       ]
@@ -155,10 +163,7 @@ in
 
     programs = {
       home-manager.enable = true;
-      # Default editor setup (workstation modules override)
-      vim.defaultEditor = lib.mkDefault true;
       bash.enable = lib.mkDefault true;
-      git.settings.core.editor = lib.mkDefault "vim";
     };
   };
 }

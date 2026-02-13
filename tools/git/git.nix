@@ -2,14 +2,13 @@
   pkgs,
   lib,
   config,
-  userConfig,
   ...
 }:
 
 let
   inherit (config.platform) isDarwin isWSL isWindows;
-  inherit (userConfig) editor;
-  inherit (userConfig.git) name email sshKey;
+  inherit (config.defaults) editor;
+  inherit (config.defaults.identity) name email sshKey;
 
   mkAlias = config.helpers.mkPlatformValue config;
 

@@ -30,9 +30,9 @@
     };
   };
 
-  # Authorized SSH keys from userConfig (set in users/$USER.nix)
+  # Authorized SSH keys from userConfig (set in users.nix)
   users.users.root.openssh.authorizedKeys.keys =
-    if userConfig.git.sshKey != "" then [ userConfig.git.sshKey ] else [ ];
+    if (userConfig.sshKey or "") != "" then [ userConfig.sshKey ] else [ ];
 
   # Automatic updates
   system.autoUpgrade = {

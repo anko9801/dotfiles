@@ -1,13 +1,26 @@
 {
   lib,
   config,
-  userConfig,
+  allHosts,
   ...
 }:
 
 let
   inherit (config.platform) isDarwin isLinuxDesktop;
   inherit (config.programs) onePassword;
+
+  currentUser = config.home.username;
+
+  # Filter servers that:
+  # 1. type = "server" with hostname
+  # 2. current user is in users list (users must be explicitly specified)
+  sshHosts = lib.filterAttrs (
+    _: host:
+    host.type or "" == "server"
+    && host ? hostname
+    && host ? users
+    && builtins.elem currentUser host.users
+  ) allHosts;
 in
 {
   # SSH_AUTH_SOCK points to 1Password agent socket
@@ -41,9 +54,10 @@ in
       };
     }
     // (lib.mapAttrs (_: host: {
-      inherit (host) hostname user;
+      inherit (host) hostname;
+      user = host.sshUser or "root";
       identityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
-    }) userConfig.sshHosts);
+    }) sshHosts);
   };
 
   # Git SSH signing configuration (uses 1Password sign program)

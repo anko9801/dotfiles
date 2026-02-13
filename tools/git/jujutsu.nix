@@ -1,5 +1,8 @@
-{ pkgs, userConfig, ... }:
+{ pkgs, config, ... }:
 
+let
+  inherit (config.defaults.identity) name email sshKey;
+in
 {
   home.packages = with pkgs; [
     jujutsu # Modern Git alternative (jj)
@@ -7,13 +10,13 @@
 
   xdg.configFile."jj/config.toml".text = ''
     [user]
-    name = "${userConfig.git.name}"
-    email = "${userConfig.git.email}"
+    name = "${name}"
+    email = "${email}"
 
     [signing]
     behavior = "own"
     backend = "ssh"
-    key = "${userConfig.git.sshKey}"
+    key = "${sshKey}"
 
     [ui]
     default-command = "status"

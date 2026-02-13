@@ -38,6 +38,8 @@ let
   commonModules = [
     # Core
     ./core.nix
+    # Unified defaults (includes capabilities)
+    ../defaults.nix
     # Dev
     ../../dev/build-tools.nix
     ../../dev/go.nix
