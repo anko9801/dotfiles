@@ -53,9 +53,6 @@ let
   # Unified configuration for all platforms
   nixModule =
     { pkgs, lib, ... }:
-    let
-      inherit (pkgs.stdenv) isDarwin;
-    in
     {
       # Nix daemon configuration
       nix = {
@@ -64,7 +61,7 @@ let
         gc =
           nixSettings.gc
           // (
-            if isDarwin then
+            if pkgs.stdenv.isDarwin then
               { interval = nixSettings.gcSchedule.darwin; }
             else
               { dates = nixSettings.gcSchedule.frequency; }
@@ -81,11 +78,11 @@ let
       home-manager.backupFileExtension = "backup";
 
       # State version (auto-detect)
-      system.stateVersion = if isDarwin then versions.darwin else versions.nixos;
+      system.stateVersion = if pkgs.stdenv.isDarwin then versions.darwin else versions.nixos;
 
       # NixOS-only defaults
-      time.timeZone = lib.mkIf (!isDarwin) (lib.mkDefault "Asia/Tokyo");
-      i18n.defaultLocale = lib.mkIf (!isDarwin) (lib.mkDefault "ja_JP.UTF-8");
+      time.timeZone = lib.mkIf (!pkgs.stdenv.isDarwin) (lib.mkDefault "Asia/Tokyo");
+      i18n.defaultLocale = lib.mkIf (!pkgs.stdenv.isDarwin) (lib.mkDefault "ja_JP.UTF-8");
     };
 
   # Unfree package handling with build-time warnings
