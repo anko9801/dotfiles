@@ -21,6 +21,7 @@ All AI agents **MUST** adhere to the following standards.
 - **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 - **Breaking changes**: `<type>!: <subject>`
 - **Trailer**: `Assisted-by: {{agent name}} (model: {{model name}})`
+  - Do NOT use `Co-Authored-By`
 
 ## Project-Specific
 
