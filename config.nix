@@ -62,7 +62,7 @@ rec {
 
   # Base modules loaded for all configurations
   baseModules = [
-    ./system/home-manager/core.nix
+    ./system/home-manager.nix
     # Dev
     ./dev/build-tools.nix
     ./dev/go.nix

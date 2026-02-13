@@ -1,5 +1,15 @@
 # System builder utilities
-{ nixpkgs, username }:
+{
+  nixpkgs,
+  username,
+  home-manager,
+  nix-index-database,
+  nixvim,
+  stylix,
+  llm-agents ? null,
+  agent-skills ? null,
+  antfu-skills ? null,
+}:
 let
   cfg = import ../config.nix;
 
@@ -96,7 +106,6 @@ let
       homeManagerModule, # home-manager.darwinModules or home-manager.nixosModules
       homeDir, # "/Users" or "/home"
       mkPlatformModules, # system -> username -> list of platform-specific modules
-      mkSystemHomeConfig, # from homeManager
     }:
     { self, inputs }:
     {
@@ -121,6 +130,75 @@ let
         ]
         ++ extraModules;
     };
+
+  # External flake modules (not in config.nix)
+  flakeModules = [
+    nix-index-database.homeModules.nix-index
+    nixvim.homeModules.nixvim
+    stylix.homeModules.stylix
+  ]
+  ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
+
+  # Home Manager config for system integration (darwin/nixos modules)
+  mkSystemHomeConfig =
+    {
+      system,
+      homeDir,
+      hostModules,
+    }:
+    let
+      llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
+    in
+    {
+      home-manager = {
+        useGlobalPkgs = true;
+        useUserPackages = true;
+        extraSpecialArgs = mkSpecialArgs system // {
+          inherit llmAgentsPkgs antfu-skills;
+        };
+        users.${username} =
+          { lib, ... }:
+          {
+            imports = flakeModules ++ hostModules;
+            home = {
+              username = lib.mkForce username;
+              homeDirectory = lib.mkForce "${homeDir}/${username}";
+            };
+          };
+      };
+    };
+
+  # Standalone home-manager configuration (no system integration)
+  mkStandaloneHome =
+    {
+      system,
+      hostName,
+      homeModules ? [ ],
+    }:
+    let
+      pkgs = import nixpkgs { inherit system; };
+      llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
+      hostModules = getHostModules hostName;
+    in
+    home-manager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      extraSpecialArgs = mkSpecialArgs system // {
+        inherit llmAgentsPkgs antfu-skills;
+      };
+      modules =
+        flakeModules
+        ++ hostModules
+        ++ homeModules
+        ++ [
+          {
+            home = {
+              inherit username;
+              homeDirectory = "/home/${username}";
+            };
+            nix.package = pkgs.nix;
+          }
+        ];
+    };
 in
 {
   inherit
@@ -136,5 +214,8 @@ in
     mkSpecialArgs
     mkSystemSpecialArgs
     mkSystemBuilder
+    flakeModules
+    mkSystemHomeConfig
+    mkStandaloneHome
     ;
 }

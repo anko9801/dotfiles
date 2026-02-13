@@ -98,15 +98,10 @@
         user:
         let
           systemLib = import ./system/lib.nix {
-            inherit nixpkgs;
-            username = user;
-          };
-          homeManager = import ./system/home-manager/builder.nix {
             inherit
               nixpkgs
               home-manager
               nix-index-database
-              systemLib
               ;
             inherit (inputs)
               nixvim
@@ -115,6 +110,7 @@
               agent-skills
               antfu-skills
               ;
+            username = user;
           };
           darwin = import ./system/darwin/builder.nix {
             inherit
@@ -122,7 +118,6 @@
               nix-homebrew
               home-manager
               systemLib
-              homeManager
               ;
           };
           nixos = import ./system/nixos/builder.nix {
@@ -130,18 +125,16 @@
               nixpkgs
               home-manager
               systemLib
-              homeManager
               ;
           };
         in
         {
           inherit
             systemLib
-            homeManager
             darwin
             nixos
             ;
-          inherit (homeManager) mkStandaloneHome;
+          inherit (systemLib) mkStandaloneHome;
           mkDarwin = darwin.mkDarwin { inherit self inputs; };
           mkNixOS = nixos.mkNixOS { inherit self inputs; };
         };
