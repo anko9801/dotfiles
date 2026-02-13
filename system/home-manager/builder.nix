@@ -11,15 +11,10 @@
   antfu-skills ? null,
 }:
 let
-  inherit (shared) username mkSpecialArgs;
+  inherit (shared) username userConfig mkSpecialArgs;
 
-  # Workstation modules (tools + editor + terminal) - added when workstation = true
-  workstationModules = [
-    ../../ai
-    ../../tools
-    ../../editor
-    ../../terminal
-  ];
+  # User-defined modules from config.nix
+  userModules = userConfig.modules or [ ];
 
   # Platform-specific modules
   platformModules = {
@@ -105,7 +100,6 @@ let
   mkStandaloneHome =
     {
       system,
-      workstation ? true, # Include tools + editor (false for servers)
       homeModules ? [ ],
     }:
     let
@@ -120,7 +114,7 @@ let
       };
       modules =
         commonModules
-        ++ (if workstation then workstationModules else [ ])
+        ++ userModules
         ++ homeModules
         ++ [
           {

@@ -275,7 +275,6 @@
 
           server = mkStandaloneHome {
             system = "x86_64-linux";
-            workstation = false;
             homeModules = platformModules.server;
           };
         };
