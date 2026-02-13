@@ -2,6 +2,9 @@
 # Shell-specific abbreviations remain in their respective configs
 { config, ... }:
 
+let
+  p = config.platform;
+in
 {
   home.shellAliases = {
     # Modern CLI replacements
@@ -17,7 +20,7 @@
     ps = "procs";
 
     # Safety (trashy is Linux-only; macOS uses trash from Homebrew)
-    rm = if config.platform.isLinux then "trash" else "rm -i";
+    rm = if p.os == "linux" then "trash" else "rm -i";
     cp = "cp -i";
     mv = "mv -i";
     mkdir = "mkdir -p";

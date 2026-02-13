@@ -7,6 +7,9 @@
   ...
 }:
 
+let
+  p = config.platform;
+in
 {
   imports = [
     ./claude
@@ -27,7 +30,7 @@
       shell-gpt # ChatGPT in terminal
     ])
     # AI coding agents from llm-agents.nix (skip in CI - heavy builds)
-    ++ lib.optionals (!config.platform.isCI && llmAgentsPkgs != { }) (
+    ++ lib.optionals (p.environment != "ci" && llmAgentsPkgs != { }) (
       lib.filter (p: p != null) [
         (llmAgentsPkgs.codex or null) # OpenAI Codex CLI
         (llmAgentsPkgs.gemini-cli or null) # Google Gemini CLI

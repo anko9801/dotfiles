@@ -24,7 +24,7 @@
 }:
 
 let
-  inherit (config.platform) isDarwin isLinux isWSL;
+  p = config.platform;
   fzfFlags = config.shell.fzf.defaultFlags;
 
   # External scripts (proper syntax highlighting, no Nix escaping needed)
@@ -178,7 +178,7 @@ in
       scripts.obsidian
 
       # Platform-specific: Linux package managers
-      (lib.mkIf isLinux (
+      (lib.mkIf (p.os == "linux") (
         lib.mkAfter ''
           # Linux package managers
           [[ -d "/snap/bin" ]] && export PATH="/snap/bin:$PATH"
@@ -187,7 +187,7 @@ in
       ))
 
       # Platform-specific: WSL
-      (lib.mkIf isWSL (
+      (lib.mkIf (p.environment == "wsl") (
         lib.mkAfter ''
           # WSL-Specific Configuration
           export WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2 2>/dev/null || echo "localhost")
@@ -233,7 +233,7 @@ in
       ))
 
       # Platform-specific: macOS
-      (lib.mkIf isDarwin (
+      (lib.mkIf (p.os == "darwin") (
         lib.mkAfter ''
           # macOS-Specific Configuration
           export HOMEBREW_NO_ANALYTICS=1

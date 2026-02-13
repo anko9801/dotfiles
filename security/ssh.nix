@@ -6,17 +6,17 @@
 }:
 
 let
-  inherit (config.platform) isDarwin isLinuxDesktop;
+  p = config.platform;
   inherit (config.programs) onePassword;
 
   currentUser = config.home.username;
 
   # Filter servers that:
-  # 1. type = "server" with hostname
+  # 1. role/type = "server" with hostname
   # 2. current user is in users list (users must be explicitly specified)
   sshHosts = lib.filterAttrs (
     _: host:
-    host.type or "" == "server"
+    (host.role or host.type or "") == "server"
     && host ? hostname
     && host ? users
     && builtins.elem currentUser host.users
@@ -34,8 +34,8 @@ in
     enableDefaultConfig = lib.mkDefault false;
 
     # WSL: no IdentityAgent (agent forwarded via npiperelay)
-    # macOS/Linux: IdentityAgent pointing to 1Password socket
-    extraConfig = lib.mkIf (isDarwin || isLinuxDesktop) ''
+    # macOS/Linux native: IdentityAgent pointing to 1Password socket
+    extraConfig = lib.mkIf (p.os == "darwin" || (p.os == "linux" && p.environment == "native")) ''
       IdentityAgent "${onePassword.agentSocket}"
     '';
 

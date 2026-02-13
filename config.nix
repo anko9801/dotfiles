@@ -116,7 +116,6 @@ rec {
   hosts = {
     # Workstations
     wsl = {
-      platform = "wsl";
       type = "workstation";
       modules = baseModules ++ [
         ./ai
@@ -127,7 +126,6 @@ rec {
       ];
     };
     desktop = {
-      platform = "linux";
       type = "workstation";
       modules = baseModules ++ [
         ./ai
@@ -138,12 +136,11 @@ rec {
       ];
     };
     windows = {
-      platform = "windows";
       type = "workstation";
+      isWindows = true; # Special: generating config for Windows
       modules = baseModules;
     };
     server = {
-      platform = "linux";
       type = "server";
       modules = baseModules ++ [
         ./editor/vim.nix
@@ -154,7 +151,6 @@ rec {
       ];
     };
     mac = {
-      platform = "darwin";
       type = "workstation";
       modules = baseModules ++ [
         ./ai
@@ -164,30 +160,26 @@ rec {
       ];
     };
 
-    # Servers (users = SSH access)
+    # Remote servers (for SSH config generation)
     pikachu = {
-      platform = "nixos";
       type = "server";
       hostname = "140.238.55.181";
       sshUser = "ubuntu";
       users = [ "anko" ];
     };
     metamon = {
-      platform = "nixos";
       type = "server";
       hostname = "150.230.108.22";
       sshUser = "ubuntu";
       users = [ "anko" ];
     };
     bracky = {
-      platform = "nixos";
       type = "server";
       hostname = "168.138.210.152";
       sshUser = "ubuntu";
       users = [ "anko" ];
     };
     pochama = {
-      platform = "nixos";
       type = "server";
       hostname = "193.123.167.108";
       sshUser = "ubuntu";

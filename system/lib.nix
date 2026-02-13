@@ -25,8 +25,11 @@ let
 
   allHosts = cfg.hosts;
 
+  # Get host config from config.nix
+  getHostConfig = hostName: allHosts.${hostName} or { };
+
   # Get host modules from config.nix (already includes baseModules)
-  getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
+  getHostModules = hostName: (getHostConfig hostName).modules or [ ];
 
   # Creates unified nix configuration for darwin/nixos
   mkNixConfig =
@@ -81,22 +84,29 @@ let
     }) "unfreePkgs";
 
   # Special args for home-manager modules
-  mkSpecialArgs = system: {
-    inherit
-      userConfig
-      allHosts
-      versions
-      nixSettings
-      mkNixConfig
-      basePackages
-      desktopFonts
-      ;
-    unfreePkgs = mkUnfreePkgs system;
-  };
+  mkSpecialArgs =
+    system: hostName:
+    let
+      hostConfig = getHostConfig hostName;
+    in
+    {
+      inherit
+        userConfig
+        allHosts
+        hostConfig
+        versions
+        nixSettings
+        mkNixConfig
+        basePackages
+        desktopFonts
+        ;
+      unfreePkgs = mkUnfreePkgs system;
+    };
 
   # Special args for system modules (darwin/nixos)
   mkSystemSpecialArgs =
-    { self, inputs }: system: mkSpecialArgs system // { inherit self inputs username; };
+    { self, inputs }:
+    system: hostName: mkSpecialArgs system hostName // { inherit self inputs username; };
 
   # Factory for creating system builders (darwin/nixos)
   # Reduces duplication between darwin and nixos builders
@@ -119,13 +129,18 @@ let
     in
     systemBuilder {
       inherit system;
-      specialArgs = mkSystemSpecialArgs { inherit self inputs; } system;
+      specialArgs = mkSystemSpecialArgs { inherit self inputs; } system hostName;
       modules =
         mkPlatformModules system username
         ++ [
           homeManagerModule.home-manager
           (mkSystemHomeConfig {
-            inherit system hostModules homeDir;
+            inherit
+              system
+              hostName
+              hostModules
+              homeDir
+              ;
           })
         ]
         ++ extraModules;
@@ -143,6 +158,7 @@ let
   mkSystemHomeConfig =
     {
       system,
+      hostName,
       homeDir,
       hostModules,
     }:
@@ -153,7 +169,7 @@ let
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        extraSpecialArgs = mkSpecialArgs system // {
+        extraSpecialArgs = mkSpecialArgs system hostName // {
           inherit llmAgentsPkgs antfu-skills;
         };
         users.${username} =
@@ -182,7 +198,7 @@ let
     in
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
-      extraSpecialArgs = mkSpecialArgs system // {
+      extraSpecialArgs = mkSpecialArgs system hostName // {
         inherit llmAgentsPkgs antfu-skills;
       };
       modules =

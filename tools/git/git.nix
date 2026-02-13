@@ -6,11 +6,17 @@
 }:
 
 let
-  inherit (config.platform) isDarwin isWSL isWindows;
+  p = config.platform;
   inherit (config.defaults) editor;
   inherit (config.defaults.identity) name email sshKey;
 
-  mkAlias = config.helpers.mkPlatformValue config;
+  # Platform-specific alias helper
+  mkAlias =
+    {
+      default,
+      windows ? default,
+    }:
+    if p.os == "windows" then windows else default;
 
   czgConfig = import ./czg.nix;
   globalIgnores = import ./ignores.nix;
@@ -29,7 +35,7 @@ in
 {
   imports = [ ./delta.nix ];
 
-  home = lib.mkIf (!isWindows) {
+  home = lib.mkIf (p.os != "windows") {
     packages = with pkgs; [
       difftastic
       git-wt
@@ -51,10 +57,10 @@ in
 
   programs.git = {
     enable = true;
-    lfs.enable = !isWindows;
+    lfs.enable = p.os != "windows";
     ignores = globalIgnores;
 
-    signing = lib.mkIf (!isWindows) {
+    signing = lib.mkIf (p.os != "windows") {
       key = sshKey;
       signByDefault = true;
     };
@@ -118,13 +124,13 @@ in
         untrackedCache = true;
         fsmonitor = true;
       }
-      // lib.optionalAttrs (!isWindows) {
+      // lib.optionalAttrs (p.os != "windows") {
         inherit editor;
         filemode = false;
         pager = "delta";
         hooksPath = "${config.home.homeDirectory}/.config/git/hooks";
       }
-      // lib.optionalAttrs isWindows {
+      // lib.optionalAttrs (p.os == "windows") {
         editor = "code --wait";
       };
 
@@ -135,18 +141,18 @@ in
         colorMoved = "plain";
         mnemonicPrefix = true;
       }
-      // lib.optionalAttrs (!isWindows) {
+      // lib.optionalAttrs (p.os != "windows") {
         external = "difft";
       };
 
       merge = {
         conflictstyle = "zdiff3";
       }
-      // lib.optionalAttrs (!isWindows) {
+      // lib.optionalAttrs (p.os != "windows") {
         tool = "vimdiff";
       };
 
-      interactive = lib.mkIf (!isWindows) {
+      interactive = lib.mkIf (p.os != "windows") {
         diffFilter = "delta --color-only";
       };
 
@@ -168,7 +174,7 @@ in
         pruneTags = true;
         all = true;
       }
-      // lib.optionalAttrs (!isWindows) {
+      // lib.optionalAttrs (p.os != "windows") {
         fsckobjects = true;
       };
 
@@ -196,7 +202,7 @@ in
       tag = {
         sort = "version:refname";
       }
-      // lib.optionalAttrs (!isWindows) {
+      // lib.optionalAttrs (p.os != "windows") {
         gpgsign = true;
       };
 
@@ -208,17 +214,17 @@ in
       feature.manyFiles = true;
 
       # Security (Linux only)
-      transfer = lib.mkIf (!isWindows) { fsckobjects = true; };
-      receive = lib.mkIf (!isWindows) { fsckObjects = true; };
+      transfer = lib.mkIf (p.os != "windows") { fsckobjects = true; };
+      receive = lib.mkIf (p.os != "windows") { fsckObjects = true; };
 
       # Paths (Linux only)
       gpg.ssh.allowedSignersFile = lib.mkIf (
-        !isWindows
+        p.os != "windows"
       ) "${config.home.homeDirectory}/.config/git/allowed_signers";
-      wt.basedir = lib.mkIf (!isWindows) ".worktrees";
-      blame.ignoreRevsFile = lib.mkIf (!isWindows) ".git-blame-ignore-revs";
-      maintenance.auto = lib.mkIf (!isWindows) true;
-      url."ssh://git@github.com/".insteadOf = lib.mkIf (!isWindows) "https://github.com/";
+      wt.basedir = lib.mkIf (p.os != "windows") ".worktrees";
+      blame.ignoreRevsFile = lib.mkIf (p.os != "windows") ".git-blame-ignore-revs";
+      maintenance.auto = lib.mkIf (p.os != "windows") true;
+      url."ssh://git@github.com/".insteadOf = lib.mkIf (p.os != "windows") "https://github.com/";
 
       # Advice (reduce noise)
       advice = {
@@ -230,9 +236,9 @@ in
 
       # Credential helper
       credential = lib.mkMerge [
-        (lib.mkIf isDarwin { helper = "osxkeychain"; })
-        (lib.mkIf isWSL { helper = "!git-credential-manager.exe"; })
-        (lib.mkIf isWindows { helper = "manager"; })
+        (lib.mkIf (p.os == "darwin") { helper = "osxkeychain"; })
+        (lib.mkIf (p.environment == "wsl") { helper = "!git-credential-manager.exe"; })
+        (lib.mkIf (p.os == "windows") { helper = "manager"; })
       ];
     };
   };

@@ -262,9 +262,6 @@
           windows = mkStandaloneHome {
             system = "x86_64-linux";
             hostName = "windows";
-            homeModules = [
-              { platform.isWindows = true; }
-            ];
           };
 
           desktop = mkStandaloneHome {

@@ -6,7 +6,7 @@
 }:
 
 let
-  isWorkstation = config.platform.isDarwin || config.platform.isWSL || config.platform.isLinuxDesktop;
+  p = config.platform;
 in
 {
   home = {
@@ -30,7 +30,7 @@ in
         netcat # network utility
         dig # DNS lookup
       ]
-      ++ lib.optionals isWorkstation [
+      ++ lib.optionals (p.role == "workstation") [
         # Workstation extras
         sd # sed alternative (simpler syntax)
         ast-grep # structural code search
@@ -72,18 +72,18 @@ in
         yamllint
         markdownlint-cli
       ]
-      ++ lib.optionals config.platform.isLinux [
+      ++ lib.optionals (p.os == "linux") [
         trashy # rm alternative (move to trash)
       ]
-      ++ lib.optionals config.platform.isWSL [
+      ++ lib.optionals (p.environment == "wsl") [
         wslu # WSL utilities (wslview, etc.)
       ]
-      ++ lib.optionals config.platform.isLinuxDesktop [
+      ++ lib.optionals (p.os == "linux" && p.environment == "native" && p.role == "workstation") [
         xdg-utils
         xclip
         wl-clipboard
       ]
-      ++ lib.optionals config.platform.isDarwin [
+      ++ lib.optionals (p.os == "darwin") [
         # GNU coreutils (macOS ships BSD versions)
         coreutils
         findutils
@@ -157,7 +157,7 @@ in
 
   programs = {
     tealdeer = {
-      enable = isWorkstation;
+      enable = p.role == "workstation";
       settings = {
         display = {
           compact = false;

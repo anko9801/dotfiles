@@ -7,12 +7,7 @@
 }:
 
 let
-  inherit (config.platform)
-    isDarwin
-    isWSL
-    winAppsPath
-    macAppsPath
-    ;
+  p = config.platform;
 in
 {
   options.programs.onePassword = {
@@ -21,9 +16,9 @@ in
       readOnly = true;
       description = "Path to 1Password SSH agent socket";
       default =
-        if isDarwin then
+        if p.os == "darwin" then
           "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-        else if isWSL then
+        else if p.environment == "wsl" then
           "$HOME/.1password/agent.sock"
         else
           "~/.1password/agent.sock";
@@ -33,10 +28,10 @@ in
       readOnly = true;
       description = "Path to 1Password SSH signing program";
       default =
-        if isDarwin then
-          "${macAppsPath}/1Password.app/Contents/MacOS/op-ssh-sign"
-        else if isWSL then
-          "${winAppsPath}/WindowsApps/op-ssh-sign-wsl.exe"
+        if p.os == "darwin" then
+          "${p.macAppsPath}/1Password.app/Contents/MacOS/op-ssh-sign"
+        else if p.environment == "wsl" then
+          "${p.winAppsPath}/WindowsApps/op-ssh-sign-wsl.exe"
         else
           "op-ssh-sign";
     };
@@ -45,10 +40,10 @@ in
       readOnly = true;
       description = "Path to 1Password CLI (op)";
       default =
-        if isDarwin then
-          "${macAppsPath}/1Password.app/Contents/MacOS/op"
-        else if isWSL then
-          "${winAppsPath}/WinGet/Links/op.exe"
+        if p.os == "darwin" then
+          "${p.macAppsPath}/1Password.app/Contents/MacOS/op"
+        else if p.environment == "wsl" then
+          "${p.winAppsPath}/WinGet/Links/op.exe"
         else
           "op";
     };
@@ -56,7 +51,7 @@ in
 
   config = {
     # WSL uses op.exe from Windows, so skip Nix 1password-cli
-    home.packages = lib.optionals (!isWSL) [
+    home.packages = lib.optionals (p.environment != "wsl") [
       unfreePkgs._1password-cli
     ];
 
