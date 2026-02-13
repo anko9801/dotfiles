@@ -21,25 +21,13 @@ Declarative dotfiles for macOS, Linux, WSL, and NixOS using Nix Flakes.
 # Install Nix (if not installed)
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
-# Apply configuration (no clone needed)
+# Apply configuration
 nix run github:anko9801/dotfiles#switch --impure
-```
-
-For development, clone the repo:
-
-```sh
-git clone https://github.com/anko9801/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-nix run .#switch --impure
 ```
 
 ## Commands
 
 ```sh
-# From anywhere (uses latest from GitHub)
-nix run github:anko9801/dotfiles#switch --impure
-
-# From local clone
 nix run .#switch --impure   # Apply configuration
 nix run .#update            # Update flake inputs
 nix run .#fmt               # Format all files
