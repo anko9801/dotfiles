@@ -17,26 +17,23 @@ let
     mkSpecialArgs
     ;
 
-  # Get host modules from config.nix
+  # Get host modules from config.nix (already includes baseModules)
   getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
-  # Common modules from config.nix + external flake modules
-  commonModules =
-    systemLib.commonModules
-    ++ [
-      nix-index-database.homeModules.nix-index
-      nixvim.homeModules.nixvim
-      stylix.homeModules.stylix
-    ]
-    ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
+  # External flake modules (not in config.nix)
+  flakeModules = [
+    nix-index-database.homeModules.nix-index
+    nixvim.homeModules.nixvim
+    stylix.homeModules.stylix
+  ]
+  ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
 
   # Home Manager config for system integration (darwin/nixos modules)
-  # Used when home-manager is embedded in nix-darwin or NixOS
   mkSystemHomeConfig =
     {
       system,
       homeDir,
-      extraImports ? [ ],
+      hostModules,
     }:
     let
       llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
@@ -51,7 +48,7 @@ let
         users.${username} =
           { lib, ... }:
           {
-            imports = commonModules ++ extraImports;
+            imports = flakeModules ++ hostModules;
             home = {
               username = lib.mkForce username;
               homeDirectory = lib.mkForce "${homeDir}/${username}";
@@ -61,7 +58,6 @@ let
     };
 
   # Standalone home-manager configuration (no system integration)
-  # Used for pure home-manager setups (WSL, non-NixOS Linux)
   mkStandaloneHome =
     {
       system,
@@ -70,9 +66,7 @@ let
     }:
     let
       pkgs = import nixpkgs { inherit system; };
-      # AI tools from llm-agents flake
       llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
-      # Host-specific modules from config.nix
       hostModules = getHostModules hostName;
     in
     home-manager.lib.homeManagerConfiguration {
@@ -81,7 +75,7 @@ let
         inherit llmAgentsPkgs antfu-skills;
       };
       modules =
-        commonModules
+        flakeModules
         ++ hostModules
         ++ homeModules
         ++ [
@@ -97,7 +91,7 @@ let
 in
 {
   inherit
-    commonModules
+    flakeModules
     mkSystemHomeConfig
     mkStandaloneHome
     ;

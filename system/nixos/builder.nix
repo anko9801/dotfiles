@@ -13,7 +13,7 @@ let
     ;
   inherit (homeManager) mkSystemHomeConfig;
 
-  # Get host modules from config.nix
+  # Get host modules from config.nix (already includes baseModules)
   getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
   mkNixOS =
@@ -25,7 +25,7 @@ let
       homeModules ? [ ],
     }:
     let
-      hostModules = getHostModules hostName;
+      hostModules = getHostModules hostName ++ homeModules;
     in
     nixpkgs.lib.nixosSystem {
       inherit system;
@@ -45,9 +45,8 @@ let
         # Home Manager as NixOS module
         home-manager.nixosModules.home-manager
         (mkSystemHomeConfig {
-          inherit system;
+          inherit system hostModules;
           homeDir = "/home";
-          extraImports = hostModules ++ homeModules;
         })
       ]
       ++ extraModules;

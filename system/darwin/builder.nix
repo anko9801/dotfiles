@@ -14,7 +14,7 @@ let
     ;
   inherit (homeManager) mkSystemHomeConfig;
 
-  # Get host modules from config.nix
+  # Get host modules from config.nix (already includes baseModules)
   getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
   mkDarwin =
@@ -26,7 +26,7 @@ let
       homeModules ? [ ],
     }:
     let
-      hostModules = getHostModules hostName;
+      hostModules = getHostModules hostName ++ homeModules;
     in
     nix-darwin.lib.darwinSystem {
       inherit system;
@@ -46,9 +46,8 @@ let
         # Home Manager as nix-darwin module
         home-manager.darwinModules.home-manager
         (mkSystemHomeConfig {
-          inherit system;
+          inherit system hostModules;
           homeDir = "/Users";
-          extraImports = hostModules ++ homeModules;
         })
 
         # Override system.primaryUser for the specific user

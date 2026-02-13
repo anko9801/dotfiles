@@ -1,5 +1,5 @@
 # Fleet configuration: users, hosts, modules, and nix settings
-{
+rec {
   # Nix daemon settings (shared across darwin/nixos)
   nixSettings = {
     settings = {
@@ -61,7 +61,7 @@
     ];
 
   # Base modules loaded for all configurations
-  commonModules = [
+  baseModules = [
     ./system/home-manager/core.nix
     # Dev
     ./dev/build-tools.nix
@@ -110,7 +110,7 @@
     wsl = {
       platform = "wsl";
       type = "workstation";
-      modules = [
+      modules = baseModules ++ [
         ./ai
         ./tools
         ./editor
@@ -121,7 +121,7 @@
     desktop = {
       platform = "linux";
       type = "workstation";
-      modules = [
+      modules = baseModules ++ [
         ./ai
         ./tools
         ./editor
@@ -132,12 +132,12 @@
     windows = {
       platform = "windows";
       type = "workstation";
-      modules = [ ];
+      modules = baseModules;
     };
     server = {
       platform = "linux";
       type = "server";
-      modules = [
+      modules = baseModules ++ [
         ./editor/vim.nix
         ./tools/git
         ./tools/cli.nix
@@ -148,7 +148,7 @@
     mac = {
       platform = "darwin";
       type = "workstation";
-      modules = [
+      modules = baseModules ++ [
         ./ai
         ./tools
         ./editor

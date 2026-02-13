@@ -25,7 +25,6 @@ let
     };
 
   allHosts = cfg.hosts;
-  commonModules = cfg.commonModules or [ ];
 
   # Creates unified nix configuration for darwin/nixos
   mkNixConfig =
@@ -102,7 +101,6 @@ in
     username
     userConfig
     allHosts
-    commonModules
     versions
     nixSettings
     mkNixConfig
