@@ -42,6 +42,8 @@ jobs:
       - name: Activate Home Manager
         run: |
           eval $(dbus-launch --sh-syntax)
+          # Remove conflicting files from runner's home
+          rm -f ~/.bash_profile ~/.bashrc ~/.profile ~/.config/nix/nix.conf
           ./result/activate
           echo "$HOME/.nix-profile/bin" >> $GITHUB_PATH
       # Benchmark
