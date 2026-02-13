@@ -50,26 +50,42 @@ let
     };
 
   # System module that auto-detects darwin/nixos
-  # Includes nix configuration, timezone, and locale
+  # Unified configuration for all platforms
   nixModule =
     { pkgs, lib, ... }:
+    let
+      inherit (pkgs.stdenv) isDarwin;
+    in
     {
+      # Nix daemon configuration
       nix = {
         inherit (nixSettings) settings;
         optimise.automatic = true;
         gc =
           nixSettings.gc
           // (
-            if pkgs.stdenv.isDarwin then
+            if isDarwin then
               { interval = nixSettings.gcSchedule.darwin; }
             else
               { dates = nixSettings.gcSchedule.frequency; }
           );
       };
 
-      # Common system settings (NixOS only)
-      time.timeZone = lib.mkIf (!pkgs.stdenv.isDarwin) (lib.mkDefault "Asia/Tokyo");
-      i18n.defaultLocale = lib.mkIf (!pkgs.stdenv.isDarwin) (lib.mkDefault "ja_JP.UTF-8");
+      # Base packages (git, vim, curl, wget)
+      environment.systemPackages = basePackages pkgs;
+
+      # Zsh as default shell environment
+      programs.zsh.enable = true;
+
+      # Home Manager backup extension
+      home-manager.backupFileExtension = "backup";
+
+      # State version (auto-detect)
+      system.stateVersion = if isDarwin then versions.darwin else versions.nixos;
+
+      # NixOS-only defaults
+      time.timeZone = lib.mkIf (!isDarwin) (lib.mkDefault "Asia/Tokyo");
+      i18n.defaultLocale = lib.mkIf (!isDarwin) (lib.mkDefault "ja_JP.UTF-8");
     };
 
   # Unfree package handling with build-time warnings

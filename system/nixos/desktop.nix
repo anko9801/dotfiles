@@ -1,14 +1,11 @@
 {
   pkgs,
-  versions,
-  basePackages,
   desktopFonts,
   ...
 }:
 
 {
   # NOTE: Replace with hardware-configuration.nix after installing NixOS
-  # imports = [ ./hardware-configuration.nix ];
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "ext4";
@@ -104,19 +101,14 @@
     };
   };
 
-  # System packages
-  environment.systemPackages =
-    basePackages pkgs
-    ++ (with pkgs; [
-      firefox
-      nautilus
-      pavucontrol
-      networkmanagerapplet
-      polkit_gnome
-      gnome-keyring
-      libsecret
-    ]);
-
-  # This value determines the NixOS release
-  system.stateVersion = versions.nixos;
+  # Desktop packages (base packages are in nixModule)
+  environment.systemPackages = with pkgs; [
+    firefox
+    nautilus
+    pavucontrol
+    networkmanagerapplet
+    polkit_gnome
+    gnome-keyring
+    libsecret
+  ];
 }

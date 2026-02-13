@@ -1,14 +1,10 @@
 {
   pkgs,
   lib,
-  versions,
-  basePackages,
   ...
 }:
 
 {
-  # NOTE: Replace with hardware-configuration.nix after installing NixOS
-  # imports = [ ./hardware-configuration.nix ];
   # Default fileSystems (override with disko or hardware-configuration.nix)
   fileSystems."/" = lib.mkDefault {
     device = "/dev/disk/by-label/nixos";
@@ -16,8 +12,8 @@
   };
 
   boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
+    systemd-boot.enable = lib.mkDefault true;
+    efi.canTouchEfiVariables = lib.mkDefault true;
   };
 
   networking = {
@@ -38,9 +34,6 @@
     };
   };
 
-  # System packages
-  environment.systemPackages = basePackages pkgs ++ [ pkgs.htop ];
-
-  # This value determines the NixOS release
-  system.stateVersion = versions.nixos;
+  # Server packages (base packages are in nixModule)
+  environment.systemPackages = [ pkgs.htop ];
 }

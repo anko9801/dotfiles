@@ -1,9 +1,6 @@
 {
   inputs,
-  pkgs,
   username,
-  versions,
-  basePackages,
   ...
 }:
 
@@ -23,9 +20,4 @@
   };
 
   networking.hostName = "nixos-wsl";
-
-  environment.systemPackages = basePackages pkgs;
-
-  # This value determines the NixOS release
-  system.stateVersion = versions.nixos;
 }

@@ -1,7 +1,5 @@
 {
   pkgs,
-  versions,
-  basePackages,
   desktopFonts,
   ...
 }:
@@ -13,21 +11,10 @@
     ./kanata.nix
   ];
 
-  environment.systemPackages = basePackages pkgs;
-
   fonts.packages = desktopFonts pkgs;
 
   # Enable Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
-
-  # Create /etc/zshrc that loads nix-darwin environment
-  programs.zsh.enable = true;
-
-  # Home Manager
-  home-manager.backupFileExtension = "backup";
-
-  # Used for backwards compatibility
-  system.stateVersion = versions.darwin;
 
   # macOS system preferences
   system = {
