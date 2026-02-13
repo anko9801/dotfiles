@@ -99,6 +99,13 @@ rec {
     "agent-skills"
   ];
 
+  # Flag-based home modules (username injected by lib.nix)
+  mkFlagModules = username: {
+    wslUser = {
+      programs.wsl.windowsUser = username;
+    };
+  };
+
   # Base modules loaded for all configurations
   baseModules = [
     ./system/home-manager.nix

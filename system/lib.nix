@@ -314,15 +314,11 @@ let
             or (throw "inputModule '${name}' not found")
         ) (host.inputModules or [ ]);
 
-      # Flag-based homeModules (extensible for future flags)
-      flagModules = {
-        wslUser = {
-          programs.wsl.windowsUser = username;
-        };
-      };
+      # Flag-based homeModules from config.nix
+      flagModules = cfg.mkFlagModules username;
 
       # Resolve flags to homeModules (only flags with corresponding modules)
-      mkFlagModules =
+      resolveFlagModules =
         host:
         let
           flags = host.flags or [ ];
@@ -336,7 +332,7 @@ let
         mkStandaloneHome {
           inherit (host) system;
           hostName = name;
-          homeModules = mkFlagModules host;
+          homeModules = resolveFlagModules host;
         }
       ) (byBuilder "standalone");
 
@@ -355,7 +351,7 @@ let
           inherit (host) system;
           hostName = name;
           extraModules = resolveInputModules host ++ (host.systemModules or [ ]);
-          homeModules = mkFlagModules host;
+          homeModules = resolveFlagModules host;
         }
       ) (byBuilder "nixos");
     };
