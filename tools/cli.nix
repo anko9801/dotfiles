@@ -13,7 +13,7 @@ in
     packages =
       with pkgs;
       [
-        # Essential (always installed)
+        # Essential CLI tools
         ripgrep # rg: fast grep
         fd # find alternative
         jq # JSON processor
@@ -30,58 +30,11 @@ in
         netcat # network utility
         dig # DNS lookup
       ]
-      ++ lib.optionals (p.role == "workstation") [
-        # Workstation extras
-        sd # sed alternative (simpler syntax)
-        ast-grep # structural code search
-
-        # Fancy alternatives
-        dust # du alternative (visual)
-        duf # df alternative (visual)
-        ouch # universal archive tool
-        bottom # btm: top/htop alternative
-        procs # ps alternative
-
-        # Data processing
-        jless # JSON viewer
-        dasel # universal data selector
-        dyff # YAML/JSON diff tool
-        yq-go # YAML processor
-
-        # Network extras
-        xh # httpie alternative
-        nmap # network scanner
-
-        # Container tools
-        dive # Docker image layer explorer
-        lazydocker # Docker TUI
-        k9s # Kubernetes TUI
-
-        # Load testing
-        oha # HTTP load generator
-
-        # Dev tools
-        sqlite # embedded database
-        watchexec # file watcher
-
-        # Document tools
-        glow # terminal markdown renderer
-        typst # modern LaTeX alternative
-
-        # Linters
-        yamllint
-        markdownlint-cli
-      ]
       ++ lib.optionals (p.os == "linux") [
         trashy # rm alternative (move to trash)
       ]
       ++ lib.optionals (p.environment == "wsl") [
         wslu # WSL utilities (wslview, etc.)
-      ]
-      ++ lib.optionals (p.os == "linux" && p.environment == "native" && p.role == "workstation") [
-        xdg-utils
-        xclip
-        wl-clipboard
       ]
       ++ lib.optionals (p.os == "darwin") [
         # GNU coreutils (macOS ships BSD versions)
@@ -156,20 +109,6 @@ in
   };
 
   programs = {
-    tealdeer = {
-      enable = p.role == "workstation";
-      settings = {
-        display = {
-          compact = false;
-          use_pager = true;
-        };
-        updates = {
-          auto_update = true;
-          auto_update_interval_hours = 720;
-        };
-      };
-    };
-
     man = {
       enable = true;
       generateCaches = false; # Speeds up rebuild; use `man -k` for search

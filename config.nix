@@ -109,6 +109,7 @@ rec {
     workstation = baseModules ++ [
       ./ai
       ./tools
+      ./tools/cli-extras.nix
       ./editor
       ./terminal
     ];
@@ -164,13 +165,11 @@ rec {
     server = {
       system = "x86_64-linux";
       integration = "standalone";
-      flags = [ "server" ];
       modules = moduleSets.server;
     };
     server-arm = {
       system = "aarch64-linux";
       integration = "standalone";
-      flags = [ "server" ];
       modules = moduleSets.server;
     };
 
@@ -208,7 +207,6 @@ rec {
     nixos-server = {
       system = "x86_64-linux";
       integration = "nixos";
-      flags = [ "server" ];
       systemModules = [ ./system/nixos/server.nix ];
       modules = moduleSets.server;
       deploy = {
@@ -218,14 +216,12 @@ rec {
     nixos-server-arm = {
       system = "aarch64-linux";
       integration = "nixos";
-      flags = [ "server" ];
       systemModules = [ ./system/nixos/server.nix ];
       modules = moduleSets.server;
     };
     example-vps = {
       system = "x86_64-linux";
       integration = "nixos";
-      flags = [ "server" ];
       inputModules = [ "disko" ];
       systemModules = [
         ./system/nixos/example-vps

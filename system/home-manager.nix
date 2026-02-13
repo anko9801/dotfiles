@@ -54,16 +54,6 @@ in
         description = "Execution environment";
       };
 
-      role = lib.mkOption {
-        type = lib.types.enum [
-          "workstation"
-          "server"
-        ];
-        readOnly = true;
-        default = if builtins.elem "server" (hostConfig.flags or [ ]) then "server" else "workstation";
-        description = "Machine role (derived from flags)";
-      };
-
       # Platform-specific paths
       winAppsPath = lib.mkOption {
         type = lib.types.str;
@@ -251,10 +241,6 @@ in
       // lib.optionalAttrs (p.environment == "wsl") {
         DISPLAY = ":0";
         WSL_INTEROP = "/run/WSL/1_interop";
-      }
-      // lib.optionalAttrs (p.os == "linux" && p.environment == "native" && p.role == "workstation") {
-        MOZ_ENABLE_WAYLAND = "1";
-        QT_QPA_PLATFORM = "wayland;xcb";
       };
 
       sessionPath = [
