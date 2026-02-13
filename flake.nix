@@ -92,54 +92,29 @@
         in
         if u != "" then u else "runner";
 
-      # Factory for creating builders with a specific username
-      mkBuilders =
-        user:
-        let
-          systemLib = import ./system/lib.nix {
-            inherit nixpkgs home-manager;
-            inherit (inputs) llm-agents antfu-skills;
-            username = user;
-            homeModules = {
-              inherit (inputs.nix-index-database.homeModules) nix-index;
-              inherit (inputs.nixvim.homeModules) nixvim;
-              inherit (inputs.stylix.homeModules) stylix;
-              agent-skills = inputs.agent-skills.homeManagerModules.default;
-            };
-          };
-          darwin = import ./system/darwin/builder.nix {
-            inherit
-              nix-darwin
-              nix-homebrew
-              systemLib
-              ;
-          };
-          nixos = import ./system/nixos/builder.nix {
-            inherit
-              nixpkgs
-              systemLib
-              ;
-          };
-        in
-        {
-          inherit
-            systemLib
-            darwin
-            nixos
-            ;
-          inherit (systemLib) mkStandaloneHome;
-          mkDarwin = darwin.mkDarwin { inherit self inputs; };
-          mkNixOS = nixos.mkNixOS { inherit self inputs; };
+      # System library with all builders
+      systemLib = import ./system/lib.nix {
+        inherit
+          nixpkgs
+          home-manager
+          nix-darwin
+          nix-homebrew
+          ;
+        inherit (inputs) llm-agents antfu-skills;
+        inherit username;
+        homeModules = {
+          inherit (inputs.nix-index-database.homeModules) nix-index;
+          inherit (inputs.nixvim.homeModules) nixvim;
+          inherit (inputs.stylix.homeModules) stylix;
+          agent-skills = inputs.agent-skills.homeManagerModules.default;
         };
+      };
 
-      # Builders for current user (requires --impure for USER env)
-      builders = mkBuilders username;
-      inherit (builders) mkDarwin mkNixOS;
-      inherit (builders.systemLib) mkAllConfigurations mkDeployNodes defaults;
+      inherit (systemLib) mkAllConfigurations mkDeployNodes defaults;
 
       # Generate all configurations from config.nix hosts
       allConfigs = mkAllConfigurations {
-        inherit mkDarwin mkNixOS;
+        inherit self inputs;
         inputModules = {
           inherit (inputs.disko.nixosModules) disko;
         };

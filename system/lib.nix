@@ -3,6 +3,8 @@
   nixpkgs,
   username,
   home-manager,
+  nix-darwin,
+  nix-homebrew,
   homeModules ? { },
   llm-agents ? null,
   antfu-skills ? null,
@@ -180,6 +182,52 @@ let
     nixos = home-manager.nixosModules;
   };
 
+  # Darwin-specific builder
+  mkDarwinBuilder = mkSystemBuilder {
+    systemBuilder = nix-darwin.lib.darwinSystem;
+    homeManagerModule = homeManagerModules.darwin;
+    homeDir = "/Users";
+    mkPlatformModules = system: user: [
+      nixModule
+      nix-homebrew.darwinModules.nix-homebrew
+      {
+        nix-homebrew = {
+          enable = true;
+          enableRosetta = system == "aarch64-darwin";
+          inherit user;
+          autoMigrate = true;
+        };
+      }
+      { system.primaryUser = user; }
+    ];
+  };
+
+  # NixOS-specific builder
+  mkNixOSBuilder = mkSystemBuilder {
+    systemBuilder = nixpkgs.lib.nixosSystem;
+    homeManagerModule = homeManagerModules.nixos;
+    homeDir = "/home";
+    mkPlatformModules = _system: user: [
+      nixModule
+      (
+        { lib, ... }:
+        {
+          time.timeZone = lib.mkDefault "Asia/Tokyo";
+          i18n.defaultLocale = lib.mkDefault "ja_JP.UTF-8";
+        }
+      )
+      {
+        users.users.${user} = {
+          isNormalUser = true;
+          extraGroups = [
+            "wheel"
+            "networkmanager"
+          ];
+        };
+      }
+    ];
+  };
+
   # External flake modules (passed from flake.nix)
   flakeModules = builtins.attrValues homeModules;
 
@@ -263,12 +311,16 @@ let
   # Generate all configurations from hosts in config.nix
   mkAllConfigurations =
     {
-      mkDarwin,
-      mkNixOS,
+      self,
+      inputs,
       inputModules ? { },
     }:
     let
       inherit (nixpkgs) lib;
+
+      # Instantiate builders with self/inputs
+      mkDarwin = mkDarwinBuilder { inherit self inputs; };
+      mkNixOS = mkNixOSBuilder { inherit self inputs; };
 
       # Filter hosts by builder type (only hosts with a builder field)
       byBuilder = type: lib.filterAttrs (_: h: (h.integration or null) == type) allHosts;
@@ -323,14 +375,9 @@ let
     };
 in
 {
-  # Used by flake.nix
   inherit
-    mkStandaloneHome
     mkAllConfigurations
     mkDeployNodes
     defaults
     ;
-
-  # Used by darwin/builder.nix and nixos/builder.nix
-  inherit mkSystemBuilder homeManagerModules nixModule;
 }

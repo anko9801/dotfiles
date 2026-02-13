@@ -1,4 +1,25 @@
 # Fleet configuration: users, hosts, modules, and nix settings
+let
+  # Host definition helpers
+  mkStandalone = system: modules: {
+    inherit system modules;
+    integration = "standalone";
+  };
+
+  mkDarwin = system: modules: {
+    inherit system modules;
+    integration = "darwin";
+    systemModules = [ ./system/darwin/desktop.nix ];
+  };
+
+  mkNixOS =
+    system: modules: extra:
+    {
+      inherit system modules;
+      integration = "nixos";
+    }
+    // extra;
+in
 rec {
   # Default hosts for each environment (used by switch app)
   defaults = {
@@ -144,91 +165,46 @@ rec {
 
   hosts = {
     # Standalone home-manager configurations
-    wsl = {
-      system = "x86_64-linux";
-      integration = "standalone";
+    wsl = mkStandalone "x86_64-linux" (moduleSets.workstation ++ [ ./terminal/zellij ]) // {
       flags = [ "wslUser" ];
-      modules = moduleSets.workstation ++ [ ./terminal/zellij ];
     };
-    desktop = {
-      system = "x86_64-linux";
-      integration = "standalone";
-      modules = moduleSets.workstation ++ [ ./desktop ];
-    };
-    windows = {
-      system = "x86_64-linux";
-      integration = "standalone";
+    desktop = mkStandalone "x86_64-linux" (moduleSets.workstation ++ [ ./desktop ]);
+    windows = mkStandalone "x86_64-linux" baseModules // {
       isWindows = true;
-      modules = baseModules;
     };
-    server = {
-      system = "x86_64-linux";
-      integration = "standalone";
-      modules = moduleSets.server;
-    };
-    server-arm = {
-      system = "aarch64-linux";
-      integration = "standalone";
-      modules = moduleSets.server;
-    };
+    server = mkStandalone "x86_64-linux" moduleSets.server;
+    server-arm = mkStandalone "aarch64-linux" moduleSets.server;
 
     # Darwin configurations
-    mac = {
-      system = "aarch64-darwin";
-      integration = "darwin";
-      systemModules = [ ./system/darwin/desktop.nix ];
-      modules = moduleSets.workstation;
-    };
-    mac-intel = {
-      system = "x86_64-darwin";
-      integration = "darwin";
-      systemModules = [ ./system/darwin/desktop.nix ];
-      modules = moduleSets.workstation;
-    };
+    mac = mkDarwin "aarch64-darwin" moduleSets.workstation;
+    mac-intel = mkDarwin "x86_64-darwin" moduleSets.workstation;
 
     # NixOS configurations
-    nixos-wsl = {
-      system = "x86_64-linux";
-      integration = "nixos";
+    nixos-wsl = mkNixOS "x86_64-linux" (moduleSets.workstation ++ [ ./terminal/zellij ]) {
       flags = [ "wslUser" ];
       systemModules = [ ./system/nixos/wsl.nix ];
-      modules = moduleSets.workstation ++ [ ./terminal/zellij ];
     };
-    nixos-desktop = {
-      system = "x86_64-linux";
-      integration = "nixos";
+    nixos-desktop = mkNixOS "x86_64-linux" (moduleSets.workstation ++ [ ./desktop ]) {
       systemModules = [
         ./system/nixos/desktop.nix
         ./system/nixos/kanata.nix
       ];
-      modules = moduleSets.workstation ++ [ ./desktop ];
     };
-    nixos-server = {
-      system = "x86_64-linux";
-      integration = "nixos";
+    nixos-server = mkNixOS "x86_64-linux" moduleSets.server {
       systemModules = [ ./system/nixos/server.nix ];
-      modules = moduleSets.server;
-      deploy = {
-        hostname = "nixos-server"; # Replace with actual hostname/IP
-      };
+      deploy.hostname = "nixos-server";
     };
-    nixos-server-arm = {
-      system = "aarch64-linux";
-      integration = "nixos";
+    nixos-server-arm = mkNixOS "aarch64-linux" moduleSets.server {
       systemModules = [ ./system/nixos/server.nix ];
-      modules = moduleSets.server;
     };
-    example-vps = {
-      system = "x86_64-linux";
-      integration = "nixos";
+    example-vps = mkNixOS "x86_64-linux" moduleSets.server {
       inputModules = [ "disko" ];
       systemModules = [
         ./system/nixos/example-vps
         ./system/nixos/server.nix
       ];
-      modules = moduleSets.server;
       deploy = {
-        hostname = "example-vps"; # Replace with actual hostname/IP
+        hostname = "example-vps";
         user = "root";
       };
     };
