@@ -6,16 +6,31 @@
   shared,
 }:
 let
-  inherit (shared) username mkSystemSpecialArgs;
+  inherit (shared)
+    username
+    userConfig
+    allHosts
+    mkSystemSpecialArgs
+    ;
   inherit (homeManager) mkSystemHomeConfig;
+
+  # User-defined modules from config.nix
+  userModules = userConfig.modules or [ ];
+
+  # Get host modules from config.nix
+  getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
   mkNixOS =
     { self, inputs }:
     {
       system,
+      hostName,
       extraModules ? [ ],
       homeModules ? [ ],
     }:
+    let
+      hostModules = getHostModules hostName;
+    in
     nixpkgs.lib.nixosSystem {
       inherit system;
       specialArgs = mkSystemSpecialArgs { inherit self inputs; } system;
@@ -36,7 +51,7 @@ let
         (mkSystemHomeConfig {
           inherit system;
           homeDir = "/home";
-          extraImports = homeModules;
+          extraImports = userModules ++ hostModules ++ homeModules;
         })
       ]
       ++ extraModules;

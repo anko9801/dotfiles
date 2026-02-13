@@ -11,23 +11,18 @@
   antfu-skills ? null,
 }:
 let
-  inherit (shared) username userConfig mkSpecialArgs;
+  inherit (shared)
+    username
+    userConfig
+    allHosts
+    mkSpecialArgs
+    ;
 
   # User-defined modules from config.nix
   userModules = userConfig.modules or [ ];
 
-  # Platform-specific modules
-  platformModules = {
-    wsl = [ ../../terminal/zellij ];
-    desktop = [ ../../desktop ];
-    server = [
-      ../../editor/vim.nix
-      ../../tools/git
-      ../../tools/cli.nix
-      ../../tools/bat.nix
-      ../../terminal/tmux.nix
-    ];
-  };
+  # Get host modules from config.nix
+  getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
   # Common modules for home-manager (also used by darwin/nixos)
   commonModules = [
@@ -78,11 +73,16 @@ let
       homeDir,
       extraImports ? [ ],
     }:
+    let
+      llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
+    in
     {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        extraSpecialArgs = mkSpecialArgs system;
+        extraSpecialArgs = mkSpecialArgs system // {
+          inherit llmAgentsPkgs antfu-skills;
+        };
         users.${username} =
           { lib, ... }:
           {
@@ -100,12 +100,15 @@ let
   mkStandaloneHome =
     {
       system,
+      hostName,
       homeModules ? [ ],
     }:
     let
       pkgs = import nixpkgs { inherit system; };
       # AI tools from llm-agents flake
       llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
+      # Host-specific modules from config.nix
+      hostModules = getHostModules hostName;
     in
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
@@ -115,6 +118,7 @@ let
       modules =
         commonModules
         ++ userModules
+        ++ hostModules
         ++ homeModules
         ++ [
           {
@@ -130,7 +134,6 @@ in
 {
   inherit
     commonModules
-    platformModules
     mkSystemHomeConfig
     mkStandaloneHome
     ;

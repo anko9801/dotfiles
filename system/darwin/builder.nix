@@ -7,16 +7,31 @@
   shared,
 }:
 let
-  inherit (shared) username mkSystemSpecialArgs;
+  inherit (shared)
+    username
+    userConfig
+    allHosts
+    mkSystemSpecialArgs
+    ;
   inherit (homeManager) mkSystemHomeConfig;
+
+  # User-defined modules from config.nix
+  userModules = userConfig.modules or [ ];
+
+  # Get host modules from config.nix
+  getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
   mkDarwin =
     { self, inputs }:
     {
       system,
+      hostName,
       extraModules ? [ ],
       homeModules ? [ ],
     }:
+    let
+      hostModules = getHostModules hostName;
+    in
     nix-darwin.lib.darwinSystem {
       inherit system;
       specialArgs = mkSystemSpecialArgs { inherit self inputs; } system;
@@ -37,7 +52,7 @@ let
         (mkSystemHomeConfig {
           inherit system;
           homeDir = "/Users";
-          extraImports = homeModules;
+          extraImports = userModules ++ hostModules ++ homeModules;
         })
 
         # Override system.primaryUser for the specific user

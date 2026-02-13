@@ -154,6 +154,7 @@ in
   inherit
     username
     userConfig
+    allHosts
     versions
     nixSettings
     mkNixConfig

@@ -20,13 +20,36 @@
 
   hosts = {
     # Workstations
-    "anko-wsl" = {
+    wsl = {
       platform = "wsl";
       type = "workstation";
+      modules = [ ./terminal/zellij ];
     };
-    "windows" = {
+    desktop = {
+      platform = "linux";
+      type = "workstation";
+      modules = [ ./desktop ];
+    };
+    windows = {
       platform = "windows";
       type = "workstation";
+      modules = [ ];
+    };
+    server = {
+      platform = "linux";
+      type = "server";
+      modules = [
+        ./editor/vim.nix
+        ./tools/git
+        ./tools/cli.nix
+        ./tools/bat.nix
+        ./terminal/tmux.nix
+      ];
+    };
+    mac = {
+      platform = "darwin";
+      type = "workstation";
+      modules = [ ];
     };
 
     # Servers (users = SSH access)

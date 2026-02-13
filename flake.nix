@@ -125,7 +125,7 @@
       };
 
       # Bind self and inputs to builders
-      inherit (homeManager) mkStandaloneHome platformModules;
+      inherit (homeManager) mkStandaloneHome;
       mkDarwin = darwin.mkDarwin { inherit self inputs; };
       mkNixOS = nixos.mkNixOS { inherit self inputs; };
     in
@@ -255,14 +255,15 @@
         homeConfigurations = {
           wsl = mkStandaloneHome {
             system = "x86_64-linux";
-            homeModules = platformModules.wsl ++ [
+            hostName = "wsl";
+            homeModules = [
               { programs.wsl.windowsUser = shared.username; }
             ];
           };
 
-          # Windows config (built from WSL, deployed separately)
           windows = mkStandaloneHome {
             system = "x86_64-linux";
+            hostName = "windows";
             homeModules = [
               { platform.isWindows = true; }
             ];
@@ -270,66 +271,61 @@
 
           desktop = mkStandaloneHome {
             system = "x86_64-linux";
-            homeModules = platformModules.desktop;
+            hostName = "desktop";
           };
 
           server = mkStandaloneHome {
             system = "x86_64-linux";
-            homeModules = platformModules.server;
+            hostName = "server";
           };
         };
 
         darwinConfigurations = {
           mac = mkDarwin {
             system = "aarch64-darwin";
+            hostName = "mac";
             extraModules = [ ./system/darwin/desktop.nix ];
-            homeModules = [
-              ./tools
-              ./editor
-            ];
           };
           mac-intel = mkDarwin {
             system = "x86_64-darwin";
+            hostName = "mac";
             extraModules = [ ./system/darwin/desktop.nix ];
-            homeModules = [
-              ./tools
-              ./editor
-            ];
           };
         };
 
         nixosConfigurations = {
           nixos-wsl = mkNixOS {
             system = "x86_64-linux";
+            hostName = "wsl";
             extraModules = [ ./system/nixos/wsl.nix ];
-            homeModules = platformModules.wsl ++ [
+            homeModules = [
               { programs.wsl.windowsUser = shared.username; }
             ];
           };
 
           nixos-desktop = mkNixOS {
             system = "x86_64-linux";
+            hostName = "desktop";
             extraModules = [
               ./system/nixos/desktop.nix
               ./system/nixos/kanata.nix
             ];
-            homeModules = platformModules.desktop;
           };
 
           nixos-server = mkNixOS {
             system = "x86_64-linux";
+            hostName = "server";
             extraModules = [ ./system/nixos/server.nix ];
-            homeModules = platformModules.server;
           };
 
           example-vps = mkNixOS {
             system = "x86_64-linux";
+            hostName = "server";
             extraModules = [
               inputs.disko.nixosModules.disko
               ./system/nixos/example-vps
               ./system/nixos/server.nix
             ];
-            homeModules = platformModules.server;
           };
         };
 
