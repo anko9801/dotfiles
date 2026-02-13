@@ -31,7 +31,7 @@ let
   # Get host modules from config.nix (already includes baseModules)
   getHostModules = hostName: (getHostConfig hostName).modules or [ ];
 
-  # Creates unified nix configuration for darwin/nixos
+  # Creates unified nix configuration for darwin/nixos (legacy function)
   mkNixConfig =
     {
       isDarwin ? false,
@@ -47,6 +47,29 @@ let
           else
             { dates = nixSettings.gcSchedule.frequency; }
         );
+    };
+
+  # System module that auto-detects darwin/nixos
+  # Includes nix configuration, timezone, and locale
+  nixModule =
+    { pkgs, lib, ... }:
+    {
+      nix = {
+        inherit (nixSettings) settings;
+        optimise.automatic = true;
+        gc =
+          nixSettings.gc
+          // (
+            if pkgs.stdenv.isDarwin then
+              { interval = nixSettings.gcSchedule.darwin; }
+            else
+              { dates = nixSettings.gcSchedule.frequency; }
+          );
+      };
+
+      # Common system settings (NixOS only)
+      time.timeZone = lib.mkIf (!pkgs.stdenv.isDarwin) (lib.mkDefault "Asia/Tokyo");
+      i18n.defaultLocale = lib.mkIf (!pkgs.stdenv.isDarwin) (lib.mkDefault "ja_JP.UTF-8");
     };
 
   # Unfree package handling with build-time warnings
@@ -146,6 +169,12 @@ let
         ++ extraModules;
     };
 
+  # Home Manager modules for system integration
+  homeManagerModules = {
+    darwin = home-manager.darwinModules;
+    nixos = home-manager.nixosModules;
+  };
+
   # External flake modules (not in config.nix)
   flakeModules = [
     nix-index-database.homeModules.nix-index
@@ -224,12 +253,14 @@ in
     versions
     nixSettings
     mkNixConfig
+    nixModule
     basePackages
     desktopFonts
     getHostModules
     mkSpecialArgs
     mkSystemSpecialArgs
     mkSystemBuilder
+    homeManagerModules
     flakeModules
     mkSystemHomeConfig
     mkStandaloneHome

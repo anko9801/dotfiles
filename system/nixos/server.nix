@@ -2,7 +2,6 @@
   pkgs,
   lib,
   versions,
-  mkNixConfig,
   basePackages,
   ...
 }:
@@ -30,10 +29,8 @@
     };
   };
 
-  time.timeZone = "Asia/Tokyo";
+  # Override default locale (ja_JP.UTF-8) for server
   i18n.defaultLocale = "en_US.UTF-8";
-
-  nix = mkNixConfig { };
 
   # SSH
   services.openssh = {

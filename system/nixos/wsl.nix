@@ -3,7 +3,6 @@
   pkgs,
   username,
   versions,
-  mkNixConfig,
   basePackages,
   ...
 }:
@@ -24,8 +23,6 @@
   };
 
   networking.hostName = "nixos-wsl";
-
-  nix = mkNixConfig { };
 
   environment.systemPackages = basePackages pkgs;
 

@@ -1,7 +1,6 @@
 {
   pkgs,
   versions,
-  mkNixConfig,
   basePackages,
   desktopFonts,
   ...
@@ -24,11 +23,6 @@
     hostName = "nixos-desktop";
     networkmanager.enable = true;
   };
-
-  time.timeZone = "Asia/Tokyo";
-  i18n.defaultLocale = "ja_JP.UTF-8";
-
-  nix = mkNixConfig { };
 
   programs = {
     # Niri compositor

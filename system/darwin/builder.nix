@@ -2,17 +2,18 @@
 {
   nix-darwin,
   nix-homebrew,
-  home-manager,
   systemLib,
 }:
 let
-  inherit (systemLib) mkSystemBuilder;
+  inherit (systemLib) mkSystemBuilder homeManagerModules nixModule;
 
   mkDarwin = mkSystemBuilder {
     systemBuilder = nix-darwin.lib.darwinSystem;
-    homeManagerModule = home-manager.darwinModules;
+    homeManagerModule = homeManagerModules.darwin;
     homeDir = "/Users";
     mkPlatformModules = system: username: [
+      # Nix configuration (auto-detects darwin)
+      nixModule
       # Homebrew management
       nix-homebrew.darwinModules.nix-homebrew
       {

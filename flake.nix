@@ -116,14 +116,12 @@
             inherit
               nix-darwin
               nix-homebrew
-              home-manager
               systemLib
               ;
           };
           nixos = import ./system/nixos/builder.nix {
             inherit
               nixpkgs
-              home-manager
               systemLib
               ;
           };

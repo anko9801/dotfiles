@@ -1,17 +1,18 @@
 # NixOS configuration
 {
   nixpkgs,
-  home-manager,
   systemLib,
 }:
 let
-  inherit (systemLib) mkSystemBuilder;
+  inherit (systemLib) mkSystemBuilder homeManagerModules nixModule;
 
   mkNixOS = mkSystemBuilder {
     systemBuilder = nixpkgs.lib.nixosSystem;
-    homeManagerModule = home-manager.nixosModules;
+    homeManagerModule = homeManagerModules.nixos;
     homeDir = "/home";
     mkPlatformModules = _system: username: [
+      # Nix configuration (auto-detects nixos)
+      nixModule
       # User configuration
       {
         users.users.${username} = {

@@ -1,7 +1,6 @@
 {
   pkgs,
   versions,
-  mkNixConfig,
   basePackages,
   desktopFonts,
   ...
@@ -13,8 +12,6 @@
     ./aerospace.nix
     ./kanata.nix
   ];
-
-  nix = mkNixConfig { isDarwin = true; };
 
   environment.systemPackages = basePackages pkgs;
 
