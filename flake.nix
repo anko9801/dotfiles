@@ -162,7 +162,12 @@
       ];
 
       perSystem =
-        { config, pkgs, ... }:
+        {
+          config,
+          pkgs,
+          system,
+          ...
+        }:
         mkDevTools { inherit config pkgs; }
         // {
           # Flake apps
@@ -189,7 +194,18 @@
                 ''
               );
             };
-          };
+          }
+          // (
+            if inputs.deploy-rs.packages ? ${system} then
+              {
+                deploy = {
+                  type = "app";
+                  program = toString inputs.deploy-rs.packages.${system}.default;
+                };
+              }
+            else
+              { }
+          );
         };
 
       flake = {
@@ -199,14 +215,6 @@
         deploy.nodes = mkDeployNodes {
           inherit self;
           inherit (inputs) deploy-rs;
-        };
-
-        apps.x86_64-linux = {
-          # deploy-rs for updates
-          deploy = {
-            type = "app";
-            program = toString inputs.deploy-rs.packages.x86_64-linux.default;
-          };
         };
       };
     };

@@ -121,12 +121,10 @@ let
     {
       inherit
         userConfig
-        allHosts
         remoteServers
         hostConfig
         versions
         nixSettings
-        basePackages
         desktopFonts
         getOS
         ;
