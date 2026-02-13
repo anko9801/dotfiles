@@ -1,15 +1,23 @@
 # System builder utilities
-{
-  nixpkgs,
-  username,
-  home-manager,
-  nix-darwin,
-  nix-homebrew,
-  homeModules ? { },
-  llm-agents ? null,
-  antfu-skills ? null,
-}:
+{ inputs, username }:
 let
+  inherit (inputs)
+    nixpkgs
+    home-manager
+    nix-darwin
+    nix-homebrew
+    llm-agents
+    antfu-skills
+    ;
+
+  # Home-manager modules from flake inputs
+  flakeModules = [
+    inputs.nix-index-database.homeModules.nix-index
+    inputs.nixvim.homeModules.nixvim
+    inputs.stylix.homeModules.stylix
+    inputs.agent-skills.homeManagerModules.default
+  ];
+
   cfg = import ../config.nix;
 
   inherit (cfg)
@@ -228,9 +236,6 @@ let
     ];
   };
 
-  # External flake modules (passed from flake.nix)
-  flakeModules = builtins.attrValues homeModules;
-
   # Home Manager config for system integration (darwin/nixos modules)
   mkSystemHomeConfig =
     {
@@ -310,11 +315,7 @@ let
 
   # Generate all configurations from hosts in config.nix
   mkAllConfigurations =
-    {
-      self,
-      inputs,
-      inputModules ? { },
-    }:
+    { self }:
     let
       inherit (nixpkgs) lib;
 
@@ -325,8 +326,14 @@ let
       # Filter hosts by builder type (only hosts with a builder field)
       byBuilder = type: lib.filterAttrs (_: h: (h.integration or null) == type) allHosts;
 
-      # Resolve input module references to actual modules
-      resolveInputModules = host: map (name: inputModules.${name}) (host.inputModules or [ ]);
+      # Resolve input module references to actual modules (auto-detect from inputs)
+      resolveInputModules =
+        host:
+        map (
+          name:
+          inputs.${name}.nixosModules.${name} or inputs.${name}.nixosModules.default
+            or (throw "inputModule '${name}' not found")
+        ) (host.inputModules or [ ]);
 
       # Flag-based homeModules (extensible for future flags)
       flagModules = {

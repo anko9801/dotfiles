@@ -77,11 +77,7 @@
   outputs =
     inputs@{
       self,
-      nixpkgs,
       flake-parts,
-      home-manager,
-      nix-darwin,
-      nix-homebrew,
       ...
     }:
     let
@@ -93,32 +89,12 @@
         if u != "" then u else "runner";
 
       # System library with all builders
-      systemLib = import ./system/lib.nix {
-        inherit
-          nixpkgs
-          home-manager
-          nix-darwin
-          nix-homebrew
-          ;
-        inherit (inputs) llm-agents antfu-skills;
-        inherit username;
-        homeModules = {
-          inherit (inputs.nix-index-database.homeModules) nix-index;
-          inherit (inputs.nixvim.homeModules) nixvim;
-          inherit (inputs.stylix.homeModules) stylix;
-          agent-skills = inputs.agent-skills.homeManagerModules.default;
-        };
-      };
+      systemLib = import ./system/lib.nix { inherit inputs username; };
 
       inherit (systemLib) mkAllConfigurations mkDeployNodes defaults;
 
       # Generate all configurations from config.nix hosts
-      allConfigs = mkAllConfigurations {
-        inherit self inputs;
-        inputModules = {
-          inherit (inputs.disko.nixosModules) disko;
-        };
-      };
+      allConfigs = mkAllConfigurations { inherit self; };
 
       # Dev tools configuration (pre-commit, treefmt, devShell)
       mkDevTools = import ./system/dev-tools.nix;
@@ -145,7 +121,6 @@
         }:
         mkDevTools { inherit config pkgs; }
         // {
-          # Flake apps
           apps = {
             switch = {
               type = "app";
