@@ -109,7 +109,6 @@ rec {
     workstation = baseModules ++ [
       ./ai
       ./tools
-      ./tools/cli-extras.nix
       ./editor
       ./terminal
     ];
