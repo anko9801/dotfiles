@@ -1,25 +1,107 @@
 # Debug Adapter Protocol (DAP) configuration
 { pkgs, ... }:
 
+let
+  # Helper to create DAP keymap
+  mkDapKey = key: action: desc: {
+    mode = "n";
+    inherit key;
+    action.__raw = ''function() require("dap").${action}() end'';
+    options = {
+      inherit desc;
+      silent = true;
+    };
+  };
+
+  # Helper to create DAP UI keymap
+  mkDapUiKey = key: action: desc: mode: {
+    inherit mode key;
+    action.__raw = ''function() require("dapui").${action}() end'';
+    options = {
+      inherit desc;
+      silent = true;
+    };
+  };
+
+  # LLDB configuration for C-family languages
+  mkLldbConfig = name: pathSuffix: [
+    {
+      type = "lldb";
+      request = "launch";
+      inherit name;
+      program.__raw = ''
+        function()
+          return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "${pathSuffix}", "file")
+        end
+      '';
+      cwd = "\${workspaceFolder}";
+      stopOnEntry = false;
+    }
+  ];
+
+  # All DAP keymaps (single source of truth)
+  dapKeymaps = [
+    (mkDapKey "<leader>db" "toggle_breakpoint" "Toggle breakpoint")
+    {
+      mode = "n";
+      key = "<leader>dB";
+      action.__raw = ''function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end'';
+      options = {
+        desc = "Conditional breakpoint";
+        silent = true;
+      };
+    }
+    (mkDapKey "<leader>dc" "continue" "Continue")
+    (mkDapKey "<leader>di" "step_into" "Step into")
+    (mkDapKey "<leader>do" "step_over" "Step over")
+    (mkDapKey "<leader>dO" "step_out" "Step out")
+    {
+      mode = "n";
+      key = "<leader>dr";
+      action.__raw = ''function() require("dap").repl.toggle() end'';
+      options = {
+        desc = "Toggle REPL";
+        silent = true;
+      };
+    }
+    (mkDapKey "<leader>dl" "run_last" "Run last")
+    (mkDapKey "<leader>dt" "terminate" "Terminate")
+    (mkDapUiKey "<leader>du" "toggle" "Toggle DAP UI" "n")
+    (mkDapUiKey "<leader>de" "eval" "Eval expression" [
+      "n"
+      "v"
+    ])
+  ];
+
+  # Generate lazyLoad keys from keymaps
+  lazyLoadKeys =
+    map
+      (km: {
+        __unkeyed-1 = km.key;
+        inherit (km.options) desc;
+      })
+      (
+        builtins.filter (
+          km:
+          km.mode == "n"
+          ||
+            km.mode == [
+              "n"
+              "v"
+            ]
+        ) dapKeymaps
+      );
+in
 {
   programs.nixvim = {
-    # DAP adapters installed via extraPackages
     extraPackages = with pkgs; [
-      # Node.js debugging
       vscode-js-debug
-
-      # Python debugging
       python312Packages.debugpy
-
-      # Go debugging
       delve
-
-      # LLDB for C/C++/Rust
       lldb
     ];
 
     plugins = {
-      # nvim-dap: Debug Adapter Protocol client
       dap = {
         enable = true;
         lazyLoad.settings = {
@@ -27,40 +109,7 @@
             "DapToggleBreakpoint"
             "DapContinue"
           ];
-          keys = [
-            {
-              __unkeyed-1 = "<leader>db";
-              desc = "Toggle breakpoint";
-            }
-            {
-              __unkeyed-1 = "<leader>dc";
-              desc = "Continue";
-            }
-            {
-              __unkeyed-1 = "<leader>di";
-              desc = "Step into";
-            }
-            {
-              __unkeyed-1 = "<leader>do";
-              desc = "Step over";
-            }
-            {
-              __unkeyed-1 = "<leader>dO";
-              desc = "Step out";
-            }
-            {
-              __unkeyed-1 = "<leader>dr";
-              desc = "Toggle REPL";
-            }
-            {
-              __unkeyed-1 = "<leader>dl";
-              desc = "Run last";
-            }
-            {
-              __unkeyed-1 = "<leader>dt";
-              desc = "Terminate";
-            }
-          ];
+          keys = lazyLoadKeys;
         };
         extensions = {
           # dap-ui: UI for nvim-dap
@@ -164,156 +213,13 @@
               program = "\${workspaceFolder}";
             }
           ];
-          rust = [
-            {
-              type = "lldb";
-              request = "launch";
-              name = "Launch";
-              program.__raw = ''
-                function()
-                  return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
-                end
-              '';
-              cwd = "\${workspaceFolder}";
-              stopOnEntry = false;
-            }
-          ];
-          c = [
-            {
-              type = "lldb";
-              request = "launch";
-              name = "Launch";
-              program.__raw = ''
-                function()
-                  return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-                end
-              '';
-              cwd = "\${workspaceFolder}";
-              stopOnEntry = false;
-            }
-          ];
-          cpp = [
-            {
-              type = "lldb";
-              request = "launch";
-              name = "Launch";
-              program.__raw = ''
-                function()
-                  return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-                end
-              '';
-              cwd = "\${workspaceFolder}";
-              stopOnEntry = false;
-            }
-          ];
+          rust = mkLldbConfig "Launch" "/target/debug/";
+          c = mkLldbConfig "Launch" "/";
+          cpp = mkLldbConfig "Launch" "/";
         };
       };
     };
 
-    # DAP keymaps
-    keymaps = [
-      {
-        mode = "n";
-        key = "<leader>db";
-        action.__raw = ''function() require("dap").toggle_breakpoint() end'';
-        options = {
-          desc = "Toggle breakpoint";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>dB";
-        action.__raw = ''function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end'';
-        options = {
-          desc = "Conditional breakpoint";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>dc";
-        action.__raw = ''function() require("dap").continue() end'';
-        options = {
-          desc = "Continue";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>di";
-        action.__raw = ''function() require("dap").step_into() end'';
-        options = {
-          desc = "Step into";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>do";
-        action.__raw = ''function() require("dap").step_over() end'';
-        options = {
-          desc = "Step over";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>dO";
-        action.__raw = ''function() require("dap").step_out() end'';
-        options = {
-          desc = "Step out";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>dr";
-        action.__raw = ''function() require("dap").repl.toggle() end'';
-        options = {
-          desc = "Toggle REPL";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>dl";
-        action.__raw = ''function() require("dap").run_last() end'';
-        options = {
-          desc = "Run last";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>dt";
-        action.__raw = ''function() require("dap").terminate() end'';
-        options = {
-          desc = "Terminate";
-          silent = true;
-        };
-      }
-      {
-        mode = "n";
-        key = "<leader>du";
-        action.__raw = ''function() require("dapui").toggle() end'';
-        options = {
-          desc = "Toggle DAP UI";
-          silent = true;
-        };
-      }
-      {
-        mode = [
-          "n"
-          "v"
-        ];
-        key = "<leader>de";
-        action.__raw = ''function() require("dapui").eval() end'';
-        options = {
-          desc = "Eval expression";
-          silent = true;
-        };
-      }
-    ];
+    keymaps = dapKeymaps;
   };
 }

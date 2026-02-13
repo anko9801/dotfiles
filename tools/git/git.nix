@@ -10,6 +10,11 @@ let
   inherit (config.defaults) editor;
   inherit (config.defaults.identity) name email sshKey;
 
+  # Platform helpers
+  isUnix = p.os != "windows";
+  unixOnly = lib.optionalAttrs isUnix;
+  unixIf = lib.mkIf isUnix;
+
   # Platform-specific alias helper
   mkAlias =
     {
@@ -35,7 +40,7 @@ in
 {
   imports = [ ./delta.nix ];
 
-  home = lib.mkIf (p.os != "windows") {
+  home = unixIf {
     packages = with pkgs; [
       difftastic
       git-wt
@@ -57,10 +62,10 @@ in
 
   programs.git = {
     enable = true;
-    lfs.enable = p.os != "windows";
+    lfs.enable = isUnix;
     ignores = globalIgnores;
 
-    signing = lib.mkIf (p.os != "windows") {
+    signing = unixIf {
       key = sshKey;
       signByDefault = true;
     };
@@ -124,7 +129,7 @@ in
         untrackedCache = true;
         fsmonitor = true;
       }
-      // lib.optionalAttrs (p.os != "windows") {
+      // unixOnly {
         inherit editor;
         filemode = false;
         pager = "delta";
@@ -141,18 +146,18 @@ in
         colorMoved = "plain";
         mnemonicPrefix = true;
       }
-      // lib.optionalAttrs (p.os != "windows") {
+      // unixOnly {
         external = "difft";
       };
 
       merge = {
         conflictstyle = "zdiff3";
       }
-      // lib.optionalAttrs (p.os != "windows") {
+      // unixOnly {
         tool = "vimdiff";
       };
 
-      interactive = lib.mkIf (p.os != "windows") {
+      interactive = unixIf {
         diffFilter = "delta --color-only";
       };
 
@@ -174,7 +179,7 @@ in
         pruneTags = true;
         all = true;
       }
-      // lib.optionalAttrs (p.os != "windows") {
+      // unixOnly {
         fsckobjects = true;
       };
 
@@ -202,7 +207,7 @@ in
       tag = {
         sort = "version:refname";
       }
-      // lib.optionalAttrs (p.os != "windows") {
+      // unixOnly {
         gpgsign = true;
       };
 
@@ -214,17 +219,15 @@ in
       feature.manyFiles = true;
 
       # Security (Linux only)
-      transfer = lib.mkIf (p.os != "windows") { fsckobjects = true; };
-      receive = lib.mkIf (p.os != "windows") { fsckObjects = true; };
+      transfer = unixIf { fsckobjects = true; };
+      receive = unixIf { fsckObjects = true; };
 
       # Paths (Linux only)
-      gpg.ssh.allowedSignersFile = lib.mkIf (
-        p.os != "windows"
-      ) "${config.home.homeDirectory}/.config/git/allowed_signers";
-      wt.basedir = lib.mkIf (p.os != "windows") ".worktrees";
-      blame.ignoreRevsFile = lib.mkIf (p.os != "windows") ".git-blame-ignore-revs";
-      maintenance.auto = lib.mkIf (p.os != "windows") true;
-      url."ssh://git@github.com/".insteadOf = lib.mkIf (p.os != "windows") "https://github.com/";
+      gpg.ssh.allowedSignersFile = unixIf "${config.home.homeDirectory}/.config/git/allowed_signers";
+      wt.basedir = unixIf ".worktrees";
+      blame.ignoreRevsFile = unixIf ".git-blame-ignore-revs";
+      maintenance.auto = unixIf true;
+      url."ssh://git@github.com/".insteadOf = unixIf "https://github.com/";
 
       # Advice (reduce noise)
       advice = {
