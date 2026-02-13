@@ -3,10 +3,10 @@
   nixpkgs,
   home-manager,
   homeManager,
-  shared,
+  systemLib,
 }:
 let
-  inherit (shared)
+  inherit (systemLib)
     username
     allHosts
     mkSystemSpecialArgs

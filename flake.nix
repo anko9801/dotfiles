@@ -87,14 +87,14 @@
     }:
     let
       # Import system builders
-      shared = import ./system/shared.nix { inherit nixpkgs; };
+      systemLib = import ./system/lib.nix { inherit nixpkgs; };
 
       homeManager = import ./system/home-manager/builder.nix {
         inherit
           nixpkgs
           home-manager
           nix-index-database
-          shared
+          systemLib
           ;
         inherit (inputs)
           nixvim
@@ -110,7 +110,7 @@
           nix-darwin
           nix-homebrew
           home-manager
-          shared
+          systemLib
           homeManager
           ;
       };
@@ -119,7 +119,7 @@
         inherit
           nixpkgs
           home-manager
-          shared
+          systemLib
           homeManager
           ;
       };
@@ -257,7 +257,7 @@
             system = "x86_64-linux";
             hostName = "wsl";
             homeModules = [
-              { programs.wsl.windowsUser = shared.username; }
+              { programs.wsl.windowsUser = systemLib.username; }
             ];
           };
 
@@ -299,7 +299,7 @@
             hostName = "wsl";
             extraModules = [ ./system/nixos/wsl.nix ];
             homeModules = [
-              { programs.wsl.windowsUser = shared.username; }
+              { programs.wsl.windowsUser = systemLib.username; }
             ];
           };
 

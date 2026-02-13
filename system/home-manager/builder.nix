@@ -5,13 +5,13 @@
   nix-index-database,
   nixvim,
   stylix,
-  shared,
+  systemLib,
   llm-agents ? null,
   agent-skills ? null,
   antfu-skills ? null,
 }:
 let
-  inherit (shared)
+  inherit (systemLib)
     username
     allHosts
     mkSpecialArgs
@@ -22,7 +22,7 @@ let
 
   # Common modules from config.nix + external flake modules
   commonModules =
-    shared.commonModules
+    systemLib.commonModules
     ++ [
       nix-index-database.homeModules.nix-index
       nixvim.homeModules.nixvim
