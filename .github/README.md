@@ -41,40 +41,6 @@ nix run .#deploy <host>           # Deploy via deploy-rs
 nix run .#deploy-anywhere <host>  # Fresh install via nixos-anywhere
 ```
 
-## Structure
-
-```
-config.nix          # Users, hosts, modules, nix settings
-flake.nix           # Flake definition
-
-system/
-├── lib.nix                  # Shared utilities
-├── home-manager/
-│   ├── core.nix             # Platform detection & defaults
-│   └── builder.nix          # mkStandaloneHome, mkSystemHomeConfig
-├── darwin/builder.nix       # mkDarwin
-└── nixos/builder.nix        # mkNixOS
-
-ai/        # Claude, LLM tools
-dev/       # Go, Rust, Node, Python, Nix
-editor/    # Neovim, VSCode, Helix, Zed
-security/  # SSH, GPG, 1Password
-shell/     # Zsh, Fish, Bash, Starship, Fzf
-terminal/  # Zellij, Tmux
-theme/     # Catppuccin
-tools/     # Git, CLI utilities, Yazi
-```
-
-## Hosts
-
-| Host | Platform | Type | Description |
-|------|----------|------|-------------|
-| `wsl` | WSL | workstation | Windows Subsystem for Linux |
-| `desktop` | Linux | workstation | Native Linux desktop |
-| `mac` | Darwin | workstation | macOS |
-| `server` | Linux | server | Minimal server config |
-| `windows` | Windows | workstation | Windows (base modules only) |
-
 ## Customization
 
 Edit `config.nix`:
