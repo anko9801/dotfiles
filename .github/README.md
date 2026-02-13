@@ -10,53 +10,110 @@
 
 <br />
 
-Personal dotfiles for declaratively managing development environments across macOS, Linux, WSL, and Windows.
-
-Designed to minimize cognitive load: reproducible across machines, consistent across tools, self-documenting code.
+Declarative dotfiles for macOS, Linux, WSL, and NixOS using Nix Flakes.
 
 > [!NOTE]
-> This is a personal configuration. Feel free to fork and adapt for your own needs.
+> Personal configuration. Fork and adapt for your own needs.
 
-## Setup
-
-### Quick Start
+## Quick Start
 
 ```sh
-# macOS / Linux / WSL
-curl -fsSL https://raw.githubusercontent.com/anko9801/dotfiles/master/setup | sh
+# 1. Install Nix (if not installed)
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+
+# 2. Clone and apply
+git clone https://github.com/anko9801/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+nix run .#switch --impure
 ```
 
-**Windows**: Install WSL first (`wsl --install`), then run the above command from WSL.
-
-The setup script will:
-
-1. Install Nix via [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer)
-2. Clone this repository to `~/dotfiles`
-3. Prompt for git config (name, email, SSH key)
-4. Generate `users/$USER.nix` and apply the configuration
-
-### Applying Changes
+## Commands
 
 ```sh
-# macOS / Linux / WSL
-nix run .#switch  # Apply (auto-detects platform)
-nix run .#update  # Update flake inputs
-
-# Windows (from WSL)
-nix run .#setup-windows  # Build and deploy Windows config
+nix run .#switch --impure   # Apply configuration
+nix run .#update            # Update flake inputs
+nix run .#fmt               # Format all files
+nix flake check --impure    # Validate configuration
 ```
+
+### Server Deployment (Linux only)
+
+```sh
+nix run .#deploy <host>           # Deploy via deploy-rs
+nix run .#deploy-anywhere <host>  # Fresh install via nixos-anywhere
+```
+
+## Structure
+
+```
+config.nix          # Users, hosts, modules, nix settings
+flake.nix           # Flake definition
+
+system/
+├── lib.nix                  # Shared utilities
+├── home-manager/
+│   ├── core.nix             # Platform detection & defaults
+│   └── builder.nix          # mkStandaloneHome, mkSystemHomeConfig
+├── darwin/builder.nix       # mkDarwin
+└── nixos/builder.nix        # mkNixOS
+
+ai/        # Claude, LLM tools
+dev/       # Go, Rust, Node, Python, Nix
+editor/    # Neovim, VSCode, Helix, Zed
+security/  # SSH, GPG, 1Password
+shell/     # Zsh, Fish, Bash, Starship, Fzf
+terminal/  # Zellij, Tmux
+theme/     # Catppuccin
+tools/     # Git, CLI utilities, Yazi
+```
+
+## Hosts
+
+| Host | Platform | Type | Description |
+|------|----------|------|-------------|
+| `wsl` | WSL | workstation | Windows Subsystem for Linux |
+| `desktop` | Linux | workstation | Native Linux desktop |
+| `mac` | Darwin | workstation | macOS |
+| `server` | Linux | server | Minimal server config |
+| `windows` | Windows | workstation | Windows (base modules only) |
 
 ## Customization
 
-1. Fork the repository
-2. Run `./setup` to generate `users/$USER.nix` with your settings
-3. Modify modules (ai/, shell/, tools/, etc.) to add or remove packages
-4. Run `nix run .#switch`
+Edit `config.nix`:
+
+```nix
+rec {
+  # Add yourself
+  users.yourname = {
+    git = {
+      name = "Your Name";
+      email = "you@example.com";
+    };
+  };
+
+  # Customize host modules
+  hosts.wsl.modules = baseModules ++ [
+    ./ai
+    ./tools
+    # Add or remove modules
+  ];
+}
+```
 
 ## Troubleshooting
 
-**Build fails with "file not found"**
-- Nix flakes only see git-tracked files. Run `git add .` before building.
+**"file not found" during build**
+```sh
+git add .  # Nix flakes only see git-tracked files
+```
 
 **Conflict with existing dotfiles**
-- Home Manager can't overwrite existing files. Backup and remove conflicting files in `~/.config/`.
+```sh
+# Backup and remove conflicting files in ~/.config/
+mv ~/.config/foo ~/.config/foo.bak
+```
+
+**Check what will change**
+```sh
+nix build .#homeConfigurations.wsl.activationPackage --impure --dry-run
+```
