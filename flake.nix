@@ -95,9 +95,6 @@
 
       # Generate all configurations from config.nix hosts
       allConfigs = mkAllConfigurations { inherit self; };
-
-      # Dev tools configuration (pre-commit, treefmt, devShell)
-      mkDevTools = import ./system/dev-tools.nix;
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
@@ -110,17 +107,12 @@
       imports = [
         inputs.treefmt-nix.flakeModule
         inputs.git-hooks.flakeModule
+        ./system/dev-tools.nix
       ];
 
       perSystem =
+        { pkgs, system, ... }:
         {
-          config,
-          pkgs,
-          system,
-          ...
-        }:
-        mkDevTools { inherit config pkgs; }
-        // {
           apps = {
             switch = {
               type = "app";
