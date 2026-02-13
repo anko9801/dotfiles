@@ -232,22 +232,6 @@
                 ''
               );
             };
-            update = {
-              type = "app";
-              program = toString (
-                pkgs.writeShellScript "update" ''
-                  nix flake update
-                ''
-              );
-            };
-            fmt = {
-              type = "app";
-              program = toString (
-                pkgs.writeShellScript "fmt" ''
-                  exec ${config.treefmt.build.wrapper}/bin/treefmt "$@"
-                ''
-              );
-            };
           };
         };
 
@@ -353,26 +337,6 @@
             type = "app";
             program = toString inputs.deploy-rs.packages.x86_64-linux.default;
           };
-
-          # nixos-anywhere for initial deployment
-          deploy-anywhere = {
-            type = "app";
-            program = toString (
-              nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-anywhere" ''
-                set -e
-                if [ $# -lt 2 ]; then
-                  echo "Usage: nix run .#deploy-anywhere -- <user@host> <config-name>"
-                  echo "Example: nix run .#deploy-anywhere -- root@192.168.1.100 example-vps"
-                  exit 1
-                fi
-                TARGET="$1"
-                CONFIG="$2"
-                echo "Deploying $CONFIG to $TARGET with nixos-anywhere..."
-                nix run github:nix-community/nixos-anywhere -- --flake ".#$CONFIG" "$TARGET"
-              ''
-            );
-          };
-
         };
       };
     };
