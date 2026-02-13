@@ -86,48 +86,72 @@
       ...
     }:
     let
-      # Import system builders
-      systemLib = import ./system/lib.nix { inherit nixpkgs; };
+      # Get username from environment (falls back to "runner" for pure evaluation)
+      username =
+        let
+          u = builtins.getEnv "USER";
+        in
+        if u != "" then u else "runner";
 
-      homeManager = import ./system/home-manager/builder.nix {
-        inherit
-          nixpkgs
-          home-manager
-          nix-index-database
-          systemLib
-          ;
-        inherit (inputs)
-          nixvim
-          stylix
-          llm-agents
-          agent-skills
-          antfu-skills
-          ;
-      };
+      # Factory for creating builders with a specific username
+      mkBuilders =
+        user:
+        let
+          systemLib = import ./system/lib.nix {
+            inherit nixpkgs;
+            username = user;
+          };
+          homeManager = import ./system/home-manager/builder.nix {
+            inherit
+              nixpkgs
+              home-manager
+              nix-index-database
+              systemLib
+              ;
+            inherit (inputs)
+              nixvim
+              stylix
+              llm-agents
+              agent-skills
+              antfu-skills
+              ;
+          };
+          darwin = import ./system/darwin/builder.nix {
+            inherit
+              nix-darwin
+              nix-homebrew
+              home-manager
+              systemLib
+              homeManager
+              ;
+          };
+          nixos = import ./system/nixos/builder.nix {
+            inherit
+              nixpkgs
+              home-manager
+              systemLib
+              homeManager
+              ;
+          };
+        in
+        {
+          inherit
+            systemLib
+            homeManager
+            darwin
+            nixos
+            ;
+          inherit (homeManager) mkStandaloneHome;
+          mkDarwin = darwin.mkDarwin { inherit self inputs; };
+          mkNixOS = nixos.mkNixOS { inherit self inputs; };
+        };
 
-      darwin = import ./system/darwin/builder.nix {
-        inherit
-          nix-darwin
-          nix-homebrew
-          home-manager
-          systemLib
-          homeManager
-          ;
-      };
+      # Builders for current user
+      builders = mkBuilders username;
+      inherit (builders) mkStandaloneHome mkDarwin mkNixOS;
 
-      nixos = import ./system/nixos/builder.nix {
-        inherit
-          nixpkgs
-          home-manager
-          systemLib
-          homeManager
-          ;
-      };
-
-      # Bind self and inputs to builders
-      inherit (homeManager) mkStandaloneHome;
-      mkDarwin = darwin.mkDarwin { inherit self inputs; };
-      mkNixOS = nixos.mkNixOS { inherit self inputs; };
+      # Builders for CI (pure, matches GitHub Actions runner user)
+      ci = mkBuilders "runner";
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
@@ -241,7 +265,7 @@
             system = "x86_64-linux";
             hostName = "wsl";
             homeModules = [
-              { programs.wsl.windowsUser = systemLib.username; }
+              { programs.wsl.windowsUser = username; }
             ];
           };
 
@@ -262,6 +286,20 @@
             system = "x86_64-linux";
             hostName = "server";
           };
+
+          server-arm = mkStandaloneHome {
+            system = "aarch64-linux";
+            hostName = "server";
+          };
+
+          # CI (pure, matches GitHub Actions runner user)
+          ci-wsl = ci.mkStandaloneHome {
+            system = "x86_64-linux";
+            hostName = "wsl";
+            homeModules = [
+              { programs.wsl.windowsUser = "runner"; }
+            ];
+          };
         };
 
         darwinConfigurations = {
@@ -275,6 +313,13 @@
             hostName = "mac";
             extraModules = [ ./system/darwin/desktop.nix ];
           };
+
+          # CI (pure, no --impure needed)
+          ci-mac = ci.mkDarwin {
+            system = "aarch64-darwin";
+            hostName = "mac";
+            extraModules = [ ./system/darwin/desktop.nix ];
+          };
         };
 
         nixosConfigurations = {
@@ -283,7 +328,7 @@
             hostName = "wsl";
             extraModules = [ ./system/nixos/wsl.nix ];
             homeModules = [
-              { programs.wsl.windowsUser = systemLib.username; }
+              { programs.wsl.windowsUser = username; }
             ];
           };
 
@@ -298,6 +343,12 @@
 
           nixos-server = mkNixOS {
             system = "x86_64-linux";
+            hostName = "server";
+            extraModules = [ ./system/nixos/server.nix ];
+          };
+
+          nixos-server-arm = mkNixOS {
+            system = "aarch64-linux";
             hostName = "server";
             extraModules = [ ./system/nixos/server.nix ];
           };

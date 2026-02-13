@@ -1,5 +1,5 @@
 # System builder utilities
-{ nixpkgs }:
+{ nixpkgs, username }:
 let
   cfg = import ../config.nix;
 
@@ -10,21 +10,13 @@ let
     desktopFonts
     ;
 
-  # Get username from environment (use --impure flag)
-  username =
-    let
-      envUser = builtins.getEnv "USER";
-    in
-    if envUser != "" then envUser else "nixuser";
-
-  # User-specific configuration (with fallback)
-  userConfig =
-    cfg.users.${username} or {
-      name = username;
-      email = "${username}@localhost";
-    };
+  # User-specific configuration (must be defined in config.nix)
+  userConfig = cfg.users.${username} or (throw "User '${username}' not defined in config.nix");
 
   allHosts = cfg.hosts;
+
+  # Get host modules from config.nix (already includes baseModules)
+  getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
   # Creates unified nix configuration for darwin/nixos
   mkNixConfig =
@@ -95,6 +87,40 @@ let
   # Special args for system modules (darwin/nixos)
   mkSystemSpecialArgs =
     { self, inputs }: system: mkSpecialArgs system // { inherit self inputs username; };
+
+  # Factory for creating system builders (darwin/nixos)
+  # Reduces duplication between darwin and nixos builders
+  mkSystemBuilder =
+    {
+      systemBuilder, # nix-darwin.lib.darwinSystem or nixpkgs.lib.nixosSystem
+      homeManagerModule, # home-manager.darwinModules or home-manager.nixosModules
+      homeDir, # "/Users" or "/home"
+      mkPlatformModules, # system -> username -> list of platform-specific modules
+      mkSystemHomeConfig, # from homeManager
+    }:
+    { self, inputs }:
+    {
+      system,
+      hostName,
+      extraModules ? [ ],
+      homeModules ? [ ],
+    }:
+    let
+      hostModules = getHostModules hostName ++ homeModules;
+    in
+    systemBuilder {
+      inherit system;
+      specialArgs = mkSystemSpecialArgs { inherit self inputs; } system;
+      modules =
+        mkPlatformModules system username
+        ++ [
+          homeManagerModule.home-manager
+          (mkSystemHomeConfig {
+            inherit system hostModules homeDir;
+          })
+        ]
+        ++ extraModules;
+    };
 in
 {
   inherit
@@ -106,7 +132,9 @@ in
     mkNixConfig
     basePackages
     desktopFonts
+    getHostModules
     mkSpecialArgs
     mkSystemSpecialArgs
+    mkSystemBuilder
     ;
 }

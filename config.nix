@@ -103,6 +103,14 @@ rec {
         sshKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M";
       };
     };
+    # GitHub Actions runner user
+    runner = {
+      editor = "vim";
+      git = {
+        name = "CI";
+        email = "ci@localhost";
+      };
+    };
   };
 
   hosts = {

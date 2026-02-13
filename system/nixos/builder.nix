@@ -6,51 +6,27 @@
   systemLib,
 }:
 let
-  inherit (systemLib)
-    username
-    allHosts
-    mkSystemSpecialArgs
-    ;
+  inherit (systemLib) mkSystemBuilder;
   inherit (homeManager) mkSystemHomeConfig;
 
-  # Get host modules from config.nix (already includes baseModules)
-  getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
-
-  mkNixOS =
-    { self, inputs }:
-    {
-      system,
-      hostName,
-      extraModules ? [ ],
-      homeModules ? [ ],
-    }:
-    let
-      hostModules = getHostModules hostName ++ homeModules;
-    in
-    nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = mkSystemSpecialArgs { inherit self inputs; } system;
-      modules = [
-        # User configuration
-        {
-          users.users.${username} = {
-            isNormalUser = true;
-            extraGroups = [
-              "wheel"
-              "networkmanager"
-            ];
-          };
-        }
-
-        # Home Manager as NixOS module
-        home-manager.nixosModules.home-manager
-        (mkSystemHomeConfig {
-          inherit system hostModules;
-          homeDir = "/home";
-        })
-      ]
-      ++ extraModules;
-    };
+  mkNixOS = mkSystemBuilder {
+    systemBuilder = nixpkgs.lib.nixosSystem;
+    homeManagerModule = home-manager.nixosModules;
+    homeDir = "/home";
+    inherit mkSystemHomeConfig;
+    mkPlatformModules = _system: username: [
+      # User configuration
+      {
+        users.users.${username} = {
+          isNormalUser = true;
+          extraGroups = [
+            "wheel"
+            "networkmanager"
+          ];
+        };
+      }
+    ];
+  };
 in
 {
   inherit mkNixOS;
