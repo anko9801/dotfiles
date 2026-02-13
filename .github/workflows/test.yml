@@ -38,7 +38,7 @@ jobs:
           sudo mkdir -p /run/dbus
           sudo dbus-daemon --system --fork
       - name: Build Home Manager configuration
-        run: nix build .#homeConfigurations.ci-wsl.activationPackage
+        run: nix build .#homeConfigurations.wsl.activationPackage --impure
       - name: Activate Home Manager
         run: |
           eval $(dbus-launch --sh-syntax)
@@ -90,7 +90,7 @@ jobs:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build nix-darwin configuration
-        run: nix build .#darwinConfigurations.ci-mac.system
+        run: nix build .#darwinConfigurations.mac.system --impure
       - name: Show result
         run: ls -la result/
       - uses: Kesin11/actions-timeline@v2

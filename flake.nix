@@ -146,12 +146,9 @@
           mkNixOS = nixos.mkNixOS { inherit self inputs; };
         };
 
-      # Builders for current user
+      # Builders for current user (requires --impure for USER env)
       builders = mkBuilders username;
       inherit (builders) mkStandaloneHome mkDarwin mkNixOS;
-
-      # Builders for CI (pure, matches GitHub Actions runner user)
-      ci = mkBuilders "runner";
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
@@ -291,15 +288,6 @@
             system = "aarch64-linux";
             hostName = "server";
           };
-
-          # CI (pure, matches GitHub Actions runner user)
-          ci-wsl = ci.mkStandaloneHome {
-            system = "x86_64-linux";
-            hostName = "wsl";
-            homeModules = [
-              { programs.wsl.windowsUser = "runner"; }
-            ];
-          };
         };
 
         darwinConfigurations = {
@@ -310,13 +298,6 @@
           };
           mac-intel = mkDarwin {
             system = "x86_64-darwin";
-            hostName = "mac";
-            extraModules = [ ./system/darwin/desktop.nix ];
-          };
-
-          # CI (pure, no --impure needed)
-          ci-mac = ci.mkDarwin {
-            system = "aarch64-darwin";
             hostName = "mac";
             extraModules = [ ./system/darwin/desktop.nix ];
           };
