@@ -1,5 +1,13 @@
 # Fleet configuration: users, hosts, modules, and nix settings
 rec {
+  # Default hosts for each environment (used by switch app)
+  defaults = {
+    darwin = "mac";
+    nixos = "nixos-desktop";
+    wsl = "wsl";
+    linux = "desktop";
+  };
+
   # Nix daemon settings (shared across darwin/nixos)
   nixSettings = {
     settings = {
@@ -95,6 +103,25 @@ rec {
     ./theme/default.nix
   ];
 
+  # Reusable module sets to reduce duplication
+  moduleSets = {
+    # Full workstation: AI, tools, editor, terminal
+    workstation = baseModules ++ [
+      ./ai
+      ./tools
+      ./editor
+      ./terminal
+    ];
+    # Server: minimal tools
+    server = baseModules ++ [
+      ./editor/vim.nix
+      ./tools/git
+      ./tools/cli.nix
+      ./tools/bat.nix
+      ./terminal/tmux.nix
+    ];
+  };
+
   users = {
     anko = {
       editor = "nvim";
@@ -116,73 +143,127 @@ rec {
   };
 
   hosts = {
-    # Workstations
+    # Standalone home-manager configurations
     wsl = {
-      type = "workstation";
-      modules = baseModules ++ [
-        ./ai
-        ./tools
-        ./editor
-        ./terminal
-        ./terminal/zellij
-      ];
+      role = "workstation";
+      system = "x86_64-linux";
+      integration = "standalone";
+      flags = [ "wslUser" ];
+      modules = moduleSets.workstation ++ [ ./terminal/zellij ];
     };
     desktop = {
-      type = "workstation";
-      modules = baseModules ++ [
-        ./ai
-        ./tools
-        ./editor
-        ./terminal
-        ./desktop
-      ];
+      role = "workstation";
+      system = "x86_64-linux";
+      integration = "standalone";
+      modules = moduleSets.workstation ++ [ ./desktop ];
     };
     windows = {
-      type = "workstation";
-      isWindows = true; # Special: generating config for Windows
+      role = "workstation";
+      system = "x86_64-linux";
+      integration = "standalone";
+      isWindows = true;
       modules = baseModules;
     };
     server = {
-      type = "server";
-      modules = baseModules ++ [
-        ./editor/vim.nix
-        ./tools/git
-        ./tools/cli.nix
-        ./tools/bat.nix
-        ./terminal/tmux.nix
-      ];
+      role = "server";
+      system = "x86_64-linux";
+      integration = "standalone";
+      modules = moduleSets.server;
     };
-    mac = {
-      type = "workstation";
-      modules = baseModules ++ [
-        ./ai
-        ./tools
-        ./editor
-        ./terminal
-      ];
+    server-arm = {
+      role = "server";
+      system = "aarch64-linux";
+      integration = "standalone";
+      modules = moduleSets.server;
     };
 
-    # Remote servers (for SSH config generation)
+    # Darwin configurations
+    mac = {
+      role = "workstation";
+      system = "aarch64-darwin";
+      integration = "darwin";
+      systemModules = [ ./system/darwin/desktop.nix ];
+      modules = moduleSets.workstation;
+    };
+    mac-intel = {
+      role = "workstation";
+      system = "x86_64-darwin";
+      integration = "darwin";
+      systemModules = [ ./system/darwin/desktop.nix ];
+      modules = moduleSets.workstation;
+    };
+
+    # NixOS configurations
+    nixos-wsl = {
+      role = "workstation";
+      system = "x86_64-linux";
+      integration = "nixos";
+      flags = [ "wslUser" ];
+      systemModules = [ ./system/nixos/wsl.nix ];
+      modules = moduleSets.workstation ++ [ ./terminal/zellij ];
+    };
+    nixos-desktop = {
+      role = "workstation";
+      system = "x86_64-linux";
+      integration = "nixos";
+      systemModules = [
+        ./system/nixos/desktop.nix
+        ./system/nixos/kanata.nix
+      ];
+      modules = moduleSets.workstation ++ [ ./desktop ];
+    };
+    nixos-server = {
+      role = "server";
+      system = "x86_64-linux";
+      integration = "nixos";
+      systemModules = [ ./system/nixos/server.nix ];
+      modules = moduleSets.server;
+      deploy = {
+        hostname = "nixos-server"; # Replace with actual hostname/IP
+      };
+    };
+    nixos-server-arm = {
+      role = "server";
+      system = "aarch64-linux";
+      integration = "nixos";
+      systemModules = [ ./system/nixos/server.nix ];
+      modules = moduleSets.server;
+    };
+    example-vps = {
+      role = "server";
+      system = "x86_64-linux";
+      integration = "nixos";
+      inputModules = [ "disko" ];
+      systemModules = [
+        ./system/nixos/example-vps
+        ./system/nixos/server.nix
+      ];
+      modules = moduleSets.server;
+      deploy = {
+        hostname = "example-vps"; # Replace with actual hostname/IP
+        user = "root";
+      };
+    };
+  };
+
+  # Remote servers (SSH config generation only, not managed by Nix)
+  remoteServers = {
     pikachu = {
-      type = "server";
       hostname = "140.238.55.181";
       sshUser = "ubuntu";
       users = [ "anko" ];
     };
     metamon = {
-      type = "server";
       hostname = "150.230.108.22";
       sshUser = "ubuntu";
       users = [ "anko" ];
     };
     bracky = {
-      type = "server";
       hostname = "168.138.210.152";
       sshUser = "ubuntu";
       users = [ "anko" ];
     };
     pochama = {
-      type = "server";
       hostname = "193.123.167.108";
       sshUser = "ubuntu";
       users = [ "anko" ];

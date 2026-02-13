@@ -81,7 +81,6 @@
       flake-parts,
       home-manager,
       nix-darwin,
-      nix-index-database,
       nix-homebrew,
       ...
     }:
@@ -98,19 +97,15 @@
         user:
         let
           systemLib = import ./system/lib.nix {
-            inherit
-              nixpkgs
-              home-manager
-              nix-index-database
-              ;
-            inherit (inputs)
-              nixvim
-              stylix
-              llm-agents
-              agent-skills
-              antfu-skills
-              ;
+            inherit nixpkgs home-manager;
+            inherit (inputs) llm-agents antfu-skills;
             username = user;
+            homeModules = {
+              inherit (inputs.nix-index-database.homeModules) nix-index;
+              inherit (inputs.nixvim.homeModules) nixvim;
+              inherit (inputs.stylix.homeModules) stylix;
+              agent-skills = inputs.agent-skills.homeManagerModules.default;
+            };
           };
           darwin = import ./system/darwin/builder.nix {
             inherit
@@ -139,7 +134,19 @@
 
       # Builders for current user (requires --impure for USER env)
       builders = mkBuilders username;
-      inherit (builders) mkStandaloneHome mkDarwin mkNixOS;
+      inherit (builders) mkDarwin mkNixOS;
+      inherit (builders.systemLib) mkAllConfigurations mkDeployNodes defaults;
+
+      # Generate all configurations from config.nix hosts
+      allConfigs = mkAllConfigurations {
+        inherit mkDarwin mkNixOS;
+        inputModules = {
+          inherit (inputs.disko.nixosModules) disko;
+        };
+      };
+
+      # Dev tools configuration (pre-commit, treefmt, devShell)
+      mkDevTools = import ./system/dev-tools.nix;
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
@@ -156,70 +163,8 @@
 
       perSystem =
         { config, pkgs, ... }:
-        {
-          # Pre-commit hooks
-          pre-commit = {
-            check.enable = false;
-            settings.hooks = {
-              treefmt = {
-                enable = true;
-                package = config.treefmt.build.wrapper;
-              };
-              deadnix.enable = true;
-              statix.enable = true;
-            };
-          };
-
-          # Treefmt with extended formatters
-          treefmt = {
-            projectRootFile = "flake.nix";
-            programs = {
-              nixfmt.enable = true;
-              shfmt.enable = true;
-              yamlfmt.enable = true;
-            };
-            settings = {
-              global.excludes = [
-                ".git/**"
-                "*.lock"
-              ];
-              formatter = {
-                fish-indent = {
-                  command = "${pkgs.fish}/bin/fish_indent";
-                  options = [ "--write" ];
-                  includes = [ "*.fish" ];
-                };
-                gitleaks = {
-                  command = "${pkgs.gitleaks}/bin/gitleaks";
-                  options = [
-                    "detect"
-                    "--no-git"
-                    "--exit-code"
-                    "0"
-                  ];
-                  includes = [ "*" ];
-                  excludes = [
-                    "*.png"
-                    "*.jpg"
-                    "*.gif"
-                    "node_modules/**"
-                    ".direnv/**"
-                  ];
-                };
-              };
-            };
-          };
-
-          # DevShell with pre-commit hooks
-          devShells.default = pkgs.mkShell {
-            shellHook = config.pre-commit.installationScript;
-            packages = with pkgs; [
-              statix
-              deadnix
-              nvd
-            ];
-          };
-
+        mkDevTools { inherit config pkgs; }
+        // {
           # Flake apps
           apps = {
             switch = {
@@ -229,16 +174,16 @@
                   set -e
                   TARGET="''${1:-}"
                   if [ "$(uname)" = "Darwin" ]; then
-                    [ -z "$TARGET" ] && TARGET="mac"
+                    [ -z "$TARGET" ] && TARGET="${defaults.darwin}"
                     nix run nix-darwin -- switch --flake ".#$TARGET"
                   elif [ -f /etc/NIXOS ]; then
-                    [ -z "$TARGET" ] && TARGET="nixos-desktop"
+                    [ -z "$TARGET" ] && TARGET="${defaults.nixos}"
                     sudo nixos-rebuild switch --flake ".#$TARGET"
                   elif [ -n "''${WSL_DISTRO_NAME:-}" ]; then
-                    [ -z "$TARGET" ] && TARGET="wsl"
+                    [ -z "$TARGET" ] && TARGET="${defaults.wsl}"
                     nix run home-manager -- switch --impure --flake ".#$TARGET"
                   else
-                    [ -z "$TARGET" ] && TARGET="desktop"
+                    [ -z "$TARGET" ] && TARGET="${defaults.linux}"
                     nix run home-manager -- switch --impure --flake ".#$TARGET"
                   fi
                 ''
@@ -248,107 +193,12 @@
         };
 
       flake = {
-        homeConfigurations = {
-          wsl = mkStandaloneHome {
-            system = "x86_64-linux";
-            hostName = "wsl";
-            homeModules = [
-              { programs.wsl.windowsUser = username; }
-            ];
-          };
+        inherit (allConfigs) homeConfigurations darwinConfigurations nixosConfigurations;
 
-          windows = mkStandaloneHome {
-            system = "x86_64-linux";
-            hostName = "windows";
-          };
-
-          desktop = mkStandaloneHome {
-            system = "x86_64-linux";
-            hostName = "desktop";
-          };
-
-          server = mkStandaloneHome {
-            system = "x86_64-linux";
-            hostName = "server";
-          };
-
-          server-arm = mkStandaloneHome {
-            system = "aarch64-linux";
-            hostName = "server";
-          };
-        };
-
-        darwinConfigurations = {
-          mac = mkDarwin {
-            system = "aarch64-darwin";
-            hostName = "mac";
-            extraModules = [ ./system/darwin/desktop.nix ];
-          };
-          mac-intel = mkDarwin {
-            system = "x86_64-darwin";
-            hostName = "mac";
-            extraModules = [ ./system/darwin/desktop.nix ];
-          };
-        };
-
-        nixosConfigurations = {
-          nixos-wsl = mkNixOS {
-            system = "x86_64-linux";
-            hostName = "wsl";
-            extraModules = [ ./system/nixos/wsl.nix ];
-            homeModules = [
-              { programs.wsl.windowsUser = username; }
-            ];
-          };
-
-          nixos-desktop = mkNixOS {
-            system = "x86_64-linux";
-            hostName = "desktop";
-            extraModules = [
-              ./system/nixos/desktop.nix
-              ./system/nixos/kanata.nix
-            ];
-          };
-
-          nixos-server = mkNixOS {
-            system = "x86_64-linux";
-            hostName = "server";
-            extraModules = [ ./system/nixos/server.nix ];
-          };
-
-          nixos-server-arm = mkNixOS {
-            system = "aarch64-linux";
-            hostName = "server";
-            extraModules = [ ./system/nixos/server.nix ];
-          };
-
-          example-vps = mkNixOS {
-            system = "x86_64-linux";
-            hostName = "server";
-            extraModules = [
-              inputs.disko.nixosModules.disko
-              ./system/nixos/example-vps
-              ./system/nixos/server.nix
-            ];
-          };
-        };
-
-        # deploy-rs configuration
-        deploy.nodes = {
-          example-vps = {
-            hostname = "example-vps"; # Replace with actual hostname/IP
-            profiles.system = {
-              user = "root";
-              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.example-vps;
-            };
-          };
-          nixos-server = {
-            hostname = "nixos-server"; # Replace with actual hostname/IP
-            profiles.system = {
-              user = "root";
-              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.nixos-server;
-            };
-          };
+        # deploy-rs configuration (auto-generated from config.nix hosts with deploy field)
+        deploy.nodes = mkDeployNodes {
+          inherit self;
+          inherit (inputs) deploy-rs;
         };
 
         apps.x86_64-linux = {

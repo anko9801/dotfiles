@@ -11,8 +11,16 @@ let
     homeManagerModule = homeManagerModules.nixos;
     homeDir = "/home";
     mkPlatformModules = _system: username: [
-      # Nix configuration (auto-detects nixos)
+      # Nix configuration (shared with darwin)
       nixModule
+      # NixOS-specific defaults
+      (
+        { lib, ... }:
+        {
+          time.timeZone = lib.mkDefault "Asia/Tokyo";
+          i18n.defaultLocale = lib.mkDefault "ja_JP.UTF-8";
+        }
+      )
       # User configuration
       {
         users.users.${username} = {

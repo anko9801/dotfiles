@@ -3,11 +3,8 @@
   nixpkgs,
   username,
   home-manager,
-  nix-index-database,
-  nixvim,
-  stylix,
+  homeModules ? { },
   llm-agents ? null,
-  agent-skills ? null,
   antfu-skills ? null,
 }:
 let
@@ -18,12 +15,14 @@ let
     versions
     basePackages
     desktopFonts
+    defaults
     ;
 
   # User-specific configuration (must be defined in config.nix)
   userConfig = cfg.users.${username} or (throw "User '${username}' not defined in config.nix");
 
   allHosts = cfg.hosts;
+  remoteServers = cfg.remoteServers or { };
 
   # Get host config from config.nix
   getHostConfig = hostName: allHosts.${hostName} or { };
@@ -44,28 +43,10 @@ let
   # Get host modules from config.nix (already includes baseModules)
   getHostModules = hostName: (getHostConfig hostName).modules or [ ];
 
-  # Creates unified nix configuration for darwin/nixos (legacy function)
-  mkNixConfig =
-    {
-      isDarwin ? false,
-    }:
-    {
-      inherit (nixSettings) settings;
-      optimise.automatic = true;
-      gc =
-        nixSettings.gc
-        // (
-          if isDarwin then
-            { interval = nixSettings.gcSchedule.darwin; }
-          else
-            { dates = nixSettings.gcSchedule.frequency; }
-        );
-    };
-
   # System module that auto-detects darwin/nixos
   # Unified configuration for all platforms
   nixModule =
-    { pkgs, lib, ... }:
+    { pkgs, ... }:
     let
       os = getOS { inherit pkgs; };
     in
@@ -95,10 +76,6 @@ let
 
       # State version (auto-detect)
       system.stateVersion = if os == "darwin" then versions.darwin else versions.nixos;
-
-      # NixOS-only defaults
-      time.timeZone = lib.mkIf (os == "linux") (lib.mkDefault "Asia/Tokyo");
-      i18n.defaultLocale = lib.mkIf (os == "linux") (lib.mkDefault "ja_JP.UTF-8");
     };
 
   # Unfree package handling with build-time warnings
@@ -145,10 +122,10 @@ let
       inherit
         userConfig
         allHosts
+        remoteServers
         hostConfig
         versions
         nixSettings
-        mkNixConfig
         basePackages
         desktopFonts
         getOS
@@ -205,13 +182,8 @@ let
     nixos = home-manager.nixosModules;
   };
 
-  # External flake modules (not in config.nix)
-  flakeModules = [
-    nix-index-database.homeModules.nix-index
-    nixvim.homeModules.nixvim
-    stylix.homeModules.stylix
-  ]
-  ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
+  # External flake modules (passed from flake.nix)
+  flakeModules = builtins.attrValues homeModules;
 
   # Home Manager config for system integration (darwin/nixos modules)
   mkSystemHomeConfig =
@@ -274,26 +246,87 @@ let
           }
         ];
     };
+
+  # Generate deploy-rs nodes from hosts with deploy field
+  mkDeployNodes =
+    { self, deploy-rs }:
+    let
+      inherit (nixpkgs) lib;
+      deployableHosts = lib.filterAttrs (_: h: h.deploy or null != null) allHosts;
+    in
+    lib.mapAttrs (name: host: {
+      hostname = host.deploy.hostname or name;
+      profiles.system = {
+        user = host.deploy.user or "root";
+        path = deploy-rs.lib.${host.system}.activate.nixos self.nixosConfigurations.${name};
+      };
+    }) deployableHosts;
+
+  # Generate all configurations from hosts in config.nix
+  mkAllConfigurations =
+    {
+      mkDarwin,
+      mkNixOS,
+      inputModules ? { },
+    }:
+    let
+      inherit (nixpkgs) lib;
+
+      # Filter hosts by builder type (only hosts with a builder field)
+      byBuilder = type: lib.filterAttrs (_: h: (h.integration or null) == type) allHosts;
+
+      # Resolve input module references to actual modules
+      resolveInputModules = host: map (name: inputModules.${name}) (host.inputModules or [ ]);
+
+      # Flag-based homeModules (extensible for future flags)
+      flagModules = {
+        wslUser = {
+          programs.wsl.windowsUser = username;
+        };
+      };
+
+      # Resolve flags to homeModules
+      mkFlagModules = host: map (flag: flagModules.${flag}) (host.flags or [ ]);
+    in
+    {
+      homeConfigurations = lib.mapAttrs (
+        name: host:
+        mkStandaloneHome {
+          inherit (host) system;
+          hostName = name;
+          homeModules = mkFlagModules host;
+        }
+      ) (byBuilder "standalone");
+
+      darwinConfigurations = lib.mapAttrs (
+        name: host:
+        mkDarwin {
+          inherit (host) system;
+          hostName = name;
+          extraModules = resolveInputModules host ++ (host.systemModules or [ ]);
+        }
+      ) (byBuilder "darwin");
+
+      nixosConfigurations = lib.mapAttrs (
+        name: host:
+        mkNixOS {
+          inherit (host) system;
+          hostName = name;
+          extraModules = resolveInputModules host ++ (host.systemModules or [ ]);
+          homeModules = mkFlagModules host;
+        }
+      ) (byBuilder "nixos");
+    };
 in
 {
+  # Used by flake.nix
   inherit
-    username
-    userConfig
-    allHosts
-    versions
-    nixSettings
-    mkNixConfig
-    nixModule
-    basePackages
-    desktopFonts
-    getOS
-    getHostModules
-    mkSpecialArgs
-    mkSystemSpecialArgs
-    mkSystemBuilder
-    homeManagerModules
-    flakeModules
-    mkSystemHomeConfig
     mkStandaloneHome
+    mkAllConfigurations
+    mkDeployNodes
+    defaults
     ;
+
+  # Used by darwin/builder.nix and nixos/builder.nix
+  inherit mkSystemBuilder homeManagerModules nixModule;
 }

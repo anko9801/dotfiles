@@ -1,7 +1,7 @@
 {
   lib,
   config,
-  allHosts,
+  remoteServers,
   ...
 }:
 
@@ -11,16 +11,10 @@ let
 
   currentUser = config.home.username;
 
-  # Filter servers that:
-  # 1. role/type = "server" with hostname
-  # 2. current user is in users list (users must be explicitly specified)
+  # Filter remote servers where current user is in users list
   sshHosts = lib.filterAttrs (
-    _: host:
-    (host.role or host.type or "") == "server"
-    && host ? hostname
-    && host ? users
-    && builtins.elem currentUser host.users
-  ) allHosts;
+    _: host: host ? hostname && host ? users && builtins.elem currentUser host.users
+  ) remoteServers;
 in
 {
   # SSH_AUTH_SOCK points to 1Password agent socket
