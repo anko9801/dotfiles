@@ -29,9 +29,6 @@
     };
   };
 
-  # Override default locale (ja_JP.UTF-8) for server
-  i18n.defaultLocale = "en_US.UTF-8";
-
   # SSH
   services.openssh = {
     enable = true;
