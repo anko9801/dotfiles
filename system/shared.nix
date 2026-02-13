@@ -81,17 +81,20 @@ let
     if envUser != "" then envUser else "nixuser";
 
   # Fleet config (users + hosts)
-  fleetConfig = import ../config.nix;
+  cfg = import ../config.nix;
 
   # User-specific configuration (with fallback)
   userConfig =
-    fleetConfig.users.${username} or {
+    cfg.users.${username} or {
       name = username;
       email = "${username}@localhost";
     };
 
   # All hosts
-  allHosts = fleetConfig.hosts;
+  allHosts = cfg.hosts;
+
+  # Common modules from config
+  commonModules = cfg.commonModules or [ ];
 
   # Centralized version management
   versions = {
@@ -155,6 +158,7 @@ in
     username
     userConfig
     allHosts
+    commonModules
     versions
     nixSettings
     mkNixConfig

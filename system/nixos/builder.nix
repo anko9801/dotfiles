@@ -8,14 +8,10 @@
 let
   inherit (shared)
     username
-    userConfig
     allHosts
     mkSystemSpecialArgs
     ;
   inherit (homeManager) mkSystemHomeConfig;
-
-  # User-defined modules from config.nix
-  userModules = userConfig.modules or [ ];
 
   # Get host modules from config.nix
   getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
@@ -51,7 +47,7 @@ let
         (mkSystemHomeConfig {
           inherit system;
           homeDir = "/home";
-          extraImports = userModules ++ hostModules ++ homeModules;
+          extraImports = hostModules ++ homeModules;
         })
       ]
       ++ extraModules;

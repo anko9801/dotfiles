@@ -1,5 +1,39 @@
-# Fleet configuration: users and hosts
+# Fleet configuration: users, hosts, and modules
 {
+  # Base modules loaded for all configurations
+  commonModules = [
+    ./system/home-manager/core.nix
+    ./system/defaults.nix
+    # Dev
+    ./dev/build-tools.nix
+    ./dev/go.nix
+    ./dev/mise.nix
+    ./dev/nix.nix
+    ./dev/node.nix
+    ./dev/python.nix
+    ./dev/rust.nix
+    # Security
+    ./security/1password.nix
+    ./security/gitleaks.nix
+    ./security/gpg.nix
+    ./security/ssh.nix
+    # Shell
+    ./shell/aliases.nix
+    ./shell/atuin.nix
+    ./shell/bash.nix
+    ./shell/defaults.nix
+    ./shell/eza.nix
+    ./shell/fish.nix
+    ./shell/fzf.nix
+    ./shell/readline.nix
+    ./shell/starship.nix
+    ./shell/zoxide.nix
+    ./shell/zsh
+    # Theme
+    ./theme/catppuccin-mocha.nix
+    ./theme/default.nix
+  ];
+
   users = {
     anko = {
       editor = "nvim";
@@ -9,12 +43,6 @@
         email = "37263451+anko9801@users.noreply.github.com";
         sshKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEpnmapaBsLWiMwmg201YFSh8J776ICJ8GnOEs5YmT/M";
       };
-      modules = [
-        ./ai
-        ./tools
-        ./editor
-        ./terminal
-      ];
     };
   };
 
@@ -23,12 +51,24 @@
     wsl = {
       platform = "wsl";
       type = "workstation";
-      modules = [ ./terminal/zellij ];
+      modules = [
+        ./ai
+        ./tools
+        ./editor
+        ./terminal
+        ./terminal/zellij
+      ];
     };
     desktop = {
       platform = "linux";
       type = "workstation";
-      modules = [ ./desktop ];
+      modules = [
+        ./ai
+        ./tools
+        ./editor
+        ./terminal
+        ./desktop
+      ];
     };
     windows = {
       platform = "windows";
@@ -49,7 +89,12 @@
     mac = {
       platform = "darwin";
       type = "workstation";
-      modules = [ ];
+      modules = [
+        ./ai
+        ./tools
+        ./editor
+        ./terminal
+      ];
     };
 
     # Servers (users = SSH access)

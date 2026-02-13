@@ -13,57 +13,22 @@
 let
   inherit (shared)
     username
-    userConfig
     allHosts
     mkSpecialArgs
     ;
 
-  # User-defined modules from config.nix
-  userModules = userConfig.modules or [ ];
-
   # Get host modules from config.nix
   getHostModules = hostName: (allHosts.${hostName} or { }).modules or [ ];
 
-  # Common modules for home-manager (also used by darwin/nixos)
-  commonModules = [
-    # Core
-    ./core.nix
-    # Unified defaults (includes capabilities)
-    ../defaults.nix
-    # Dev
-    ../../dev/build-tools.nix
-    ../../dev/go.nix
-    ../../dev/mise.nix
-    ../../dev/nix.nix
-    ../../dev/node.nix
-    ../../dev/python.nix
-    ../../dev/rust.nix
-    # Security
-    ../../security/1password.nix
-    ../../security/gitleaks.nix
-    ../../security/gpg.nix
-    ../../security/ssh.nix
-    # Shell
-    ../../shell/aliases.nix
-    ../../shell/atuin.nix
-    ../../shell/bash.nix
-    ../../shell/defaults.nix
-    ../../shell/eza.nix
-    ../../shell/fish.nix
-    ../../shell/fzf.nix
-    ../../shell/readline.nix
-    ../../shell/starship.nix
-    ../../shell/zoxide.nix
-    ../../shell/zsh
-    # Theme
-    ../../theme/catppuccin-mocha.nix
-    ../../theme/default.nix
-    # External
-    nix-index-database.homeModules.nix-index
-    nixvim.homeModules.nixvim
-    stylix.homeModules.stylix
-  ]
-  ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
+  # Common modules from config.nix + external flake modules
+  commonModules =
+    shared.commonModules
+    ++ [
+      nix-index-database.homeModules.nix-index
+      nixvim.homeModules.nixvim
+      stylix.homeModules.stylix
+    ]
+    ++ (if agent-skills != null then [ agent-skills.homeManagerModules.default ] else [ ]);
 
   # Home Manager config for system integration (darwin/nixos modules)
   # Used when home-manager is embedded in nix-darwin or NixOS
@@ -117,7 +82,6 @@ let
       };
       modules =
         commonModules
-        ++ userModules
         ++ hostModules
         ++ homeModules
         ++ [
