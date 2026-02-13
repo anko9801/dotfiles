@@ -285,8 +285,14 @@ let
         };
       };
 
-      # Resolve flags to homeModules
-      mkFlagModules = host: map (flag: flagModules.${flag}) (host.flags or [ ]);
+      # Resolve flags to homeModules (only flags with corresponding modules)
+      mkFlagModules =
+        host:
+        let
+          flags = host.flags or [ ];
+          knownFlags = builtins.filter (f: flagModules ? ${f}) flags;
+        in
+        map (flag: flagModules.${flag}) knownFlags;
     in
     {
       homeConfigurations = lib.mapAttrs (

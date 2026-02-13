@@ -145,48 +145,43 @@ rec {
   hosts = {
     # Standalone home-manager configurations
     wsl = {
-      role = "workstation";
       system = "x86_64-linux";
       integration = "standalone";
       flags = [ "wslUser" ];
       modules = moduleSets.workstation ++ [ ./terminal/zellij ];
     };
     desktop = {
-      role = "workstation";
       system = "x86_64-linux";
       integration = "standalone";
       modules = moduleSets.workstation ++ [ ./desktop ];
     };
     windows = {
-      role = "workstation";
       system = "x86_64-linux";
       integration = "standalone";
       isWindows = true;
       modules = baseModules;
     };
     server = {
-      role = "server";
       system = "x86_64-linux";
       integration = "standalone";
+      flags = [ "server" ];
       modules = moduleSets.server;
     };
     server-arm = {
-      role = "server";
       system = "aarch64-linux";
       integration = "standalone";
+      flags = [ "server" ];
       modules = moduleSets.server;
     };
 
     # Darwin configurations
     mac = {
-      role = "workstation";
       system = "aarch64-darwin";
       integration = "darwin";
       systemModules = [ ./system/darwin/desktop.nix ];
       modules = moduleSets.workstation;
     };
     mac-intel = {
-      role = "workstation";
       system = "x86_64-darwin";
       integration = "darwin";
       systemModules = [ ./system/darwin/desktop.nix ];
@@ -195,7 +190,6 @@ rec {
 
     # NixOS configurations
     nixos-wsl = {
-      role = "workstation";
       system = "x86_64-linux";
       integration = "nixos";
       flags = [ "wslUser" ];
@@ -203,7 +197,6 @@ rec {
       modules = moduleSets.workstation ++ [ ./terminal/zellij ];
     };
     nixos-desktop = {
-      role = "workstation";
       system = "x86_64-linux";
       integration = "nixos";
       systemModules = [
@@ -213,9 +206,9 @@ rec {
       modules = moduleSets.workstation ++ [ ./desktop ];
     };
     nixos-server = {
-      role = "server";
       system = "x86_64-linux";
       integration = "nixos";
+      flags = [ "server" ];
       systemModules = [ ./system/nixos/server.nix ];
       modules = moduleSets.server;
       deploy = {
@@ -223,16 +216,16 @@ rec {
       };
     };
     nixos-server-arm = {
-      role = "server";
       system = "aarch64-linux";
       integration = "nixos";
+      flags = [ "server" ];
       systemModules = [ ./system/nixos/server.nix ];
       modules = moduleSets.server;
     };
     example-vps = {
-      role = "server";
       system = "x86_64-linux";
       integration = "nixos";
+      flags = [ "server" ];
       inputModules = [ "disko" ];
       systemModules = [
         ./system/nixos/example-vps

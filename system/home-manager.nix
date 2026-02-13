@@ -60,8 +60,8 @@ in
           "server"
         ];
         readOnly = true;
-        default = hostConfig.type or "workstation";
-        description = "Machine role";
+        default = if builtins.elem "server" (hostConfig.flags or [ ]) then "server" else "workstation";
+        description = "Machine role (derived from flags)";
       };
 
       # Platform-specific paths
