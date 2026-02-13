@@ -9,6 +9,15 @@
 
     sessionPath = [ "$HOME/.cargo/bin" ];
 
+    # Configure cargo (rustup provides the cargo binary)
+    file.".cargo/config.toml".text = ''
+      [build]
+      jobs = 4
+
+      [net]
+      git-fetch-with-cli = true
+    '';
+
     activation.setupRust = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if command -v rustup &>/dev/null; then
         if ! rustup show active-toolchain &>/dev/null; then
@@ -16,13 +25,5 @@
         fi
       fi
     '';
-  };
-
-  programs.cargo = {
-    enable = true;
-    settings = {
-      build.jobs = 4;
-      net.git-fetch-with-cli = true;
-    };
   };
 }
