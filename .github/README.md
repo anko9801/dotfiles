@@ -29,10 +29,10 @@ nix run github:anko9801/dotfiles#switch --impure
 
 ```sh
 nix run .#switch --impure    # Apply configuration
+nix run .#deploy <host>      # Deploy to server (Linux only)
+nix flake check --impure     # Validate configuration
 nix flake update             # Update flake inputs
 nix fmt                      # Format all files
-nix flake check --impure     # Validate configuration
-nix run .#deploy <host>      # Deploy to server (Linux only)
 ```
 
 ## Customization
