@@ -81,22 +81,19 @@
       flake-parts,
       home-manager,
       nix-darwin,
-      nix-index-database,
       nix-homebrew,
       ...
     }:
     let
-      # Import system builders
-      shared = import ./system/shared.nix { inherit nixpkgs; };
-
-      homeManager = import ./system/home-manager/builder.nix {
+      builders = import ./system/builders.nix {
         inherit
           nixpkgs
           home-manager
-          nix-index-database
-          shared
+          nix-darwin
+          nix-homebrew
           ;
         inherit (inputs)
+          nix-index-database
           nixvim
           stylix
           llm-agents
@@ -104,30 +101,15 @@
           antfu-skills
           ;
       };
-
-      darwin = import ./system/darwin/builder.nix {
-        inherit
-          nix-darwin
-          nix-homebrew
-          home-manager
-          shared
-          homeManager
-          ;
-      };
-
-      nixos = import ./system/nixos/builder.nix {
-        inherit
-          nixpkgs
-          home-manager
-          shared
-          homeManager
-          ;
-      };
-
-      # Bind self and inputs to builders
-      inherit (homeManager) mkStandaloneHome platformModules;
-      mkDarwin = darwin.mkDarwin { inherit self inputs; };
-      mkNixOS = nixos.mkNixOS { inherit self inputs; };
+      inherit (builders)
+        mkStandaloneHome
+        mkDarwin
+        mkNixOS
+        platformModules
+        username
+        ;
+      mkDarwin' = mkDarwin { inherit self inputs; };
+      mkNixOS' = mkNixOS { inherit self inputs; };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
@@ -256,7 +238,7 @@
           wsl = mkStandaloneHome {
             system = "x86_64-linux";
             homeModules = platformModules.wsl ++ [
-              { programs.wsl.windowsUser = shared.username; }
+              { programs.wsl.windowsUser = username; }
             ];
           };
 
@@ -281,7 +263,7 @@
         };
 
         darwinConfigurations = {
-          mac = mkDarwin {
+          mac = mkDarwin' {
             system = "aarch64-darwin";
             extraModules = [ ./system/darwin/desktop.nix ];
             homeModules = [
@@ -289,7 +271,7 @@
               ./editor
             ];
           };
-          mac-intel = mkDarwin {
+          mac-intel = mkDarwin' {
             system = "x86_64-darwin";
             extraModules = [ ./system/darwin/desktop.nix ];
             homeModules = [
@@ -300,15 +282,15 @@
         };
 
         nixosConfigurations = {
-          nixos-wsl = mkNixOS {
+          nixos-wsl = mkNixOS' {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/wsl.nix ];
             homeModules = platformModules.wsl ++ [
-              { programs.wsl.windowsUser = shared.username; }
+              { programs.wsl.windowsUser = username; }
             ];
           };
 
-          nixos-desktop = mkNixOS {
+          nixos-desktop = mkNixOS' {
             system = "x86_64-linux";
             extraModules = [
               ./system/nixos/desktop.nix
@@ -317,13 +299,13 @@
             homeModules = platformModules.desktop;
           };
 
-          nixos-server = mkNixOS {
+          nixos-server = mkNixOS' {
             system = "x86_64-linux";
             extraModules = [ ./system/nixos/server.nix ];
             homeModules = platformModules.server;
           };
 
-          example-vps = mkNixOS {
+          example-vps = mkNixOS' {
             system = "x86_64-linux";
             extraModules = [
               inputs.disko.nixosModules.disko
