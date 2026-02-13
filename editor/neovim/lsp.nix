@@ -1,5 +1,17 @@
-_:
+{ lib, ... }:
 
+let
+  # File types that use prettierd formatter
+  prettierTypes = [
+    "javascript"
+    "typescript"
+    "javascriptreact"
+    "typescriptreact"
+    "json"
+    "yaml"
+    "markdown"
+  ];
+in
 {
   programs.nixvim.plugins = {
     # LSP
@@ -115,19 +127,12 @@ _:
       enable = true;
       lazyLoad.settings.event = [ "BufWritePre" ];
       settings = {
-        formatters_by_ft = {
+        formatters_by_ft = lib.genAttrs prettierTypes (_: [ "prettierd" ]) // {
           lua = [ "stylua" ];
           python = [
             "ruff_format"
             "ruff_organize_imports"
           ];
-          javascript = [ "prettierd" ];
-          typescript = [ "prettierd" ];
-          javascriptreact = [ "prettierd" ];
-          typescriptreact = [ "prettierd" ];
-          json = [ "prettierd" ];
-          yaml = [ "prettierd" ];
-          markdown = [ "prettierd" ];
           go = [ "gofmt" ];
           rust = [ "rustfmt" ];
           nix = [ "nixfmt" ];

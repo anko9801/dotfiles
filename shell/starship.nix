@@ -3,6 +3,16 @@
   ...
 }:
 
+let
+  # Helper for language modules with consistent format
+  mkLang =
+    symbol: style: extra:
+    {
+      format = "[via](white) [$symbol($version )]($style)";
+      inherit symbol style;
+    }
+    // extra;
+in
 {
   programs.starship = {
     enable = true;
@@ -110,10 +120,7 @@
         format = "[$symbol $context]($style) ";
       };
 
-      nodejs = {
-        format = "[via](white) [$symbol($version )]($style)";
-        symbol = " ";
-        style = "fg:green";
+      nodejs = mkLang " " "fg:green" {
         detect_extensions = [
           "js"
           "mjs"
@@ -123,30 +130,14 @@
           "cts"
         ];
       };
-
       python = {
         format = ''[via](white) [''${symbol}''${pyenv_prefix}($version )(\($virtualenv\) )]($style)'';
         symbol = " ";
         style = "fg:blue";
       };
-
-      rust = {
-        format = "[via](white) [$symbol($version )]($style)";
-        symbol = " ";
-        style = "fg:base0F";
-      };
-
-      golang = {
-        format = "[via](white) [$symbol($version )]($style)";
-        symbol = "🐹 ";
-        style = "fg:cyan";
-      };
-
-      java = {
-        format = "[via](white) [$symbol($version )]($style)";
-        symbol = " ";
-        style = "fg:base0F";
-      };
+      rust = mkLang " " "fg:base0F" { };
+      golang = mkLang "🐹 " "fg:cyan" { };
+      java = mkLang " " "fg:base0F" { };
 
       package = {
         format = "[$symbol$version]($style) ";

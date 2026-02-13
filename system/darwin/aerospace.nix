@@ -1,5 +1,30 @@
-{ config, ... }:
+{ config, lib, ... }:
 
+let
+  # Apps that should float by default
+  floatingApps = [
+    "com.apple.systempreferences"
+    "com.apple.calculator"
+    "com.apple.finder"
+    "com.apple.ActivityMonitor"
+    "com.agilebits.onepassword7"
+    "com.1password.1password"
+    "com.raycast.macos"
+    "com.apple.archiveutility"
+    "com.apple.Dictionary"
+    "com.apple.systeminfo"
+    "com.apple.AppStore"
+    "com.macpaw.CleanMyMac4"
+    "com.logi.cp-dev-mgr.service"
+  ];
+
+  floatingRules = lib.concatMapStrings (app: ''
+
+    [[on-window-detected]]
+    if.app-id = '${app}'
+    run = 'layout floating'
+  '') floatingApps;
+in
 {
   home-manager.users.${config.system.primaryUser}.home.file = {
     ".config/aerospace/aerospace.toml".text = ''
@@ -98,57 +123,7 @@
       esc = 'mode main'
 
       # Excluded applications (floating by default)
-      [[on-window-detected]]
-      if.app-id = 'com.apple.systempreferences'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.apple.calculator'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.apple.finder'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.apple.ActivityMonitor'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.agilebits.onepassword7'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.1password.1password'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.raycast.macos'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.apple.archiveutility'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.apple.Dictionary'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.apple.systeminfo'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.apple.AppStore'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.macpaw.CleanMyMac4'
-      run = 'layout floating'
-
-      [[on-window-detected]]
-      if.app-id = 'com.logi.cp-dev-mgr.service'
-      run = 'layout floating'
+      ${floatingRules}
     '';
 
     ".config/borders/bordersrc" = {
