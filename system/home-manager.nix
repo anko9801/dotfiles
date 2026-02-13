@@ -6,6 +6,7 @@
   versions,
   userConfig,
   hostConfig,
+  getOS,
   ...
 }:
 
@@ -32,13 +33,7 @@ in
           "windows"
         ];
         readOnly = true;
-        default =
-          if pkgs.stdenv.isDarwin then
-            "darwin"
-          else if hostConfig.isWindows or false then
-            "windows"
-          else
-            "linux";
+        default = getOS { inherit pkgs hostConfig; };
         description = "Operating system";
       };
 

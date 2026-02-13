@@ -28,6 +28,19 @@ let
   # Get host config from config.nix
   getHostConfig = hostName: allHosts.${hostName} or { };
 
+  # Single source of truth for OS detection
+  getOS =
+    {
+      pkgs,
+      hostConfig ? { },
+    }:
+    if pkgs.stdenv.isDarwin then
+      "darwin"
+    else if hostConfig.isWindows or false then
+      "windows"
+    else
+      "linux";
+
   # Get host modules from config.nix (already includes baseModules)
   getHostModules = hostName: (getHostConfig hostName).modules or [ ];
 
@@ -54,7 +67,7 @@ let
   nixModule =
     { pkgs, lib, ... }:
     let
-      os = if pkgs.stdenv.isDarwin then "darwin" else "linux";
+      os = getOS { inherit pkgs; };
     in
     {
       # Nix daemon configuration
@@ -138,6 +151,7 @@ let
         mkNixConfig
         basePackages
         desktopFonts
+        getOS
         ;
       unfreePkgs = mkUnfreePkgs system;
     };
@@ -272,6 +286,7 @@ in
     nixModule
     basePackages
     desktopFonts
+    getOS
     getHostModules
     mkSpecialArgs
     mkSystemSpecialArgs
