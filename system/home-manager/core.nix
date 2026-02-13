@@ -375,8 +375,8 @@ in
       bash.historySize = cfg.privacy.historySize;
 
       starship.settings = lib.mkIf (config.programs.starship.enable && !cfg.terminal.nerdFonts) {
-        character.success_symbol = "[>](green)";
-        git_branch.symbol = "";
+        character.success_symbol = lib.mkDefault "[>](green)";
+        git_branch.symbol = lib.mkDefault "";
       };
     };
   };
