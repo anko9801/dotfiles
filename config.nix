@@ -91,6 +91,14 @@ rec {
       nerd-fonts.hack
     ];
 
+  # Home-manager modules from flake inputs (resolved in lib.nix)
+  flakeHomeModules = [
+    "nix-index-database"
+    "nixvim"
+    "stylix"
+    "agent-skills"
+  ];
+
   # Base modules loaded for all configurations
   baseModules = [
     ./system/home-manager.nix

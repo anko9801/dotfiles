@@ -33,7 +33,7 @@ in
           "windows"
         ];
         readOnly = true;
-        default = getOS { inherit pkgs hostConfig; };
+        default = if hostConfig.isWindows or false then "windows" else getOS { inherit pkgs; };
         description = "Operating system";
       };
 

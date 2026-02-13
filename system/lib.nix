@@ -10,15 +10,15 @@ let
     antfu-skills
     ;
 
-  # Home-manager modules from flake inputs
-  flakeModules = [
-    inputs.nix-index-database.homeModules.nix-index
-    inputs.nixvim.homeModules.nixvim
-    inputs.stylix.homeModules.stylix
-    inputs.agent-skills.homeManagerModules.default
-  ];
-
   cfg = import ../config.nix;
+
+  # Resolve flake home modules from config.nix names
+  resolveFlakeModule =
+    name:
+    inputs.${name}.homeModules.${name} or inputs.${name}.homeModules.default
+      or inputs.${name}.homeManagerModules.default or (throw "flakeHomeModule '${name}' not found");
+
+  flakeModules = map resolveFlakeModule (cfg.flakeHomeModules or [ ]);
 
   inherit (cfg)
     nixSettings
@@ -37,18 +37,8 @@ let
   # Get host config from config.nix
   getHostConfig = hostName: allHosts.${hostName} or { };
 
-  # Single source of truth for OS detection
-  getOS =
-    {
-      pkgs,
-      hostConfig ? { },
-    }:
-    if pkgs.stdenv.isDarwin then
-      "darwin"
-    else if hostConfig.isWindows or false then
-      "windows"
-    else
-      "linux";
+  # OS detection from pkgs
+  getOS = { pkgs, ... }: if pkgs.stdenv.isDarwin then "darwin" else "linux";
 
   # Get host modules from config.nix (already includes baseModules)
   getHostModules = hostName: (getHostConfig hostName).modules or [ ];
@@ -127,6 +117,7 @@ let
     system: hostName:
     let
       hostConfig = getHostConfig hostName;
+      llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
     in
     {
       inherit
@@ -137,6 +128,8 @@ let
         nixSettings
         desktopFonts
         getOS
+        llmAgentsPkgs
+        antfu-skills
         ;
       unfreePkgs = mkUnfreePkgs system;
     };
@@ -184,16 +177,10 @@ let
         ++ extraModules;
     };
 
-  # Home Manager modules for system integration
-  homeManagerModules = {
-    darwin = home-manager.darwinModules;
-    nixos = home-manager.nixosModules;
-  };
-
   # Darwin-specific builder
   mkDarwinBuilder = mkSystemBuilder {
     systemBuilder = nix-darwin.lib.darwinSystem;
-    homeManagerModule = homeManagerModules.darwin;
+    homeManagerModule = home-manager.darwinModules;
     homeDir = "/Users";
     mkPlatformModules = system: user: [
       nixModule
@@ -213,7 +200,7 @@ let
   # NixOS-specific builder
   mkNixOSBuilder = mkSystemBuilder {
     systemBuilder = nixpkgs.lib.nixosSystem;
-    homeManagerModule = homeManagerModules.nixos;
+    homeManagerModule = home-manager.nixosModules;
     homeDir = "/home";
     mkPlatformModules = _system: user: [
       nixModule
@@ -244,16 +231,11 @@ let
       homeDir,
       hostModules,
     }:
-    let
-      llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
-    in
     {
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
-        extraSpecialArgs = mkSpecialArgs system hostName // {
-          inherit llmAgentsPkgs antfu-skills;
-        };
+        extraSpecialArgs = mkSpecialArgs system hostName;
         users.${username} =
           { lib, ... }:
           {
@@ -275,14 +257,11 @@ let
     }:
     let
       pkgs = import nixpkgs { inherit system; };
-      llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
       hostModules = getHostModules hostName;
     in
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
-      extraSpecialArgs = mkSpecialArgs system hostName // {
-        inherit llmAgentsPkgs antfu-skills;
-      };
+      extraSpecialArgs = mkSpecialArgs system hostName;
       modules =
         flakeModules
         ++ hostModules
