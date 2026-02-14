@@ -55,7 +55,7 @@ jobs:
           sudo mkdir -p /run/dbus
           sudo dbus-daemon --system --fork
       - name: Build Home Manager configuration
-        run: nix build .#homeConfigurations.wsl.activationPackage --impure
+        run: nix build .#homeConfigurations.desktop.activationPackage --impure
       - name: Activate Home Manager
         run: |
           eval $(dbus-launch --sh-syntax)
