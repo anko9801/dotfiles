@@ -201,6 +201,7 @@ in
 
     home = {
       stateVersion = versions.home;
+      preferXdgDirectories = true;
 
       sessionVariables = {
         EDITOR = lib.mkDefault cfg.editor;
