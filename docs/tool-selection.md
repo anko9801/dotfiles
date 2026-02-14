@@ -71,7 +71,7 @@ Evaluate tools in this order:
 | Fish | Not POSIX — LLMs make mistakes |
 | Nushell | Not POSIX — requires rewriting |
 | chezmoi | Using home-manager (declarative Nix) |
-| gitui | Same role as lazygit — multiple tools for same task increases cognitive load |
+| gitui | lazygit has 3x users (72k vs 21k) — better reliability per criteria #2 |
 | ghq | zoxide covers navigation; ghq forces rigid naming convention |
 | Manual scripts | Idempotency/cross-platform burden |
 
@@ -89,3 +89,19 @@ Evaluate tools in this order:
 4. Compare with existing tools for overlap
 5. Test for 1 week in daily workflow
 6. Document decision with rationale
+
+## Rejection Reason Guidelines
+
+Rejection reasons must be based on the priority criteria, not circular logic.
+
+**Bad example:**
+> "gitui rejected because we have lazygit"
+
+This is circular — the reverse ("lazygit rejected because we have gitui") is equally valid.
+
+**Good example:**
+> "gitui rejected: lazygit has 3x more users (72k vs 21k), better reliability per criteria #2"
+
+If the original reason is forgotten, either:
+- Re-evaluate based on current criteria
+- Mark as "historical decision, reason unknown" and re-evaluate when relevant
