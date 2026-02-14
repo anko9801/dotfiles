@@ -6,6 +6,7 @@ let
     home-manager
     nix-darwin
     nix-homebrew
+    nixgl
     llm-agents
     antfu-skills
     ;
@@ -133,6 +134,7 @@ let
     let
       hostConfig = getHostConfig hostName;
       llmAgentsPkgs = if llm-agents != null then llm-agents.packages.${system} or { } else { };
+      nixglPkgs = if nixgl != null then nixgl.packages.${system} or null else null;
     in
     {
       inherit
@@ -143,6 +145,7 @@ let
         nixSettings
         getOS
         llmAgentsPkgs
+        nixglPkgs
         antfu-skills
         ;
       unfreePkgs = mkUnfreePkgs system;

@@ -6,6 +6,7 @@
   versions,
   userConfig,
   hostConfig,
+  nixglPkgs,
   getOS,
   ...
 }:
@@ -175,6 +176,16 @@ in
   config = {
     # Enable generic Linux target for non-NixOS Linux
     targets.genericLinux.enable = p.os == "linux";
+
+    # NixGL for GPU support on non-NixOS Linux
+    targets.genericLinux.nixGL = lib.mkIf (p.os == "linux" && nixglPkgs != null) {
+      packages = nixglPkgs;
+      defaultWrapper = "mesa";
+      installScripts = [ "mesa" ];
+    };
+
+    # Fontconfig for non-NixOS Linux (enables Nix-installed fonts)
+    fonts.fontconfig.enable = p.os == "linux";
 
     # Platform-specific defaults + user identity
     defaults = {
