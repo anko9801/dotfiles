@@ -10,10 +10,20 @@
 
 <br />
 
-Declarative dotfiles for macOS, Linux, WSL, and NixOS using Nix Flakes.
+Declarative dotfiles for macOS, Linux, WSL, NixOS, and Windows using Nix Flakes.
 
 > [!NOTE]
 > Personal configuration. Fork and adapt for your own needs.
+
+## Supported Platforms
+
+| Platform | Integration | Command |
+|----------|-------------|---------|
+| macOS | nix-darwin + home-manager | `nix run .#switch` |
+| NixOS | nixos + home-manager | `nix run .#switch` |
+| WSL | standalone home-manager | `nix run .#switch` |
+| Linux | standalone home-manager | `nix run .#switch` |
+| Windows | winget + config deploy | `nix run .#windows` |
 
 ## Quick Start
 
@@ -28,9 +38,11 @@ nix run github:anko9801/dotfiles#switch --impure
 ## Commands
 
 ```sh
-nix run .#switch --impure    # Apply configuration
-nix run .#deploy <host>      # Deploy to server (Linux only)
-nix flake check --impure     # Validate configuration
+nix run .#switch             # Apply configuration (auto-detect platform)
+nix run .#switch -- <host>   # Apply specific host configuration
+nix run .#windows            # Setup Windows config from WSL
+nix run .#deploy             # Deploy to server
+nix flake check              # Validate configuration
 nix flake update             # Update flake inputs
 nix fmt                      # Format all files
 ```
