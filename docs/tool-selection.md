@@ -1,69 +1,90 @@
 # Tool Selection Criteria
 
-Guidelines for evaluating CLI tools and developer utilities for this dotfiles.
+Guidelines for evaluating CLI tools and developer utilities.
 
-## Must Have
+## Philosophy: Cognitive Load Reduction (認知負荷の削減)
 
-- [ ] **Cross-platform**: Works on Linux, macOS, (Windows optional)
-- [ ] **Active maintenance**: Commits within last 6 months
-- [ ] **Stability**: Stars > 1,000 or proven in production
-- [ ] **Nix support**: Available in nixpkgs or easy to package
+Productivity = reducing cognitive load (memory allocation for tasks).
+Lower cognitive load → deeper thinking about core problems.
 
-## Strong Preference
+**Principles:**
+- Declarative over procedural (state desired outcome, not steps)
+- Functional paradigms over imperative
+- One-command deployment for psychological assurance
+- Avoid manual scripts (idempotency, cross-platform burden)
 
-- [ ] **Rust/Go**: Fast, single binary, no runtime deps
-- [ ] **Config as code**: Declarative configuration
-- [ ] **Unix philosophy**: Does one thing well, composable
-- [ ] **POSIX compatible**: For shells and core utils
+## Priority Order
 
-## Rejection Criteria
+Evaluate tools in this order:
 
-- Non-POSIX shells (breaks existing scripts)
-- Overlapping functionality with adopted tools
-- Heavy runtime dependencies (JVM, etc.)
-- Unmaintained (no commits > 1 year)
-- Poor Nix integration
+1. **Simplicity** — "Simple is not Easy"
+   - True simplicity requires thoughtful design
+   - Fewer concepts to learn, intuitive interface
+   - Avoid tools that seem easy but hide complexity
 
-## Adopted Tools
+2. **Reliability** — Few bugs, many users
+   - Community validation reduces risk
+   - Active maintenance, responsive to issues
+   - Stars > 5,000 preferred (proven adoption)
 
-| Category | Tool | Stars | Reason |
-|----------|------|-------|--------|
-| Git TUI | lazygit | 72k | Best Git TUI, intuitive |
-| Git worktree | lazyworktree | - | HM module available |
-| File manager | yazi | 32k | Fast, Vim-like |
-| Multiplexer | zellij | 29k | Modern tmux alternative |
-| Terminal | ghostty | - | Fast, Zig-based |
-| Diff | delta | 25k | Beautiful git diffs |
-| ls | eza | 12k | Icons, git integration |
-| cat | bat | 50k | Syntax highlighting |
-| grep | ripgrep | 50k | Fast, respects gitignore |
-| find | fd | 35k | Intuitive syntax |
-| cd | zoxide | 25k | Smart directory jumping |
-| fuzzy | fzf | 67k | Universal fuzzy finder |
-| versions | mise | 12k | Replaces asdf, fast |
+3. **Cross-platform** — Linux, macOS, (Windows)
+   - Must work across personal/work machines
+   - Containers, cloud, Raspberry Pi compatibility
+   - Nix package available
 
-## Rejected Tools
+4. **Performance** — No friction in daily workflow
+   - Startup time matters (shells, prompts)
+   - Rust/Go preferred (fast, single binary)
+
+5. **Security** — Foundation for sensitive data
+   - No plain text secrets
+   - Minimal attack surface
+
+## Shell & POSIX Compatibility
+
+**Requirement:** POSIX-compatible shells only.
+
+**Reason:** LLMs make fewer errors with POSIX syntax. Non-POSIX shells (Fish, Nushell) require rewriting scripts and increase AI-assisted coding friction.
+
+**Choice:** Zsh — mature plugin ecosystem, POSIX compatible, equivalent UX to alternatives.
+
+## Tool Decisions
+
+### Adopted
+
+| Category | Tool | Rationale |
+|----------|------|-----------|
+| Shell | zsh | POSIX compatible, LLM friendly |
+| Navigation | zoxide | Flexible categorization, no new vocabulary |
+| Git diff | delta, difftastic | Syntax-aware, reduces cognitive load |
+| Git commit | czg | Interactive conventional commits |
+| Merge | zdiff3 | Shows common ancestor in conflicts |
+| Versions | mise | Declarative, replaces asdf/nvm/pyenv |
+| Files | yazi | Fast, Vim-like, replaces GUI file manager |
+| Terminal | zellij | Session management, visible keybindings |
+| Git TUI | lazygit | Intuitive, reduces git command memorization |
+
+### Rejected
 
 | Tool | Reason |
 |------|--------|
-| nushell | Not POSIX compatible |
-| chezmoi | Using home-manager instead |
-| gitui | Already have lazygit |
-| starship (fish) | Using for zsh only, fish has own prompt |
+| Fish | Not POSIX — LLMs make mistakes |
+| Nushell | Not POSIX — requires rewriting |
+| chezmoi | Using home-manager (declarative Nix) |
+| gitui | Already have lazygit (avoid overlap) |
+| Manual scripts | Idempotency/cross-platform burden |
 
-## Candidates (Under Evaluation)
+### Candidates
 
-| Tool | Stars | Description | Concerns |
-|------|-------|-------------|----------|
-| gh-dash | 10k | GitHub PR/Issue TUI | Overlaps with `gh` CLI? |
-| dotenvx | 3k | Encrypted .env management | Need to evaluate workflow |
+| Tool | Evaluation |
+|------|------------|
+| gh-dash | Does it reduce cognitive load vs `gh` CLI? |
 
 ## Evaluation Process
 
-1. Check star count and maintenance status
-2. Verify Nix package availability
-3. Test cross-platform compatibility
+1. Does it reduce cognitive load?
+2. Check priority criteria (simplicity → security)
+3. Verify POSIX compatibility (if shell-related)
 4. Compare with existing tools for overlap
-5. Evaluate learning curve vs benefit
-6. Add to candidates, test for 1 week
-7. Move to adopted or rejected with reason
+5. Test for 1 week in daily workflow
+6. Document decision with rationale
