@@ -63,7 +63,7 @@ Evaluate tools in this order:
 | Files | yazi | Fast, Vim-like, replaces GUI file manager |
 | Terminal | zellij | Session management, visible keybindings |
 | Git TUI | lazygit | Worktree support, customCommands (czg integration), intuitive UI |
-| Git worktree | lazyworktree | Dedicated TUI for worktree management, complements lazygit |
+| Git worktree | git-wt, lazyworktree | git-wt for CLI, lazyworktree for TUI; complements lazygit |
 
 ### Rejected
 
