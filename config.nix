@@ -100,11 +100,9 @@ rec {
       integration = "standalone";
       modules = moduleSets.server;
     };
+    # Windows marker (no home-manager, just for platform detection)
     windows = {
-      system = "x86_64-linux";
-      integration = "standalone";
       os = "windows";
-      modules = [ ];
     };
 
     # Darwin (nix-darwin + home-manager)
