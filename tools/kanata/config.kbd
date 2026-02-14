@@ -1,5 +1,19 @@
 ;; Kanata configuration
 ;; Key remappings for Japanese input and Vim-friendly editing
+;;
+;; Prefix layers (目的語):
+;;   ctrl+q = Pane operations
+;;   ctrl+t = Tab operations (handled by apps)
+;;   ctrl+g = Shell operations (handled by apps)
+;;   Space  = Vim leader (handled by vim)
+;;
+;; Verbs:
+;;   h/j/k/l     = focus left/down/up/right
+;;   H/J/K/L     = resize left/down/up/right
+;;   |/-         = split vertical/horizontal
+;;   x           = close
+;;   z           = zoom/toggle
+;;   n           = new
 
 (defcfg
   process-unmapped-keys yes
@@ -7,17 +21,44 @@
 
 (defsrc
   caps lmet rmet
+  q h j k l
+  minus equal
+  x z n
+)
+
+(defvar
+  tap-timeout 200
+  hold-timeout 200
 )
 
 (defalias
   ;; CapsLock: tap=Escape, hold=Ctrl (Vim-friendly)
-  cap (tap-hold 200 200 esc lctl)
+  cap (tap-hold $tap-timeout $hold-timeout esc lctl)
   ;; Left Meta: tap=英数 (Eisuu/lang2), hold=Meta
-  lm  (tap-hold 200 200 lang2 lmet)
+  lm  (tap-hold $tap-timeout $hold-timeout lang2 lmet)
   ;; Right Meta: tap=かな (Kana/lang1), hold=Meta
-  rm  (tap-hold 200 200 lang1 rmet)
+  rm  (tap-hold $tap-timeout $hold-timeout lang1 rmet)
+
+  ;; ctrl+q: activate pane layer for next key
+  pane (tap-hold $tap-timeout $hold-timeout q (layer-while-held pane))
 )
 
 (deflayer default
   @cap @lm @rm
+  @pane h j k l
+  minus equal
+  x z n
+)
+
+;; Pane operations layer (activated by ctrl+q)
+;; Maps vim-style keys to Windows Terminal standard keybindings
+(deflayer pane
+  _    _   _
+  _
+  ;; Focus: h/j/k/l → alt+arrow
+  A-left A-down A-up A-right
+  ;; Split: -/= → alt+shift+minus/plus (= is shift+equal on US layout)
+  A-S-minus A-S-equal
+  ;; Close/Zoom/New
+  C-S-w A-S-z A-S-n
 )

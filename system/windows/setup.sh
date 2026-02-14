@@ -60,6 +60,14 @@ if [ -f "$dotfiles/system/windows/whkdrc" ]; then
     echo "  - whkd config" || echo "  - whkd config (skipped: permission denied)"
 fi
 
+# kanata
+kanata_dir="$WIN_HOME/.config/kanata"
+mkdir -p "$kanata_dir" 2>/dev/null || true
+if [ -f "$dotfiles/tools/kanata/config.kbd" ]; then
+  cp -f "$dotfiles/tools/kanata/config.kbd" "$kanata_dir/kanata.kbd" 2>/dev/null &&
+    echo "  - kanata config" || echo "  - kanata config (skipped: permission denied)"
+fi
+
 # Fonts
 echo "[3/4] Installing fonts..."
 fonts_dir="$WIN_HOME/AppData/Local/Microsoft/Windows/Fonts"
