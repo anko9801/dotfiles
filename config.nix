@@ -19,15 +19,12 @@ rec {
     };
   };
 
-  # Core modules required for all configurations (prevents broken environments)
-  coreModules = [
+  # Base modules loaded for standard configurations
+  # (coreModules are added automatically in lib.nix)
+  baseModules = [
     ./system/home-manager.nix
     ./dev/nix.nix
     ./shell/bash.nix
-  ];
-
-  # Base modules loaded for standard configurations
-  baseModules = coreModules ++ [
     # Dev
     ./dev/build-tools.nix
     ./dev/go.nix
@@ -107,7 +104,7 @@ rec {
       system = "x86_64-linux";
       integration = "standalone";
       os = "windows";
-      modules = coreModules;
+      modules = [ ];
     };
 
     # Darwin (nix-darwin + home-manager)

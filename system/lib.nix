@@ -27,6 +27,14 @@ let
 
   flakeModules = map resolveFlakeModule flakeHomeModules;
 
+  # Core modules required for all configurations (prevents broken environments)
+  coreModules = [
+    ../system/home-manager.nix
+    ../dev/nix.nix
+    ../shell/defaults.nix
+    ../shell/bash.nix
+  ];
+
   inherit (cfg)
     nixSettings
     versions
@@ -244,7 +252,7 @@ let
         users.${username} =
           { lib, ... }:
           {
-            imports = flakeModules ++ hostModules;
+            imports = coreModules ++ flakeModules ++ hostModules;
             home = {
               username = lib.mkForce username;
               homeDirectory = lib.mkForce "${homeDir}/${username}";
@@ -267,7 +275,8 @@ let
       inherit pkgs;
       extraSpecialArgs = mkSpecialArgs system hostName;
       modules =
-        flakeModules
+        coreModules
+        ++ flakeModules
         ++ hostModules
         ++ [
           {
