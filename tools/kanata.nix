@@ -41,7 +41,7 @@ let
     (defsrc
       caps lmet rmet
       q h j k l
-      minus equal
+      min eql
       x z n
     )
 
@@ -65,7 +65,7 @@ let
     (deflayer default
       @cap @lm @rm
       @pane h j k l
-      minus equal
+      min eql
       x z n
     )
 
@@ -77,7 +77,7 @@ let
       ;; Focus: h/j/k/l → alt+arrow
       A-left A-down A-up A-right
       ;; Split: -/= → alt+shift+minus/plus
-      A-S-minus A-S-equal
+      A-S-min A-S-eql
       ;; Close/Zoom/New
       C-S-w A-S-z A-S-n
     )
