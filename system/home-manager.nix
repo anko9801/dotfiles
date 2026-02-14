@@ -5,6 +5,7 @@
   config,
   versions,
   userConfig,
+  hostConfig,
   getOS,
   ...
 }:
@@ -28,8 +29,8 @@ in
           "windows"
         ];
         readOnly = true;
-        default = getOS { inherit pkgs; };
-        description = "Operating system";
+        default = hostConfig.os or (getOS { inherit pkgs; });
+        description = "Operating system (can be overridden in host config)";
       };
 
       environment = lib.mkOption {

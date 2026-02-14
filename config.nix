@@ -99,6 +99,9 @@ rec {
       integration = "standalone";
       modules = moduleSets.server;
     };
+    windows = {
+      os = "windows";
+    };
 
     # Darwin (nix-darwin + home-manager)
     mac = {
