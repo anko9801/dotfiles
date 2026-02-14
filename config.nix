@@ -19,14 +19,19 @@ rec {
     };
   };
 
-  # Base modules loaded for all configurations
-  baseModules = [
+  # Core modules required for all configurations (prevents broken environments)
+  coreModules = [
     ./system/home-manager.nix
+    ./dev/nix.nix
+    ./shell/bash.nix
+  ];
+
+  # Base modules loaded for standard configurations
+  baseModules = coreModules ++ [
     # Dev
     ./dev/build-tools.nix
     ./dev/go.nix
     ./dev/mise.nix
-    ./dev/nix.nix
     ./dev/node.nix
     ./dev/python.nix
     ./dev/rust.nix
@@ -38,7 +43,6 @@ rec {
     # Shell
     ./shell/aliases.nix
     ./shell/atuin.nix
-    ./shell/bash.nix
     ./shell/defaults.nix
     ./shell/eza.nix
     ./shell/fish.nix
@@ -103,7 +107,7 @@ rec {
       system = "x86_64-linux";
       integration = "standalone";
       os = "windows";
-      modules = [ ];
+      modules = coreModules;
     };
 
     # Darwin (nix-darwin + home-manager)
