@@ -73,8 +73,8 @@ rec {
   defaultHosts = {
     darwin = "mac-arm";
     nixos = "nixos-desktop";
-    wsl = "wsl";
-    linux = "desktop";
+    wsl = "linux-wsl";
+    linux = "linux-desktop";
   };
 
   # Host naming convention:
@@ -82,23 +82,23 @@ rec {
   #   - No suffix when only one architecture exists
   #   - manager: "home-manager" (standalone) | "nixos" | "nix-darwin"
   hosts = {
-    # Home Manager only (standalone)
-    wsl = {
+    # Home Manager only (standalone Linux)
+    linux-wsl = {
       system = "x86_64-linux";
       manager = "home-manager";
       modules = moduleSets.workstation ++ [ ./terminal/zellij ];
     };
-    desktop = {
+    linux-desktop = {
       system = "x86_64-linux";
       manager = "home-manager";
       modules = moduleSets.workstation ++ [ ./desktop ];
     };
-    server-intel = {
+    linux-server-intel = {
       system = "x86_64-linux";
       manager = "home-manager";
       modules = moduleSets.server;
     };
-    server-arm = {
+    linux-server-arm = {
       system = "aarch64-linux";
       manager = "home-manager";
       modules = moduleSets.server;

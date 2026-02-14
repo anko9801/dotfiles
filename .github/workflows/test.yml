@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [desktop]
+        host: [linux-desktop]
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
@@ -55,7 +55,7 @@ jobs:
           sudo mkdir -p /run/dbus
           sudo dbus-daemon --system --fork
       - name: Build Home Manager configuration
-        run: nix build .#homeConfigurations.desktop.activationPackage --impure
+        run: nix build .#homeConfigurations.linux-desktop.activationPackage --impure
       - name: Activate Home Manager
         run: |
           eval $(dbus-launch --sh-syntax)
@@ -127,7 +127,7 @@ jobs:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build nix-darwin configuration
-        run: nix build .#darwinConfigurations.mac.system --impure
+        run: nix build .#darwinConfigurations.mac-arm.system --impure
       - name: Show result
         run: ls -la result/
       - uses: Kesin11/actions-timeline@v2
