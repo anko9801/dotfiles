@@ -77,61 +77,65 @@ rec {
     linux = "desktop";
   };
 
+  # Host naming convention:
+  #   - Linux: x64 is default, ARM uses `-arm` suffix
+  #   - Darwin: ARM is default (Apple Silicon), x64 uses `-intel` suffix
+  #   - manager: "home-manager" (standalone) | "nixos" | "nix-darwin"
   hosts = {
-    # Standalone home-manager (no system integration)
+    # Home Manager only (standalone)
     wsl = {
       system = "x86_64-linux";
-      integration = "standalone";
+      manager = "home-manager";
       modules = moduleSets.workstation ++ [ ./terminal/zellij ];
     };
     desktop = {
       system = "x86_64-linux";
-      integration = "standalone";
+      manager = "home-manager";
       modules = moduleSets.workstation ++ [ ./desktop ];
     };
     server = {
       system = "x86_64-linux";
-      integration = "standalone";
+      manager = "home-manager";
       modules = moduleSets.server;
     };
     server-arm = {
       system = "aarch64-linux";
-      integration = "standalone";
+      manager = "home-manager";
       modules = moduleSets.server;
     };
     # Windows (build only, use `nix run .#windows` to deploy)
     windows = {
       system = "x86_64-linux";
-      integration = "standalone";
+      manager = "home-manager";
       os = "windows";
       modules = baseModules;
     };
 
-    # Darwin (nix-darwin + home-manager)
+    # nix-darwin + home-manager
     mac = {
       system = "aarch64-darwin";
-      integration = "darwin";
+      manager = "nix-darwin";
       modules = moduleSets.workstation;
       systemModules = [ ./system/darwin/desktop.nix ];
     };
     mac-intel = {
       system = "x86_64-darwin";
-      integration = "darwin";
+      manager = "nix-darwin";
       modules = moduleSets.workstation;
       systemModules = [ ./system/darwin/desktop.nix ];
     };
 
-    # NixOS (nixos + home-manager)
+    # NixOS + home-manager
     nixos-wsl = {
       system = "x86_64-linux";
-      integration = "nixos";
+      manager = "nixos";
       modules = moduleSets.workstation ++ [ ./terminal/zellij ];
       inputModules = [ "stylix" ];
       systemModules = [ ./system/nixos/wsl.nix ];
     };
     nixos-desktop = {
       system = "x86_64-linux";
-      integration = "nixos";
+      manager = "nixos";
       modules = moduleSets.workstation ++ [ ./desktop ];
       inputModules = [ "stylix" ];
       systemModules = [
@@ -141,20 +145,20 @@ rec {
     };
     nixos-server = {
       system = "x86_64-linux";
-      integration = "nixos";
+      manager = "nixos";
       modules = moduleSets.server;
       systemModules = [ ./system/nixos/server.nix ];
       deploy.hostname = "nixos-server";
     };
     nixos-server-arm = {
       system = "aarch64-linux";
-      integration = "nixos";
+      manager = "nixos";
       modules = moduleSets.server;
       systemModules = [ ./system/nixos/server.nix ];
     };
     example-vps = {
       system = "x86_64-linux";
-      integration = "nixos";
+      manager = "nixos";
       modules = moduleSets.server;
       inputModules = [ "disko" ];
       systemModules = [

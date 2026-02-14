@@ -239,7 +239,7 @@ let
     ];
   };
 
-  # Home Manager config for system integration (darwin/nixos modules)
+  # Home Manager config for system managers (nix-darwin/nixos modules)
   mkSystemHomeConfig =
     {
       system,
@@ -264,7 +264,7 @@ let
       };
     };
 
-  # Standalone home-manager configuration (no system integration)
+  # Standalone home-manager configuration (manager = "home-manager")
   mkStandaloneHome =
     {
       system,
@@ -317,8 +317,8 @@ let
       mkDarwin = mkDarwinBuilder { inherit self inputs; };
       mkNixOS = mkNixOSBuilder { inherit self inputs; };
 
-      # Filter hosts by builder type (only hosts with a builder field)
-      byBuilder = type: lib.filterAttrs (_: h: (h.integration or null) == type) allHosts;
+      # Filter hosts by manager type: "home-manager" | "nixos" | "nix-darwin"
+      byManager = type: lib.filterAttrs (_: h: (h.manager or null) == type) allHosts;
 
       # Resolve input module references to actual modules (auto-detect from inputs)
       resolveInputModules =
@@ -337,7 +337,7 @@ let
           inherit (host) system;
           hostName = name;
         }
-      ) (byBuilder "standalone");
+      ) (byManager "home-manager");
 
       darwinConfigurations = lib.mapAttrs (
         name: host:
@@ -346,7 +346,7 @@ let
           hostName = name;
           extraModules = resolveInputModules host ++ (host.systemModules or [ ]);
         }
-      ) (byBuilder "darwin");
+      ) (byManager "nix-darwin");
 
       nixosConfigurations = lib.mapAttrs (
         name: host:
@@ -355,7 +355,7 @@ let
           hostName = name;
           extraModules = resolveInputModules host ++ (host.systemModules or [ ]);
         }
-      ) (byBuilder "nixos");
+      ) (byManager "nixos");
     };
 in
 {
