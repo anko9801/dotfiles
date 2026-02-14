@@ -72,6 +72,7 @@ Evaluate tools in this order:
 | Nushell | Not POSIX — requires rewriting |
 | chezmoi | Using home-manager (declarative Nix) |
 | gitui | Already have lazygit (avoid overlap) |
+| ghq | zoxide covers navigation; ghq forces rigid naming convention |
 | Manual scripts | Idempotency/cross-platform burden |
 
 ### Candidates
