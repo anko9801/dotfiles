@@ -56,6 +56,13 @@ workstation = true   # ai/ + tools/ + editor/ + terminal/
 workstation = false  # minimal, no GUI
 ```
 
+## Tool Selection
+
+See [docs/tool-selection.md](docs/tool-selection.md) for:
+- Evaluation criteria (must have, rejection reasons)
+- Adopted/rejected tools with rationale
+- Candidates under evaluation
+
 ## Reference Analysis
 
 When user shares a URL (article, repository, dotfiles):
