@@ -53,10 +53,10 @@ let
     (defalias
       ;; CapsLock: tap=Escape, hold=Ctrl (Vim-friendly)
       cap (tap-hold $tap-timeout $hold-timeout esc lctl)
-      ;; Left Meta: tap=英数 (Eisuu/lang2), hold=Meta
-      lm  (tap-hold $tap-timeout $hold-timeout lang2 lmet)
-      ;; Right Meta: tap=かな (Kana/lang1), hold=Meta
-      rm  (tap-hold $tap-timeout $hold-timeout lang1 rmet)
+      ;; Left Meta: tap=無変換 (Muhenkan), hold=Meta
+      lm  (tap-hold $tap-timeout $hold-timeout mhen lmet)
+      ;; Right Meta: tap=変換 (Henkan), hold=Meta
+      rm  (tap-hold $tap-timeout $hold-timeout henk rmet)
 
       ;; ctrl+q: activate pane layer for next key
       pane (tap-hold $tap-timeout $hold-timeout q (layer-while-held pane))
