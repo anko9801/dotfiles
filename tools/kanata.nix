@@ -12,7 +12,15 @@
 #   NixOS system: imports = [ (import ./tools/kanata.nix).nixosModule ];
 #   Darwin system: imports = [ (import ./tools/kanata.nix).darwinModule ];
 let
-  kanataConfig = ''
+  # defcfg is separate because NixOS services.kanata generates its own
+  defcfgBlock = ''
+    (defcfg
+      process-unmapped-keys yes
+    )
+  '';
+
+  # Core config without defcfg (for NixOS which generates its own)
+  coreConfig = ''
     ;; Kanata configuration
     ;; Key remappings for Japanese input and Vim-friendly editing
     ;;
@@ -29,10 +37,6 @@ let
     ;;   x           = close
     ;;   z           = zoom/toggle
     ;;   n           = new
-
-    (defcfg
-      process-unmapped-keys yes
-    )
 
     (defsrc
       caps lmet rmet
@@ -78,6 +82,9 @@ let
       C-S-w A-S-z A-S-n
     )
   '';
+
+  # Full config with defcfg (for Darwin, Windows, standalone)
+  kanataConfig = defcfgBlock + coreConfig;
 in
 {
   # Home-manager module (default export)
@@ -101,7 +108,8 @@ in
           enable = true;
           keyboards.default = {
             devices = [ ];
-            config = kanataConfig;
+            extraDefCfg = "process-unmapped-keys yes";
+            config = coreConfig;
           };
         };
       };
