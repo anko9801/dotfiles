@@ -258,7 +258,9 @@ let
     ];
 
     # Key bindings (reference actions by id)
+    # Using Windows Terminal standard keybindings
     keybindings = [
+      # Clipboard
       {
         id = "User.copy";
         keys = "ctrl+shift+c";
@@ -271,61 +273,66 @@ let
         id = "User.find";
         keys = "ctrl+shift+f";
       }
+      # Pane: split
       {
         id = "User.splitPane.down";
-        keys = "ctrl+q -";
+        keys = "alt+shift+minus";
       }
       {
         id = "User.splitPane.right";
-        keys = "ctrl+q |";
+        keys = "alt+shift+plus";
       }
-      {
-        id = "User.closePane";
-        keys = "ctrl+q x";
-      }
-      {
-        id = "User.togglePaneZoom";
-        keys = "ctrl+q z";
-      }
+      # Pane: focus (arrow keys)
       {
         id = "User.moveFocus.left";
-        keys = "ctrl+q h";
+        keys = "alt+left";
       }
       {
         id = "User.moveFocus.down";
-        keys = "ctrl+q j";
+        keys = "alt+down";
       }
       {
         id = "User.moveFocus.up";
-        keys = "ctrl+q k";
+        keys = "alt+up";
       }
       {
         id = "User.moveFocus.right";
-        keys = "ctrl+q l";
+        keys = "alt+right";
       }
+      # Pane: resize (shift+arrow)
       {
         id = "User.resizePane.left";
-        keys = "ctrl+q shift+h";
+        keys = "alt+shift+left";
       }
       {
         id = "User.resizePane.down";
-        keys = "ctrl+q shift+j";
+        keys = "alt+shift+down";
       }
       {
         id = "User.resizePane.up";
-        keys = "ctrl+q shift+k";
+        keys = "alt+shift+up";
       }
       {
         id = "User.resizePane.right";
-        keys = "ctrl+q shift+l";
+        keys = "alt+shift+right";
+      }
+      # Pane: other
+      {
+        id = "User.closePane";
+        keys = "ctrl+shift+w";
       }
       {
+        id = "User.togglePaneZoom";
+        keys = "alt+shift+z";
+      }
+      # Tab
+      {
         id = "User.newTab";
-        keys = "ctrl+t";
+        keys = "ctrl+shift+t";
       }
       {
         id = "User.closeTab";
-        keys = "ctrl+w";
+        keys = "ctrl+shift+w";
       }
       {
         id = "User.prevTab";
@@ -337,23 +344,23 @@ let
       }
       {
         id = "User.switchToTab.0";
-        keys = "ctrl+1";
+        keys = "ctrl+alt+1";
       }
       {
         id = "User.switchToTab.1";
-        keys = "ctrl+2";
+        keys = "ctrl+alt+2";
       }
       {
         id = "User.switchToTab.2";
-        keys = "ctrl+3";
+        keys = "ctrl+alt+3";
       }
       {
         id = "User.switchToTab.3";
-        keys = "ctrl+4";
+        keys = "ctrl+alt+4";
       }
       {
         id = "User.switchToTab.4";
-        keys = "ctrl+5";
+        keys = "ctrl+alt+5";
       }
     ];
   };
