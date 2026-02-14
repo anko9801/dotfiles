@@ -100,7 +100,10 @@ rec {
       modules = moduleSets.server;
     };
     windows = {
+      system = "x86_64-linux";
+      integration = "standalone";
       os = "windows";
+      modules = [ ];
     };
 
     # Darwin (nix-darwin + home-manager)
