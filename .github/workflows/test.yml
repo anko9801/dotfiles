@@ -21,9 +21,26 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  build-linux:
+  build-home:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [wsl, desktop, server, windows]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: cachix/cachix-action@v15
+        with:
+          name: anko9801
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Build Home Manager configuration (${{ matrix.host }})
+        run: nix build .#homeConfigurations.${{ matrix.host }}.activationPackage --impure
+  activate-home:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build-home
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
@@ -79,6 +96,24 @@ jobs:
         with:
           name: benchmark
           path: ./cache
+      - uses: Kesin11/actions-timeline@v2
+        if: always()
+  build-nixos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [nixos-wsl, nixos-desktop, nixos-server]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: cachix/cachix-action@v15
+        with:
+          name: anko9801
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Build NixOS configuration (${{ matrix.host }})
+        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --impure
       - uses: Kesin11/actions-timeline@v2
         if: always()
   build-macos:
