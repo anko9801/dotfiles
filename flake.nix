@@ -120,6 +120,10 @@
                 pkgs.writeShellScript "switch" ''
                   set -e
                   TARGET="''${1:-}"
+                  if [ "$TARGET" = "windows" ]; then
+                    echo "Error: Use 'nix run .#windows' for Windows setup"
+                    exit 1
+                  fi
                   if [ "$(uname)" = "Darwin" ]; then
                     [ -z "$TARGET" ] && TARGET="${defaults.darwin}"
                     nix run nix-darwin -- switch --flake ".#$TARGET"
@@ -135,6 +139,10 @@
                   fi
                 ''
               );
+            };
+            windows = {
+              type = "app";
+              program = toString ./system/windows/setup.sh;
             };
           }
           // (

@@ -100,9 +100,12 @@ rec {
       integration = "standalone";
       modules = moduleSets.server;
     };
-    # Windows marker (no home-manager, just for platform detection)
+    # Windows (build only, use `nix run .#windows` to deploy)
     windows = {
+      system = "x86_64-linux";
+      integration = "standalone";
       os = "windows";
+      modules = baseModules;
     };
 
     # Darwin (nix-darwin + home-manager)
