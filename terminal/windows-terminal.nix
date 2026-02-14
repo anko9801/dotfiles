@@ -39,30 +39,30 @@ let
     "$help" = "https://aka.ms/terminal-documentation";
     "$schema" = "https://aka.ms/terminal-profiles-schema";
     defaultProfile = "{2c4de342-38b7-51cf-b940-2309a097f518}";
-    copyOnSelect = true;
+    copyOnSelect = false;
     copyFormatting = "none";
+    language = "ja";
 
     profiles = {
       defaults = {
         colorScheme = colorScheme.name;
         font = {
-          face = fonts.monospace.name or "JetBrainsMono Nerd Font";
-          size = fonts.sizes.terminal or 12;
+          face = fonts.monospace.name or "Moralerspace Neon";
+          size = 9;
         };
-        padding = "8";
-        scrollbarState = "hidden";
-        antialiasingMode = "cleartype";
+        padding = "0";
+        antialiasingMode = "grayscale";
         cursorShape = "bar";
-        opacity = builtins.floor ((config.stylix.opacity.terminal or 0.95) * 100);
-        useAcrylic = (config.stylix.opacity.terminal or 1.0) < 1.0;
       };
       list = [
+        # WSL
         {
           guid = "{2c4de342-38b7-51cf-b940-2309a097f518}";
           name = "Ubuntu";
           source = "Windows.Terminal.Wsl";
           startingDirectory = "~";
         }
+        # PowerShell
         {
           guid = "{574e775e-4f2a-5b96-ac1e-a2962a402336}";
           name = "PowerShell";
@@ -70,167 +70,289 @@ let
           hidden = false;
         }
         {
+          guid = "{e7f51a44-2e34-4157-879f-1284f9841f09}";
+          name = "Windows PowerShell";
+          commandline = "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+          hidden = false;
+        }
+        {
+          guid = "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}";
+          name = "Windows PowerShell (Administrator)";
+          commandline = "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+          elevate = true;
+          hidden = false;
+        }
+        # Command Prompt
+        {
           guid = "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}";
           name = "Command Prompt";
           commandline = "%SystemRoot%\\System32\\cmd.exe";
-          hidden = true;
+          hidden = false;
+        }
+        {
+          guid = "{12f1be4c-6e7c-4897-8343-f8402f539b26}";
+          name = "Command Prompt (Administrator)";
+          commandline = "%SystemRoot%\\System32\\cmd.exe";
+          elevate = true;
+          hidden = false;
         }
       ];
     };
 
     schemes = [ colorScheme ];
 
+    # Command definitions (id-based)
     actions = [
       {
         command = {
           action = "copy";
           singleLine = false;
         };
-        keys = "ctrl+shift+c";
+        id = "User.copy";
       }
       {
         command = "paste";
-        keys = "ctrl+shift+v";
+        id = "User.paste";
       }
       {
         command = "find";
-        keys = "ctrl+shift+f";
+        id = "User.find";
       }
       {
         command = {
           action = "splitPane";
           split = "down";
         };
-        keys = "ctrl+q -";
+        id = "User.splitPane.down";
       }
       {
         command = {
           action = "splitPane";
           split = "right";
         };
-        keys = "ctrl+q |";
+        id = "User.splitPane.right";
       }
       {
         command = "closePane";
-        keys = "ctrl+q x";
+        id = "User.closePane";
       }
       {
         command = "togglePaneZoom";
-        keys = "ctrl+q z";
+        id = "User.togglePaneZoom";
       }
       {
         command = {
           action = "moveFocus";
           direction = "left";
         };
-        keys = "ctrl+q h";
+        id = "User.moveFocus.left";
       }
       {
         command = {
           action = "moveFocus";
           direction = "down";
         };
-        keys = "ctrl+q j";
+        id = "User.moveFocus.down";
       }
       {
         command = {
           action = "moveFocus";
           direction = "up";
         };
-        keys = "ctrl+q k";
+        id = "User.moveFocus.up";
       }
       {
         command = {
           action = "moveFocus";
           direction = "right";
         };
-        keys = "ctrl+q l";
+        id = "User.moveFocus.right";
       }
       {
         command = {
           action = "resizePane";
           direction = "left";
         };
-        keys = "ctrl+q shift+h";
+        id = "User.resizePane.left";
       }
       {
         command = {
           action = "resizePane";
           direction = "down";
         };
-        keys = "ctrl+q shift+j";
+        id = "User.resizePane.down";
       }
       {
         command = {
           action = "resizePane";
           direction = "up";
         };
-        keys = "ctrl+q shift+k";
+        id = "User.resizePane.up";
       }
       {
         command = {
           action = "resizePane";
           direction = "right";
         };
-        keys = "ctrl+q shift+l";
+        id = "User.resizePane.right";
       }
       {
         command = {
           action = "newTab";
         };
-        keys = "ctrl+t";
+        id = "User.newTab";
       }
       {
         command = {
           action = "closeTab";
         };
-        keys = "ctrl+w";
+        id = "User.closeTab";
       }
       {
         command = {
           action = "prevTab";
         };
-        keys = "ctrl+shift+tab";
+        id = "User.prevTab";
       }
       {
         command = {
           action = "nextTab";
         };
-        keys = "ctrl+tab";
+        id = "User.nextTab";
       }
       {
         command = {
           action = "switchToTab";
           index = 0;
         };
-        keys = "ctrl+1";
+        id = "User.switchToTab.0";
       }
       {
         command = {
           action = "switchToTab";
           index = 1;
         };
-        keys = "ctrl+2";
+        id = "User.switchToTab.1";
       }
       {
         command = {
           action = "switchToTab";
           index = 2;
         };
-        keys = "ctrl+3";
+        id = "User.switchToTab.2";
       }
       {
         command = {
           action = "switchToTab";
           index = 3;
         };
-        keys = "ctrl+4";
+        id = "User.switchToTab.3";
       }
       {
         command = {
           action = "switchToTab";
           index = 4;
         };
+        id = "User.switchToTab.4";
+      }
+    ];
+
+    # Key bindings (reference actions by id)
+    keybindings = [
+      {
+        id = "User.copy";
+        keys = "ctrl+shift+c";
+      }
+      {
+        id = "User.paste";
+        keys = "ctrl+shift+v";
+      }
+      {
+        id = "User.find";
+        keys = "ctrl+shift+f";
+      }
+      {
+        id = "User.splitPane.down";
+        keys = "ctrl+q -";
+      }
+      {
+        id = "User.splitPane.right";
+        keys = "ctrl+q |";
+      }
+      {
+        id = "User.closePane";
+        keys = "ctrl+q x";
+      }
+      {
+        id = "User.togglePaneZoom";
+        keys = "ctrl+q z";
+      }
+      {
+        id = "User.moveFocus.left";
+        keys = "ctrl+q h";
+      }
+      {
+        id = "User.moveFocus.down";
+        keys = "ctrl+q j";
+      }
+      {
+        id = "User.moveFocus.up";
+        keys = "ctrl+q k";
+      }
+      {
+        id = "User.moveFocus.right";
+        keys = "ctrl+q l";
+      }
+      {
+        id = "User.resizePane.left";
+        keys = "ctrl+q shift+h";
+      }
+      {
+        id = "User.resizePane.down";
+        keys = "ctrl+q shift+j";
+      }
+      {
+        id = "User.resizePane.up";
+        keys = "ctrl+q shift+k";
+      }
+      {
+        id = "User.resizePane.right";
+        keys = "ctrl+q shift+l";
+      }
+      {
+        id = "User.newTab";
+        keys = "ctrl+t";
+      }
+      {
+        id = "User.closeTab";
+        keys = "ctrl+w";
+      }
+      {
+        id = "User.prevTab";
+        keys = "ctrl+shift+tab";
+      }
+      {
+        id = "User.nextTab";
+        keys = "ctrl+tab";
+      }
+      {
+        id = "User.switchToTab.0";
+        keys = "ctrl+1";
+      }
+      {
+        id = "User.switchToTab.1";
+        keys = "ctrl+2";
+      }
+      {
+        id = "User.switchToTab.2";
+        keys = "ctrl+3";
+      }
+      {
+        id = "User.switchToTab.3";
+        keys = "ctrl+4";
+      }
+      {
+        id = "User.switchToTab.4";
         keys = "ctrl+5";
       }
     ];
