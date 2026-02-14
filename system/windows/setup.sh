@@ -27,37 +27,37 @@ echo "[2/4] Deploying configuration files..."
 
 # Git
 if [ -f "$src/.config/git/config" ]; then
-  cp "$src/.config/git/config" "$WIN_HOME/.gitconfig"
-  echo "  - .gitconfig"
+  cp -f "$src/.config/git/config" "$WIN_HOME/.gitconfig" 2>/dev/null &&
+    echo "  - .gitconfig" || echo "  - .gitconfig (skipped: permission denied)"
 fi
 
 # VS Code
 vscode_dir="$WIN_HOME/AppData/Roaming/Code/User"
 if [ -d "$vscode_dir" ] && [ -f "$src/.config/Code/User/settings.json" ]; then
-  cp "$src/.config/Code/User/settings.json" "$vscode_dir/settings.json"
-  echo "  - VS Code settings"
+  cp -f "$src/.config/Code/User/settings.json" "$vscode_dir/settings.json" 2>/dev/null &&
+    echo "  - VS Code settings" || echo "  - VS Code settings (skipped: permission denied)"
 fi
 
 # Windows Terminal
 wt_dir="$WIN_HOME/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState"
 if [ -d "$wt_dir" ] && [ -f "$dotfiles/system/windows/windows-terminal.json" ]; then
-  cp "$dotfiles/system/windows/windows-terminal.json" "$wt_dir/settings.json"
-  echo "  - Windows Terminal settings"
+  cp -f "$dotfiles/system/windows/windows-terminal.json" "$wt_dir/settings.json" 2>/dev/null &&
+    echo "  - Windows Terminal settings" || echo "  - Windows Terminal settings (skipped: permission denied)"
 fi
 
 # komorebi
 komorebi_dir="$WIN_HOME/.config/komorebi"
-mkdir -p "$komorebi_dir"
+mkdir -p "$komorebi_dir" 2>/dev/null || true
 if [ -f "$dotfiles/system/windows/komorebi.json" ]; then
-  cp "$dotfiles/system/windows/komorebi.json" "$komorebi_dir/komorebi.json"
-  echo "  - komorebi config"
+  cp -f "$dotfiles/system/windows/komorebi.json" "$komorebi_dir/komorebi.json" 2>/dev/null &&
+    echo "  - komorebi config" || echo "  - komorebi config (skipped: permission denied)"
 fi
 
 # whkd
-mkdir -p "$WIN_HOME/.config"
+mkdir -p "$WIN_HOME/.config" 2>/dev/null || true
 if [ -f "$dotfiles/system/windows/whkdrc" ]; then
-  cp "$dotfiles/system/windows/whkdrc" "$WIN_HOME/.config/whkdrc"
-  echo "  - whkd config"
+  cp -f "$dotfiles/system/windows/whkdrc" "$WIN_HOME/.config/whkdrc" 2>/dev/null &&
+    echo "  - whkd config" || echo "  - whkd config (skipped: permission denied)"
 fi
 
 # Fonts
