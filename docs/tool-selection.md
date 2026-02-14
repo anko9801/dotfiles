@@ -62,7 +62,8 @@ Evaluate tools in this order:
 | Versions | mise | Declarative, replaces asdf/nvm/pyenv |
 | Files | yazi | Fast, Vim-like, replaces GUI file manager |
 | Terminal | zellij | Session management, visible keybindings |
-| Git TUI | lazygit | Intuitive, reduces git command memorization |
+| Git TUI | lazygit | Worktree support, customCommands (czg integration), intuitive UI |
+| Git worktree | lazyworktree | Dedicated TUI for worktree management, complements lazygit |
 
 ### Rejected
 
@@ -71,7 +72,8 @@ Evaluate tools in this order:
 | Fish | Not POSIX — LLMs make mistakes |
 | Nushell | Not POSIX — requires rewriting |
 | chezmoi | Using home-manager (declarative Nix) |
-| gitui | Historical decision, reason unknown — needs re-evaluation |
+| gitui | No worktree support; no customCommands for workflow automation |
+| gitu | No worktree support; crashes on non-ASCII filenames (issue #384) |
 | ghq | zoxide covers navigation; ghq forces rigid naming convention |
 | Manual scripts | Idempotency/cross-platform burden |
 
