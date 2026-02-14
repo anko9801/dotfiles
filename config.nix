@@ -71,15 +71,15 @@ rec {
 
   # Default host for each environment (used by switch app)
   defaultHosts = {
-    darwin = "mac";
+    darwin = "mac-arm";
     nixos = "nixos-desktop";
     wsl = "wsl";
     linux = "desktop";
   };
 
   # Host naming convention:
-  #   - Linux: x64 is default, ARM uses `-arm` suffix
-  #   - Darwin: ARM is default (Apple Silicon), x64 uses `-intel` suffix
+  #   - Architecture suffix: `-intel` (x64) or `-arm` (aarch64) when both exist
+  #   - No suffix when only one architecture exists
   #   - manager: "home-manager" (standalone) | "nixos" | "nix-darwin"
   hosts = {
     # Home Manager only (standalone)
@@ -93,7 +93,7 @@ rec {
       manager = "home-manager";
       modules = moduleSets.workstation ++ [ ./desktop ];
     };
-    server = {
+    server-intel = {
       system = "x86_64-linux";
       manager = "home-manager";
       modules = moduleSets.server;
@@ -112,7 +112,7 @@ rec {
     };
 
     # nix-darwin + home-manager
-    mac = {
+    mac-arm = {
       system = "aarch64-darwin";
       manager = "nix-darwin";
       modules = moduleSets.workstation;
@@ -143,12 +143,12 @@ rec {
         (import ./tools/kanata.nix).nixosModule
       ];
     };
-    nixos-server = {
+    nixos-server-intel = {
       system = "x86_64-linux";
       manager = "nixos";
       modules = moduleSets.server;
       systemModules = [ ./system/nixos/server.nix ];
-      deploy.hostname = "nixos-server";
+      deploy.hostname = "nixos-server-intel";
     };
     nixos-server-arm = {
       system = "aarch64-linux";
