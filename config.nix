@@ -22,9 +22,6 @@ rec {
   # Base modules loaded for standard configurations
   # (coreModules are added automatically in lib.nix)
   baseModules = [
-    ./system/home-manager.nix
-    ./dev/nix.nix
-    ./shell/bash.nix
     # Dev
     ./dev/build-tools.nix
     ./dev/go.nix
