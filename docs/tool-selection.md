@@ -71,7 +71,7 @@ Evaluate tools in this order:
 | Fish | Not POSIX — LLMs make mistakes |
 | Nushell | Not POSIX — requires rewriting |
 | chezmoi | Using home-manager (declarative Nix) |
-| gitui | lazygit has 3x users (72k vs 21k) — better reliability per criteria #2 |
+| gitui | Historical decision, reason unknown — needs re-evaluation |
 | ghq | zoxide covers navigation; ghq forces rigid naming convention |
 | Manual scripts | Idempotency/cross-platform burden |
 
@@ -105,3 +105,20 @@ This is circular — the reverse ("lazygit rejected because we have gitui") is e
 If the original reason is forgotten, either:
 - Re-evaluate based on current criteria
 - Mark as "historical decision, reason unknown" and re-evaluate when relevant
+
+## Comparison Evaluation Points
+
+When comparing similar tools (e.g., lazygit vs gitui):
+
+1. **Simplicity** — Which is simpler to use/learn?
+2. **Features** — What features does each have?
+3. **Used features** — Which features do you actually need?
+   - More features ≠ better (unused features add cognitive load)
+4. **Reliability** — User base, maintenance, bug frequency
+5. **Performance** — Startup time, responsiveness
+
+Document specific features that drove the decision:
+> "lazygit chosen: interactive rebase UI is more intuitive, stash management simpler"
+
+Not just:
+> "lazygit chosen: more stars"
