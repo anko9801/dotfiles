@@ -4,7 +4,7 @@ _:
   imports = [
     ./homebrew.nix
     ./aerospace.nix
-    (import ../../tools/kanata).darwinModule
+    (import ../../tools/kanata.nix).darwinModule
   ];
 
   # Enable Touch ID for sudo

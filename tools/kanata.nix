@@ -8,9 +8,9 @@
 #   - Windows: manual install, config deployed by HM
 #
 # Usage:
-#   Home-manager: imports = [ ./tools/kanata ];
-#   NixOS system: imports = [ (import ./tools/kanata).nixosModule ];
-#   Darwin system: imports = [ (import ./tools/kanata).darwinModule ];
+#   Home-manager: imports = [ ./tools/kanata.nix ];
+#   NixOS system: imports = [ (import ./tools/kanata.nix).nixosModule ];
+#   Darwin system: imports = [ (import ./tools/kanata.nix).darwinModule ];
 let
   kanataConfig = ''
     ;; Kanata configuration

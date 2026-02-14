@@ -136,7 +136,7 @@ rec {
       inputModules = [ "stylix" ];
       systemModules = [
         ./system/nixos/desktop.nix
-        (import ./tools/kanata).nixosModule
+        (import ./tools/kanata.nix).nixosModule
       ];
     };
     nixos-server = {

@@ -7,7 +7,7 @@ _:
     ./cli.nix
     ./cli-workstation.nix
     ./git
-    ./kanata
+    ./kanata.nix
     ./yazi.nix
   ];
 }
