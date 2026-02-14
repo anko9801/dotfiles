@@ -12,21 +12,28 @@ let
 
   cfg = import ../config.nix;
 
-  # Resolve flake home modules from config.nix names
+  # Home-manager modules from flake inputs
+  flakeHomeModules = [
+    "nix-index-database"
+    "nixvim"
+    "stylix"
+    "agent-skills"
+  ];
+
   resolveFlakeModule =
     name:
     inputs.${name}.homeModules.${name} or inputs.${name}.homeModules.default
       or inputs.${name}.homeManagerModules.default or (throw "flakeHomeModule '${name}' not found");
 
-  flakeModules = map resolveFlakeModule (cfg.flakeHomeModules or [ ]);
+  flakeModules = map resolveFlakeModule flakeHomeModules;
 
   inherit (cfg)
     nixSettings
     versions
     basePackages
-    desktopFonts
-    defaults
     ;
+
+  defaults = cfg.defaultHosts;
 
   # User-specific configuration (must be defined in config.nix)
   userConfig = cfg.users.${username} or (throw "User '${username}' not defined in config.nix");
@@ -126,7 +133,6 @@ let
         hostConfig
         versions
         nixSettings
-        desktopFonts
         getOS
         llmAgentsPkgs
         antfu-skills
@@ -153,10 +159,9 @@ let
       system,
       hostName,
       extraModules ? [ ],
-      homeModules ? [ ],
     }:
     let
-      hostModules = getHostModules hostName ++ homeModules;
+      hostModules = getHostModules hostName;
     in
     systemBuilder {
       inherit system;
@@ -253,7 +258,6 @@ let
     {
       system,
       hostName,
-      homeModules ? [ ],
     }:
     let
       pkgs = import nixpkgs { inherit system; };
@@ -265,7 +269,6 @@ let
       modules =
         flakeModules
         ++ hostModules
-        ++ homeModules
         ++ [
           {
             home = {
@@ -314,17 +317,6 @@ let
             or (throw "inputModule '${name}' not found")
         ) (host.inputModules or [ ]);
 
-      # Flag-based homeModules from config.nix
-      flagModules = cfg.mkFlagModules username;
-
-      # Resolve flags to homeModules (only flags with corresponding modules)
-      resolveFlagModules =
-        host:
-        let
-          flags = host.flags or [ ];
-          knownFlags = builtins.filter (f: flagModules ? ${f}) flags;
-        in
-        map (flag: flagModules.${flag}) knownFlags;
     in
     {
       homeConfigurations = lib.mapAttrs (
@@ -332,7 +324,6 @@ let
         mkStandaloneHome {
           inherit (host) system;
           hostName = name;
-          homeModules = resolveFlagModules host;
         }
       ) (byBuilder "standalone");
 
@@ -351,7 +342,6 @@ let
           inherit (host) system;
           hostName = name;
           extraModules = resolveInputModules host ++ (host.systemModules or [ ]);
-          homeModules = resolveFlagModules host;
         }
       ) (byBuilder "nixos");
     };

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  desktopFonts,
-  ...
-}:
+_:
 
 {
   imports = [
@@ -10,8 +6,6 @@
     ./aerospace.nix
     ./kanata.nix
   ];
-
-  fonts.packages = desktopFonts pkgs;
 
   # Enable Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;

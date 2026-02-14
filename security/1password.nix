@@ -31,7 +31,7 @@ in
         if p.os == "darwin" then
           "${p.macAppsPath}/1Password.app/Contents/MacOS/op-ssh-sign"
         else if p.environment == "wsl" then
-          "${p.winAppsPath}/WindowsApps/op-ssh-sign-wsl.exe"
+          "op-ssh-sign-wsl.exe"
         else
           "op-ssh-sign";
     };
@@ -43,7 +43,7 @@ in
         if p.os == "darwin" then
           "${p.macAppsPath}/1Password.app/Contents/MacOS/op"
         else if p.environment == "wsl" then
-          "${p.winAppsPath}/WinGet/Links/op.exe"
+          "op.exe"
         else
           "op";
     };

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  desktopFonts,
-  ...
-}:
+{ pkgs, ... }:
 
 {
   # NOTE: Replace with hardware-configuration.nix after installing NixOS
@@ -83,25 +79,7 @@
     };
   };
 
-  # Fonts
-  fonts = {
-    packages =
-      desktopFonts pkgs
-      ++ (with pkgs; [
-        noto-fonts
-        noto-fonts-cjk-sans
-        noto-fonts-emoji
-      ]);
-    fontconfig = {
-      defaultFonts = {
-        serif = [ "Noto Serif CJK JP" ];
-        sansSerif = [ "Noto Sans CJK JP" ];
-        monospace = [ "JetBrainsMono Nerd Font" ];
-      };
-    };
-  };
-
-  # Desktop packages (base packages are in nixModule)
+  # Desktop packages (base packages are in nixModule, fonts by stylix)
   environment.systemPackages = with pkgs; [
     firefox
     nautilus

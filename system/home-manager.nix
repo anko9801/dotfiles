@@ -13,16 +13,12 @@
 let
   cfg = config.defaults;
   p = config.platform;
+
+  # WSL auto-detection
+  isWsl = builtins.pathExists /proc/sys/fs/binfmt_misc/WSLInterop;
 in
 {
   options = {
-    # WSL username (for Windows path integration)
-    programs.wsl.windowsUser = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "Windows username for WSL integration paths";
-    };
-
     # Platform detection via enums (auto-detected, read-only)
     platform = {
       # Primary axes (enums)
@@ -47,7 +43,7 @@ in
         default =
           if builtins.getEnv "CI" != "" then
             "ci"
-          else if config.programs.wsl.windowsUser != null then
+          else if isWsl then
             "wsl"
           else
             "native";
@@ -55,12 +51,6 @@ in
       };
 
       # Platform-specific paths
-      winAppsPath = lib.mkOption {
-        type = lib.types.str;
-        readOnly = true;
-        default = "/mnt/c/Users/${config.programs.wsl.windowsUser}/AppData/Local/Microsoft";
-        description = "Windows AppData path (WSL only)";
-      };
       macAppsPath = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
