@@ -100,11 +100,6 @@ rec {
       modules = moduleSets.server;
     };
 
-    # Windows (winget only, no home-manager)
-    windows = {
-      isWindows = true;
-    };
-
     # Darwin (nix-darwin + home-manager)
     mac = {
       system = "aarch64-darwin";

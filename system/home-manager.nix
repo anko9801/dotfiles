@@ -5,7 +5,6 @@
   config,
   versions,
   userConfig,
-  hostConfig,
   getOS,
   ...
 }:
@@ -29,7 +28,7 @@ in
           "windows"
         ];
         readOnly = true;
-        default = if hostConfig.isWindows or false then "windows" else getOS { inherit pkgs; };
+        default = getOS { inherit pkgs; };
         description = "Operating system";
       };
 
