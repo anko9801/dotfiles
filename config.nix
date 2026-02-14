@@ -45,6 +45,8 @@ rec {
     ./shell/starship.nix
     ./shell/zoxide.nix
     ./shell/zsh
+    # Terminal
+    ./terminal/windows-terminal.nix
     # Theme
     ./theme/catppuccin-mocha.nix
     ./theme/default.nix

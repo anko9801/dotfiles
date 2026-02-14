@@ -38,10 +38,10 @@ if [ -d "$vscode_dir" ] && [ -f "$src/.config/Code/User/settings.json" ]; then
     echo "  - VS Code settings" || echo "  - VS Code settings (skipped: permission denied)"
 fi
 
-# Windows Terminal
+# Windows Terminal (generated from Nix)
 wt_dir="$WIN_HOME/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState"
-if [ -d "$wt_dir" ] && [ -f "$dotfiles/system/windows/windows-terminal.json" ]; then
-  cp -f "$dotfiles/system/windows/windows-terminal.json" "$wt_dir/settings.json" 2>/dev/null &&
+if [ -d "$wt_dir" ] && [ -f "$src/.config/windows-terminal/settings.json" ]; then
+  cp -f "$src/.config/windows-terminal/settings.json" "$wt_dir/settings.json" 2>/dev/null &&
     echo "  - Windows Terminal settings" || echo "  - Windows Terminal settings (skipped: permission denied)"
 fi
 
