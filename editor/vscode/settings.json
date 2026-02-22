@@ -208,6 +208,10 @@
     "editor.tabSize": 2
   },
 
+  "go.alternateTools": {
+    "go": "~/.local/share/mise/shims/go"
+  },
+
   "python.analysis.typeCheckingMode": "strict",
   "rust-analyzer.check.command": "clippy",
   "javascript.updateImportsOnFileMove.enabled": "always",
