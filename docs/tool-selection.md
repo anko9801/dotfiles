@@ -1,86 +1,67 @@
-# Tool Selection Criteria
+# Tool Selection
 
-Guidelines for evaluating CLI tools and developer utilities.
+Summary of tool decisions. See [ergonomics.md](ergonomics.md) for the unified philosophy.
 
-## Philosophy: Cognitive Load Reduction
+## Philosophy
 
-Productivity = reducing cognitive load (mental effort required for tasks).
-Lower cognitive load → deeper focus on core problems.
+Single principle: **Ergonomics (Human Factors)** — reduce human burden.
 
-**Principles:**
-- Declarative over procedural — state desired outcome, run one command
-- Single Source of Truth — avoid duplication, centralize changes
-- Reproducibility — consistent behavior across machines
+| Domain | Document | Core Idea |
+|--------|----------|-----------|
+| Root | [ergonomics.md](ergonomics.md) | Unified principle: reduce burden |
+| Physical | [keybinding-design.md](keybinding-design.md) | RSI prevention, home row mods |
+| Cognitive | [flow-state.md](flow-state.md) | Minimize interruptions |
+| Cognitive | [posix-compatibility.md](posix-compatibility.md) | LLM-friendly syntax |
+| Cognitive | [declarative.md](declarative.md) | State desired outcome |
+| Cognitive | [unix-philosophy.md](unix-philosophy.md) | Do one thing well |
+| Research | [beyond-nix.md](beyond-nix.md) | IaC alternatives |
 
 ## Evaluation Criteria
 
 Evaluate in priority order (earlier criteria outweigh later ones):
 
-1. **Simplicity** — "Simple is not Easy"
-   - Fewer concepts to learn, intuitive interface
-   - No new vocabulary when possible (e.g., `cd` alias over new command)
-   - When comparing: which features do you actually use?
+1. **Physical Ergonomics** — RSI prevention, home row priority
+2. **Security** — peace of mind, E2EE, no plaintext secrets
+3. **Cognitive Load** — fewer concepts, intuitive interface
+4. **Flow State** — no friction (shell ≤200ms startup)
+5. **Portability** — Linux, macOS, Nix package available
 
-2. **Reliability** — Few bugs, many users
-   - Community validation reduces risk
-   - Active maintenance, responsive to issues
-   - Stars > 5,000 preferred
-
-3. **Cross-platform** — Linux, macOS, (Windows)
-   - Must work across personal/work machines
-   - Nix package available
-
-4. **Performance** — No friction in daily workflow
-   - Startup time matters (shell ≤ 200ms)
-   - Rust/Go preferred (fast, single binary)
-
-5. **Security** — Foundation for sensitive data
-   - No plain text secrets
-   - Minimal attack surface
-
-## Evaluation Process
-
-1. Check criteria in order (simplicity → security)
-2. Compare with existing tools for overlap
-3. Test for 1 week in daily workflow
-4. Document decision with specific rationale
-
-**Rejection reasons must be concrete, not circular:**
-- ✗ "gitui rejected because we have lazygit"
-- ✓ "gitui rejected: no worktree support, no customCommands"
-
-## Decisions
-
-### Adopted
+## Adopted
 
 | Category | Tool | Rationale |
 |----------|------|-----------|
-| Shell | zsh | POSIX compatible (LLM friendly), modern plugins match alternatives |
-| Navigation | zoxide | Free categorization, no new vocabulary (`cd` alias) |
-| Git diff | delta, difftastic | Syntax-aware diffs |
-| Git commit | czg | Interactive conventional commits with emoji |
-| Git merge | zdiff3 | Shows common ancestor in conflicts |
-| Git TUI | lazygit | Worktree, customCommands (czg), intuitive |
-| Git worktree | git-wt, lazyworktree | CLI + TUI for worktree |
-| Versions | mise | Declarative, replaces asdf/nvm/pyenv |
-| Files | yazi | Fast, Vim-like file manager |
-| Terminal | zellij | Session management, visible keybindings |
-| Secrets | 1Password | E2EE, biometric unlock, keys never on disk |
-| Theme | Stylix + Catppuccin | Unified colors/fonts across all tools |
+| Shell | zsh | LLM compatible, plugins match Fish UX |
+| Navigation | zoxide | No new vocabulary, `cd` alias |
+| Git diff | delta, difftastic | Syntax-aware, readable |
+| Git commit | czg | Interactive conventional commits |
+| Git merge | zdiff3 | Shows common ancestor |
+| Git TUI | lazygit | Worktree, customCommands, intuitive |
+| Git worktree | git-wt, lazyworktree | CLI + TUI, fast switching |
+| Versions | mise | Unified config, fast startup |
+| Files | yazi | Fast, Vim-like, focused |
+| Terminal | zellij | Visible keybindings |
+| Secrets | 1Password | E2EE, biometric, peace of mind |
+| Theme | Stylix + Catppuccin | Unified colors across tools |
+| Dotfiles | home-manager | Packages + config unified |
 
-### Rejected
+## Rejected
 
 | Tool | Reason |
 |------|--------|
-| Fish, Nushell | Not POSIX — LLM assistance fails, requires rewrites |
+| Fish, Nushell | Not POSIX — LLM assistance fails |
 | chezmoi, yadm | Config-only; home-manager unifies packages + config |
 | Ansible | Procedural; fewer roles than Nix packages |
 | gitui | No worktree; no customCommands |
-| gitu | No worktree; non-ASCII crash (#384) |
-| ghq | Forces rigid naming; zoxide allows free categorization |
+| gitu | No worktree; non-ASCII crash |
+| ghq | Forces rigid naming; zoxide is vocabulary-free |
+| nvm, asdf | Slow shell startup; mise is faster |
+| Oh-My-Zsh | Slow startup; zinit/zim are faster |
 
-### Candidates
+## Candidates
 
 | Tool | Status |
 |------|--------|
-| gh-dash | Evaluate: cognitive load vs `gh` CLI |
+| Atuin | Shell history sync, fast search |
+| zsh-you-should-use | Alias reminder, accelerates learning |
+| tldr | Example-focused man alternative |
+| Starship | Cross-shell prompt, active maintenance |
