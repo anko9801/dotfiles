@@ -237,10 +237,10 @@ in
         detachedHead = false;
       };
 
-      # Credential helper
+      # Credential helper (windows overrides wsl since windows builds on wsl)
       credential = lib.mkMerge [
         (lib.mkIf (p.os == "darwin") { helper = "osxkeychain"; })
-        (lib.mkIf (p.environment == "wsl") { helper = "!git-credential-manager.exe"; })
+        (lib.mkIf (p.environment == "wsl" && p.os != "windows") { helper = "!git-credential-manager.exe"; })
         (lib.mkIf (p.os == "windows") { helper = "manager"; })
       ];
     };
