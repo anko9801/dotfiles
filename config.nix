@@ -108,7 +108,11 @@ rec {
       system = "x86_64-linux";
       manager = "home-manager";
       os = "windows";
-      modules = baseModules;
+      modules = baseModules ++ [
+        ./editor/vscode
+        ./tools/git
+        ./tools/kanata.nix
+      ];
     };
 
     # nix-darwin + home-manager
