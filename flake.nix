@@ -63,6 +63,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    comin = {
+      url = "github:nlewo/comin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
     };
@@ -75,6 +80,10 @@
     # External skills
     antfu-skills = {
       url = "github:antfu/skills";
+      flake = false;
+    };
+    anthropic-skills = {
+      url = "github:anthropics/skills";
       flake = false;
     };
   };
@@ -171,6 +180,7 @@
           inherit self;
           inherit (inputs) deploy-rs;
         };
+
       };
     };
 }

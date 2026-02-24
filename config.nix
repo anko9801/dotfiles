@@ -151,7 +151,11 @@ rec {
       system = "x86_64-linux";
       manager = "nixos";
       modules = moduleSets.server;
-      systemModules = [ ./system/nixos/server.nix ];
+      inputModules = [ "comin" ];
+      systemModules = [
+        ./system/nixos/server.nix
+        ./system/nixos/comin.nix
+      ];
       deploy.hostname = "nixos-server-intel";
     };
     nixos-server-arm = {
@@ -164,10 +168,14 @@ rec {
       system = "x86_64-linux";
       manager = "nixos";
       modules = moduleSets.server;
-      inputModules = [ "disko" ];
+      inputModules = [
+        "disko"
+        "comin"
+      ];
       systemModules = [
         ./system/nixos/example-vps
         ./system/nixos/server.nix
+        ./system/nixos/comin.nix
       ];
       deploy = {
         hostname = "example-vps";
@@ -215,6 +223,7 @@ rec {
       experimental-features = [
         "nix-command"
         "flakes"
+        "lazy-trees"
       ];
       substituters = [
         "https://cache.nixos.org"

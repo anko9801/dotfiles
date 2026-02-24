@@ -1,6 +1,7 @@
 {
   unfreePkgs,
   antfu-skills ? null,
+  anthropic-skills ? null,
   lib,
   ...
 }:
@@ -13,15 +14,33 @@ in
   # MCP settings file
   home.file.".claude/mcp_settings.json".source = ./mcp_settings.json;
 
-  # External skills (antfu/skills - Vue/Vite/Nuxt ecosystem)
-  programs.agent-skills = lib.mkIf (antfu-skills != null) {
+  programs.agent-skills = {
     enable = true;
-    sources.antfu.path = antfu-skills;
-    skills.enableAll = [ "antfu" ];
-    targets.claude = {
-      enable = true;
-      dest = ".claude/skills";
-      structure = "symlink-tree";
+    sources =
+      lib.optionalAttrs (antfu-skills != null) {
+        antfu.path = antfu-skills;
+      }
+      // lib.optionalAttrs (anthropic-skills != null) {
+        anthropic = {
+          path = anthropic-skills;
+          subdir = "skills";
+        };
+      };
+    skills.enableAll = [
+      "antfu"
+      "anthropic"
+    ];
+    targets = {
+      claude = {
+        enable = true;
+        dest = ".claude/skills";
+        structure = "symlink-tree";
+      };
+      codex = {
+        enable = true;
+        dest = ".codex/skills";
+        structure = "copy-tree";
+      };
     };
   };
 
