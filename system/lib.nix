@@ -9,6 +9,7 @@ let
     nixgl
     llm-agents
     antfu-skills
+    anthropic-skills
     ;
 
   cfg = import ../config.nix;
@@ -77,6 +78,7 @@ let
       # Nix daemon configuration
       nix = {
         inherit (nixSettings) settings;
+        extraOptions = "include /etc/nix/private.conf";
         optimise.automatic = true;
         gc =
           nixSettings.gc
@@ -154,6 +156,7 @@ let
         llmAgentsPkgs
         nixglPkgs
         antfu-skills
+        anthropic-skills
         ;
       unfreePkgs = mkUnfreePkgs system;
     };

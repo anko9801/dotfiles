@@ -8,7 +8,7 @@ _:
     # Automatically remove unlisted packages
     onActivation = {
       autoUpdate = true;
-      cleanup = "zap"; # Remove all unlisted packages
+      cleanup = "uninstall";
       upgrade = true;
     };
 

@@ -44,6 +44,7 @@ _: {
                 "--exit-code"
                 "0"
               ];
+              priority = 99;
               includes = [ "*" ];
               excludes = [
                 "*.png"

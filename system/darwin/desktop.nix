@@ -1,10 +1,20 @@
-_:
+{ pkgs, ... }:
 
 {
   imports = [
     ./homebrew.nix
     ./aerospace.nix
     (import ../../tools/kanata.nix).darwinModule
+  ];
+
+  # Register fonts with macOS Font Book (home-manager fonts aren't visible to GUI apps)
+  fonts.packages = with pkgs; [
+    moralerspace
+    noto-fonts-cjk-sans
+    noto-fonts-cjk-serif
+    noto-fonts-color-emoji
+    nerd-fonts.symbols-only
+    nerd-fonts.jetbrains-mono
   ];
 
   # Enable Touch ID for sudo

@@ -31,7 +31,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: cachix/cachix-action@v15
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-home-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: |
+            nix-${{ runner.os }}-home-
+          gc-max-store-size-linux: 2G
+          purge: true
+          purge-prefixes: |
+            nix-${{ runner.os }}-home-
+          purge-last-accessed: 604800
+      - uses: cachix/cachix-action@v16
         with:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -44,7 +54,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: cachix/cachix-action@v15
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-activate-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: |
+            nix-${{ runner.os }}-activate-
+          gc-max-store-size-linux: 2G
+          purge: true
+          purge-prefixes: |
+            nix-${{ runner.os }}-activate-
+          purge-last-accessed: 604800
+      - uses: cachix/cachix-action@v16
         with:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -108,7 +128,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: cachix/cachix-action@v15
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-nixos-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: |
+            nix-${{ runner.os }}-nixos-
+          gc-max-store-size-linux: 2G
+          purge: true
+          purge-prefixes: |
+            nix-${{ runner.os }}-nixos-
+          purge-last-accessed: 604800
+      - uses: cachix/cachix-action@v16
         with:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -122,7 +152,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: cachix/cachix-action@v15
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-darwin-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: |
+            nix-${{ runner.os }}-darwin-
+          gc-max-store-size-macos: 2G
+          purge: true
+          purge-prefixes: |
+            nix-${{ runner.os }}-darwin-
+          purge-last-accessed: 604800
+      - uses: cachix/cachix-action@v16
         with:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'

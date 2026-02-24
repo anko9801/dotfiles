@@ -2,6 +2,21 @@
 # Removed: fh (use atuin), fcd (use zoxide), fbr/fgl (use lazygit),
 #          dexec (use lazydocker), extract (use atool)
 
+# === Nix Wrapper ===
+
+nix() {
+    if [[ "$1" =~ ^(build|develop|flake|run|shell)$ ]] && git rev-parse --is-inside-work-tree &>/dev/null; then
+        local untracked
+        untracked=$(git ls-files --others --exclude-standard -- '*.nix' 2>/dev/null)
+        if [[ -n "$untracked" ]]; then
+            printf '\e[33mwarning: untracked .nix files (invisible to flake eval):\e[0m\n' >&2
+            printf '  %s\n' ${(f)untracked} >&2
+            printf '\e[33mRun `git add` to include them.\e[0m\n' >&2
+        fi
+    fi
+    command nix "$@"
+}
+
 # === Basic Utilities ===
 
 mkcd() {

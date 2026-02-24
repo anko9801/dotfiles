@@ -15,7 +15,7 @@
     startMenuLaunchers = true;
     interop = {
       register = true;
-      includePath = true;
+      includePath = false;
     };
   };
 
