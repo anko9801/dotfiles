@@ -1,8 +1,9 @@
-_:
+{ pkgs, ... }:
 
 {
   programs.gh = {
     enable = true;
+    extensions = [ pkgs.gh-dash ];
     settings = {
       git_protocol = "ssh";
       prompt = "enabled";

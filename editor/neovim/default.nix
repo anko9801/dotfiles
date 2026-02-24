@@ -3,7 +3,7 @@
 {
   imports = [
     ./keymaps
-    ./lsp.nix
+    ./lsp
     ./neovim.nix
     ./options.nix
     ./plugins

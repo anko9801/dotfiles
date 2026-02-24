@@ -1,5 +1,8 @@
-_:
+{ config, ... }:
 
+let
+  inherit (config.tools.git) pager;
+in
 {
   programs.lazygit = {
     enable = true;
@@ -19,7 +22,7 @@ _:
       git = {
         pagers = [
           {
-            pager = "delta --dark --paging=never";
+            pager = pager.lazygitArgs;
             colorArg = "always";
             externalDiffCommand = "difft --color=always --display=inline";
           }

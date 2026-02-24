@@ -39,8 +39,15 @@ let
   inherit (cfg)
     nixSettings
     versions
-    basePackages
     ;
+
+  basePackages =
+    pkgs: with pkgs; [
+      git
+      vim
+      curl
+      wget
+    ];
 
   defaults = cfg.defaultHosts;
 

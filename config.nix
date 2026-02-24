@@ -210,14 +210,6 @@ rec {
     darwin = 5;
   };
 
-  basePackages =
-    pkgs: with pkgs; [
-      git
-      vim
-      curl
-      wget
-    ];
-
   nixSettings = {
     settings = {
       experimental-features = [

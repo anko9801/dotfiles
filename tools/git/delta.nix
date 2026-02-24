@@ -1,8 +1,26 @@
 # Delta (git diff pager) configuration
-_:
+{ lib, ... }:
 
 {
-  programs.delta = {
+  options.tools.git.pager = {
+    command = lib.mkOption {
+      type = lib.types.str;
+      default = "delta";
+      description = "Git pager command";
+    };
+    interactiveFilter = lib.mkOption {
+      type = lib.types.str;
+      default = "delta --color-only";
+      description = "Git interactive diff filter";
+    };
+    lazygitArgs = lib.mkOption {
+      type = lib.types.str;
+      default = "delta --dark --paging=never";
+      description = "Pager command for lazygit";
+    };
+  };
+
+  config.programs.delta = {
     enable = true;
     options = {
       navigate = true;

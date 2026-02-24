@@ -6,7 +6,7 @@ _: {
     {
       # Pre-commit hooks
       pre-commit = {
-        check.enable = false;
+        check.enable = true;
         settings.hooks = {
           treefmt = {
             enable = true;
@@ -64,6 +64,15 @@ _: {
           statix
           deadnix
           nvd
+          nix-output-monitor
+        ];
+      };
+
+      # Minimal CI devShell (no interactive tools)
+      devShells.ci = pkgs.mkShell {
+        packages = with pkgs; [
+          statix
+          deadnix
         ];
       };
     };

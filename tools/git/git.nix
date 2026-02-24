@@ -7,6 +7,7 @@
 
 let
   p = config.platform;
+  inherit (config.tools.git) pager;
   inherit (config.defaults) editor;
   inherit (config.defaults.identity) name email sshKey;
 
@@ -132,7 +133,7 @@ in
       // unixOnly {
         inherit editor;
         filemode = false;
-        pager = "delta";
+        pager = pager.command;
         hooksPath = "${config.home.homeDirectory}/.config/git/hooks";
       }
       // lib.optionalAttrs (p.os == "windows") {
@@ -158,7 +159,7 @@ in
       };
 
       interactive = unixIf {
-        diffFilter = "delta --color-only";
+        diffFilter = pager.interactiveFilter;
       };
 
       # Pull/Push
