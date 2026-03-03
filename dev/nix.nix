@@ -1,8 +1,8 @@
-{ pkgs, nixSettings, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
-    nix # Nix package manager itself
+    nh # Better nix rebuild/switch UX (diff preview, progress)
     nix-tree # Visualize nix store dependencies
     nix-du # Disk usage analyzer for nix store
     manix # Nix documentation search
@@ -14,16 +14,6 @@
     statix # Linter
   ];
 
-  # nix.package is set in flake.nix for standalone home-manager only
-  # (NixOS/darwin with useGlobalPkgs=true provides it from system)
-  nix = {
-    inherit (nixSettings) settings;
-    gc = nixSettings.gc // {
-      dates = nixSettings.gcSchedule.frequency;
-    };
-  };
-
-  # Global devenv config
   xdg.configFile."devenv/config.yaml".text = ''
     # Global devenv configuration
     # https://devenv.sh/reference/yaml-options/
@@ -38,7 +28,6 @@
       enableZshIntegration = false; # Deferred in zsh.nix for faster startup
       nix-direnv.enable = true;
 
-      # Custom direnvrc for devenv auto-detection
       stdlib = ''
         # Auto-detect and use devenv when devenv.nix exists
         use_devenv() {

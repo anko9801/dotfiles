@@ -3,6 +3,7 @@
   antfu-skills ? null,
   anthropic-skills ? null,
   lib,
+  config,
   ...
 }:
 
@@ -11,8 +12,22 @@ let
 
 in
 {
-  # MCP settings file
-  home.file.".claude/mcp_settings.json".source = ./mcp_settings.json;
+  mcp-servers.programs = {
+    github = {
+      enable = true;
+      passwordCommand = {
+        GITHUB_PERSONAL_ACCESS_TOKEN = [
+          "gh"
+          "auth"
+          "token"
+        ];
+      };
+    };
+    filesystem = {
+      enable = true;
+      args = [ config.home.homeDirectory ];
+    };
+  };
 
   programs.agent-skills = {
     enable = true;
@@ -47,6 +62,7 @@ in
   programs.claude-code = {
     enable = true;
     package = unfreePkgs.claude-code;
+    enableMcpIntegration = true;
 
     # CLAUDE.md (memory)
     memory.source = ./CLAUDE.md;

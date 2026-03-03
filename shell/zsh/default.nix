@@ -112,7 +112,7 @@ in
         lib.mkAfter ''
           export WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2 2>/dev/null || echo "localhost")
 
-          export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '/mnt/c/Program Files/starship' | tr '\n' ':' | sed 's/:$//')
+          export PATH=$(echo "$PATH" | tr ':' '\n' | command grep -v '/mnt/c/Program Files/starship' | tr '\n' ':' | sed 's/:$//')
           export PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows/System32/WindowsPowerShell/v1.0"
 
           [[ -S "/var/run/docker.sock" ]] && export DOCKER_HOST="unix:///var/run/docker.sock"
