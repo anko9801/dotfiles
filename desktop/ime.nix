@@ -1,13 +1,14 @@
 # Japanese Input Method (SKK) for Linux Desktop
 # - fcitx5-skk with AZIK input style
-{ pkgs, lib, ... }:
-
-let
-  isCI = builtins.getEnv "CI" != "";
-in
 {
-  # Skip IME setup in CI (no display server)
-  config = lib.mkIf (!isCI) {
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+
+{
+  config = lib.mkIf (config.platform.environment != "ci") {
     i18n.inputMethod = {
       enable = true;
       type = "fcitx5";

@@ -3,7 +3,6 @@ rec {
   users = {
     anko = {
       editor = "nvim";
-      theme = "catppuccin";
       git = {
         name = "anko9801";
         email = "37263451+anko9801@users.noreply.github.com";
@@ -20,7 +19,7 @@ rec {
   };
 
   # Base modules loaded for standard configurations
-  # (coreModules are added automatically in lib.nix)
+  # (coreModules in hosts.nix are always loaded: common.nix, nix.nix, defaults.nix, bash.nix)
   baseModules = [
     # Dev
     ./dev/build-tools.nix
