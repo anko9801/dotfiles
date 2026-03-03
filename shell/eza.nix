@@ -3,7 +3,7 @@ _:
 {
   programs.eza = {
     enable = true;
-    enableZshIntegration = false; # Deferred in zsh.nix for faster startup
+    enableZshIntegration = false;
     icons = "auto";
     git = true;
   };
