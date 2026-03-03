@@ -5,7 +5,7 @@
 }:
 
 {
-  programs.vscode = lib.mkIf (!(config.targets.genericLinux.enable or false)) {
+  programs.vscode = lib.mkIf config.platform.isStandalone {
     profiles.default.keybindings = [
       # Terminal
       {

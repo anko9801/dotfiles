@@ -6,7 +6,7 @@
 }:
 
 {
-  services.gpg-agent = lib.mkIf (!(config.targets.genericLinux.enable or false)) {
+  services.gpg-agent = lib.mkIf config.platform.isStandalone {
     enable = true;
     enableSshSupport = false;
     enableZshIntegration = true;

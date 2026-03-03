@@ -8,7 +8,7 @@
 {
   # Zed - high-performance editor
   # Only enable on non-WSL platforms (WSL should use Windows Zed)
-  programs.zed-editor = lib.mkIf (!(config.targets.genericLinux.enable or false)) {
+  programs.zed-editor = lib.mkIf config.platform.isStandalone {
     enable = true;
     package = pkgs.zed-editor;
 

@@ -51,6 +51,13 @@ in
         description = "Execution environment";
       };
 
+      isStandalone = lib.mkOption {
+        type = lib.types.bool;
+        readOnly = true;
+        default = !(config.targets.genericLinux.enable or false);
+        description = "True when not running under standalone Linux (WSL uses Windows-native GUI apps)";
+      };
+
       macAppsPath = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
