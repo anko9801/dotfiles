@@ -3,12 +3,13 @@
   pkgs,
   lib,
   config,
-  llmAgentsPkgs ? { },
+  inputs,
   ...
 }:
 
 let
   p = config.platform;
+  llmAgentsPkgs = inputs.llm-agents.packages.${pkgs.system} or { };
 in
 {
   imports = [

@@ -1,15 +1,15 @@
 {
   unfreePkgs,
-  antfu-skills ? null,
-  anthropic-skills ? null,
+  inputs,
   lib,
   config,
   ...
 }:
 
 let
+  antfu-skills = inputs.antfu-skills or null;
+  anthropic-skills = inputs.anthropic-skills or null;
   sessionDir = "\${XDG_RUNTIME_DIR:-/tmp}/claude-session";
-
 in
 {
   mcp-servers.programs = {
