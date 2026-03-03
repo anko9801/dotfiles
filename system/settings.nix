@@ -1,13 +1,10 @@
-# Core home-manager configuration with platform detection and defaults
+# Platform detection options and cross-cutting defaults
 {
   lib,
   pkgs,
   config,
-  versions,
   userConfig,
   hostConfig,
-  nixglPkgs,
-  getOS,
   ...
 }:
 
@@ -15,14 +12,11 @@ let
   cfg = config.defaults;
   p = config.platform;
 
-  # WSL auto-detection
   isWsl = builtins.pathExists /proc/sys/fs/binfmt_misc/WSLInterop;
 in
 {
   options = {
-    # Platform detection via enums (auto-detected, read-only)
     platform = {
-      # Primary axes (enums)
       os = lib.mkOption {
         type = lib.types.enum [
           "darwin"
@@ -30,7 +24,7 @@ in
           "windows"
         ];
         readOnly = true;
-        default = hostConfig.os or (getOS { inherit pkgs; });
+        default = hostConfig.os or (if pkgs.stdenv.isDarwin then "darwin" else "linux");
         description = "Operating system (can be overridden in host config)";
       };
 
@@ -51,7 +45,6 @@ in
         description = "Execution environment";
       };
 
-      # Platform-specific paths
       macAppsPath = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
@@ -60,7 +53,6 @@ in
       };
     };
 
-    # Cross-cutting defaults
     defaults = {
       editor = lib.mkOption {
         type = lib.types.str;
@@ -174,23 +166,8 @@ in
   };
 
   config = {
-    # Enable generic Linux target for non-NixOS Linux
-    targets.genericLinux.enable = p.os == "linux";
-
-    # NixGL for GPU support on non-NixOS Linux
-    targets.genericLinux.nixGL = lib.mkIf (p.os == "linux" && nixglPkgs != null) {
-      packages = nixglPkgs;
-      defaultWrapper = "mesa";
-      installScripts = [ "mesa" ];
-    };
-
-    # Fontconfig for non-NixOS Linux (enables Nix-installed fonts)
-    fonts.fontconfig.enable = p.os == "linux";
-
-    # Platform-specific defaults + user identity
     defaults = {
       locale.lang = "ja_JP.UTF-8";
-      browser = lib.mkIf (p.environment == "wsl") "xdg-open";
       identity = {
         name = userConfig.git.name or userConfig.name or null;
         email = userConfig.git.email or userConfig.email or null;
@@ -199,95 +176,57 @@ in
       };
     };
 
-    home = {
-      stateVersion = versions.home;
-      preferXdgDirectories = true;
-
-      sessionVariables = {
-        EDITOR = lib.mkDefault cfg.editor;
-        VISUAL = lib.mkDefault cfg.editor;
-        PAGER = cfg.pager.command;
-        LESS = cfg.pager.lessOptions;
-        LANG = cfg.locale.lang;
-      }
-      // lib.optionalAttrs (cfg.locale.lc_time != null) {
-        LC_TIME = cfg.locale.lc_time;
-      }
-      // lib.optionalAttrs (cfg.browser != null) {
-        BROWSER = cfg.browser;
-      }
-      // lib.optionalAttrs cfg.terminal.trueColor {
-        COLORTERM = "truecolor";
-      }
-      // lib.optionalAttrs cfg.privacy.disableTelemetry {
-        DO_NOT_TRACK = "1";
-        DOTNET_CLI_TELEMETRY_OPTOUT = "1";
-        HOMEBREW_NO_ANALYTICS = "1";
-        SAM_CLI_TELEMETRY = "0";
-        AZURE_CORE_COLLECT_TELEMETRY = "0";
-        GATSBY_TELEMETRY_DISABLED = "1";
-        NEXT_TELEMETRY_DISABLED = "1";
-      }
-      // lib.optionalAttrs (cfg.proxy.http != null) {
-        HTTP_PROXY = cfg.proxy.http;
-        http_proxy = cfg.proxy.http;
-      }
-      // lib.optionalAttrs (cfg.proxy.https != null) {
-        HTTPS_PROXY = cfg.proxy.https;
-        https_proxy = cfg.proxy.https;
-      }
-      // lib.optionalAttrs (cfg.proxy.http != null || cfg.proxy.https != null) {
-        NO_PROXY = lib.concatStringsSep "," cfg.proxy.noProxy;
-        no_proxy = lib.concatStringsSep "," cfg.proxy.noProxy;
-      }
-      // lib.optionalAttrs (p.environment == "wsl") {
-        DISPLAY = ":0";
-        WSL_INTEROP = "/run/WSL/1_interop";
-      };
-
-      sessionPath = [
-        "$HOME/.local/bin"
-      ]
-      ++ lib.optionals (p.os == "darwin") [
-        "/opt/homebrew/bin"
-        "/opt/homebrew/sbin"
-      ];
-
-      # WSL: Docker CLI plugins
-      file = lib.mkIf (p.environment == "wsl") {
-        ".docker/cli-plugins/docker-buildx".source = "${pkgs.docker-buildx}/bin/docker-buildx";
-        ".docker/cli-plugins/docker-compose".source = "${pkgs.docker-compose}/bin/docker-compose";
-      };
-
-      # WSL: xdg-open browser setup
-      activation = lib.mkIf (p.environment == "wsl") {
-        setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-          if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
-            $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
-            cat > $HOME/.local/share/applications/wslview.desktop << 'DESKTOP'
-          [Desktop Entry]
-          Type=Application
-          Version=1.0
-          Name=WSL Browser
-          NoDisplay=true
-          Exec=wslview %u
-          MimeType=x-scheme-handler/http;x-scheme-handler/https;
-          DESKTOP
-            $DRY_RUN_CMD xdg-settings set default-web-browser wslview.desktop 2>/dev/null || true
-          fi
-        '';
-      };
+    home.sessionVariables = {
+      EDITOR = lib.mkDefault cfg.editor;
+      VISUAL = lib.mkDefault cfg.editor;
+      PAGER = cfg.pager.command;
+      LESS = cfg.pager.lessOptions;
+      LANG = cfg.locale.lang;
+    }
+    // lib.optionalAttrs (cfg.locale.lc_time != null) {
+      LC_TIME = cfg.locale.lc_time;
+    }
+    // lib.optionalAttrs (cfg.browser != null) {
+      BROWSER = cfg.browser;
+    }
+    // lib.optionalAttrs cfg.terminal.trueColor {
+      COLORTERM = "truecolor";
+    }
+    // lib.optionalAttrs cfg.privacy.disableTelemetry {
+      DO_NOT_TRACK = "1";
+      DOTNET_CLI_TELEMETRY_OPTOUT = "1";
+      HOMEBREW_NO_ANALYTICS = "1";
+      SAM_CLI_TELEMETRY = "0";
+      AZURE_CORE_COLLECT_TELEMETRY = "0";
+      GATSBY_TELEMETRY_DISABLED = "1";
+      NEXT_TELEMETRY_DISABLED = "1";
+    }
+    // lib.optionalAttrs (cfg.proxy.http != null) {
+      HTTP_PROXY = cfg.proxy.http;
+      http_proxy = cfg.proxy.http;
+    }
+    // lib.optionalAttrs (cfg.proxy.https != null) {
+      HTTPS_PROXY = cfg.proxy.https;
+      https_proxy = cfg.proxy.https;
+    }
+    // lib.optionalAttrs (cfg.proxy.http != null || cfg.proxy.https != null) {
+      NO_PROXY = lib.concatStringsSep "," cfg.proxy.noProxy;
+      no_proxy = lib.concatStringsSep "," cfg.proxy.noProxy;
+    }
+    // lib.optionalAttrs (p.environment == "wsl") {
+      DISPLAY = ":0";
+      WSL_INTEROP = "/run/WSL/1_interop";
     };
 
-    # Disable systemd user service management in CI
-    systemd.user.startServices = if p.environment == "ci" then false else "sd-switch";
-
-    xdg.enable = true;
+    home.sessionPath = [
+      "$HOME/.local/bin"
+    ]
+    ++ lib.optionals (p.os == "darwin") [
+      "/opt/homebrew/bin"
+      "/opt/homebrew/sbin"
+    ];
 
     programs = {
-      home-manager.enable = true;
-      bash.enable = lib.mkDefault true;
-
       git = {
         settings = {
           core = {

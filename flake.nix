@@ -102,8 +102,8 @@
         in
         if u != "" then u else "runner";
 
-      # System library with all builders
-      systemLib = import ./system/lib.nix { inherit inputs username; };
+      # Host configuration generator (config.nix → flake outputs)
+      systemLib = import ./system/hosts.nix { inherit inputs username; };
 
       inherit (systemLib) mkAllConfigurations mkDeployNodes defaults;
 
