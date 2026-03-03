@@ -1,8 +1,11 @@
-# Platform detection options and cross-cutting defaults
+# Common home-manager configuration for all hosts
+# Platform detection, shared defaults, environment wiring, and HM bootstrap
 {
   lib,
   pkgs,
   config,
+  inputs,
+  versions,
   userConfig,
   hostConfig,
   ...
@@ -13,8 +16,11 @@ let
   p = config.platform;
 
   isWsl = builtins.pathExists /proc/sys/fs/binfmt_misc/WSLInterop;
+  nixglPkgs = inputs.nixgl.packages.${pkgs.system} or null;
 in
 {
+  # --- Option declarations ---
+
   options = {
     platform = {
       os = lib.mkOption {
@@ -74,7 +80,7 @@ in
       locale = {
         lang = lib.mkOption {
           type = lib.types.str;
-          default = "en_US.UTF-8";
+          default = "ja_JP.UTF-8";
         };
         lc_time = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
@@ -165,9 +171,12 @@ in
     };
   };
 
+  # --- Configuration ---
+
   config = {
+    # Identity from userConfig
     defaults = {
-      locale.lang = "ja_JP.UTF-8";
+      browser = lib.mkIf (p.environment == "wsl") "xdg-open";
       identity = {
         name = userConfig.git.name or userConfig.name or null;
         email = userConfig.git.email or userConfig.email or null;
@@ -176,57 +185,104 @@ in
       };
     };
 
-    home.sessionVariables = {
-      EDITOR = lib.mkDefault cfg.editor;
-      VISUAL = lib.mkDefault cfg.editor;
-      PAGER = cfg.pager.command;
-      LESS = cfg.pager.lessOptions;
-      LANG = cfg.locale.lang;
-    }
-    // lib.optionalAttrs (cfg.locale.lc_time != null) {
-      LC_TIME = cfg.locale.lc_time;
-    }
-    // lib.optionalAttrs (cfg.browser != null) {
-      BROWSER = cfg.browser;
-    }
-    // lib.optionalAttrs cfg.terminal.trueColor {
-      COLORTERM = "truecolor";
-    }
-    // lib.optionalAttrs cfg.privacy.disableTelemetry {
-      DO_NOT_TRACK = "1";
-      DOTNET_CLI_TELEMETRY_OPTOUT = "1";
-      HOMEBREW_NO_ANALYTICS = "1";
-      SAM_CLI_TELEMETRY = "0";
-      AZURE_CORE_COLLECT_TELEMETRY = "0";
-      GATSBY_TELEMETRY_DISABLED = "1";
-      NEXT_TELEMETRY_DISABLED = "1";
-    }
-    // lib.optionalAttrs (cfg.proxy.http != null) {
-      HTTP_PROXY = cfg.proxy.http;
-      http_proxy = cfg.proxy.http;
-    }
-    // lib.optionalAttrs (cfg.proxy.https != null) {
-      HTTPS_PROXY = cfg.proxy.https;
-      https_proxy = cfg.proxy.https;
-    }
-    // lib.optionalAttrs (cfg.proxy.http != null || cfg.proxy.https != null) {
-      NO_PROXY = lib.concatStringsSep "," cfg.proxy.noProxy;
-      no_proxy = lib.concatStringsSep "," cfg.proxy.noProxy;
-    }
-    // lib.optionalAttrs (p.environment == "wsl") {
-      DISPLAY = ":0";
-      WSL_INTEROP = "/run/WSL/1_interop";
+    # HM bootstrap
+    home = {
+      stateVersion = versions.home;
+      preferXdgDirectories = true;
+
+      sessionVariables = {
+        EDITOR = lib.mkDefault cfg.editor;
+        VISUAL = lib.mkDefault cfg.editor;
+        PAGER = cfg.pager.command;
+        LESS = cfg.pager.lessOptions;
+        LANG = cfg.locale.lang;
+      }
+      // lib.optionalAttrs (cfg.locale.lc_time != null) {
+        LC_TIME = cfg.locale.lc_time;
+      }
+      // lib.optionalAttrs (cfg.browser != null) {
+        BROWSER = cfg.browser;
+      }
+      // lib.optionalAttrs cfg.terminal.trueColor {
+        COLORTERM = "truecolor";
+      }
+      // lib.optionalAttrs cfg.privacy.disableTelemetry {
+        DO_NOT_TRACK = "1";
+        DOTNET_CLI_TELEMETRY_OPTOUT = "1";
+        HOMEBREW_NO_ANALYTICS = "1";
+        SAM_CLI_TELEMETRY = "0";
+        AZURE_CORE_COLLECT_TELEMETRY = "0";
+        GATSBY_TELEMETRY_DISABLED = "1";
+        NEXT_TELEMETRY_DISABLED = "1";
+      }
+      // lib.optionalAttrs (cfg.proxy.http != null) {
+        HTTP_PROXY = cfg.proxy.http;
+        http_proxy = cfg.proxy.http;
+      }
+      // lib.optionalAttrs (cfg.proxy.https != null) {
+        HTTPS_PROXY = cfg.proxy.https;
+        https_proxy = cfg.proxy.https;
+      }
+      // lib.optionalAttrs (cfg.proxy.http != null || cfg.proxy.https != null) {
+        NO_PROXY = lib.concatStringsSep "," cfg.proxy.noProxy;
+        no_proxy = lib.concatStringsSep "," cfg.proxy.noProxy;
+      }
+      // lib.optionalAttrs (p.environment == "wsl") {
+        DISPLAY = ":0";
+        WSL_INTEROP = "/run/WSL/1_interop";
+      };
+
+      sessionPath = [
+        "$HOME/.local/bin"
+      ]
+      ++ lib.optionals (p.os == "darwin") [
+        "/opt/homebrew/bin"
+        "/opt/homebrew/sbin"
+      ];
+
+      # WSL: Docker CLI plugins
+      file = lib.mkIf (p.environment == "wsl") {
+        ".docker/cli-plugins/docker-buildx".source = "${pkgs.docker-buildx}/bin/docker-buildx";
+        ".docker/cli-plugins/docker-compose".source = "${pkgs.docker-compose}/bin/docker-compose";
+      };
+
+      # WSL: xdg-open browser setup
+      activation = lib.mkIf (p.environment == "wsl") {
+        setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+            $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
+            cat > $HOME/.local/share/applications/wslview.desktop << 'DESKTOP'
+          [Desktop Entry]
+          Type=Application
+          Version=1.0
+          Name=WSL Browser
+          NoDisplay=true
+          Exec=wslview %u
+          MimeType=x-scheme-handler/http;x-scheme-handler/https;
+          DESKTOP
+            $DRY_RUN_CMD xdg-settings set default-web-browser wslview.desktop 2>/dev/null || true
+          fi
+        '';
+      };
     };
 
-    home.sessionPath = [
-      "$HOME/.local/bin"
-    ]
-    ++ lib.optionals (p.os == "darwin") [
-      "/opt/homebrew/bin"
-      "/opt/homebrew/sbin"
-    ];
+    # Platform integration
+    targets.genericLinux.enable = p.os == "linux";
+    targets.genericLinux.nixGL = lib.mkIf (p.os == "linux" && nixglPkgs != null) {
+      packages = nixglPkgs;
+      defaultWrapper = "mesa";
+      installScripts = [ "mesa" ];
+    };
+    fonts.fontconfig.enable = p.os == "linux";
 
+    systemd.user.startServices = if p.environment == "ci" then false else "sd-switch";
+    xdg.enable = true;
+
+    # Program defaults
     programs = {
+      home-manager.enable = true;
+      bash.enable = lib.mkDefault true;
+
       git = {
         settings = {
           core = {

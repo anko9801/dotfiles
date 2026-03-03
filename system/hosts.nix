@@ -28,8 +28,7 @@ let
   flakeModules = map resolveFlakeModule flakeHomeModules;
 
   coreModules = [
-    ../system/settings.nix
-    ../system/base.nix
+    ../system/common.nix
     ../dev/nix.nix
     ../shell/defaults.nix
     ../shell/bash.nix
