@@ -286,11 +286,6 @@ in
     programs = {
       home-manager.enable = true;
       bash.enable = lib.mkDefault true;
-
-      starship.settings = lib.mkIf (config.programs.starship.enable && !cfg.terminal.nerdFonts) {
-        character.success_symbol = lib.mkDefault "[>](green)";
-        git_branch.symbol = lib.mkDefault "";
-      };
     };
   };
 }

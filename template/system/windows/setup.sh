@@ -17,10 +17,10 @@ dotfiles="$(cd "$(dirname "$0")/../.." && pwd)"
 
 # Build Windows config (uses the "windows" host from config.nix)
 echo "[1/2] Building Windows configuration..."
-if nix build "$dotfiles#homeConfigurations.windows.activationPackage" \
-  --no-link --print-out-paths --impure >/dev/null 2>&1; then
-  out=$(nix build "$dotfiles#homeConfigurations.windows.activationPackage" \
-    --no-link --print-out-paths --impure)
+out=$(nix build "$dotfiles#homeConfigurations.windows.activationPackage" \
+  --no-link --print-out-paths --impure 2>/dev/null) || true
+
+if [ -n "$out" ]; then
   src="$out/home-files"
   echo "  Built: $out"
 

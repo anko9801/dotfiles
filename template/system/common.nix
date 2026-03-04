@@ -63,6 +63,42 @@ in
       default = "vim";
       description = "Default editor";
     };
+
+    pager = {
+      command = lib.mkOption {
+        type = lib.types.str;
+        default = "less";
+      };
+      lessOptions = lib.mkOption {
+        type = lib.types.str;
+        default = "-R --quit-if-one-screen";
+      };
+    };
+
+    locale = {
+      lang = lib.mkOption {
+        type = lib.types.str;
+        default = "en_US.UTF-8";
+      };
+    };
+
+    terminal = {
+      trueColor = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+      };
+      nerdFonts = lib.mkOption {
+        type = lib.types.bool;
+        default = p.environment != "ci";
+      };
+    };
+
+    privacy = {
+      disableTelemetry = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+      };
+    };
   };
 
   # ── Configuration ────────────────────────────────────────────────────────
@@ -80,7 +116,21 @@ in
       sessionVariables = {
         EDITOR = lib.mkDefault cfg.editor;
         VISUAL = lib.mkDefault cfg.editor;
+        PAGER = cfg.pager.command;
+        LESS = cfg.pager.lessOptions;
+        LANG = cfg.locale.lang;
+      }
+      // lib.optionalAttrs cfg.terminal.trueColor {
+        COLORTERM = "truecolor";
+      }
+      // lib.optionalAttrs cfg.privacy.disableTelemetry {
         DO_NOT_TRACK = "1";
+        DOTNET_CLI_TELEMETRY_OPTOUT = "1";
+        HOMEBREW_NO_ANALYTICS = "1";
+        SAM_CLI_TELEMETRY = "0";
+        AZURE_CORE_COLLECT_TELEMETRY = "0";
+        GATSBY_TELEMETRY_DISABLED = "1";
+        NEXT_TELEMETRY_DISABLED = "1";
       };
 
       sessionPath = [
