@@ -94,7 +94,7 @@ Windows config is built on Linux (WSL) and deployed to the Windows side:
 
 When the user shares a URL (tech article, dotfiles repo, tool docs, etc.):
 
-1. Fetch and read the content thoroughly
+1. Fetch the content (clone repos to `/tmp/`, WebFetch for articles)
 2. Extract ideas applicable to this repo: tools, patterns, workflows, config improvements
 3. Adapt to fit this structure — don't blindly copy
 4. Prioritize: high (significant benefit, easy) > medium > low (defer)
