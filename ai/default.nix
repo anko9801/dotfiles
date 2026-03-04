@@ -26,9 +26,6 @@ in
 
       # CLI tools
       llm # Python CLI for LLMs (Simon Willison)
-
-      # Utilities
-      shell-gpt # ChatGPT in terminal
     ])
     # AI coding agents from llm-agents.nix (skip in CI - heavy builds)
     ++ lib.optionals (p.environment != "ci" && llmAgentsPkgs != { }) (

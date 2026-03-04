@@ -85,7 +85,7 @@ let
     {
       nix = {
         inherit (nixSettings) settings;
-        extraOptions = "include /etc/nix/private.conf";
+        extraOptions = "!include /etc/nix/private.conf";
         optimise.automatic = true;
         gc =
           nixSettings.gc
