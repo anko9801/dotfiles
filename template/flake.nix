@@ -8,6 +8,11 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -47,6 +52,7 @@
       inherit homeConfigurations;
 
       # `nix run .#switch` to apply configuration
+      # `nix run .#windows` to deploy Windows config from WSL
       apps = forEachSystem (
         { pkgs, ... }:
         {
@@ -58,12 +64,18 @@
                 TARGET="''${1:-}"
                 if [ "$(uname)" = "Darwin" ]; then
                   [ -z "$TARGET" ] && TARGET="${defaults.darwin}"
+                elif [ -n "''${WSL_DISTRO_NAME:-}" ]; then
+                  [ -z "$TARGET" ] && TARGET="${defaults.wsl}"
                 else
                   [ -z "$TARGET" ] && TARGET="${defaults.linux}"
                 fi
-                nix run home-manager -- switch --impure --flake ".#$TARGET"
+                nix run home-manager -- switch --impure --backup-ext backup --flake ".#$TARGET"
               ''
             );
+          };
+          windows = {
+            type = "app";
+            program = toString ./system/windows/setup.sh;
           };
         }
       );

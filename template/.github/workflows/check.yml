@@ -1,0 +1,35 @@
+name: Check
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.nix'
+      - 'flake.lock'
+      - '.github/workflows/check.yml'
+  pull_request:
+    paths:
+      - '**.nix'
+      - 'flake.lock'
+      - '.github/workflows/check.yml'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: |
+            nix-${{ runner.os }}-
+          gc-max-store-size-linux: 2G
+          purge: true
+          purge-prefixes: |
+            nix-${{ runner.os }}-
+          purge-last-accessed: 604800
+      - name: Build Home Manager configuration
+        run: nix build .#homeConfigurations.default.activationPackage --impure

@@ -6,6 +6,18 @@ let
 
   cfg = import ../config.nix;
 
+  # Home-manager modules from flake inputs
+  flakeHomeModules = [
+    "stylix"
+  ];
+
+  resolveFlakeModule =
+    name:
+    inputs.${name}.homeModules.${name} or inputs.${name}.homeModules.default
+      or inputs.${name}.homeManagerModules.default or (throw "flakeHomeModule '${name}' not found");
+
+  flakeModules = map resolveFlakeModule flakeHomeModules;
+
   inherit (cfg)
     coreModules
     baseModules
@@ -18,6 +30,7 @@ let
   mkStandaloneHome =
     {
       system,
+      hostConfig,
       extraModules ? [ ],
     }:
     let
@@ -26,10 +39,16 @@ let
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       extraSpecialArgs = {
-        inherit inputs username userConfig;
+        inherit
+          inputs
+          username
+          userConfig
+          hostConfig
+          ;
       };
       modules =
         coreModules
+        ++ flakeModules
         ++ baseModules
         ++ extraModules
         ++ [
@@ -38,7 +57,20 @@ let
               inherit username;
               homeDirectory = if pkgs.stdenv.isDarwin then "/Users/${username}" else "/home/${username}";
             };
-            nix.package = pkgs.nix;
+
+            nix = {
+              package = pkgs.nix;
+              settings.experimental-features = [
+                "nix-command"
+                "flakes"
+              ];
+              gc = {
+                automatic = true;
+                options = "--delete-older-than 30d";
+              };
+            };
+
+            stylix.overlays.enable = false;
           }
         ];
     };
@@ -47,6 +79,7 @@ let
     _name: host:
     mkStandaloneHome {
       inherit (host) system;
+      hostConfig = host;
       extraModules = host.modules or [ ];
     }
   ) cfg.hosts;
