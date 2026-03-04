@@ -2,6 +2,7 @@
 {
   config,
   lib,
+  inputs,
   unfreePkgs,
   ...
 }:
@@ -10,6 +11,7 @@ let
   p = config.platform;
 in
 {
+  imports = [ inputs._1password-shell-plugins.hmModules.default ];
   options.programs.onePassword = {
     agentSocket = lib.mkOption {
       type = lib.types.str;

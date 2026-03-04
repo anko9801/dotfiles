@@ -23,7 +23,8 @@ let
   resolveFlakeModule =
     name:
     inputs.${name}.homeModules.${name} or inputs.${name}.homeModules.default
-      or inputs.${name}.homeManagerModules.default or (throw "flakeHomeModule '${name}' not found");
+      or inputs.${name}.homeManagerModules.default or inputs.${name}.hmModules.default
+        or (throw "flakeHomeModule '${name}' not found");
 
   flakeModules = map resolveFlakeModule flakeHomeModules;
 
