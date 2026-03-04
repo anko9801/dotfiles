@@ -10,6 +10,7 @@
 }:
 let
   cfg = config.defaults;
+  p = config.platform;
 in
 {
   # ── Option declarations ──────────────────────────────────────────────────
@@ -79,12 +80,25 @@ in
       sessionVariables = {
         EDITOR = lib.mkDefault cfg.editor;
         VISUAL = lib.mkDefault cfg.editor;
+        DO_NOT_TRACK = "1";
       };
+
+      sessionPath = [
+        "$HOME/.local/bin"
+      ];
     };
 
     # Platform integration
-    targets.genericLinux.enable = config.platform.os == "linux";
+    targets.genericLinux.enable = p.os == "linux";
+    fonts.fontconfig.enable = p.os == "linux";
+    systemd.user.startServices = if p.environment == "ci" then false else "sd-switch";
     xdg.enable = true;
+
+    manual = {
+      manpages.enable = false;
+      html.enable = false;
+      json.enable = false;
+    };
 
     programs.home-manager.enable = true;
   };

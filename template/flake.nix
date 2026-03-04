@@ -82,5 +82,19 @@
 
       # `nix fmt` to format all nix files
       formatter = forEachSystem ({ pkgs, ... }: pkgs.nixfmt-rfc-style);
+
+      # `nix flake check` to verify formatting and build
+      checks = forEachSystem (
+        { pkgs, ... }:
+        {
+          formatting = pkgs.runCommand "check-formatting" { buildInputs = [ pkgs.nixfmt-rfc-style ]; } ''
+            cd ${./.}
+            find . -name '*.nix' -exec nixfmt --check {} +
+            touch $out
+          '';
+          build =
+            homeConfigurations.default.activationPackage or (pkgs.runCommand "skip-build" { } "touch $out");
+        }
+      );
     };
 }
