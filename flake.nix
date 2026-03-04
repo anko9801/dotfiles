@@ -146,10 +146,10 @@
                     sudo nixos-rebuild switch --flake ".#$TARGET"
                   elif [ -n "''${WSL_DISTRO_NAME:-}" ]; then
                     [ -z "$TARGET" ] && TARGET="${defaults.wsl}"
-                    nix run home-manager -- switch --impure --flake ".#$TARGET"
+                    nix run home-manager -- switch --impure -b backup --flake ".#$TARGET"
                   else
                     [ -z "$TARGET" ] && TARGET="${defaults.linux}"
-                    nix run home-manager -- switch --impure --flake ".#$TARGET"
+                    nix run home-manager -- switch --impure -b backup --flake ".#$TARGET"
                   fi
                 ''
               );
