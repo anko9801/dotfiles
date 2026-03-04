@@ -17,9 +17,9 @@ nix flake init -t github:anko9801/dotfiles
 # 4. Apply (conflicting files are backed up as .backup)
 nix run .#switch
 
-# 5. (Optional) Deploy Windows config from WSL
+# 5. (Optional) Windows: build configs on WSL and deploy to Windows side
 #    Uncomment the `windows` host in config.nix, then:
-nix run .#windows  # copies configs + runs winget import
+nix run .#windows  # builds via Nix, copies configs + runs winget import
 ```
 
 ## Adding Modules
