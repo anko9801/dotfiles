@@ -5,24 +5,24 @@ Declarative development environment powered by Nix.
 ## Architecture
 
 ```
-flake.nix                    # Entry point
+flake.nix                    # Entry point (flake-parts)
+config.nix                   # Users, hosts, modules, nix settings
 ├── system/
-│   ├── shared.nix           # User, versions, nix settings, helpers
-│   ├── home-manager/
-│   │   ├── builder.nix      # mkStandaloneHome, mkSystemHomeConfig
-│   │   └── core.nix         # Base settings, platform detection
+│   ├── hosts.nix            # Host builders (home-manager, nix-darwin, nixos)
+│   ├── common.nix           # Platform detection, shared defaults
+│   ├── dev-tools.nix        # Formatter, pre-commit hooks, devShell
 │   ├── darwin/              # macOS system config
-│   └── nixos/               # NixOS system config
-├── ai/                      # Claude, Aider, Ollama
-├── dev/                     # mise, Rust, Go, Python
-├── editor/                  # Neovim (nixvim)
-├── shell/                   # Zsh, Fish, Bash
-├── terminal/                # Ghostty, Zellij
-├── tools/                   # Git, Yazi, Bat
-├── desktop/                 # IME
-├── security/                # 1Password, GPG, SSH
-├── theme/                   # Stylix (Catppuccin)
-└── users/                   # Per-user config
+│   ├── nixos/               # NixOS system config
+│   └── windows/             # WSL → Windows deployment
+├── ai/                      # Claude, Aider
+├── dev/                     # Nix tooling, Rust, Go, Python, Node
+├── editor/                  # Neovim (nixvim), VS Code
+├── shell/                   # Zsh, Fish, Bash, Starship
+├── terminal/                # Ghostty, Zellij, tmux, Windows Terminal
+├── tools/                   # Git, Yazi, Bat, CLI utils
+├── desktop/                 # IME, GUI integration
+├── security/                # 1Password, GPG, SSH, gitleaks
+└── theme/                   # Stylix (Catppuccin Mocha)
 ```
 
 ## Critical Rules
@@ -43,10 +43,9 @@ flake.nix                    # Entry point
 ## Flake Apps
 
 ```bash
-nix run .#switch   # Apply config
-nix run .#build    # Build only
-nix run .#update   # Update inputs
-nix run .#fmt      # Format code
+nix run .#switch    # Apply config (auto-detects platform)
+nix run .#windows   # Deploy Windows configs from WSL
+nix fmt             # Format all nix files
 ```
 
 ## Workstation vs Server
