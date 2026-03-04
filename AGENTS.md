@@ -5,83 +5,96 @@ Declarative development environment powered by Nix.
 ## Architecture
 
 ```
-flake.nix                    # Entry point (flake-parts)
-config.nix                   # Users, hosts, modules, nix settings
-├── system/
-│   ├── hosts.nix            # Host builders (home-manager, nix-darwin, nixos)
-│   ├── common.nix           # Platform detection, shared defaults
-│   ├── dev-tools.nix        # Formatter, pre-commit hooks, devShell
-│   ├── darwin/              # macOS system config
-│   ├── nixos/               # NixOS system config
-│   └── windows/             # WSL → Windows deployment
-├── ai/                      # Claude, Aider
-├── dev/                     # Nix tooling, Rust, Go, Python, Node
-├── editor/                  # Neovim (nixvim), VS Code
-├── shell/                   # Zsh, Fish, Bash, Starship
-├── terminal/                # Ghostty, Zellij, tmux, Windows Terminal
-├── tools/                   # Git, Yazi, Bat, CLI utils
-├── desktop/                 # IME, GUI integration
-├── security/                # 1Password, GPG, SSH, gitleaks
-└── theme/                   # Stylix (Catppuccin Mocha)
+flake.nix              Entry point (flake-parts): inputs, apps, formatter, checks
+config.nix             Users, hosts, modules, moduleSets, nix settings
+system/
+  hosts.nix            config.nix -> homeConfigurations/darwinConfigurations/nixosConfigurations
+  common.nix           Platform detection (os/environment), shared defaults, HM bootstrap
+  dev-tools.nix        Formatter (treefmt), pre-commit hooks (git-hooks), devShell
+  darwin/              macOS system modules (homebrew, aerospace)
+  nixos/               NixOS system modules (desktop, wsl, server, comin)
+  windows/             WSL -> Windows deployment (setup.sh, winget-packages.json)
+ai/                    Claude, Aider
+dev/                   Nix tooling, Rust, Go, Python, Node, mise
+editor/                Neovim (nixvim), VS Code
+shell/                 Zsh, Fish, Bash, Starship
+terminal/              Ghostty, Zellij, tmux, Windows Terminal
+tools/                 Git, Yazi, Bat, CLI utils
+desktop/               IME, GUI integration
+security/              1Password, GPG, SSH, gitleaks
+theme/                 Stylix (Catppuccin Mocha)
+docs/                  Tool selection rationale, design philosophy
 ```
 
-## Critical Rules
+## Key Concepts
 
-**NEVER:**
-- Store secrets in plain text (use 1Password)
-- Use `home.packages` when `programs.*` exists
-- Create modules > 400 lines
-- Auto-commit without user confirmation
+### config.nix structure
 
-**ALWAYS:**
-- Run `nix flake check` before pushing
-- Use `--impure` flag for home-manager
-- Prefer `mkOutOfStoreSymlink` for frequently edited configs
-- Use `lib.mkIf` for platform-specific code
-- Lint with `statix check` and `deadnix`
+```nix
+{
+  users.<name>     = { git = { name, email, sshKey }; editor; };
+  baseModules      = [ ... ];           # standard interactive tools
+  moduleSets       = { workstation; server; };  # reusable module bundles
+  hosts.<name>     = { system; manager; modules; ... };
+  defaultHosts     = { darwin; nixos; wsl; linux; };
+  nixSettings      = { settings; gc; gcSchedule; };
+  versions         = { home; nixos; darwin; };
+}
+```
 
-## Flake Apps
+- `manager`: `"home-manager"` | `"nix-darwin"` | `"nixos"` — selects the builder in hosts.nix
+- `moduleSets.workstation` = baseModules ++ ai/ + tools/ + editor/ + terminal/
+- `moduleSets.server` = baseModules ++ minimal tools (vim, git, bat, tmux)
+
+### Module layers
+
+- **coreModules** (hosts.nix): loaded for every host — common.nix, nix.nix, defaults.nix, bash.nix
+- **baseModules** (config.nix): standard interactive tools + theme
+- **moduleSets** (config.nix): workstation/server presets that include baseModules
+- **host.modules**: per-host module set (typically a moduleSet + extras)
+- **flakeHomeModules** (hosts.nix): flake input HM modules (nix-index-database, nixvim, stylix, agent-skills), loaded globally
+
+### Platform detection
+
+`system/common.nix` exposes read-only options under `config.platform`:
+
+- `config.platform.os` — `"linux"` | `"darwin"` | `"windows"` (auto-detected, or overridden via `hostConfig.os`)
+- `config.platform.environment` — `"native"` | `"wsl"` | `"ci"` (auto-detected)
+
+Use in modules: `lib.mkIf (config.platform.os == "linux") { ... }`
+
+### Identity wiring
+
+```
+config.nix users.*.git.name/email
+  -> system/common.nix defaults.identity.name/email
+    -> modules read config.defaults.identity
+```
+
+### Windows support
+
+Windows config is built on Linux (WSL) and deployed to the Windows side:
+
+1. `windows` host in config.nix with `os = "windows"`
+2. `nix run .#windows` builds config and copies to Windows home (.gitconfig, VS Code, Windows Terminal, komorebi, kanata)
+3. Fonts installed, winget packages imported
+
+## Rules
+
+- Prefer `programs.*` over raw `home.packages`
+- Keep modules under 400 lines
+- One concern per file
+- Use `config.defaults.*` to share settings across modules
+- Use `config.platform.*` for platform-specific logic
+- Lint with `statix check` and `deadnix`, format with `nix fmt`
+- Test with `nix flake check --impure` before pushing
+- Document tool decisions in `docs/tool-selection.md`
+
+## Commands
 
 ```bash
 nix run .#switch    # Apply config (auto-detects platform)
 nix run .#windows   # Deploy Windows configs from WSL
-nix fmt             # Format all nix files
+nix run .#deploy    # Deploy to remote servers
+nix fmt             # Format all files
 ```
-
-## Workstation vs Server
-
-```nix
-workstation = true   # ai/ + tools/ + editor/ + terminal/
-workstation = false  # minimal, no GUI
-```
-
-## Tool Selection
-
-See [docs/tool-selection.md](docs/tool-selection.md) for:
-- Evaluation criteria (must have, rejection reasons)
-- Adopted/rejected tools with rationale
-- Candidates under evaluation
-
-## Reference Analysis
-
-When user shares a URL (article, repository, dotfiles):
-
-1. **Fetch**: Clone repo to `/tmp/` or WebFetch article
-2. **Analyze**: Read all Nix files, README, structure
-3. **Compare**: Look for:
-   - Missing flake inputs (sops-nix, agenix, etc.)
-   - Better module patterns
-   - Unused Home Manager options
-   - Performance/security improvements
-   - New tools worth adding
-4. **Prioritize**:
-   - High: significant benefit, easy to implement
-   - Medium: good benefit, moderate effort
-   - Low: nice to have, defer
-5. **Plan**: Enter plan mode with specific file changes
-6. **Apply**: After approval, implement → `nix run .#fmt` → `nix run .#build`
-
-**Rules:**
-- Adapt patterns to fit this structure, don't blindly copy
-- Prefer `programs.*` over raw config files
-- Test before committing
