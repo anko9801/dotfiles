@@ -90,6 +90,16 @@ Windows config is built on Linux (WSL) and deployed to the Windows side:
 - Test with `nix flake check --impure` before pushing
 - Document tool decisions in `docs/tool-selection.md`
 
+## Reference Analysis
+
+When the user shares a URL (article, repository, dotfiles):
+
+1. Fetch and read all Nix files, README, structure
+2. Compare against this repo: missing inputs, better patterns, new tools
+3. Adapt patterns to fit this structure — don't blindly copy
+4. Prioritize: high (significant benefit, easy) > medium > low (defer)
+5. Enter plan mode with specific file changes, implement after approval
+
 ## Commands
 
 ```bash
