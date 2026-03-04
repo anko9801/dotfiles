@@ -69,7 +69,7 @@
                 else
                   [ -z "$TARGET" ] && TARGET="${defaults.linux}"
                 fi
-                nix run home-manager -- switch --impure --backup-ext backup --flake ".#$TARGET"
+                nix run home-manager -- switch --impure -b backup --flake ".#$TARGET"
               ''
             );
           };
