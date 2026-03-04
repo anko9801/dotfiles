@@ -13,17 +13,54 @@
 Declarative dotfiles for macOS, Linux, WSL, NixOS, and Windows using Nix Flakes.
 
 > [!NOTE]
-> Personal configuration. Fork and adapt for your own needs.
+> Personal configuration. Use the template to start your own:
+> ```sh
+> nix flake init -t github:anko9801/dotfiles
+> ```
 
 ## Quick Start
 
 ```sh
-# Install Nix (if not installed)
+# Install Nix
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
 # Apply configuration
 nix run github:anko9801/dotfiles#switch
 ```
+
+## Structure
+
+```
+flake.nix              # Entry point (flake-parts)
+config.nix             # Users, hosts, modules, nix settings
+system/
+├── hosts.nix          # Host builders (home-manager, nix-darwin, nixos)
+├── common.nix         # Platform detection, shared defaults
+├── darwin/            # macOS system modules
+├── nixos/             # NixOS system modules
+└── windows/           # WSL → Windows deployment
+ai/                    # Claude, Aider
+dev/                   # Nix tooling, Rust, Go, Python, Node
+editor/                # Neovim (nixvim), VS Code
+shell/                 # Zsh, Fish, Bash, Starship
+terminal/              # Ghostty, Zellij, tmux, Windows Terminal
+tools/                 # Git, Yazi, Bat, CLI utils
+desktop/               # IME, GUI integration
+security/              # 1Password, GPG, SSH, gitleaks
+theme/                 # Stylix (Catppuccin Mocha)
+```
+
+## Hosts
+
+| Host | Manager | Platform |
+|------|---------|----------|
+| `linux-wsl` | home-manager | WSL (x86_64) |
+| `linux-desktop` | home-manager | Linux (x86_64) |
+| `linux-server-{intel,arm}` | home-manager | Linux |
+| `windows` | home-manager | Build on Linux, deploy via WSL |
+| `mac-{arm,intel}` | nix-darwin | macOS |
+| `nixos-{wsl,desktop}` | nixos | NixOS |
+| `nixos-server-{intel,arm}` | nixos | NixOS servers |
 
 ## Commands
 
@@ -32,32 +69,8 @@ nix run .#switch             # Apply configuration (auto-detect platform)
 nix run .#switch -- <host>   # Apply specific host
 nix run .#windows            # Setup Windows from WSL
 nix run .#deploy             # Deploy to remote server
-NIXPKGS_ALLOW_UNFREE=1 nix flake check --impure  # Validate configuration
-nix flake update             # Update flake inputs
 nix fmt                      # Format all files
-```
-
-## Customization
-
-Edit `config.nix`:
-
-```nix
-rec {
-  # Add yourself
-  users.yourname = {
-    git = {
-      name = "Your Name";
-      email = "you@example.com";
-    };
-  };
-
-  # Customize host modules
-  hosts.linux-wsl.modules = baseModules ++ [
-    ./ai
-    ./tools
-    # Add or remove modules
-  ];
-}
+nix flake check --impure     # Validate configuration
 ```
 
 ## Troubleshooting
@@ -69,8 +82,8 @@ git add .  # Nix flakes only see git-tracked files
 
 **Conflict with existing dotfiles**
 ```sh
-# Backup and remove conflicting files in ~/.config/
-mv ~/.config/foo ~/.config/foo.bak
+# switch backs up conflicting files as .backup automatically
+# or manually: mv ~/.config/foo ~/.config/foo.bak
 ```
 
 **Check what will change**
