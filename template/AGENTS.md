@@ -100,11 +100,11 @@ GitHub Actions workflow (`.github/workflows/check.yml`) builds the default host 
 
 ## Reference Analysis
 
-When the user shares a URL (article, repository, dotfiles):
+When the user shares a URL (tech article, dotfiles repo, tool docs, etc.):
 
-1. Fetch and read all Nix files, README, structure
-2. Compare against this repo: missing inputs, better patterns, new tools
-3. Adapt patterns to fit this structure — don't blindly copy
+1. Fetch and read the content thoroughly
+2. Extract ideas applicable to this repo: tools, patterns, workflows, config improvements
+3. Adapt to fit this structure — don't blindly copy
 4. Prioritize: high (significant benefit, easy) > medium > low (defer)
 5. Enter plan mode with specific file changes, implement after approval
 
