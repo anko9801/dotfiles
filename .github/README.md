@@ -24,30 +24,12 @@ Declarative dotfiles for macOS, Linux, WSL, NixOS, and Windows using Nix Flakes.
 # Install Nix
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
-# Apply configuration
-nix run github:anko9801/dotfiles#switch
-```
+# Start from template
+mkdir ~/dotfiles && cd ~/dotfiles
+nix flake init -t github:anko9801/dotfiles
 
-## Structure
-
-```
-flake.nix              # Entry point (flake-parts)
-config.nix             # Users, hosts, modules, nix settings
-system/
-├── hosts.nix          # Host builders (home-manager, nix-darwin, nixos)
-├── common.nix         # Platform detection, shared defaults
-├── darwin/            # macOS system modules
-├── nixos/             # NixOS system modules
-└── windows/           # WSL → Windows deployment
-ai/                    # Claude, Aider
-dev/                   # Nix tooling, Rust, Go, Python, Node
-editor/                # Neovim (nixvim), VS Code
-shell/                 # Zsh, Fish, Bash, Starship
-terminal/              # Ghostty, Zellij, tmux, Windows Terminal
-tools/                 # Git, Yazi, Bat, CLI utils
-desktop/               # IME, GUI integration
-security/              # 1Password, GPG, SSH, gitleaks
-theme/                 # Stylix (Catppuccin Mocha)
+# Edit config.nix (replace your-username with $USER)
+nix run .#switch
 ```
 
 ## Hosts
