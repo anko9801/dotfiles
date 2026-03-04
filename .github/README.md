@@ -22,7 +22,7 @@ Declarative dotfiles for macOS, Linux, WSL, NixOS, and Windows using Nix Flakes.
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
 # Apply configuration
-nix run github:anko9801/dotfiles#switch --impure
+nix run github:anko9801/dotfiles#switch
 ```
 
 ## Commands
@@ -32,7 +32,7 @@ nix run .#switch             # Apply configuration (auto-detect platform)
 nix run .#switch -- <host>   # Apply specific host
 nix run .#windows            # Setup Windows from WSL
 nix run .#deploy             # Deploy to remote server
-nix flake check              # Validate configuration
+NIXPKGS_ALLOW_UNFREE=1 nix flake check --impure  # Validate configuration
 nix flake update             # Update flake inputs
 nix fmt                      # Format all files
 ```
@@ -52,7 +52,7 @@ rec {
   };
 
   # Customize host modules
-  hosts.wsl.modules = baseModules ++ [
+  hosts.linux-wsl.modules = baseModules ++ [
     ./ai
     ./tools
     # Add or remove modules
@@ -75,5 +75,5 @@ mv ~/.config/foo ~/.config/foo.bak
 
 **Check what will change**
 ```sh
-nix build .#homeConfigurations.wsl.activationPackage --impure --dry-run
+nix build .#homeConfigurations.linux-wsl.activationPackage --impure --dry-run
 ```
