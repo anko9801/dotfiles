@@ -181,6 +181,10 @@
           inherit (inputs) deploy-rs;
         };
 
+        templates.default = {
+          description = "Minimal Nix dotfiles with Home Manager";
+          path = ./template;
+        };
       };
     };
 }
