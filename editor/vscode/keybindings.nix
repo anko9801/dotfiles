@@ -5,7 +5,7 @@
 }:
 
 {
-  programs.vscode = lib.mkIf config.platform.isStandalone {
+  programs.vscode = lib.mkIf config.platform.hasNativeGui {
     profiles.default.keybindings = [
       # Terminal
       {

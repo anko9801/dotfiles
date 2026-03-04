@@ -10,6 +10,53 @@ let
   inherit (config.theme) colors;
   fonts = config.stylix.fonts or { };
 
+  directions = [
+    "left"
+    "down"
+    "up"
+    "right"
+  ];
+
+  mkDirectionAction = action: dir: {
+    command = {
+      inherit action;
+      direction = dir;
+    };
+    id = "User.${action}.${dir}";
+  };
+
+  mkDirectionActions = action: map (mkDirectionAction action) directions;
+
+  tabIndices = lib.range 0 4;
+
+  mkSwitchTabAction = i: {
+    command = {
+      action = "switchToTab";
+      index = i;
+    };
+    id = "User.switchToTab.${toString i}";
+  };
+
+  mkBinding = id: keys: { inherit id keys; };
+
+  directionKeys = {
+    moveFocus = [
+      "alt+left"
+      "alt+down"
+      "alt+up"
+      "alt+right"
+    ];
+    resizePane = [
+      "alt+shift+left"
+      "alt+shift+down"
+      "alt+shift+up"
+      "alt+shift+right"
+    ];
+  };
+
+  mkDirectionBindings =
+    action: keys: lib.zipListsWith (dir: key: mkBinding "User.${action}.${dir}" key) directions keys;
+
   # Convert theme colors to Windows Terminal scheme
   colorScheme = {
     name = "Catppuccin Mocha";
@@ -55,14 +102,12 @@ let
         cursorShape = "bar";
       };
       list = [
-        # WSL
         {
           guid = "{2c4de342-38b7-51cf-b940-2309a097f518}";
           name = "Ubuntu";
           source = "Windows.Terminal.Wsl";
           startingDirectory = "~";
         }
-        # PowerShell
         {
           guid = "{574e775e-4f2a-5b96-ac1e-a2962a402336}";
           name = "PowerShell";
@@ -82,7 +127,6 @@ let
           elevate = true;
           hidden = false;
         }
-        # Command Prompt
         {
           guid = "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}";
           name = "Command Prompt";
@@ -101,7 +145,6 @@ let
 
     schemes = [ colorScheme ];
 
-    # Command definitions (id-based)
     actions = [
       {
         command = {
@@ -140,229 +183,49 @@ let
         command = "togglePaneZoom";
         id = "User.togglePaneZoom";
       }
+    ]
+    ++ mkDirectionActions "moveFocus"
+    ++ mkDirectionActions "resizePane"
+    ++ [
       {
-        command = {
-          action = "moveFocus";
-          direction = "left";
-        };
-        id = "User.moveFocus.left";
-      }
-      {
-        command = {
-          action = "moveFocus";
-          direction = "down";
-        };
-        id = "User.moveFocus.down";
-      }
-      {
-        command = {
-          action = "moveFocus";
-          direction = "up";
-        };
-        id = "User.moveFocus.up";
-      }
-      {
-        command = {
-          action = "moveFocus";
-          direction = "right";
-        };
-        id = "User.moveFocus.right";
-      }
-      {
-        command = {
-          action = "resizePane";
-          direction = "left";
-        };
-        id = "User.resizePane.left";
-      }
-      {
-        command = {
-          action = "resizePane";
-          direction = "down";
-        };
-        id = "User.resizePane.down";
-      }
-      {
-        command = {
-          action = "resizePane";
-          direction = "up";
-        };
-        id = "User.resizePane.up";
-      }
-      {
-        command = {
-          action = "resizePane";
-          direction = "right";
-        };
-        id = "User.resizePane.right";
-      }
-      {
-        command = {
-          action = "newTab";
-        };
+        command.action = "newTab";
         id = "User.newTab";
       }
       {
-        command = {
-          action = "closeTab";
-        };
+        command.action = "closeTab";
         id = "User.closeTab";
       }
       {
-        command = {
-          action = "prevTab";
-        };
+        command.action = "prevTab";
         id = "User.prevTab";
       }
       {
-        command = {
-          action = "nextTab";
-        };
+        command.action = "nextTab";
         id = "User.nextTab";
       }
-      {
-        command = {
-          action = "switchToTab";
-          index = 0;
-        };
-        id = "User.switchToTab.0";
-      }
-      {
-        command = {
-          action = "switchToTab";
-          index = 1;
-        };
-        id = "User.switchToTab.1";
-      }
-      {
-        command = {
-          action = "switchToTab";
-          index = 2;
-        };
-        id = "User.switchToTab.2";
-      }
-      {
-        command = {
-          action = "switchToTab";
-          index = 3;
-        };
-        id = "User.switchToTab.3";
-      }
-      {
-        command = {
-          action = "switchToTab";
-          index = 4;
-        };
-        id = "User.switchToTab.4";
-      }
-    ];
+    ]
+    ++ map mkSwitchTabAction tabIndices;
 
-    # Key bindings (reference actions by id)
-    # Using Windows Terminal standard keybindings
     keybindings = [
-      # Clipboard
-      {
-        id = "User.copy";
-        keys = "ctrl+shift+c";
-      }
-      {
-        id = "User.paste";
-        keys = "ctrl+shift+v";
-      }
-      {
-        id = "User.find";
-        keys = "ctrl+shift+f";
-      }
-      # Pane: split
-      {
-        id = "User.splitPane.down";
-        keys = "alt+shift+minus";
-      }
-      {
-        id = "User.splitPane.right";
-        keys = "alt+shift+plus";
-      }
-      # Pane: focus (arrow keys)
-      {
-        id = "User.moveFocus.left";
-        keys = "alt+left";
-      }
-      {
-        id = "User.moveFocus.down";
-        keys = "alt+down";
-      }
-      {
-        id = "User.moveFocus.up";
-        keys = "alt+up";
-      }
-      {
-        id = "User.moveFocus.right";
-        keys = "alt+right";
-      }
-      # Pane: resize (shift+arrow)
-      {
-        id = "User.resizePane.left";
-        keys = "alt+shift+left";
-      }
-      {
-        id = "User.resizePane.down";
-        keys = "alt+shift+down";
-      }
-      {
-        id = "User.resizePane.up";
-        keys = "alt+shift+up";
-      }
-      {
-        id = "User.resizePane.right";
-        keys = "alt+shift+right";
-      }
-      # Pane: other
-      {
-        id = "User.closePane";
-        keys = "ctrl+shift+w";
-      }
-      {
-        id = "User.togglePaneZoom";
-        keys = "alt+shift+z";
-      }
-      # Tab
-      {
-        id = "User.newTab";
-        keys = "ctrl+shift+t";
-      }
-      {
-        id = "User.closeTab";
-        keys = "ctrl+shift+w";
-      }
-      {
-        id = "User.prevTab";
-        keys = "ctrl+shift+tab";
-      }
-      {
-        id = "User.nextTab";
-        keys = "ctrl+tab";
-      }
-      {
-        id = "User.switchToTab.0";
-        keys = "ctrl+alt+1";
-      }
-      {
-        id = "User.switchToTab.1";
-        keys = "ctrl+alt+2";
-      }
-      {
-        id = "User.switchToTab.2";
-        keys = "ctrl+alt+3";
-      }
-      {
-        id = "User.switchToTab.3";
-        keys = "ctrl+alt+4";
-      }
-      {
-        id = "User.switchToTab.4";
-        keys = "ctrl+alt+5";
-      }
-    ];
+      (mkBinding "User.copy" "ctrl+shift+c")
+      (mkBinding "User.paste" "ctrl+shift+v")
+      (mkBinding "User.find" "ctrl+shift+f")
+      (mkBinding "User.splitPane.down" "alt+shift+minus")
+      (mkBinding "User.splitPane.right" "alt+shift+plus")
+    ]
+    ++ mkDirectionBindings "moveFocus" directionKeys.moveFocus
+    ++ mkDirectionBindings "resizePane" directionKeys.resizePane
+    ++ [
+      (mkBinding "User.closePane" "ctrl+shift+w")
+      (mkBinding "User.togglePaneZoom" "alt+shift+z")
+      (mkBinding "User.newTab" "ctrl+shift+t")
+      (mkBinding "User.closeTab" "ctrl+shift+w")
+      (mkBinding "User.prevTab" "ctrl+shift+tab")
+      (mkBinding "User.nextTab" "ctrl+tab")
+    ]
+    ++ lib.imap0 (
+      i: _: mkBinding "User.switchToTab.${toString i}" "ctrl+alt+${toString (i + 1)}"
+    ) tabIndices;
   };
 in
 {
@@ -381,7 +244,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Generate settings.json in home-files for deployment
     xdg.configFile."windows-terminal/settings.json".text = builtins.toJSON (
       lib.recursiveUpdate defaultSettings cfg.settings
     );

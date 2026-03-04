@@ -6,7 +6,7 @@
 }:
 
 {
-  services.gpg-agent = lib.mkIf config.platform.isStandalone {
+  services.gpg-agent = lib.mkIf config.platform.hasNativeGui {
     enable = true;
     enableSshSupport = false;
     enableZshIntegration = true;

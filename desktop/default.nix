@@ -1,3 +1,5 @@
+_:
+
 {
   imports = [
     ./niri.nix

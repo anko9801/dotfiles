@@ -1,6 +1,11 @@
 { config, lib, ... }:
 
 let
+  c = config.home-manager.users.${config.system.primaryUser}.theme.colors;
+
+  # Hex color to 0xAARRGGBB format for borders/sketchybar (strip # prefix, add 0xff)
+  toArgb = hex: "0xff${builtins.substring 1 6 hex}";
+
   # Apps that should float by default
   floatingApps = [
     "com.apple.systempreferences"
@@ -135,8 +140,8 @@ in
           style=round
           width=6.0
           hidpi=on
-          active_color=0xff7aa2f7   # Tokyo Night blue
-          inactive_color=0xff565f89 # Tokyo Night comment
+          active_color=${toArgb c.blue}
+          inactive_color=${toArgb c.overlay0}
         )
 
         borders "''${options[@]}"
@@ -148,16 +153,15 @@ in
       text = ''
         #!/bin/bash
 
-        # Tokyo Night color palette
-        export BLACK=0xff1a1b26
-        export WHITE=0xffc0caf5
-        export RED=0xfff7768e
-        export GREEN=0xff9ece6a
-        export BLUE=0xff7aa2f7
-        export YELLOW=0xffe0af68
-        export ORANGE=0xffff9e64
-        export MAGENTA=0xffbb9af7
-        export GREY=0xff565f89
+        export BLACK=${toArgb c.base}
+        export WHITE=${toArgb c.text}
+        export RED=${toArgb c.red}
+        export GREEN=${toArgb c.green}
+        export BLUE=${toArgb c.blue}
+        export YELLOW=${toArgb c.yellow}
+        export ORANGE=${toArgb c.peach}
+        export MAGENTA=${toArgb c.mauve}
+        export GREY=${toArgb c.overlay0}
         export TRANSPARENT=0x00000000
 
         # Bar appearance

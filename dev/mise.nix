@@ -3,7 +3,7 @@ _:
 {
   programs.mise = {
     enable = true;
-    enableZshIntegration = false;
+    enableZshIntegration = false; # Loaded in fish.nix interactiveShellInit
     globalConfig = {
       settings = {
         experimental = true;
@@ -25,7 +25,6 @@ _:
         java = "latest";
         pnpm = "latest";
         "npm:@antfu/ni" = "latest";
-        "npm:@google/gemini-cli" = "latest";
         "npm:czg" = "latest";
         "npm:ccmanager" = "latest";
         "npm:zenn-cli" = "latest";

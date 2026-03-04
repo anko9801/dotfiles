@@ -9,7 +9,7 @@ _:
     lualine = {
       enable = true;
       settings.options = {
-        theme = "tokyonight";
+        theme = "auto";
         globalstatus = true; # Single statusline for all windows
         component_separators = {
           left = "";

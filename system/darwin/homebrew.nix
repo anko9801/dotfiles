@@ -71,10 +71,5 @@ _:
       "arc"
     ];
 
-    # Mac App Store apps (requires mas CLI)
-    masApps = {
-      # "App Name" = App ID;
-      # Example: "Xcode" = 497799835;
-    };
   };
 }

@@ -51,11 +51,11 @@ in
         description = "Execution environment";
       };
 
-      isStandalone = lib.mkOption {
+      hasNativeGui = lib.mkOption {
         type = lib.types.bool;
         readOnly = true;
         default = !(config.targets.genericLinux.enable or false);
-        description = "True when not running under standalone Linux (WSL uses Windows-native GUI apps)";
+        description = "True on platforms where native GUI applications can run (macOS, NixOS desktop)";
       };
 
       macAppsPath = lib.mkOption {
@@ -133,10 +133,6 @@ in
           type = lib.types.bool;
           default = true;
         };
-        historySize = lib.mkOption {
-          type = lib.types.int;
-          default = 10000;
-        };
       };
 
       proxy = {
@@ -166,10 +162,6 @@ in
           type = lib.types.nullOr lib.types.str;
           default = null;
         };
-        signingKey = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-        };
         sshKey = lib.mkOption {
           type = lib.types.str;
           default = "";
@@ -187,7 +179,6 @@ in
       identity = {
         name = userConfig.git.name or userConfig.name or null;
         email = userConfig.git.email or userConfig.email or null;
-        signingKey = userConfig.git.signingKey or userConfig.signingKey or null;
         sshKey = userConfig.git.sshKey or userConfig.sshKey or "";
       };
     };
@@ -295,26 +286,6 @@ in
     programs = {
       home-manager.enable = true;
       bash.enable = lib.mkDefault true;
-
-      git = {
-        settings = {
-          core = {
-            editor = lib.mkDefault cfg.editor;
-            pager = lib.mkDefault cfg.pager.command;
-          };
-          user = {
-            name = lib.mkIf (cfg.identity.name != null) cfg.identity.name;
-            email = lib.mkIf (cfg.identity.email != null) cfg.identity.email;
-          };
-        };
-        signing = lib.mkIf (cfg.identity.signingKey != null) {
-          key = cfg.identity.signingKey;
-          signByDefault = true;
-        };
-      };
-
-      zsh.history.size = cfg.privacy.historySize;
-      bash.historySize = cfg.privacy.historySize;
 
       starship.settings = lib.mkIf (config.programs.starship.enable && !cfg.terminal.nerdFonts) {
         character.success_symbol = lib.mkDefault "[>](green)";

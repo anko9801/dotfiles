@@ -1,5 +1,8 @@
-_:
+{ config, ... }:
 
+let
+  c = config.theme.colors;
+in
 {
   services.swaync = {
     enable = true;
@@ -73,8 +76,8 @@ _:
         border-radius: 8px;
         margin: 6px;
         padding: 0;
-        background: #1a1b26;
-        border: 1px solid #414868;
+        background: ${c.base};
+        border: 1px solid ${c.surface1};
       }
 
       .notification-content {
@@ -90,34 +93,34 @@ _:
 
       .notification-default-action:hover,
       .notification-action:hover {
-        background: #33467c;
+        background: ${c.surface0};
       }
 
       .close-button {
-        background: #f7768e;
-        color: #1a1b26;
+        background: ${c.red};
+        color: ${c.base};
         border-radius: 50%;
         margin: 6px;
         padding: 2px;
       }
 
       .close-button:hover {
-        background: #ff9e64;
+        background: ${c.peach};
       }
 
       .summary {
-        color: #c0caf5;
+        color: ${c.text};
         font-weight: bold;
       }
 
       .body {
-        color: #a9b1d6;
+        color: ${c.subtext1};
       }
 
       .control-center {
-        background: #1a1b26ee;
+        background: ${c.base}ee;
         border-radius: 12px;
-        border: 1px solid #414868;
+        border: 1px solid ${c.surface1};
         margin: 10px;
       }
 
@@ -126,34 +129,34 @@ _:
       }
 
       .widget-title {
-        color: #7aa2f7;
+        color: ${c.blue};
         font-weight: bold;
         padding: 8px 12px;
       }
 
       .widget-title > button {
-        background: #7aa2f7;
-        color: #1a1b26;
+        background: ${c.blue};
+        color: ${c.base};
         border-radius: 6px;
         padding: 4px 12px;
       }
 
       .widget-title > button:hover {
-        background: #7dcfff;
+        background: ${c.sky};
       }
 
       .widget-dnd {
         padding: 8px 12px;
-        color: #c0caf5;
+        color: ${c.text};
       }
 
       .widget-dnd > switch {
         border-radius: 12px;
-        background: #414868;
+        background: ${c.surface1};
       }
 
       .widget-dnd > switch:checked {
-        background: #7aa2f7;
+        background: ${c.blue};
       }
 
       .widget-mpris {

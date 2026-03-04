@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 
 {
   stylix = {
@@ -51,8 +56,8 @@
     };
   };
 
-  # Additional fonts
-  home.packages = [
+  # Additional fonts (macOS uses darwin fonts.packages instead)
+  home.packages = lib.mkIf (config.platform.os != "darwin") [
     pkgs.nerd-fonts.symbols-only
     pkgs.nerd-fonts.jetbrains-mono
   ];

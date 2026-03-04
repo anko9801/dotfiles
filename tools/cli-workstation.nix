@@ -50,7 +50,6 @@ in
     ++ lib.optionals (p.os == "linux" && p.environment == "native") [
       xdg-utils
       xclip
-      wl-clipboard
     ];
 
   programs.tealdeer = {

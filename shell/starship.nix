@@ -16,7 +16,7 @@ in
 {
   programs.starship = {
     enable = true;
-    enableZshIntegration = false;
+    enableZshIntegration = false; # Loaded early in shell/zsh/deferred.nix (cannot defer)
 
     settings = {
       # Colors managed by Stylix (base16 palette)
@@ -25,7 +25,7 @@ in
         "[╭─ ](bold green)"
         "$directory"
         "$git_branch$git_commit$git_state$git_status"
-        "$nodejs$python$rust$golang$java$kotlin$scala$swift"
+        "$nodejs$python$rust$golang$java"
         "$aws$gcloud$azure"
         "$docker_context$package"
         "$cmd_duration"

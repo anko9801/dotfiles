@@ -4,8 +4,6 @@
 }:
 
 {
-  home.packages = [ pkgs.peco ];
-
   programs = {
     fish = {
       enable = true;
@@ -53,11 +51,6 @@
       };
 
       plugins = [
-        # z - directory jumper (like zoxide but fish-native)
-        {
-          name = "z";
-          inherit (pkgs.fishPlugins.z) src;
-        }
         # fzf integration
         {
           name = "fzf-fish";
@@ -93,25 +86,6 @@
           end
         '';
 
-        # Peco history search (Ctrl+R alternative)
-        peco_select_history = ''
-          if test (count $argv) = 0
-            set peco_flags --layout=bottom-up
-          else
-            set peco_flags --layout=bottom-up --query "$argv"
-          end
-          history | peco $peco_flags | read foo
-          if test -n "$foo"
-            commandline $foo
-          else
-            commandline ""
-          end
-        '';
-
-        # Peco process kill
-        peco_kill = ''
-          ps ax -o pid,time,command | peco --query "$argv" | awk '{print $1}' | xargs kill
-        '';
       };
     };
 

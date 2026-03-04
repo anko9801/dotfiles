@@ -10,7 +10,7 @@
 
   # VSCode - Only enable on non-WSL/non-genericLinux platforms
   # WSL should use Windows VSCode with Remote-WSL extension
-  programs.vscode = lib.mkIf config.platform.isStandalone {
+  programs.vscode = lib.mkIf config.platform.hasNativeGui {
     enable = true;
     package = unfreePkgs.vscode;
     profiles.default = {

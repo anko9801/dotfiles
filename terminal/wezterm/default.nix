@@ -3,7 +3,7 @@
 {
   programs.wezterm = {
     enable = true;
-    enableZshIntegration = false;
+    enableZshIntegration = false; # Conditionally loaded below via TERM_PROGRAM check
     extraConfig = lib.mkAfter (builtins.readFile ./config.lua);
   };
 

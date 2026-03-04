@@ -25,7 +25,7 @@
   programs = {
     direnv = {
       enable = true;
-      enableZshIntegration = false;
+      enableZshIntegration = false; # Deferred via zsh-defer (shell/zsh/deferred.nix)
       nix-direnv.enable = true;
 
       stdlib = ''

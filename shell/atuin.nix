@@ -3,7 +3,7 @@
 {
   programs.atuin = {
     enable = true;
-    enableZshIntegration = false;
+    enableZshIntegration = false; # Deferred via zsh-defer (shell/zsh/deferred.nix)
     settings = {
       search_mode = "fuzzy";
       filter_mode = "global";

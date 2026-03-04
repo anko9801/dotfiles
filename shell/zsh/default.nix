@@ -148,7 +148,6 @@ in
       # Platform-specific: macOS
       (lib.mkIf (p.os == "darwin") (
         lib.mkAfter ''
-          export HOMEBREW_NO_ANALYTICS=1
           export HOMEBREW_NO_AUTO_UPDATE=1
           export HOMEBREW_FORBIDDEN_FORMULAE="node python python3 pip npm pnpm yarn"
 

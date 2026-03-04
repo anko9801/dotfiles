@@ -1,5 +1,5 @@
 # Delta (git diff pager) configuration
-{ lib, ... }:
+{ lib, config, ... }:
 
 {
   options.tools.git.pager = {
@@ -30,7 +30,7 @@
       features = "decorations";
       hyperlinks = true;
       hyperlinks-file-link-format = "vscode://file/{path}:{line}";
-      blame-palette = "#1e1e2e #313244 #45475a";
+      blame-palette = "${config.theme.colors.base} ${config.theme.colors.surface0} ${config.theme.colors.surface1}";
       decorations = {
         commit-decoration-style = "bold yellow box ul";
         file-style = "bold yellow ul";
