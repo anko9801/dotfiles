@@ -43,10 +43,10 @@
       system = "x86_64-linux";
     };
     # Windows (build on Linux, deploy via `nix run .#windows`)
-    # windows = {
-    #   system = "x86_64-linux";
-    #   os = "windows";
-    # };
+    windows = {
+      system = "x86_64-linux";
+      os = "windows";
+    };
     # mac = {
     #   system = "aarch64-darwin";
     #   modules = [];  # extra modules on top of baseModules
