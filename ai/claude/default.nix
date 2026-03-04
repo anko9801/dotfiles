@@ -12,23 +12,6 @@ let
   sessionDir = "\${XDG_RUNTIME_DIR:-/tmp}/claude-session";
 in
 {
-  mcp-servers.programs = {
-    github = {
-      enable = true;
-      passwordCommand = {
-        GITHUB_PERSONAL_ACCESS_TOKEN = [
-          "gh"
-          "auth"
-          "token"
-        ];
-      };
-    };
-    filesystem = {
-      enable = true;
-      args = [ config.home.homeDirectory ];
-    };
-  };
-
   programs.agent-skills = {
     enable = true;
     sources =
@@ -62,7 +45,29 @@ in
   programs.claude-code = {
     enable = true;
     package = unfreePkgs.claude-code;
-    enableMcpIntegration = true;
+
+    mcpServers = {
+      github = {
+        type = "stdio";
+        command = "npx";
+        args = [
+          "-y"
+          "@anthropic-ai/claude-code-github-mcp"
+        ];
+        env = {
+          GITHUB_PERSONAL_ACCESS_TOKEN = "$(gh auth token)";
+        };
+      };
+      filesystem = {
+        type = "stdio";
+        command = "npx";
+        args = [
+          "-y"
+          "@anthropic-ai/claude-code-filesystem-mcp"
+          config.home.homeDirectory
+        ];
+      };
+    };
 
     # CLAUDE.md (memory)
     memory.source = ./CLAUDE.md;
