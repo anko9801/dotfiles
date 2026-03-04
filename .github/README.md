@@ -32,18 +32,6 @@ nix flake init -t github:anko9801/dotfiles
 nix run .#switch
 ```
 
-## Hosts
-
-| Host | Manager | Platform |
-|------|---------|----------|
-| `linux-wsl` | home-manager | WSL (x86_64) |
-| `linux-desktop` | home-manager | Linux (x86_64) |
-| `linux-server-{intel,arm}` | home-manager | Linux |
-| `windows` | home-manager | Build on Linux, deploy via WSL |
-| `mac-{arm,intel}` | nix-darwin | macOS |
-| `nixos-{wsl,desktop}` | nixos | NixOS |
-| `nixos-server-{intel,arm}` | nixos | NixOS servers |
-
 ## Commands
 
 ```sh
