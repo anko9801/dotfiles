@@ -9,7 +9,7 @@
 
 let
   p = config.platform;
-  llmAgentsPkgs = inputs.llm-agents.packages.${pkgs.system} or { };
+  llmAgentsPkgs = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system} or { };
 in
 {
   imports = [

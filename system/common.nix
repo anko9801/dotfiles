@@ -16,7 +16,7 @@ let
   p = config.platform;
 
   isWsl = builtins.pathExists /proc/sys/fs/binfmt_misc/WSLInterop;
-  nixglPkgs = inputs.nixgl.packages.${pkgs.system} or null;
+  nixglPkgs = inputs.nixgl.packages.${pkgs.stdenv.hostPlatform.system} or null;
 in
 {
   # --- Option declarations ---
