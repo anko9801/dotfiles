@@ -99,6 +99,19 @@ in
         default = true;
       };
     };
+
+    ssh = {
+      agentSocket = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Path to SSH agent socket (set by credential provider)";
+      };
+      signProgram = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Path to SSH signing program (set by credential provider)";
+      };
+    };
   };
 
   # ── Configuration ────────────────────────────────────────────────────────

@@ -1,4 +1,5 @@
 # 1Password CLI configuration
+# Sets defaults.ssh.agentSocket/signProgram for ssh.nix to consume
 {
   config,
   lib,
@@ -9,49 +10,31 @@
 
 let
   p = config.platform;
+
+  agentSocket =
+    if p.os == "darwin" then
+      "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    else if p.environment == "wsl" then
+      "$HOME/.1password/agent.sock"
+    else
+      "~/.1password/agent.sock";
+
+  signProgram =
+    if p.os == "darwin" then
+      "${p.macAppsPath}/1Password.app/Contents/MacOS/op-ssh-sign"
+    else if p.environment == "wsl" then
+      "op-ssh-sign-wsl.exe"
+    else
+      "op-ssh-sign";
 in
 {
   imports = [ inputs._1password-shell-plugins.hmModules.default ];
-  options.programs.onePassword = {
-    agentSocket = lib.mkOption {
-      type = lib.types.str;
-      readOnly = true;
-      description = "Path to 1Password SSH agent socket";
-      default =
-        if p.os == "darwin" then
-          "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-        else if p.environment == "wsl" then
-          "$HOME/.1password/agent.sock"
-        else
-          "~/.1password/agent.sock";
-    };
-    signProgram = lib.mkOption {
-      type = lib.types.str;
-      readOnly = true;
-      description = "Path to 1Password SSH signing program";
-      default =
-        if p.os == "darwin" then
-          "${p.macAppsPath}/1Password.app/Contents/MacOS/op-ssh-sign"
-        else if p.environment == "wsl" then
-          "op-ssh-sign-wsl.exe"
-        else
-          "op-ssh-sign";
-    };
-    cliPath = lib.mkOption {
-      type = lib.types.str;
-      readOnly = true;
-      description = "Path to 1Password CLI (op)";
-      default =
-        if p.os == "darwin" then
-          "${p.macAppsPath}/1Password.app/Contents/MacOS/op"
-        else if p.environment == "wsl" then
-          "op.exe"
-        else
-          "op";
-    };
-  };
 
   config = {
+    defaults.ssh = {
+      inherit agentSocket signProgram;
+    };
+
     # WSL uses op.exe from Windows, so skip Nix 1password-cli
     home.packages = lib.optionals (p.environment != "wsl") [
       unfreePkgs._1password-cli

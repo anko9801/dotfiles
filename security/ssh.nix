@@ -7,7 +7,7 @@
 
 let
   p = config.platform;
-  inherit (config.programs) onePassword;
+  inherit (config.defaults) ssh;
 
   currentUser = config.home.username;
 
@@ -17,21 +17,22 @@ let
   ) remoteServers;
 in
 {
-  # SSH_AUTH_SOCK points to 1Password agent socket
-  home.sessionVariables = {
-    # Replace ~ with $HOME for shell expansion
-    SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] onePassword.agentSocket;
+  # SSH_AUTH_SOCK (if a credential provider set agentSocket)
+  home.sessionVariables = lib.mkIf (ssh.agentSocket != null) {
+    SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] ssh.agentSocket;
   };
 
   programs.ssh = {
     enable = true;
     enableDefaultConfig = lib.mkDefault false;
 
-    # WSL: no IdentityAgent (agent forwarded via npiperelay)
-    # macOS/Linux native: IdentityAgent pointing to 1Password socket
-    extraConfig = lib.mkIf (p.os == "darwin" || (p.os == "linux" && p.environment == "native")) ''
-      IdentityAgent "${onePassword.agentSocket}"
-    '';
+    # macOS/Linux native: IdentityAgent pointing to agent socket
+    extraConfig =
+      lib.mkIf
+        (ssh.agentSocket != null && (p.os == "darwin" || (p.os == "linux" && p.environment == "native")))
+        ''
+          IdentityAgent "${ssh.agentSocket}"
+        '';
 
     matchBlocks = {
       "*" = {
@@ -54,9 +55,9 @@ in
     }) sshHosts);
   };
 
-  # Git SSH signing configuration (uses 1Password sign program)
-  programs.git.settings = {
+  # Git SSH signing (if a credential provider set signProgram)
+  programs.git.settings = lib.mkIf (ssh.signProgram != null) {
     gpg.format = "ssh";
-    gpg.ssh.program = onePassword.signProgram;
+    gpg.ssh.program = ssh.signProgram;
   };
 }
