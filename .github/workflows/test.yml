@@ -78,6 +78,8 @@ jobs:
           sudo dbus-daemon --system --fork
       - name: Build Home Manager configuration
         run: nix build .#homeConfigurations.linux-desktop.activationPackage --impure
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
       - name: Activate Home Manager
         run: |
           eval $(dbus-launch --sh-syntax)

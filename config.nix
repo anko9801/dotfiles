@@ -222,7 +222,6 @@ rec {
       experimental-features = [
         "nix-command"
         "flakes"
-        "lazy-trees"
       ];
       substituters = [
         "https://cache.nixos.org"
