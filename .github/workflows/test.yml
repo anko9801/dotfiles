@@ -47,6 +47,8 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build Home Manager configuration (${{ matrix.host }})
         run: nix build .#homeConfigurations.${{ matrix.host }}.activationPackage --impure
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
   activate-home:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -144,6 +146,8 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build NixOS configuration (${{ matrix.host }})
         run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --impure
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
       - uses: Kesin11/actions-timeline@v2
         if: always()
   build-macos:
@@ -168,6 +172,8 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build nix-darwin configuration
         run: nix build .#darwinConfigurations.mac-arm.system --impure
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
       - name: Show result
         run: ls -la result/
       - uses: Kesin11/actions-timeline@v2

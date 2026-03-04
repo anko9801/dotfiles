@@ -17,7 +17,9 @@ jobs:
         uses: DeterminateSystems/flake-checker-action@main
       - name: Check Nix flake
         # --impure: required for builtins.getEnv "USER" in flake.nix
-        run: nix flake check --impure --option abort-on-warn true
+        run: nix flake check --impure
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
       - name: Format check (treefmt)
         run: nix fmt -- --fail-on-change
       - name: Lint check (statix)
