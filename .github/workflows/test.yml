@@ -154,7 +154,7 @@ jobs:
         if: always()
   build-macos:
     runs-on: macos-latest
-    timeout-minutes: 60
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
