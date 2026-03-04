@@ -285,6 +285,12 @@ in
     systemd.user.startServices = if p.environment == "ci" then false else "sd-switch";
     xdg.enable = true;
 
+    manual = {
+      manpages.enable = false;
+      html.enable = false;
+      json.enable = false;
+    };
+
     # Program defaults
     programs = {
       home-manager.enable = true;

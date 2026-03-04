@@ -129,6 +129,7 @@ let
               username = lib.mkForce username;
               homeDirectory = lib.mkForce "${homeDir}/${username}";
             };
+            stylix.overlays.enable = false;
           };
       };
     };
