@@ -182,7 +182,7 @@
                   fi
                   if [ "$(uname)" = "Darwin" ]; then
                     [ -z "$TARGET" ] && TARGET="${defaults.darwin}"
-                    sudo nix run nix-darwin -- switch --flake ".#$TARGET"
+                    sudo -H nix run nix-darwin -- switch --flake ".#$TARGET"
                   elif [ -f /etc/NIXOS ]; then
                     [ -z "$TARGET" ] && TARGET="${defaults.nixos}"
                     sudo nixos-rebuild switch --flake ".#$TARGET"
