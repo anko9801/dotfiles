@@ -84,19 +84,18 @@ let
       inherit (pkgs.stdenv) isDarwin;
     in
     {
-      nix = {
-        inherit (nixSettings) settings;
-        extraOptions = "!include /etc/nix/private.conf";
-        optimise.automatic = true;
-        gc =
-          nixSettings.gc
-          // (
-            if isDarwin then
-              { interval = nixSettings.gcSchedule.darwin; }
-            else
-              { dates = nixSettings.gcSchedule.frequency; }
-          );
-      };
+      nix =
+        if isDarwin then
+          { enable = false; }
+        else
+          {
+            inherit (nixSettings) settings;
+            extraOptions = "!include /etc/nix/private.conf";
+            optimise.automatic = true;
+            gc = nixSettings.gc // {
+              dates = nixSettings.gcSchedule.frequency;
+            };
+          };
 
       nixpkgs.config.allowUnfree = true;
 
