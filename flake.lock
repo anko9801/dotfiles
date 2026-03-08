@@ -1088,8 +1088,8 @@
         "treefmt-nix": "treefmt-nix_4"
       },
       "locked": {
-        "lastModified": 1772963514,
-        "narHash": "sha256-uNY+d1eboO4jpiFifqazvOXiM1VMo9RFmQU4ojqtJNs=",
+        "lastModified": 1772965070,
+        "narHash": "sha256-M4eoijYXRu5qsBvVMlLp9TVumSPd09XRHhKNhu9i0qY=",
         "path": "/home/anko/windows-home-manager",
         "type": "path"
       },

@@ -138,10 +138,15 @@
         {
           config,
           lib,
-          pkgs,
           system,
           ...
         }:
+        let
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        in
         {
           packages = lib.optionalAttrs pkgs.stdenv.isLinux {
             windows = inputs.windows-home-manager.lib.mkWindowsHome {
