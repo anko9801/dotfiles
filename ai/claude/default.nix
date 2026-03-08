@@ -1,4 +1,5 @@
 {
+  pkgs,
   unfreePkgs,
   inputs,
   lib,
@@ -44,7 +45,7 @@ in
 
   programs.claude-code = {
     enable = true;
-    package = unfreePkgs.claude-code;
+    package = lib.mkIf (!pkgs.stdenv.isDarwin) unfreePkgs.claude-code;
 
     mcpServers = {
       github = {
