@@ -22,8 +22,8 @@ _:
     brews = [
       "charmbracelet/tap/crush" # AI coding agent (avoids Nix Go build)
       "kanata" # Cross-platform key remapper
-      "sketchybar" # Custom macOS menu bar
-      "borders" # JankyBorders - window borders
+      "FelixKratz/formulae/sketchybar" # Custom macOS menu bar
+      "FelixKratz/formulae/borders" # JankyBorders - window borders
     ];
 
     # GUI Applications (casks)
