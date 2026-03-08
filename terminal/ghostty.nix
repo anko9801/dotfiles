@@ -9,6 +9,7 @@ _:
     window-save-state = always
     window-decoration = true
     confirm-close-surface = false
+    auto-update = download
 
     # Font rendering
     font-thicken = true
