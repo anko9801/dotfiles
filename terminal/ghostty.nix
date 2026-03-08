@@ -7,7 +7,7 @@ _:
   xdg.configFile."ghostty/config".text = ''
     # Window behavior
     window-save-state = always
-    window-decoration = false
+    window-decoration = true
     confirm-close-surface = false
 
     # Font rendering
