@@ -186,7 +186,7 @@ let
         {
           nix-homebrew = {
             enable = true;
-            enableRosetta = pkgs.stdenv.hostPlatform.isAarch64;
+            enableRosetta = false;
             user = username;
             autoMigrate = true;
           };
