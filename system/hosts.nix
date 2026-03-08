@@ -98,6 +98,8 @@ let
           );
       };
 
+      nixpkgs.config.allowUnfree = true;
+
       environment.systemPackages = with pkgs; [
         git
         vim
@@ -223,7 +225,10 @@ let
       hostName,
     }:
     let
-      pkgs = import nixpkgs { inherit system; };
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
       hostModules = getHostModules hostName;
     in
     home-manager.lib.homeManagerConfiguration {
