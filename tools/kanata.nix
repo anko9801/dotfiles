@@ -11,6 +11,7 @@
 #   Home-manager: imports = [ ./tools/kanata.nix ];
 #   NixOS system: imports = [ (import ./tools/kanata.nix).nixosModule ];
 #   Darwin system: imports = [ (import ./tools/kanata.nix).darwinModule ];
+#   WHM:          imports = [ (import ./tools/kanata.nix).windowsModule ];
 let
   # Generate config with OS-specific Japanese input keys
   # - Darwin/Windows: eisu (英数) / kana (かな)
@@ -157,6 +158,14 @@ in
         };
       };
     };
+
+  # WHM module (Windows)
+  windowsModule = _: {
+    programs.kanata = {
+      enable = true;
+      extraConfig = darwinConfig;
+    };
+  };
 
   # Raw configs (for custom usage)
   inherit linuxConfig darwinConfig;

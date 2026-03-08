@@ -82,6 +82,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    windows-home-manager = {
+      url = "path:/home/anko/windows-home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # External skills
     antfu-skills = {
       url = "github:antfu/skills";
@@ -130,8 +135,35 @@
       ];
 
       perSystem =
-        { pkgs, system, ... }:
         {
+          config,
+          lib,
+          pkgs,
+          system,
+          ...
+        }:
+        {
+          packages = lib.optionalAttrs pkgs.stdenv.isLinux {
+            windows = inputs.windows-home-manager.lib.mkWindowsHome {
+              inherit pkgs;
+              modules = inputs.windows-home-manager.windowsModules.default ++ [
+                ./tools/git/windows.nix
+                (import ./tools/kanata.nix).windowsModule
+                (import ./terminal/windows-terminal.nix).windowsModule
+                ./tools/komorebi.nix
+                ./tools/whkd.nix
+                ./tools/winget.nix
+                ./system/windows/wsl.nix
+                ./system/windows/registry.nix
+                ./system/windows/environment.nix
+                {
+                  windows.username = "anko";
+                  windows.fonts = [ pkgs.moralerspace ];
+                }
+              ];
+            };
+          };
+
           apps = {
             switch = {
               type = "app";
@@ -159,22 +191,19 @@
                 ''
               );
             };
+          }
+          // lib.optionalAttrs pkgs.stdenv.isLinux {
             windows = {
               type = "app";
-              program = toString ./system/windows/setup.sh;
+              program = "${config.packages.windows}/bin/activate-windows";
             };
           }
-          // (
-            if inputs.deploy-rs.packages ? ${system} then
-              {
-                deploy = {
-                  type = "app";
-                  program = toString inputs.deploy-rs.packages.${system}.default;
-                };
-              }
-            else
-              { }
-          );
+          // lib.optionalAttrs (inputs.deploy-rs.packages ? ${system}) {
+            deploy = {
+              type = "app";
+              program = toString inputs.deploy-rs.packages.${system}.default;
+            };
+          };
         };
 
       flake = {

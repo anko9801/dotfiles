@@ -44,8 +44,6 @@ rec {
     ./shell/starship.nix
     ./shell/zoxide.nix
     ./shell/zsh
-    # Terminal
-    ./terminal/windows-terminal.nix
     # Theme
     ./theme/catppuccin-mocha.nix
     ./theme/default.nix
@@ -102,18 +100,6 @@ rec {
       manager = "home-manager";
       modules = moduleSets.server;
     };
-    # Windows (build only, use `nix run .#windows` to deploy)
-    windows = {
-      system = "x86_64-linux";
-      manager = "home-manager";
-      os = "windows";
-      modules = baseModules ++ [
-        ./editor/vscode
-        ./tools/git
-        ./tools/kanata.nix
-      ];
-    };
-
     # nix-darwin + home-manager
     mac-arm = {
       system = "aarch64-darwin";
