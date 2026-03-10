@@ -1,9 +1,14 @@
 _:
 
 {
+  xdg.configFile."pnpm/rc".text = ''
+    minimum-release-age=720
+    save-prefix=~
+  '';
+
   programs.mise = {
     enable = true;
-    enableZshIntegration = false; # Loaded in fish.nix interactiveShellInit
+    enableZshIntegration = true;
     globalConfig = {
       settings = {
         experimental = true;
@@ -12,9 +17,16 @@ _:
         task_output = "prefix";
         color_theme = "catppuccin";
         cargo_binstall = true;
-        "npm.package_manager" = "bun";
-        "pipx.uvx" = true;
         trusted_config_paths = [ "~/workspace" ];
+        npm = {
+          package_manager = "bun";
+        };
+        pipx = {
+          uvx = true;
+        };
+        task = {
+          monorepo_depth = 2;
+        };
       };
       env = { };
       tools = {
