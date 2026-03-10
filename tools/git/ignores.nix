@@ -48,6 +48,11 @@
   "*.local"
   "local.code-workspace"
 
+  # mise local tasks
+  ".mise/tasks/local/"
+  ".mise-tasks/local/"
+  "mise-tasks/local/"
+
   # Misc
   "*.bak"
   "*.tmp"

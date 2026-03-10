@@ -82,6 +82,7 @@ in
         st = "status -sb";
         lg = "log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit";
         root = "rev-parse --show-toplevel";
+        cd = "!git switch $(git config --get init.defaultBranch)";
 
         # List
         branches = "branch -a --sort=-authordate";
@@ -151,6 +152,10 @@ in
         renames = true;
         colorMoved = "plain";
         mnemonicPrefix = true;
+        "lockb" = {
+          textconv = "bun";
+          binary = true;
+        };
       }
       // unixOnly {
         external = "difft";
@@ -234,7 +239,7 @@ in
       wt = unixIf {
         basedir = ".worktrees";
         copyuntracked = true;
-        copy = "*.local.*";
+        copy = "*.local.* *.local";
         hook = "git submodule update --init --recursive";
       };
       blame.ignoreRevsFile = unixIf ".git-blame-ignore-revs";
