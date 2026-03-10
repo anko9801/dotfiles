@@ -43,7 +43,9 @@
           "/Applications/Arc.app"
           "/Applications/Claude.app"
           "/Applications/cmux.app"
+          "/Applications/Slack.app"
           "/Applications/Discord.app"
+          "/Applications/Notion.app"
           "/Applications/Spotify.app"
           "/System/Applications/Utilities/Activity Monitor.app"
           "/System/Applications/System Settings.app"
@@ -61,7 +63,7 @@
       };
 
       NSGlobalDomain = {
-        _HIHideMenuBar = false;
+        _HIHideMenuBar = true;
         ApplePressAndHoldEnabled = false;
         InitialKeyRepeat = 15;
         KeyRepeat = 2;
@@ -85,6 +87,8 @@
         Clicking = true;
         TrackpadRightClick = true;
         TrackpadThreeFingerDrag = true;
+        FirstClickThreshold = 0;
+        SecondClickThreshold = 0;
       };
 
       menuExtraClock = {
@@ -105,6 +109,15 @@
       spaces.spans-displays = false;
 
       CustomUserPreferences = {
+        "com.apple.WindowManager" = {
+          EnableTiledWindowMargins = false;
+        };
+        "com.apple.finder" = {
+          NewWindowTarget = "PfHm";
+        };
+        NSGlobalDomain = {
+          "com.apple.keyboard.fnState" = true;
+        };
         "com.apple.TextEdit" = {
           RichText = 0;
           PlainTextEncoding = 4;
@@ -130,9 +143,25 @@
           AppleSymbolicHotKeys = {
             "64" = {
               enabled = false;
+              value = {
+                parameters = [
+                  32
+                  49
+                  1048576
+                ];
+                type = "standard";
+              };
             };
             "65" = {
               enabled = false;
+              value = {
+                parameters = [
+                  32
+                  49
+                  1572864
+                ];
+                type = "standard";
+              };
             };
           };
         };
