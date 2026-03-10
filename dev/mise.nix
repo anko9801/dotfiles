@@ -10,6 +10,11 @@ _:
         legacy_version_file = true;
         jobs = 4;
         task_output = "prefix";
+        color_theme = "catppuccin";
+        cargo_binstall = true;
+        "npm.package_manager" = "bun";
+        "pipx.uvx" = true;
+        trusted_config_paths = [ "~/workspace" ];
       };
       env = { };
       tools = {

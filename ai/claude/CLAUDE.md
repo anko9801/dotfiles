@@ -24,3 +24,4 @@ Personal preferences that apply to all projects.
 - Be concise and direct
 - No filler or excessive praise
 - Technical accuracy over politeness
+

@@ -35,8 +35,16 @@ _:
     keybind = ctrl+q>shift+k=resize_split:up,40
     keybind = ctrl+q>shift+l=resize_split:right,40
 
+    # Mouse
+    mouse-hide-while-typing = true
+
+    # macOS
+    macos-option-as-alt = true
+
     # Quick terminal (macOS)
     quick-terminal-position = center
+    quick-terminal-autohide = false
+    keybind = global:alt+shift+space=toggle_quick_terminal
 
     # Terminal input compatibility (Emacs-style)
     keybind = ctrl+m=text:\n

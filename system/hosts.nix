@@ -182,7 +182,7 @@ let
     platformModules = [
       nix-homebrew.darwinModules.nix-homebrew
       (
-        { pkgs, username, ... }:
+        { username, ... }:
         {
           nix-homebrew = {
             enable = true;

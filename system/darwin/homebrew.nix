@@ -24,6 +24,8 @@ _:
       "kanata" # Cross-platform key remapper
       "FelixKratz/formulae/sketchybar" # Custom macOS menu bar
       "FelixKratz/formulae/borders" # JankyBorders - window borders
+      "nowplaying-cli" # Media info for SketchyBar
+      "switchaudio-osx" # Audio device switching for SketchyBar
     ];
 
     # GUI Applications (casks)
@@ -32,15 +34,19 @@ _:
       "nikitabobko/tap/aerospace"
 
       # Development
+      "figma"
       "visual-studio-code"
       "zed"
+      "cmux"
       "ghostty"
       "orbstack" # Docker replacement (2sec startup, 60% faster, 180mW)
 
       # AI/LLM (Metal acceleration)
+      "claude"
       "ollama-app" # renamed from ollama
 
       # Productivity
+      "notion"
       "raycast"
       "rectangle"
       "obsidian"
@@ -53,6 +59,9 @@ _:
       # Media
       "spotify"
 
+      # Gaming
+      "steam"
+
       # Japanese Input
       "aquaskk"
       "azookey" # Neural kana-kanji converter (Zenzai)
@@ -64,7 +73,6 @@ _:
       "1password"
       "appcleaner"
       "jordanbaird-ice" # Menu bar management
-      "maccy" # Clipboard manager
       "shottr" # Screenshot tool
 
       # Browser

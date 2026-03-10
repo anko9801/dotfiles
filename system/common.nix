@@ -225,6 +225,8 @@ in
         AZURE_CORE_COLLECT_TELEMETRY = "0";
         GATSBY_TELEMETRY_DISABLED = "1";
         NEXT_TELEMETRY_DISABLED = "1";
+        STORYBOOK_DISABLE_TELEMETRY = "1";
+        EXPO_NO_TELEMETRY = "1";
       }
       // lib.optionalAttrs (cfg.proxy.http != null) {
         HTTP_PROXY = cfg.proxy.http;

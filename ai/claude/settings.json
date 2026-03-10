@@ -1,5 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/main/packages/claude-code-server/src/schemas/settings.schema.json",
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "DISABLE_ERROR_REPORTING": "1"
+  },
   "permissions": {
     "tools": {
       "allowedCommands": [

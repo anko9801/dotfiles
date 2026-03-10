@@ -30,6 +30,8 @@
   ".env.*.local"
   ".envrc"
   ".direnv/"
+  ".venv/"
+  "venv/"
 
   # Logs
   "*.log"
@@ -37,10 +39,22 @@
   "yarn-debug.log*"
   "yarn-error.log*"
 
+  # macOS
+  ".iCloud"
+  "*.icloud"
+
+  # Local config
+  "*.local.*"
+  "*.local"
+  "local.code-workspace"
+
   # Misc
   "*.bak"
   "*.tmp"
   "*.temp"
   ".cache/"
   ".worktrees/"
+
+  # 1Password
+  ".op/"
 ]

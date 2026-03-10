@@ -4,6 +4,8 @@
   imports = [
     ./homebrew.nix
     ./aerospace.nix
+    ./sketchybar
+    ./raycast
     (import ../../tools/kanata.nix).darwinModule
   ];
 
@@ -37,6 +39,15 @@
         tilesize = 48;
         minimize-to-application = true;
         mru-spaces = false;
+        persistent-apps = [
+          "/Applications/Arc.app"
+          "/Applications/Claude.app"
+          "/Applications/cmux.app"
+          "/Applications/Discord.app"
+          "/Applications/Spotify.app"
+          "/System/Applications/Utilities/Activity Monitor.app"
+          "/System/Applications/System Settings.app"
+        ];
       };
 
       finder = {
@@ -50,6 +61,7 @@
       };
 
       NSGlobalDomain = {
+        _HIHideMenuBar = false;
         ApplePressAndHoldEnabled = false;
         InitialKeyRepeat = 15;
         KeyRepeat = 2;
@@ -107,6 +119,22 @@
           ShowCategory = 0;
           SortColumn = "CPUUsage";
           SortDirection = 0;
+        };
+        "com.apple.Accessibility" = {
+          ReduceMotionEnabled = 1;
+        };
+        "com.apple.sound.uiaudio" = {
+          enabled = false;
+        };
+        "com.apple.symbolichotkeys" = {
+          AppleSymbolicHotKeys = {
+            "64" = {
+              enabled = false;
+            };
+            "65" = {
+              enabled = false;
+            };
+          };
         };
       };
     };

@@ -35,7 +35,12 @@
       # Deferred initializer (single function to minimize zsh-defer overhead)
       _init_deferred() {
         export GPG_TTY=$(tty)
-        autoload -Uz compinit && compinit -C
+        autoload -Uz compinit
+        if [[ -n ''${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+          compinit
+        else
+          compinit -C
+        fi
         source <(${pkgs.fzf}/bin/fzf --zsh)
         eval "$(${pkgs.direnv}/bin/direnv hook zsh)"
         eval "$(${pkgs.zoxide}/bin/zoxide init zsh --cmd cd)"

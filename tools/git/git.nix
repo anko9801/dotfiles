@@ -65,6 +65,9 @@ in
     enable = true;
     lfs.enable = isUnix;
     ignores = globalIgnores;
+    attributes = [
+      "*.lockb binary diff=lockb"
+    ];
 
     signing = unixIf {
       key = sshKey;
@@ -127,6 +130,8 @@ in
         autocrlf = false;
         safecrlf = true;
         quotepath = false;
+        ignorecase = false;
+        eol = "lf";
         untrackedCache = true;
         fsmonitor = true;
       }
@@ -191,6 +196,7 @@ in
         autostash = true;
         autosquash = true;
         updateRefs = true;
+        abbreviateCommands = true;
       };
 
       rerere = {
@@ -225,7 +231,12 @@ in
 
       # Paths (Linux only)
       gpg.ssh.allowedSignersFile = unixIf "${config.home.homeDirectory}/.config/git/allowed_signers";
-      wt.basedir = unixIf ".worktrees";
+      wt = unixIf {
+        basedir = ".worktrees";
+        copyuntracked = true;
+        copy = "*.local.*";
+        hook = "git submodule update --init --recursive";
+      };
       blame.ignoreRevsFile = unixIf ".git-blame-ignore-revs";
       maintenance.auto = unixIf true;
       url."ssh://git@github.com/".insteadOf = unixIf "https://github.com/";

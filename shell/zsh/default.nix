@@ -89,6 +89,7 @@ in
           # Safety
           setopt RM_STAR_SILENT
           setopt IGNORE_EOF
+          unsetopt CLOBBER
         }
         zsh-defer _init_shell_options
       ''

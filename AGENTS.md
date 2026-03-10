@@ -89,6 +89,9 @@ Windows config is built on Linux (WSL) and deployed to the Windows side:
 - Lint with `statix check` and `deadnix`, format with `nix fmt`
 - Test with `nix flake check --impure` before pushing
 - Document tool decisions in `docs/tool-selection.md`
+- Never claim something is "missing" without reading the actual file first
+- Do not trust subagent summaries for absence claims — verify with Read or Grep
+- When unsure, say "I didn't find X" not "X is missing"
 
 ## Reference Analysis
 

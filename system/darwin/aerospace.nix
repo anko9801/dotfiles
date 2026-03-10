@@ -29,6 +29,49 @@ let
     if.app-id = '${app}'
     run = 'layout floating'
   '') floatingApps;
+
+  # Auto-assign apps to workspaces
+  autoAssignApps = [
+    {
+      appId = "company.thebrowser.Browser";
+      workspace = "1";
+    } # Arc
+    {
+      appId = "com.mitchellh.ghostty";
+      workspace = "2";
+    } # Ghostty
+    {
+      appId = "com.hnc.Discord";
+      workspace = "D";
+    } # Discord
+    {
+      appId = "com.spotify.client";
+      workspace = "M";
+    } # Spotify
+    {
+      appId = "notion.id";
+      workspace = "N";
+    } # Notion
+    {
+      appId = "com.tinyspeck.slackmacgap";
+      workspace = "S";
+    } # Slack
+    {
+      appId = "us.zoom.xos";
+      workspace = "Z";
+    } # Zoom
+    {
+      appId = "com.anthropic.claudefordesktop";
+      workspace = "C";
+    } # Claude
+  ];
+
+  autoAssignRules = lib.concatMapStrings (app: ''
+
+    [[on-window-detected]]
+    if.app-id = '${app.appId}'
+    run = 'move-node-to-workspace ${app.workspace}'
+  '') autoAssignApps;
 in
 {
   home-manager.users.${config.system.primaryUser}.home.file = {
@@ -54,61 +97,73 @@ in
 
       # Gaps and padding
       [gaps]
-      inner.horizontal = 6
-      inner.vertical = 6
-      outer.left = 12
-      outer.bottom = 12
-      outer.top = 40  # Space for SketchyBar
-      outer.right = 12
+      inner.horizontal = 4
+      inner.vertical = 4
+      outer.left = 0
+      outer.bottom = 0
+      outer.top = -2
+      outer.right = 0
 
       [mode.main.binding]
-      # Window focus (cmd + vim keys)
-      cmd-h = 'focus left'
-      cmd-j = 'focus down'
-      cmd-k = 'focus up'
-      cmd-l = 'focus right'
+      # Window focus (alt + vim keys)
+      alt-h = 'focus left'
+      alt-j = 'focus down'
+      alt-k = 'focus up'
+      alt-l = 'focus right'
 
-      # Move windows (cmd + shift + vim keys)
-      cmd-shift-h = 'move left'
-      cmd-shift-j = 'move down'
-      cmd-shift-k = 'move up'
-      cmd-shift-l = 'move right'
+      # Move windows (alt + shift + vim keys)
+      alt-shift-h = 'move left'
+      alt-shift-j = 'move down'
+      alt-shift-k = 'move up'
+      alt-shift-l = 'move right'
 
-      # Workspace focus (cmd + number)
-      cmd-1 = 'workspace 1'
-      cmd-2 = 'workspace 2'
-      cmd-3 = 'workspace 3'
-      cmd-4 = 'workspace 4'
-      cmd-5 = 'workspace 5'
-      cmd-6 = 'workspace 6'
-      cmd-7 = 'workspace 7'
-      cmd-8 = 'workspace 8'
-      cmd-9 = 'workspace 9'
+      # Workspace focus (alt + number)
+      alt-1 = 'workspace 1'
+      alt-2 = 'workspace 2'
+      alt-3 = 'workspace 3'
+      alt-4 = 'workspace 4'
+      alt-5 = 'workspace 5'
 
-      # Move window to workspace (cmd + shift + number)
-      cmd-shift-1 = 'move-node-to-workspace 1'
-      cmd-shift-2 = 'move-node-to-workspace 2'
-      cmd-shift-3 = 'move-node-to-workspace 3'
-      cmd-shift-4 = 'move-node-to-workspace 4'
-      cmd-shift-5 = 'move-node-to-workspace 5'
-      cmd-shift-6 = 'move-node-to-workspace 6'
-      cmd-shift-7 = 'move-node-to-workspace 7'
-      cmd-shift-8 = 'move-node-to-workspace 8'
-      cmd-shift-9 = 'move-node-to-workspace 9'
+      # Move window to workspace (alt + shift + number)
+      alt-shift-1 = 'move-node-to-workspace 1'
+      alt-shift-2 = 'move-node-to-workspace 2'
+      alt-shift-3 = 'move-node-to-workspace 3'
+      alt-shift-4 = 'move-node-to-workspace 4'
+      alt-shift-5 = 'move-node-to-workspace 5'
+
+      # Workspace navigation
+      alt-leftSquareBracket = 'workspace prev'
+      alt-rightSquareBracket = 'workspace next'
 
       # Layout controls
-      cmd-f = 'fullscreen'
-      cmd-t = 'layout floating tiling'
-      cmd-e = 'layout tiles horizontal vertical'
+      alt-f = 'fullscreen'
+      alt-t = 'layout floating tiling'
+      alt-e = 'layout tiles horizontal vertical'
+
+      # Named workspaces
+      alt-d = 'workspace D'
+      alt-s = 'workspace S'
+      alt-m = 'workspace M'
+      alt-n = 'workspace N'
+      alt-z = 'workspace Z'
+      alt-c = 'workspace C'
+
+      # Move to named workspaces
+      alt-shift-d = 'move-node-to-workspace D'
+      alt-shift-s = 'move-node-to-workspace S'
+      alt-shift-m = 'move-node-to-workspace M'
+      alt-shift-n = 'move-node-to-workspace N'
+      alt-shift-z = 'move-node-to-workspace Z'
+      alt-shift-c = 'move-node-to-workspace C'
 
       # Balance windows
-      cmd-shift-0 = 'balance-sizes'
+      alt-shift-0 = 'balance-sizes'
 
       # Resize mode
-      cmd-r = 'mode resize'
+      alt-r = 'mode resize'
 
       # Service mode
-      cmd-shift-semicolon = 'mode service'
+      alt-shift-semicolon = 'mode service'
 
       # Resize mode keybindings
       [mode.resize.binding]
@@ -129,6 +184,9 @@ in
 
       # Excluded applications (floating by default)
       ${floatingRules}
+
+      # Auto-assign apps to workspaces
+      ${autoAssignRules}
     '';
 
     ".config/borders/bordersrc" = {
@@ -141,105 +199,12 @@ in
           width=6.0
           hidpi=on
           active_color=${toArgb c.blue}
-          inactive_color=${toArgb c.overlay0}
+          inactive_color=0x00000000
         )
 
         borders "''${options[@]}"
       '';
     };
 
-    ".config/sketchybar/sketchybarrc" = {
-      executable = true;
-      text = ''
-        #!/bin/bash
-
-        export BLACK=${toArgb c.base}
-        export WHITE=${toArgb c.text}
-        export RED=${toArgb c.red}
-        export GREEN=${toArgb c.green}
-        export BLUE=${toArgb c.blue}
-        export YELLOW=${toArgb c.yellow}
-        export ORANGE=${toArgb c.peach}
-        export MAGENTA=${toArgb c.mauve}
-        export GREY=${toArgb c.overlay0}
-        export TRANSPARENT=0x00000000
-
-        # Bar appearance
-        sketchybar --bar \
-          height=32 \
-          blur_radius=30 \
-          position=top \
-          sticky=on \
-          padding_left=10 \
-          padding_right=10 \
-          color=$BLACK
-
-        # Default item settings
-        sketchybar --default \
-          icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
-          icon.color=$WHITE \
-          label.font="JetBrainsMono Nerd Font:Bold:14.0" \
-          label.color=$WHITE \
-          background.color=$GREY \
-          background.corner_radius=5 \
-          background.height=24 \
-          padding_left=5 \
-          padding_right=5 \
-          label.padding_left=4 \
-          label.padding_right=4 \
-          icon.padding_left=4 \
-          icon.padding_right=4
-
-        # AeroSpace workspace indicators
-        for sid in $(aerospace list-workspaces --all); do
-          sketchybar --add item space.$sid left \
-            --subscribe space.$sid aerospace_workspace_change \
-            --set space.$sid \
-              background.color=$GREY \
-              background.corner_radius=5 \
-              background.height=20 \
-              background.drawing=off \
-              label="$sid" \
-              click_script="aerospace workspace $sid" \
-              script="$CONFIG_DIR/plugins/aerospace.sh $sid"
-        done
-
-        # Front app name
-        sketchybar --add item front_app left \
-          --set front_app \
-            icon.drawing=off \
-            script="sketchybar --set \$NAME label=\"\$INFO\"" \
-          --subscribe front_app front_app_switched
-
-        # Clock
-        sketchybar --add item clock right \
-          --set clock \
-            update_freq=10 \
-            script="sketchybar --set \$NAME label=\"\$(date '+%H:%M')\""
-
-        # Battery
-        sketchybar --add item battery right \
-          --set battery \
-            update_freq=120 \
-            script="sketchybar --set \$NAME label=\"\$(pmset -g batt | grep -Eo '\d+%')\""
-
-        # Initialize
-        sketchybar --update
-      '';
-    };
-
-    # AeroSpace workspace change script for SketchyBar
-    ".config/sketchybar/plugins/aerospace.sh" = {
-      executable = true;
-      text = ''
-        #!/bin/bash
-
-        if [ "$1" = "$FOCUSED_WORKSPACE" ]; then
-          sketchybar --set $NAME background.drawing=on
-        else
-          sketchybar --set $NAME background.drawing=off
-        fi
-      '';
-    };
   };
 }

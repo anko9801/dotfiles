@@ -1,0 +1,670 @@
+{
+  "builtin_package_raycastPreferences": {
+    "preferencesAppearance": {
+      "showFavoritesInCompactMode": true,
+      "raycastUI_preferredTextSize": "medium",
+      "statusBarIsVisible": false,
+      "raycastPreferredWindowMode": "default"
+    },
+    "preferencesGeneral": {
+      "raycastGlobalHotkey": "Option-49",
+      "raycastAlternativeEscape": false
+    },
+    "preferencesAdvanced": {
+      "useHyperKeyIcon": false,
+      "mainWindowCaptureCopyToClipboard": true,
+      "navigationCommandStyleIdentifierKey": "macos",
+      "mainWindowCaptureShowInFinder": false,
+      "raycastWindowPresentationMode": 0,
+      "raycastAPIOptions": 0,
+      "raycastWindowEscapeKeyBehavior": 0,
+      "popToRootTimeout": 90,
+      "keepWindowVisibleOnResignKey": false,
+      "pageNavigationCommandKeysIdentifierKey": "squareBrackets",
+      "mainWindowCaptureOpenQuickAccessOverlay": false
+    },
+    "provider_schemaVersion": 1
+  },
+  "builtin_package_clipboardHistory": {
+    "provider_schemaVersion": 1,
+    "clipboardHistoryDisabledApplications": [
+      "com.apple.keychainaccess",
+      "com.apple.Passwords",
+      "com.1password.1password"
+    ],
+    "clipboardHistoryDisabledApplicationsVersion": 2
+  },
+  "builtin_package_quicklinks": {
+    "quicklinks": [
+      {
+        "url": "https://google.com/search?q={argument}",
+        "name": "Search Google",
+        "isEnabled": true,
+        "uuid": "E7061694-6DED-45CF-85F2-0707C2ADD32E"
+      },
+      {
+        "url": "https://duckduckgo.com/?q={argument}",
+        "uuid": "B65D3D2B-50DC-4119-B04B-784F313E8AC1",
+        "name": "Search DuckDuckGo",
+        "isEnabled": true
+      },
+      {
+        "url": "https://github.com/search?q={argument}&type=repositories",
+        "name": "Search GitHub",
+        "isEnabled": true,
+        "uuid": "A1B2C3D4-1111-2222-3333-444455556666"
+      },
+      {
+        "url": "https://search.nixos.org/packages?query={argument}",
+        "name": "Search Nixpkgs",
+        "isEnabled": true,
+        "uuid": "A1B2C3D4-5555-6666-7777-888899990000"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/search?q={argument}",
+        "name": "Search MDN",
+        "isEnabled": true,
+        "uuid": "A1B2C3D4-AAAA-BBBB-CCCC-DDDDEEEE0000"
+      }
+    ],
+    "provider_schemaVersion": 1,
+    "enableAutoFillLink": false,
+    "enableQuickSearch": false
+  },
+  "builtin_package_raycastExtensions": {
+    "extensions": [
+      {
+        "access": "public",
+        "title": "Kill Process",
+        "prefs": [
+          {
+            "type": "textfield",
+            "name": "refreshDuration",
+            "required": false
+          },
+          {
+            "name": "shouldSearchInPaths",
+            "type": "checkbox",
+            "required": false
+          },
+          {
+            "required": false,
+            "name": "shouldSearchInPid",
+            "type": "checkbox"
+          },
+          {
+            "type": "checkbox",
+            "name": "shouldPrioritizeAppsWhenFiltering",
+            "required": false
+          },
+          {
+            "name": "shouldShowPID",
+            "type": "checkbox",
+            "required": false
+          },
+          {
+            "type": "checkbox",
+            "required": false,
+            "name": "shouldShowPath"
+          },
+          {
+            "name": "closeWindowAfterKill",
+            "type": "checkbox",
+            "required": false
+          },
+          {
+            "name": "clearSearchBarAfterKill",
+            "type": "checkbox",
+            "required": false
+          },
+          {
+            "type": "checkbox",
+            "required": false,
+            "name": "goToRootAfterKill"
+          },
+          {
+            "type": "checkbox",
+            "name": "skipConfirmation",
+            "required": false
+          }
+        ],
+        "owner": "rolandleth",
+        "tokenSets": [],
+        "commands": [
+          {
+            "enabled": true,
+            "name": "index"
+          }
+        ],
+        "name": "kill-process"
+      },
+      {
+        "commands": [
+          {
+            "enabled": true,
+            "name": "item-list"
+          },
+          {
+            "name": "renew-auth",
+            "enabled": false
+          },
+          {
+            "name": "vault-list",
+            "enabled": true
+          },
+          {
+            "name": "generate-password",
+            "enabled": true
+          }
+        ],
+        "name": "1password",
+        "owner": "khasbilegt",
+        "title": "1Password",
+        "tokenSets": [],
+        "access": "public",
+        "prefs": [
+          {
+            "required": true,
+            "type": "dropdown",
+            "name": "version"
+          },
+          {
+            "required": false,
+            "type": "dropdown",
+            "name": "primaryAction"
+          },
+          {
+            "required": false,
+            "name": "secondaryAction",
+            "type": "dropdown"
+          },
+          {
+            "type": "checkbox",
+            "required": false,
+            "name": "closeWindowAfterCopying"
+          },
+          {
+            "type": "textfield",
+            "required": false,
+            "name": "cliPath"
+          },
+          {
+            "name": "zshPath",
+            "required": false,
+            "type": "textfield"
+          }
+        ]
+      },
+      {
+        "access": "public",
+        "title": "Arc",
+        "name": "arc",
+        "commands": [
+          {
+            "enabled": true,
+            "name": "search-history"
+          },
+          {
+            "prefs": [
+              {
+                "required": false,
+                "name": "space",
+                "type": "textfield"
+              }
+            ],
+            "name": "new-window",
+            "enabled": true
+          },
+          {
+            "enabled": true,
+            "name": "new-blank-window"
+          },
+          {
+            "prefs": [
+              {
+                "required": false,
+                "name": "url",
+                "type": "textfield"
+              },
+              {
+                "name": "engine",
+                "type": "dropdown",
+                "required": false
+              }
+            ],
+            "name": "new-little-arc",
+            "enabled": true
+          },
+          {
+            "enabled": true,
+            "name": "search-spaces"
+          },
+          {
+            "enabled": true,
+            "name": "search-tabs"
+          },
+          {
+            "name": "search-space-tabs",
+            "enabled": true
+          },
+          {
+            "enabled": true,
+            "name": "search-downloads"
+          },
+          {
+            "name": "new-incognito-window",
+            "enabled": true,
+            "prefs": [
+              {
+                "name": "url",
+                "required": false,
+                "type": "textfield"
+              },
+              {
+                "required": false,
+                "type": "dropdown",
+                "name": "engine"
+              }
+            ]
+          },
+          {
+            "prefs": [
+              {
+                "required": false,
+                "name": "url",
+                "type": "textfield"
+              },
+              {
+                "required": false,
+                "type": "textfield",
+                "name": "space"
+              }
+            ],
+            "enabled": true,
+            "name": "new-tab"
+          },
+          {
+            "enabled": true,
+            "name": "menu-bar"
+          },
+          {
+            "name": "search",
+            "enabled": true,
+            "prefs": [
+              {
+                "name": "engine",
+                "type": "dropdown",
+                "required": false
+              },
+              {
+                "required": false,
+                "name": "sorting",
+                "type": "dropdown"
+              },
+              {
+                "type": "dropdown",
+                "required": false,
+                "name": "favoritesTabsOrder"
+              },
+              {
+                "required": false,
+                "name": "pinnedTabsOrder",
+                "type": "dropdown"
+              },
+              {
+                "type": "dropdown",
+                "required": false,
+                "name": "unpinnedTabsOrder"
+              },
+              {
+                "type": "checkbox",
+                "required": false,
+                "name": "showFavorites"
+              },
+              {
+                "name": "showPinnedTabs",
+                "type": "checkbox",
+                "required": false
+              },
+              {
+                "required": false,
+                "type": "checkbox",
+                "name": "showUnpinnedTabs"
+              },
+              {
+                "name": "showHistory",
+                "type": "checkbox",
+                "required": false
+              },
+              {
+                "required": false,
+                "name": "showSuggestions",
+                "type": "checkbox"
+              }
+            ]
+          },
+          {
+            "name": "release-notes",
+            "enabled": false
+          },
+          {
+            "enabled": false,
+            "name": "boost-gallery"
+          },
+          {
+            "name": "new-easel",
+            "enabled": false
+          }
+        ],
+        "tokenSets": [],
+        "owner": "the-browser-company"
+      },
+      {
+        "prefs": [
+          {
+            "required": false,
+            "type": "checkbox",
+            "name": "closeWindowOnAction"
+          }
+        ],
+        "tokenSets": [],
+        "name": "spotify-player",
+        "commands": [
+          {
+            "enabled": true,
+            "name": "search",
+            "prefs": [
+              {
+                "name": "musicOnly",
+                "required": false,
+                "type": "checkbox"
+              },
+              {
+                "name": "topView",
+                "required": false,
+                "type": "dropdown"
+              }
+            ]
+          },
+          {
+            "enabled": true,
+            "prefs": [
+              {
+                "type": "dropdown",
+                "required": false,
+                "name": "Default-View"
+              }
+            ],
+            "name": "yourLibrary"
+          },
+          {
+            "name": "nowPlaying",
+            "enabled": true
+          },
+          {
+            "prefs": [
+              {
+                "type": "checkbox",
+                "required": false,
+                "name": "hideIconWhenIdle"
+              },
+              {
+                "required": false,
+                "type": "checkbox",
+                "name": "hideArtistName"
+              },
+              {
+                "name": "cleanupTitle",
+                "type": "checkbox",
+                "required": false
+              },
+              {
+                "type": "textfield",
+                "required": false,
+                "name": "maxTextLength"
+              },
+              {
+                "name": "iconType",
+                "required": false,
+                "type": "dropdown"
+              }
+            ],
+            "name": "nowPlayingMenuBar",
+            "enabled": true
+          },
+          {
+            "name": "togglePlayPause",
+            "enabled": true
+          },
+          {
+            "prefs": [
+              {
+                "required": false,
+                "type": "checkbox",
+                "name": "duplicateSongCheck"
+              },
+              {
+                "required": false,
+                "name": "cacheRefreshTime",
+                "type": "dropdown"
+              }
+            ],
+            "enabled": false,
+            "name": "addPlayingSongToPlaylist"
+          },
+          {
+            "enabled": false,
+            "name": "removeSongFromPlaylist"
+          },
+          {
+            "enabled": true,
+            "name": "next"
+          },
+          {
+            "name": "previous",
+            "enabled": true
+          },
+          {
+            "enabled": false,
+            "name": "like"
+          },
+          {
+            "name": "dislike",
+            "enabled": false
+          },
+          {
+            "enabled": true,
+            "name": "devices"
+          },
+          {
+            "enabled": false,
+            "name": "volume"
+          },
+          {
+            "name": "volume0",
+            "enabled": false
+          },
+          {
+            "enabled": false,
+            "name": "volume25"
+          },
+          {
+            "enabled": false,
+            "name": "volume50"
+          },
+          {
+            "enabled": false,
+            "name": "volume75"
+          },
+          {
+            "enabled": false,
+            "name": "volume100"
+          },
+          {
+            "enabled": false,
+            "name": "volumeDown"
+          },
+          {
+            "name": "volumeUp",
+            "enabled": false
+          },
+          {
+            "name": "toggleShuffle",
+            "enabled": false
+          },
+          {
+            "name": "cycleRepeat",
+            "enabled": false
+          },
+          {
+            "name": "replay",
+            "enabled": false
+          },
+          {
+            "enabled": false,
+            "name": "current-track"
+          },
+          {
+            "enabled": false,
+            "name": "startRadio"
+          },
+          {
+            "name": "copyUrl",
+            "enabled": false
+          },
+          {
+            "name": "copyArtistAndTitle",
+            "enabled": false
+          },
+          {
+            "enabled": false,
+            "name": "justPlay"
+          },
+          {
+            "enabled": false,
+            "name": "queue"
+          },
+          {
+            "name": "generatePlaylist",
+            "enabled": true
+          },
+          {
+            "name": "startDJ",
+            "enabled": false
+          },
+          {
+            "enabled": false,
+            "name": "copyEmbed"
+          },
+          {
+            "name": "skip15",
+            "enabled": false
+          },
+          {
+            "name": "back15",
+            "enabled": false
+          },
+          {
+            "name": "findLyrics",
+            "enabled": true
+          }
+        ],
+        "title": "Spotify Player",
+        "access": "public",
+        "owner": "mattisssa"
+      },
+      {
+        "access": "public",
+        "owner": "limonkufu",
+        "name": "aerospace",
+        "title": "Aerospace Tiling Window Manager",
+        "commands": [
+          {
+            "name": "showShortcuts",
+            "enabled": true
+          },
+          {
+            "enabled": true,
+            "name": "showConfig"
+          },
+          {
+            "enabled": true,
+            "name": "shortcutsMenubar"
+          },
+          {
+            "name": "switchApps",
+            "enabled": true,
+            "prefs": [
+              {
+                "required": true,
+                "value": "all",
+                "name": "defaultWorkspace",
+                "type": "dropdown"
+              }
+            ]
+          }
+        ],
+        "tokenSets": []
+      }
+    ],
+    "provider_schemaVersion": 1
+  },
+  "builtin_package_rootSearch": {
+    "provider_schemaVersion": 1,
+    "rootSearch": [
+      {
+        "key": "builtin_command_clipboardHistory",
+        "type": "command",
+        "hotkey": "Shift-Command-9"
+      },
+      {
+        "key": "builtin_command_searchEmoji",
+        "type": "command",
+        "hotkey": "Control-Command-49"
+      },
+      {
+        "key": "extension_aerospace.switchApps__94769c44-306f-4d2f-a6d4-9858a747b64e",
+        "type": "nodeCommand",
+        "hotkey": "Option-48"
+      }
+    ]
+  },
+  "builtin_package_default": {
+    "installedNativeExtensionIdentifiers": [
+      "builtin_package_media"
+    ],
+    "provider_schemaVersion": 1,
+    "didMigrateWebSearches": true,
+    "enabledFallbackSearchIdentifiers": [
+      "builtin_command_fileSearch_fallbackSearch",
+      "builtin_command_extensionStore_fallbackSearch",
+      "raycastQuicklink_E7061694-6DED-45CF-85F2-0707C2ADD32E",
+      "builtin_command_searchSnippets_fallbackSearch",
+      "builtin_command_dictionary_defineWord_fallbackSearch",
+      "remote_command_web_fallbackSearch",
+      "builtin_command_askFocus_fallbackSearch",
+      "builtin_command_ask_calculator_fallbackSearch",
+      "builtin_command_translate_fallbackSearch",
+      "builtin_command_ask-selected-text_fallbackSearch",
+      "remote_command_stable_diffusion_fallbackSearch",
+      "remote_command_dalle_fallbackSearch",
+      "builtin_command_searchMenuItems_fallbackSearch",
+      "builtin_command_ask-weather_fallbackSearch",
+      "builtin_command_raycastNotes_ask_fallbackSearch",
+      "builtin_command_ask_calendar_fallbackSearch",
+      "builtin_command_ask-thinking_fallbackSearch",
+      "builtin_command_searchEmoji_fallbackSearch",
+      "builtin_command_ask-location_fallbackSearch",
+      "remote_command_gpt_image_fallbackSearch",
+      "builtin_command_ask-browser_fallbackSearch",
+      "remote_command_nano_banana_fallbackSearch",
+      "raycastQuicklink_B65D3D2B-50DC-4119-B04B-784F313E8AC1",
+      "builtin_command_open-ai-chat-gpt_fallbackSearch",
+      "remote_command_flux-kontext_fallbackSearch",
+      "remote_command_flux_fallbackSearch",
+      "remote_command_gemini_image_fallbackSearch",
+      "remote_command_chart_fallbackSearch"
+    ],
+    "didMigrateQuicklinkFallbackSearch": true
+  }
+}
