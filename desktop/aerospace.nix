@@ -46,15 +46,15 @@ let
     } # Discord
     {
       appId = "com.spotify.client";
-      workspace = "M";
+      workspace = "S";
     } # Spotify
     {
       appId = "notion.id";
-      workspace = "N";
+      workspace = "A";
     } # Notion
     {
       appId = "com.tinyspeck.slackmacgap";
-      workspace = "S";
+      workspace = "Q";
     } # Slack
     {
       appId = "us.zoom.xos";
@@ -117,19 +117,37 @@ in
       alt-shift-k = 'move up'
       alt-shift-l = 'move right'
 
-      # Workspace focus (alt + number)
+      # Workspace focus (alt + key)
+      # Row 1: numbers
       alt-1 = 'workspace 1'
       alt-2 = 'workspace 2'
       alt-3 = 'workspace 3'
-      alt-4 = 'workspace 4'
-      alt-5 = 'workspace 5'
+      # Row 2: qwe
+      alt-q = 'workspace Q'
+      alt-w = 'workspace W'
+      alt-e = 'workspace E'
+      # Row 3: asd
+      alt-a = 'workspace A'
+      alt-s = 'workspace S'
+      alt-d = 'workspace D'
+      # Row 4: zxc
+      alt-z = 'workspace Z'
+      alt-x = 'workspace X'
+      alt-c = 'workspace C'
 
-      # Move window to workspace (alt + shift + number)
+      # Move window to workspace (alt + shift + key)
       alt-shift-1 = 'move-node-to-workspace 1'
       alt-shift-2 = 'move-node-to-workspace 2'
       alt-shift-3 = 'move-node-to-workspace 3'
-      alt-shift-4 = 'move-node-to-workspace 4'
-      alt-shift-5 = 'move-node-to-workspace 5'
+      alt-shift-q = 'move-node-to-workspace Q'
+      alt-shift-w = 'move-node-to-workspace W'
+      alt-shift-e = 'move-node-to-workspace E'
+      alt-shift-a = 'move-node-to-workspace A'
+      alt-shift-s = 'move-node-to-workspace S'
+      alt-shift-d = 'move-node-to-workspace D'
+      alt-shift-z = 'move-node-to-workspace Z'
+      alt-shift-x = 'move-node-to-workspace X'
+      alt-shift-c = 'move-node-to-workspace C'
 
       # Workspace navigation
       alt-leftSquareBracket = 'workspace prev'
@@ -138,23 +156,6 @@ in
       # Layout controls
       alt-f = 'fullscreen'
       alt-t = 'layout floating tiling'
-      alt-e = 'layout tiles horizontal vertical'
-
-      # Named workspaces
-      alt-d = 'workspace D'
-      alt-s = 'workspace S'
-      alt-m = 'workspace M'
-      alt-n = 'workspace N'
-      alt-z = 'workspace Z'
-      alt-c = 'workspace C'
-
-      # Move to named workspaces
-      alt-shift-d = 'move-node-to-workspace D'
-      alt-shift-s = 'move-node-to-workspace S'
-      alt-shift-m = 'move-node-to-workspace M'
-      alt-shift-n = 'move-node-to-workspace N'
-      alt-shift-z = 'move-node-to-workspace Z'
-      alt-shift-c = 'move-node-to-workspace C'
 
       # Balance windows
       alt-shift-0 = 'balance-sizes'
