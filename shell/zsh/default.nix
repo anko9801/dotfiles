@@ -47,6 +47,7 @@ in
           setopt AUTO_PUSHD
           setopt PUSHD_IGNORE_DUPS
           setopt PUSHD_SILENT
+          setopt PUSHD_TO_HOME
 
           # Completion
           setopt AUTO_MENU
@@ -74,6 +75,11 @@ in
           setopt NO_BEEP
           setopt MULTIOS
           setopt CORRECT
+          alias mkdir='nocorrect mkdir'
+          alias mv='nocorrect mv'
+          alias cp='nocorrect cp'
+          alias rm='nocorrect rm'
+          alias sudo='nocorrect sudo'
 
           # Jobs & Background
           setopt LONG_LIST_JOBS
@@ -85,6 +91,8 @@ in
           setopt HIST_REDUCE_BLANKS
           setopt HIST_NO_STORE
           setopt HIST_EXPAND
+          setopt HIST_NO_FUNCTIONS
+          setopt HIST_ALLOW_CLOBBER
 
           # Safety
           setopt RM_STAR_SILENT
