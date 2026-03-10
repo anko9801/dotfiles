@@ -10,6 +10,8 @@ _:
     window-decoration = true
     confirm-close-surface = false
     auto-update = download
+    bold-is-bright = true
+    background-opacity = 0.9
 
     # Font rendering
     font-thicken = true
@@ -37,14 +39,19 @@ _:
 
     # Mouse
     mouse-hide-while-typing = true
+    mouse-scroll-multiplier = 2
 
     # macOS
     macos-option-as-alt = true
+    macos-window-shadow = false
+    macos-titlebar-style = tabs
+    macos-non-native-fullscreen = visible-menu
 
     # Quick terminal (macOS)
     quick-terminal-position = center
+    quick-terminal-screen = mouse
+    quick-terminal-animation-duration = 0
     quick-terminal-autohide = false
-    keybind = global:alt+shift+space=toggle_quick_terminal
 
     # Terminal input compatibility (Emacs-style)
     keybind = ctrl+m=text:\n
