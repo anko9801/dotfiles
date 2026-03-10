@@ -22,19 +22,25 @@ done <<<"$(aerospace list-windows --workspace "$SID" --format '%{app-name}' 2>/d
 display_icon="$SID"
 [ -n "$app_names" ] && display_icon="$SID $app_names"
 
+HAS_WINDOWS=$([ -n "$app_icons" ] || [ -n "$app_names" ] && echo 1 || echo 0)
+
 if [ "$SID" = "$FOCUSED_WORKSPACE" ]; then
   sketchybar --set $NAME \
+    drawing=on \
     background.drawing=on \
     background.color="$COLOR" \
     icon="$display_icon" \
     icon.color=$BLACK \
     label="$app_icons" \
     label.color=$BLACK
-else
+elif [ "$HAS_WINDOWS" = "1" ]; then
   sketchybar --set $NAME \
+    drawing=on \
     background.drawing=off \
     icon="$display_icon" \
     icon.color="$COLOR" \
     label="$app_icons" \
     label.color="$COLOR"
+else
+  sketchybar --set $NAME drawing=off
 fi

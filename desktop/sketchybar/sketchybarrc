@@ -49,7 +49,7 @@ sketchybar --default \
 SIDS=($(aerospace list-workspaces --all))
 for i in "${!SIDS[@]}"; do
   sid=${SIDS[$i]}
-  color=${SPACE_COLORS[$i]:-$WHITE}
+  color=${SPACE_COLORS[$((i % ${#SPACE_COLORS[@]}))]}
 
   app_icons=""
   app_names=""
@@ -67,9 +67,17 @@ for i in "${!SIDS[@]}"; do
   display_icon="$sid"
   [ -n "$app_names" ] && display_icon="$sid $app_names"
 
+  # Hide workspaces with no windows (unless focused)
+  focused=$(aerospace list-workspaces --focused 2>/dev/null)
+  has_windows=0
+  [ -n "$app_icons" ] || [ -n "$app_names" ] && has_windows=1
+  show_item=off
+  [ "$has_windows" = "1" ] || [ "$sid" = "$focused" ] && show_item=on
+
   sketchybar --add item space.$sid left \
     --subscribe space.$sid aerospace_workspace_change \
     --set space.$sid \
+      drawing=$show_item \
       background.color=$SURFACE \
       background.border_color=$color \
       background.corner_radius=8 \
