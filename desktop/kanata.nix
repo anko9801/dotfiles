@@ -8,10 +8,10 @@
 #   - Windows: manual install, config deployed by HM
 #
 # Usage:
-#   Home-manager: imports = [ ./tools/kanata.nix ];
-#   NixOS system: imports = [ (import ./tools/kanata.nix).nixosModule ];
-#   Darwin system: imports = [ (import ./tools/kanata.nix).darwinModule ];
-#   WHM:          imports = [ (import ./tools/kanata.nix).windowsModule ];
+#   Home-manager: imports = [ ./desktop/kanata.nix ];
+#   NixOS system: imports = [ (import ./desktop/kanata.nix).nixosModule ];
+#   Darwin system: imports = [ (import ./desktop/kanata.nix).darwinModule ];
+#   WHM:          imports = [ (import ./desktop/kanata.nix).windowsModule ];
 let
   # Generate config with OS-specific Japanese input keys
   # - Darwin/Windows: eisu (英数) / kana (かな)

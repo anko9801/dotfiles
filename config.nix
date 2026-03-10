@@ -105,13 +105,13 @@ rec {
       system = "aarch64-darwin";
       manager = "nix-darwin";
       modules = moduleSets.workstation;
-      systemModules = [ ./system/darwin/desktop.nix ];
+      systemModules = [ ./system/darwin/defaults.nix ];
     };
     mac-intel = {
       system = "x86_64-darwin";
       manager = "nix-darwin";
       modules = moduleSets.workstation;
-      systemModules = [ ./system/darwin/desktop.nix ];
+      systemModules = [ ./system/darwin/defaults.nix ];
     };
 
     # NixOS + home-manager
@@ -129,7 +129,7 @@ rec {
       inputModules = [ "stylix" ];
       systemModules = [
         ./system/nixos/desktop.nix
-        (import ./tools/kanata.nix).nixosModule
+        (import ./desktop/kanata.nix).nixosModule
       ];
     };
     nixos-server-intel = {

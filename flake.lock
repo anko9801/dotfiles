@@ -600,6 +600,24 @@
         "type": "github"
       }
     },
+    "nix-windows": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix_3"
+      },
+      "locked": {
+        "lastModified": 1773133732,
+        "narHash": "sha256-XKNk8mvG5pA/gQIe0DBU3EXl05yr050J+QQDwP2n4/o=",
+        "path": "/home/anko/windows-home-manager",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/anko/windows-home-manager",
+        "type": "path"
+      }
+    },
     "nixgl": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -768,13 +786,13 @@
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nix-index-database": "nix-index-database",
+        "nix-windows": "nix-windows",
         "nixgl": "nixgl",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_3",
         "nixvim": "nixvim",
         "stylix": "stylix",
-        "treefmt-nix": "treefmt-nix_3",
-        "windows-home-manager": "windows-home-manager"
+        "treefmt-nix": "treefmt-nix_4"
       }
     },
     "stylix": {
@@ -1024,15 +1042,16 @@
     "treefmt-nix_3": {
       "inputs": {
         "nixpkgs": [
+          "nix-windows",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1770228511,
-        "narHash": "sha256-wQ6NJSuFqAEmIg2VMnLdCnUc0b7vslUohqqGGD+Fyxk=",
+        "lastModified": 1772660329,
+        "narHash": "sha256-IjU1FxYqm+VDe5qIOxoW+pISBlGvVApRjiw/Y/ttJzY=",
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "rev": "337a4fe074be1042a35086f15481d763b8ddc0e7",
+        "rev": "3710e0e1218041bbad640352a0440114b1e10428",
         "type": "github"
       },
       "original": {
@@ -1044,16 +1063,15 @@
     "treefmt-nix_4": {
       "inputs": {
         "nixpkgs": [
-          "windows-home-manager",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1772660329,
-        "narHash": "sha256-IjU1FxYqm+VDe5qIOxoW+pISBlGvVApRjiw/Y/ttJzY=",
+        "lastModified": 1770228511,
+        "narHash": "sha256-wQ6NJSuFqAEmIg2VMnLdCnUc0b7vslUohqqGGD+Fyxk=",
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "rev": "3710e0e1218041bbad640352a0440114b1e10428",
+        "rev": "337a4fe074be1042a35086f15481d763b8ddc0e7",
         "type": "github"
       },
       "original": {
@@ -1078,24 +1096,6 @@
         "owner": "numtide",
         "repo": "flake-utils",
         "type": "github"
-      }
-    },
-    "windows-home-manager": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "treefmt-nix": "treefmt-nix_4"
-      },
-      "locked": {
-        "lastModified": 1772965070,
-        "narHash": "sha256-M4eoijYXRu5qsBvVMlLp9TVumSPd09XRHhKNhu9i0qY=",
-        "path": "/home/anko/windows-home-manager",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/anko/windows-home-manager",
-        "type": "path"
       }
     }
   },

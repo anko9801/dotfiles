@@ -3,10 +3,10 @@
 {
   imports = [
     ./homebrew.nix
-    ./aerospace.nix
-    ./sketchybar
-    ./raycast
-    (import ../../tools/kanata.nix).darwinModule
+    ../../desktop/aerospace.nix
+    ../../desktop/sketchybar
+    ../../desktop/raycast
+    (import ../../desktop/kanata.nix).darwinModule
   ];
 
   # Register fonts with macOS Font Book (home-manager fonts aren't visible to GUI apps)

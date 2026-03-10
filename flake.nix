@@ -82,7 +82,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    windows-home-manager = {
+    nix-windows = {
       url = "path:/home/anko/windows-home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -149,19 +149,19 @@
         in
         {
           packages = lib.optionalAttrs pkgs.stdenv.isLinux {
-            windows = inputs.windows-home-manager.lib.mkWindowsHome {
+            windows = inputs.nix-windows.lib.mkNixWindows {
               inherit pkgs;
-              modules = inputs.windows-home-manager.windowsModules.default ++ [
+              modules = inputs.nix-windows.nixWindowsModules.default ++ [
                 ./tools/git/windows.nix
-                (import ./tools/kanata.nix).windowsModule
+                (import ./desktop/kanata.nix).windowsModule
                 (import ./terminal/windows-terminal.nix).windowsModule
-                ./tools/komorebi.nix
-                ./tools/whkd.nix
-                ./tools/winget.nix
+                ./desktop/komorebi.nix
+                ./desktop/whkd.nix
+                ./system/windows/winget.nix
                 ./system/windows/wsl.nix
-                ./system/windows/registry.nix
-                ./system/windows/environment.nix
+                ./system/windows/defaults.nix
                 {
+                  system.stateVersion = 1;
                   windows.username = "anko";
                   windows.fonts = [ pkgs.moralerspace ];
                 }
@@ -200,7 +200,7 @@
           // lib.optionalAttrs pkgs.stdenv.isLinux {
             windows = {
               type = "app";
-              program = "${config.packages.windows}/bin/activate-windows";
+              program = "${config.packages.windows}/bin/activate-nix-windows";
             };
           }
           // lib.optionalAttrs (inputs.deploy-rs.packages ? ${system}) {

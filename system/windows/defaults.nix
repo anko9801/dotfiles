@@ -9,4 +9,9 @@ _: {
       DisableSearchBoxSuggestions = 1;
     };
   };
+
+  environment = {
+    variables.EDITOR = "code --wait";
+    userPath = [ "%USERPROFILE%\\go\\bin" ];
+  };
 }
