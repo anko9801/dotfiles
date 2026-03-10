@@ -39,6 +39,9 @@ in
       sqlite # embedded database
       watchexec # file watcher
 
+      # Media
+      ffmpeg
+
       # Document tools
       glow # terminal markdown renderer
       typst # modern LaTeX alternative
