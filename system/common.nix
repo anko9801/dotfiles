@@ -245,6 +245,24 @@ in
         WSL_INTEROP = "/run/WSL/1_interop";
       };
 
+      packages =
+        let
+          # Inputs with local paths that may not exist on all machines
+          excludedInputs = [
+            "nix-windows"
+            "self"
+          ];
+          safeInputs = lib.filterAttrs (name: _: !(builtins.elem name excludedInputs)) inputs;
+        in
+        lib.mkIf (p.environment != "ci") [
+          (pkgs.linkFarm "flake-inputs" (
+            lib.mapAttrsToList (name: input: {
+              inherit name;
+              path = input.outPath;
+            }) (lib.filterAttrs (_: v: v ? outPath) safeInputs)
+          ))
+        ];
+
       sessionPath = [
         "$HOME/.local/bin"
       ]
