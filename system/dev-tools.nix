@@ -58,6 +58,102 @@ _: {
         };
       };
 
+      # Spell checking via nix flake check (docs only)
+      cspell = {
+        check =
+          projectRoot:
+          pkgs.runCommand "cspell-check" { nativeBuildInputs = [ config.cspell.package ]; } ''
+            cd ${projectRoot}
+            cspell --config ${config.cspell.configFile} "docs/**/*.md"
+            touch $out
+          '';
+        settings = {
+          words = [
+            # Nix ecosystem
+            "nixpkgs"
+            "nixvim"
+            "nix-darwin"
+            "dotfiles"
+            "homebrew"
+            "stylix"
+            "catppuccin"
+            "devenv"
+            "direnv"
+            "treefmt"
+            "nixfmt"
+            "cachix"
+            "neovim"
+            "nvim"
+            # Tools
+            "ghostty"
+            "zellij"
+            "sketchybar"
+            "kanata"
+            "atuin"
+            "zoxide"
+            "starship"
+            "aerospace"
+            "komorebi"
+            "yazi"
+            "difftastic"
+            "gitui"
+            "gitu"
+            "lazyworktree"
+            "worktree"
+            "zdiff"
+            "zinit"
+            "sxhkd"
+            "xcape"
+            "xremap"
+            "chezmoi"
+            "yadm"
+            "Karabiner"
+            "bspwm"
+            # Keyboard/keybinding terms
+            "keybinds"
+            "keymap"
+            "keymaps"
+            "keymapping"
+            "keypresses"
+            "remapper"
+            "remappers"
+            "noremap"
+            "submaps"
+            "hjkl"
+            "sexp"
+            "spacebar"
+            "bigrams"
+            "autocmds"
+            # Editors
+            "Spacemacs"
+            "Kakoune"
+            "Magit"
+            "folke"
+            "Moonlander"
+            "Colemak"
+            "Pulumi"
+            "Terrascan"
+            "Qwen"
+            "Neur"
+            "Ilroy"
+            "neuro"
+            # Concepts
+            "satisficing"
+            "automaticity"
+            "declarativeness"
+            "underspecified"
+            "unspecifiable"
+            "metamodel"
+          ];
+          # Ignore proper nouns, acronyms, and bold-split fragments like **B**uffer
+          ignoreRegExpList = [
+            "/\\b[A-Z][a-zà-ÿ'']{2,}\\b/g"
+            "/\\b[A-Z]{2,}\\b/g"
+            "/\\*\\*\\w\\*\\*\\w+/g"
+          ];
+        };
+      };
+
       # DevShell with pre-commit hooks
       devShells.default = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;
@@ -66,6 +162,7 @@ _: {
           deadnix
           nvd
           nix-output-monitor
+          process-compose
         ];
       };
 

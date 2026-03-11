@@ -79,6 +79,11 @@
 
     mac-app-util.url = "github:hraban/mac-app-util";
 
+    cspell-nix = {
+      url = "github:kakkun61/cspell-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     _1password-shell-plugins = {
       url = "github:1Password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -133,6 +138,7 @@
       imports = [
         inputs.treefmt-nix.flakeModule
         inputs.git-hooks.flakeModule
+        inputs.cspell-nix.flakeModule
         ./system/dev-tools.nix
       ];
 
