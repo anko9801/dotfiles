@@ -46,6 +46,9 @@ in
       glow # terminal markdown renderer
       typst # modern LaTeX alternative
 
+      # Search
+      nix-search-tv # Fuzzy nixpkgs search TUI
+
       # Linters
       yamllint
       markdownlint-cli

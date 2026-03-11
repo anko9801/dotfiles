@@ -1,18 +1,23 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   home.packages = with pkgs; [
     nh # Better nix rebuild/switch UX (diff preview, progress)
+    nix-output-monitor # nom: real-time build output monitoring
     nix-tree # Visualize nix store dependencies
     nix-du # Disk usage analyzer for nix store
     manix # Nix documentation search
     nix-diff # Compare nix derivations
     nvd # Nix version diff (compare closures)
+    nix-inspect # TUI for browsing nix configs
+    nixpkgs-review # Test nixpkgs PRs locally
     devenv # Development environments
     nixd # Nix LSP
     nixfmt # Formatter
     statix # Linter
   ];
+
+  nix.registry.nixpkgs.flake = inputs.nixpkgs;
 
   xdg.configFile."devenv/config.yaml".text = ''
     # Global devenv configuration
