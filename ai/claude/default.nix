@@ -13,6 +13,10 @@ let
   sessionDir = "\${XDG_RUNTIME_DIR:-/tmp}/claude-session";
 in
 {
+  home.packages = [
+    inputs.llm-agents.packages.${pkgs.system}.ccusage
+  ];
+
   programs.agent-skills = {
     enable = true;
     sources =
