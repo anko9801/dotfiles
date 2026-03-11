@@ -18,7 +18,7 @@ TEAL_TRANSPARENT=$(echo "$TEAL" | sed 's/0xff/0x40/')
 
 # ── Bar Appearance ──────────────────────────────────────────
 sketchybar --bar \
-  height=34 \
+  height=32 \
   blur_radius=30 \
   position=top \
   sticky=on \
