@@ -46,9 +46,18 @@ jobs:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build Home Manager configuration (${{ matrix.host }})
-        run: nix build .#homeConfigurations.${{ matrix.host }}.activationPackage --impure
+        run: python3 .github/scripts/nix-build-trace.py record -- nix build .#homeConfigurations.${{ matrix.host }}.activationPackage --impure
         env:
           NIXPKGS_ALLOW_UNFREE: "1"
+      - name: Generate build trace
+        if: always()
+        run: python3 .github/scripts/nix-build-trace.py convert /tmp/build.jsonl -o /tmp/build-trace-${{ matrix.host }}.json
+      - name: Upload build trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-trace-home-${{ matrix.host }}
+          path: /tmp/build-trace-${{ matrix.host }}.json
   activate-home:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -147,9 +156,18 @@ jobs:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build NixOS configuration (${{ matrix.host }})
-        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --impure
+        run: python3 .github/scripts/nix-build-trace.py record -- nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --impure
         env:
           NIXPKGS_ALLOW_UNFREE: "1"
+      - name: Generate build trace
+        if: always()
+        run: python3 .github/scripts/nix-build-trace.py convert /tmp/build.jsonl -o /tmp/build-trace-${{ matrix.host }}.json
+      - name: Upload build trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-trace-nixos-${{ matrix.host }}
+          path: /tmp/build-trace-${{ matrix.host }}.json
       - uses: Kesin11/actions-timeline@v2
         if: always()
   build-macos:
@@ -173,10 +191,17 @@ jobs:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build nix-darwin configuration
-        run: nix build .#darwinConfigurations.mac-arm.system --impure
+        run: python3 .github/scripts/nix-build-trace.py record -- nix build .#darwinConfigurations.mac-arm.system --impure
         env:
           NIXPKGS_ALLOW_UNFREE: "1"
-      - name: Show result
-        run: ls -la result/
+      - name: Generate build trace
+        if: always()
+        run: python3 .github/scripts/nix-build-trace.py convert /tmp/build.jsonl -o /tmp/build-trace-mac-arm.json
+      - name: Upload build trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-trace-darwin-mac-arm
+          path: /tmp/build-trace-mac-arm.json
       - uses: Kesin11/actions-timeline@v2
         if: always()
