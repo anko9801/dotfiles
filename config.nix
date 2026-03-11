@@ -223,6 +223,7 @@ rec {
         "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
       ];
       accept-flake-config = true;
+      auto-optimise-store = true;
       keep-derivations = true;
       keep-outputs = true;
       max-jobs = "auto";

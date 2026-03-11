@@ -7,9 +7,18 @@
     fsType = "ext4";
   };
 
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+    plymouth.enable = true;
+    initrd.systemd.enable = true;
+    consoleLogLevel = 0;
+    kernelParams = [
+      "quiet"
+      "splash"
+    ];
   };
 
   networking = {
@@ -52,6 +61,10 @@
     blueman.enable = true;
     # GNOME Keyring
     gnome.gnome-keyring.enable = true;
+    # Firmware updates
+    fwupd.enable = true;
+    # Limit journal size
+    journald.extraConfig = "SystemMaxUse=2G";
   };
 
   # Audio
