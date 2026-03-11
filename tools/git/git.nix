@@ -46,6 +46,7 @@ in
       difftastic
       git-wt
       git-absorb
+      git-trim
       onefetch
     ];
 
@@ -150,7 +151,8 @@ in
       diff = {
         algorithm = "histogram";
         renames = true;
-        colorMoved = "plain";
+        colorMoved = "dimmed-zebra";
+        colorMovedWS = "allow-indentation-change";
         mnemonicPrefix = true;
         "lockb" = {
           textconv = "bun";
