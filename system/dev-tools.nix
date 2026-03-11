@@ -14,6 +14,8 @@ _: {
           };
           deadnix.enable = true;
           statix.enable = true;
+          typos.enable = true;
+          actionlint.enable = true;
         };
       };
 
@@ -24,6 +26,7 @@ _: {
           nixfmt.enable = true;
           shfmt.enable = true;
           yamlfmt.enable = true;
+          keep-sorted.enable = true;
         };
         settings = {
           global.excludes = [
@@ -163,6 +166,8 @@ _: {
           nvd
           nix-output-monitor
           process-compose
+          actionlint
+          zizmor
         ];
       };
 

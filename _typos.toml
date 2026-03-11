@@ -1,0 +1,16 @@
+[default.extend-words]
+# Nix ecosystem terms
+nix = "nix"
+hm = "hm"
+ags = "ags"
+
+[files]
+extend-exclude = [
+  "*.lock",
+  "flake.lock",
+  "result",
+  "*.png",
+  "*.jpg",
+  "*.gif",
+  ".direnv/",
+]
