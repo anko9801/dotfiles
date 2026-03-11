@@ -77,6 +77,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    mac-app-util.url = "github:hraban/mac-app-util";
+
     _1password-shell-plugins = {
       url = "github:1Password/shell-plugins";
       inputs.nixpkgs.follows = "nixpkgs";

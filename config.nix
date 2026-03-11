@@ -208,6 +208,7 @@ rec {
       experimental-features = [
         "nix-command"
         "flakes"
+        "pipe-operators"
       ];
       substituters = [
         "https://cache.nixos.org"
@@ -225,6 +226,7 @@ rec {
       keep-derivations = true;
       keep-outputs = true;
       max-jobs = "auto";
+      max-substitution-jobs = 16;
     };
     gc = {
       automatic = true;

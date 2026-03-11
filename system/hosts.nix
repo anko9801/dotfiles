@@ -18,6 +18,7 @@ let
     "nixvim"
     "stylix"
     "agent-skills"
+    "mac-app-util"
   ];
 
   resolveFlakeModule =
@@ -213,6 +214,8 @@ let
               "networkmanager"
             ];
           };
+          programs.nix-ld.enable = true;
+          boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
         }
       )
     ];
