@@ -19,8 +19,11 @@
     nerd-fonts.jetbrains-mono
   ];
 
-  # Enable Touch ID for sudo
-  security.pam.services.sudo_local.touchIdAuth = true;
+  # Enable Touch ID for sudo (including inside tmux via pam_reattach)
+  security.pam.services.sudo_local = {
+    touchIdAuth = true;
+    reattach = true;
+  };
 
   # macOS system preferences
   system = {
@@ -57,6 +60,7 @@
         AppleShowAllFiles = true;
         FXEnableExtensionChangeWarning = false;
         FXPreferredViewStyle = "Nlsv";
+        _FXSortFoldersFirst = true;
         ShowPathbar = true;
         ShowStatusBar = true;
         _FXShowPosixPathInTitle = true;
@@ -114,6 +118,17 @@
         };
         "com.apple.finder" = {
           NewWindowTarget = "PfHm";
+          FXDefaultSearchScope = "SCcf";
+        };
+        "com.apple.desktopservices" = {
+          DSDontWriteNetworkStores = true;
+          DSDontWriteUSBStores = true;
+        };
+        "com.apple.AdLib" = {
+          allowApplePersonalizedAdvertising = false;
+        };
+        "com.apple.ImageCapture" = {
+          disableHotPlug = true;
         };
         NSGlobalDomain = {
           "com.apple.keyboard.fnState" = true;
