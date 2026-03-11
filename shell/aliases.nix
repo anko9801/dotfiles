@@ -29,5 +29,11 @@ in
     v = "nvim";
     vim = "nvim";
     lg = "lazygit";
+
+    # Nix maintenance
+    nix-clean = "nh clean all";
+
+    # Use project-pinned nixpkgs for ad-hoc nix shell
+    nsp = ''nix shell --override-flake nixpkgs "github:NixOS/nixpkgs/$(jq -r '.nodes[.nodes.root.inputs.nixpkgs].locked.rev' < flake.lock)"'';
   };
 }
