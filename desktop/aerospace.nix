@@ -91,6 +91,12 @@ in
       # Mouse settings
       on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
+      # Notify SketchyBar on workspace change
+      exec-on-workspace-change = [
+        '/bin/bash', '-c',
+        'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE',
+      ]
+
       # Gaps and padding
       [gaps]
       inner.horizontal = 4
