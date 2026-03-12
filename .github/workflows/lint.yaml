@@ -15,23 +15,9 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Check flake health
         uses: DeterminateSystems/flake-checker-action@main
-      - name: Create dummy nix-windows input
-        run: |
-          mkdir -p /tmp/nix-windows-dummy
-          cat > /tmp/nix-windows-dummy/flake.nix << 'NIX'
-          {
-            description = "Dummy nix-windows for CI";
-            inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-            outputs = { self, nixpkgs }: {
-              lib.mkNixWindows = _: nixpkgs.legacyPackages.x86_64-linux.emptyDirectory;
-              nixWindowsModules.default = [];
-            };
-          }
-          NIX
-          cd /tmp/nix-windows-dummy && git init && git add . && git -c user.name=ci -c user.email=ci@ci commit -m "init"
       - name: Check Nix flake
         # --impure: required for builtins.getEnv "USER" in flake.nix
-        run: nix flake check --impure --override-input nix-windows path:/tmp/nix-windows-dummy
+        run: nix flake check --impure
         env:
           NIXPKGS_ALLOW_UNFREE: "1"
       - name: Format check (treefmt)

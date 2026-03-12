@@ -16,7 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-windows = {
-      url = "path:/home/anko/windows-home-manager";
+      url = "github:anko9801/nix-windows";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixos-wsl = {
