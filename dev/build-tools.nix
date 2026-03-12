@@ -2,21 +2,19 @@
 
 {
   home.packages = with pkgs; [
-    # keep-sorted start
-    autoconf
-    automake
-    cmake
-    editorconfig-core-c
     gnumake
-    go-task
-    just
-    libtool
-    nasm
+    cmake
     ninja
     pkg-config
+    autoconf
+    automake
+    libtool
+    just
+    go-task # Task runner (alternative to make)
+    nasm
     shellcheck
     shfmt
     treefmt
-    # keep-sorted end
+    editorconfig-core-c
   ];
 }

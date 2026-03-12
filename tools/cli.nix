@@ -13,23 +13,22 @@ in
     packages =
       with pkgs;
       [
-        # keep-sorted start
-        curl
-        dig
-        fd
-        gawk
-        gnused
-        htop
-        jq
-        netcat
-        p7zip
-        ripgrep
-        rsync
-        tree
-        unzip
-        wget
+        # Essential CLI tools
+        ripgrep # rg: fast grep
+        fd # find alternative
+        jq # JSON processor
+        curl # HTTP client
+        wget # HTTP downloader
+        tree # directory tree
+        htop # process monitor
+        rsync # incremental file sync
         zip
-        # keep-sorted end
+        unzip
+        p7zip # 7z
+        gawk # GNU awk
+        gnused # GNU sed
+        netcat # network utility
+        dig # DNS lookup
       ]
       ++ lib.optionals (p.os == "linux") [
         trashy # rm alternative (move to trash)

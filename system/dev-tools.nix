@@ -71,78 +71,81 @@ _: {
           '';
         settings = {
           words = [
-            # keep-sorted start
-            "Colemak"
-            "Ilroy"
-            "Kakoune"
-            "Karabiner"
-            "Magit"
-            "Moonlander"
-            "Neur"
-            "Pulumi"
-            "Qwen"
-            "Spacemacs"
-            "Terrascan"
-            "aerospace"
-            "atuin"
-            "autocmds"
-            "automaticity"
-            "bigrams"
-            "bspwm"
-            "cachix"
-            "catppuccin"
-            "chezmoi"
-            "declarativeness"
-            "devenv"
-            "difftastic"
-            "direnv"
-            "dotfiles"
-            "folke"
-            "ghostty"
-            "gitu"
-            "gitui"
-            "hjkl"
-            "homebrew"
-            "kanata"
-            "keybinds"
-            "keymap"
-            "keymapping"
-            "keymaps"
-            "keypresses"
-            "komorebi"
-            "lazyworktree"
-            "metamodel"
-            "neovim"
-            "neuro"
-            "nix-darwin"
-            "nixfmt"
+            # Nix ecosystem
             "nixpkgs"
             "nixvim"
-            "noremap"
-            "nvim"
-            "remapper"
-            "remappers"
-            "satisficing"
-            "sexp"
-            "sketchybar"
-            "spacebar"
-            "starship"
+            "nix-darwin"
+            "dotfiles"
+            "homebrew"
             "stylix"
-            "submaps"
-            "sxhkd"
+            "catppuccin"
+            "devenv"
+            "direnv"
             "treefmt"
-            "underspecified"
-            "unspecifiable"
+            "nixfmt"
+            "cachix"
+            "neovim"
+            "nvim"
+            # Tools
+            "ghostty"
+            "zellij"
+            "sketchybar"
+            "kanata"
+            "atuin"
+            "zoxide"
+            "starship"
+            "aerospace"
+            "komorebi"
+            "yazi"
+            "difftastic"
+            "gitui"
+            "gitu"
+            "lazyworktree"
             "worktree"
+            "zdiff"
+            "zinit"
+            "sxhkd"
             "xcape"
             "xremap"
+            "chezmoi"
             "yadm"
-            "yazi"
-            "zdiff"
-            "zellij"
-            "zinit"
-            "zoxide"
-            # keep-sorted end
+            "Karabiner"
+            "bspwm"
+            # Keyboard/keybinding terms
+            "keybinds"
+            "keymap"
+            "keymaps"
+            "keymapping"
+            "keypresses"
+            "remapper"
+            "remappers"
+            "noremap"
+            "submaps"
+            "hjkl"
+            "sexp"
+            "spacebar"
+            "bigrams"
+            "autocmds"
+            # Editors
+            "Spacemacs"
+            "Kakoune"
+            "Magit"
+            "folke"
+            "Moonlander"
+            "Colemak"
+            "Pulumi"
+            "Terrascan"
+            "Qwen"
+            "Neur"
+            "Ilroy"
+            "neuro"
+            # Concepts
+            "satisficing"
+            "automaticity"
+            "declarativeness"
+            "underspecified"
+            "unspecifiable"
+            "metamodel"
           ];
           # Ignore proper nouns, acronyms, and bold-split fragments like **B**uffer
           ignoreRegExpList = [
@@ -157,15 +160,13 @@ _: {
       devShells.default = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;
         packages = with pkgs; [
-          # keep-sorted start
-          actionlint
-          deadnix
-          nix-output-monitor
-          nvd
-          process-compose
           statix
+          deadnix
+          nvd
+          nix-output-monitor
+          process-compose
+          actionlint
           zizmor
-          # keep-sorted end
         ];
       };
 

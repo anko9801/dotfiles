@@ -1,28 +1,29 @@
 [default.extend-words]
-# keep-sorted start
-DED = "DED"
-MAPE = "MAPE"
-acn = "acn"
-ags = "ags"
-braket = "braket"
-earch = "earch"
-hm = "hm"
-ist = "ist"
+# Nix ecosystem terms
 nix = "nix"
-noice = "noice"
+hm = "hm"
+ags = "ags"
+# LaTeX packages/options (vscode settings)
+acn = "acn"
+ist = "ist"
 ot = "ot"
+braket = "braket"
+# Docs: bold-initial patterns like **D**EAD, **B**uffer
+DED = "DED"
 uffer = "uffer"
-# keep-sorted end
+earch = "earch"
+# Docs: MAPE-K control loop (academic term)
+MAPE = "MAPE"
+# Neovim plugin
+noice = "noice"
 
 [files]
 extend-exclude = [
-  # keep-sorted start
-  "*.gif",
-  "*.jpg",
   "*.lock",
-  "*.png",
-  ".direnv/",
   "flake.lock",
   "result",
-  # keep-sorted end
+  "*.png",
+  "*.jpg",
+  "*.gif",
+  ".direnv/",
 ]
