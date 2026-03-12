@@ -28,7 +28,7 @@ jobs:
             };
           }
           NIX
-          cd /tmp/nix-windows-dummy && git init && git add . && git commit -m "init"
+          cd /tmp/nix-windows-dummy && git init && git add . && git -c user.name=ci -c user.email=ci@ci commit -m "init"
       - name: Check Nix flake
         # --impure: required for builtins.getEnv "USER" in flake.nix
         run: nix flake check --impure --override-input nix-windows path:/tmp/nix-windows-dummy
