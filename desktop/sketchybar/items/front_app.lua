@@ -1,21 +1,15 @@
-local app_icons = require("helpers.app_icons")
-
 local front_app = sbar.add("item", "front_app", {
   position = "left",
-  icon = {
-    font = settings.font.app_large,
-    color = colors.lavender,
-  },
+  icon = { drawing = false },
   label = {
-    font = settings.font.text_bold,
-    color = colors.lavender,
+    font = {
+      style = settings.font.style_map["Black"],
+      size = 12.0,
+    },
   },
-  background = { drawing = false },
+  updates = true,
 })
 
 front_app:subscribe("front_app_switched", function(env)
-  front_app:set({
-    icon = { string = app_icons[env.INFO] or ":default:" },
-    label = { string = env.INFO },
-  })
+  front_app:set({ label = { string = env.INFO } })
 end)

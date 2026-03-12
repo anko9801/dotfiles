@@ -22,48 +22,13 @@ local function get_app_display(sid)
   return icon_line, name_line
 end
 
-local function update_space(space, sid, color, focused_workspace)
-  sbar.exec(
-    "aerospace list-windows --workspace '" .. sid .. "' --format '%{app-name}' 2>/dev/null | sort -u",
-    function(result)
-      local icon_line = ""
-      local name_line = ""
-      for app in result:gmatch("[^\n]+") do
-        local icon = app_icons[app]
-        if icon then
-          icon_line = icon_line .. icon .. " "
-        else
-          name_line = name_line .. app .. " "
-        end
-      end
-
-      local disp = sid
-      if name_line ~= "" then
-        disp = sid .. " " .. name_line
-      end
-
-      local has_windows = icon_line ~= "" or name_line ~= ""
-      local is_focused = focused_workspace == sid
-
-      if is_focused then
-        space:set({
-          drawing = true,
-          icon = { string = disp, color = colors.black },
-          label = { string = icon_line, color = colors.black },
-          background = { drawing = true, color = color },
-        })
-      elseif has_windows then
-        space:set({
-          drawing = true,
-          icon = { string = disp, color = color },
-          label = { string = icon_line, color = color },
-          background = { drawing = false },
-        })
-      else
-        space:set({ drawing = false })
-      end
-    end
-  )
+local function set_focused(space, is_focused, has_windows)
+  space:set({
+    drawing = has_windows,
+    icon = { highlight = is_focused },
+    label = { highlight = is_focused },
+    background = { color = is_focused and colors.bar.bg or colors.transparent },
+  })
 end
 
 -- Wait for AeroSpace
@@ -94,32 +59,39 @@ for sid in ws_result:gmatch("%S+") do
 
   local space = sbar.add("item", "space." .. sid, {
     position = "left",
-    drawing = has_windows or is_focused,
+    updates = true,
+    drawing = has_windows,
     icon = {
+      font = { family = settings.font.numbers },
       string = display_icon,
-      color = is_focused and colors.black or color,
-      font = settings.font.icon,
       padding_left = 8,
       padding_right = 4,
+      color = color,
+      highlight_color = color,
+      highlight = is_focused,
     },
     label = {
       string = icon_line,
-      color = is_focused and colors.black or color,
-      font = settings.font.app,
+      padding_right = 8,
+      color = color,
+      highlight_color = color,
+      font = "sketchybar-app-font:Regular:14.0",
+      y_offset = -1,
+      highlight = is_focused,
     },
+    padding_right = 2,
+    padding_left = 2,
     background = {
-      drawing = is_focused,
-      color = is_focused and color or colors.surface,
-      border_color = color,
-      corner_radius = 8,
-      height = 28,
+      color = is_focused and colors.bar.bg or colors.transparent,
+      border_width = 0,
+      height = 26,
     },
   })
 
-  spaces[sid] = { item = space, color = color }
+  spaces[sid] = { item = space, color = color, has_windows = has_windows }
 
   space:subscribe("aerospace_workspace_change", function(env)
-    update_space(space, sid, color, env.FOCUSED_WORKSPACE)
+    set_focused(space, env.FOCUSED_WORKSPACE == sid, spaces[sid].has_windows)
   end)
 
   space:subscribe("mouse.clicked", function()
