@@ -71,81 +71,78 @@ _: {
           '';
         settings = {
           words = [
-            # Nix ecosystem
-            "nixpkgs"
-            "nixvim"
-            "nix-darwin"
-            "dotfiles"
-            "homebrew"
-            "stylix"
-            "catppuccin"
-            "devenv"
-            "direnv"
-            "treefmt"
-            "nixfmt"
-            "cachix"
-            "neovim"
-            "nvim"
-            # Tools
-            "ghostty"
-            "zellij"
-            "sketchybar"
-            "kanata"
-            "atuin"
-            "zoxide"
-            "starship"
-            "aerospace"
-            "komorebi"
-            "yazi"
-            "difftastic"
-            "gitui"
-            "gitu"
-            "lazyworktree"
-            "worktree"
-            "zdiff"
-            "zinit"
-            "sxhkd"
-            "xcape"
-            "xremap"
-            "chezmoi"
-            "yadm"
+            # keep-sorted start
+            "Colemak"
+            "Ilroy"
+            "Kakoune"
             "Karabiner"
+            "Magit"
+            "Moonlander"
+            "Neur"
+            "Pulumi"
+            "Qwen"
+            "Spacemacs"
+            "Terrascan"
+            "aerospace"
+            "atuin"
+            "autocmds"
+            "automaticity"
+            "bigrams"
             "bspwm"
-            # Keyboard/keybinding terms
+            "cachix"
+            "catppuccin"
+            "chezmoi"
+            "declarativeness"
+            "devenv"
+            "difftastic"
+            "direnv"
+            "dotfiles"
+            "folke"
+            "ghostty"
+            "gitu"
+            "gitui"
+            "hjkl"
+            "homebrew"
+            "kanata"
             "keybinds"
             "keymap"
-            "keymaps"
             "keymapping"
+            "keymaps"
             "keypresses"
+            "komorebi"
+            "lazyworktree"
+            "metamodel"
+            "neovim"
+            "neuro"
+            "nix-darwin"
+            "nixfmt"
+            "nixpkgs"
+            "nixvim"
+            "noremap"
+            "nvim"
             "remapper"
             "remappers"
-            "noremap"
-            "submaps"
-            "hjkl"
-            "sexp"
-            "spacebar"
-            "bigrams"
-            "autocmds"
-            # Editors
-            "Spacemacs"
-            "Kakoune"
-            "Magit"
-            "folke"
-            "Moonlander"
-            "Colemak"
-            "Pulumi"
-            "Terrascan"
-            "Qwen"
-            "Neur"
-            "Ilroy"
-            "neuro"
-            # Concepts
             "satisficing"
-            "automaticity"
-            "declarativeness"
+            "sexp"
+            "sketchybar"
+            "spacebar"
+            "starship"
+            "stylix"
+            "submaps"
+            "sxhkd"
+            "treefmt"
             "underspecified"
             "unspecifiable"
-            "metamodel"
+            "worktree"
+            "xcape"
+            "xremap"
+            "yadm"
+            "yazi"
+            "zdiff"
+            "zellij"
+            "zinit"
+            "zoxide"
+            # keep-sorted end
           ];
           # Ignore proper nouns, acronyms, and bold-split fragments like **B**uffer
           ignoreRegExpList = [
@@ -160,13 +157,15 @@ _: {
       devShells.default = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;
         packages = with pkgs; [
-          statix
-          deadnix
-          nvd
-          nix-output-monitor
-          process-compose
+          # keep-sorted start
           actionlint
+          deadnix
+          nix-output-monitor
+          nvd
+          process-compose
+          statix
           zizmor
+          # keep-sorted end
         ];
       };
 
