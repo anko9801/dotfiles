@@ -3,6 +3,7 @@
 let
   c = config.home-manager.users.${config.system.primaryUser}.theme.colors;
   toArgb = hex: "0xff${builtins.substring 1 6 hex}";
+  toArgbAlpha = alpha: hex: "0x${alpha}${builtins.substring 1 6 hex}";
 
   lua = pkgs.lua5_4;
   inherit (pkgs) sbarlua;
@@ -51,8 +52,20 @@ in
         M.surface = ${toArgb c.surface0}
         M.transparent = 0x00000000
 
-        function M.with_alpha(color, alpha)
-          return (color & 0x00ffffff) | (alpha << 24)
+        M.bar = {
+          bg = ${toArgbAlpha "4d" c.base},
+          border = ${toArgb c.base},
+        }
+        M.popup = {
+          bg = ${toArgbAlpha "c0" c.base},
+          border = ${toArgb c.overlay0},
+        }
+        M.bg1 = ${toArgb c.surface0}
+        M.bg2 = ${toArgb c.surface1}
+
+        M.with_alpha = function(color, alpha)
+          if alpha > 1.0 or alpha < 0.0 then return color end
+          return (color & 0x00ffffff) | (math.floor(alpha * 255.0) << 24)
         end
 
         return M

@@ -1,6 +1,7 @@
 return {
   cpu = "󰻠",
   memory = "󰍛",
+  clipboard = "󰅍",
 
   battery = {
     charging = "󰂄",
@@ -12,10 +13,11 @@ return {
   },
 
   volume = {
-    mute = "󰝟",
-    high = "󰕾",
-    mid = "󰖀",
-    low = "󰕿",
+    _100 = "󰕾",
+    _66 = "󰖀",
+    _33 = "󰕿",
+    _10 = "󰕿",
+    _0 = "󰝟",
   },
 
   wifi = {
@@ -27,11 +29,9 @@ return {
   },
 
   media = {
-    playing = "󰎆",
-    paused = "󰏤",
-    prev = "󰒮",
+    back = "󰒮",
     play_pause = "󰐎",
-    next = "󰒭",
+    forward = "󰒭",
   },
 
   remaining = "󰅐",

@@ -1,12 +1,17 @@
 return {
+  paddings = 3,
+  group_paddings = 5,
+
   font = {
-    text = "JetBrainsMono Nerd Font:Semibold:11.0",
-    text_bold = "JetBrainsMono Nerd Font:Bold:11.0",
-    icon = "JetBrainsMono Nerd Font:Bold:13.0",
-    clock = "JetBrainsMono Nerd Font:Bold:12.0",
-    date = "JetBrainsMono Nerd Font:Semibold:10.0",
-    app = "sketchybar-app-font:Regular:14.0",
-    app_large = "sketchybar-app-font:Regular:16.0",
+    text = "JetBrainsMono Nerd Font",
+    numbers = "JetBrainsMono Nerd Font",
+    style_map = {
+      ["Regular"] = "Regular",
+      ["Semibold"] = "SemiBold",
+      ["Bold"] = "Bold",
+      ["Heavy"] = "ExtraBold",
+      ["Black"] = "ExtraBold",
+    },
   },
   space_colors = {
     colors.red, colors.peach, colors.yellow, colors.green,
