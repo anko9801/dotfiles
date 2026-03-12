@@ -19,7 +19,7 @@ local function get_app_display(sid)
       name_line = name_line .. app .. " "
     end
   end
-  return icon_line, name_line
+  return icon_line:gsub("%s+$", ""), name_line:gsub("%s+$", "")
 end
 
 local function set_focused(space, is_focused, has_windows)
@@ -65,13 +65,14 @@ for sid in ws_result:gmatch("%S+") do
       font = { family = settings.font.numbers },
       string = display_icon,
       padding_left = 8,
-      padding_right = 4,
+      padding_right = icon_line ~= "" and 4 or 8,
       color = color,
       highlight_color = color,
       highlight = is_focused,
     },
     label = {
       string = icon_line,
+      drawing = icon_line ~= "",
       padding_right = 8,
       color = color,
       highlight_color = color,
