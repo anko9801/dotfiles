@@ -12,12 +12,16 @@ let
 
   cfg = import ../config.nix;
 
-  # Home-manager modules from flake inputs
+  # Home-manager modules from flake inputs (loaded for all hosts)
   flakeHomeModules = [
     "nix-index-database"
     "nixvim"
     "stylix"
     "agent-skills"
+  ];
+
+  # Darwin-only HM modules
+  darwinFlakeHomeModules = [
     "mac-app-util"
   ];
 
@@ -118,6 +122,7 @@ let
       hostName,
       homeDir,
       hostModules,
+      extraFlakeModules ? [ ],
     }:
     {
       home-manager = {
@@ -127,7 +132,7 @@ let
         users.${username} =
           { lib, ... }:
           {
-            imports = coreModules ++ flakeModules ++ hostModules;
+            imports = coreModules ++ flakeModules ++ extraFlakeModules ++ hostModules;
             home = {
               username = lib.mkForce username;
               homeDirectory = lib.mkForce "${homeDir}/${username}";
@@ -143,6 +148,7 @@ let
       homeManagerModule,
       homeDir,
       platformModules ? [ ],
+      extraFlakeHomeModules ? [ ],
     }:
     { self }:
     {
@@ -171,6 +177,7 @@ let
             hostModules
             homeDir
             ;
+          extraFlakeModules = map resolveFlakeModule extraFlakeHomeModules;
         })
       ]
       ++ extraModules;
@@ -180,6 +187,7 @@ let
     systemBuilder = nix-darwin.lib.darwinSystem;
     homeManagerModule = home-manager.darwinModules;
     homeDir = "/Users";
+    extraFlakeHomeModules = darwinFlakeHomeModules;
     platformModules = [
       nix-homebrew.darwinModules.nix-homebrew
       (
