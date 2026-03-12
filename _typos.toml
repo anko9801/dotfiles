@@ -3,6 +3,19 @@
 nix = "nix"
 hm = "hm"
 ags = "ags"
+# LaTeX packages/options (vscode settings)
+acn = "acn"
+ist = "ist"
+ot = "ot"
+braket = "braket"
+# Docs: bold-initial patterns like **D**EAD, **B**uffer
+DED = "DED"
+uffer = "uffer"
+earch = "earch"
+# Docs: MAPE-K control loop (academic term)
+MAPE = "MAPE"
+# Neovim plugin
+noice = "noice"
 
 [files]
 extend-exclude = [
