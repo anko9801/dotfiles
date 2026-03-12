@@ -1,64 +1,134 @@
-local media = sbar.add("item", "media", {
+local media_cover = sbar.add("item", {
   position = "right",
-  icon = { string = icons.media.playing, color = colors.pink },
-  label = { color = colors.pink, max_chars = 25 },
-  background = { border_color = colors.pink },
-  scroll_texts = true,
+  background = {
+    image = {
+      string = "media.artwork",
+      scale = 0.85,
+    },
+    color = colors.transparent,
+  },
+  label = { drawing = false },
+  icon = { drawing = false },
   drawing = false,
+  updates = true,
+  popup = {
+    align = "center",
+    horizontal = true,
+  },
 })
 
-media:subscribe("mouse.clicked", function()
-  media:set({ popup = { drawing = "toggle" } })
-end)
+local media_artist = sbar.add("item", {
+  position = "right",
+  drawing = false,
+  padding_left = 3,
+  padding_right = 0,
+  width = 0,
+  icon = { drawing = false },
+  label = {
+    width = 0,
+    font = { size = 9 },
+    color = colors.with_alpha(colors.white, 0.6),
+    max_chars = 18,
+    y_offset = 6,
+  },
+})
 
-media:subscribe("media_change", function(env)
-  local state = (env.INFO or ""):match('"state":"([^"]*)"')
-  local title = (env.INFO or ""):match('"title":"([^"]*)"') or ""
-  local artist = (env.INFO or ""):match('"artist":"([^"]*)"') or ""
+local media_title = sbar.add("item", {
+  position = "right",
+  drawing = false,
+  padding_left = 3,
+  padding_right = 0,
+  icon = { drawing = false },
+  label = {
+    font = { size = 11 },
+    width = 0,
+    max_chars = 16,
+    y_offset = -5,
+  },
+})
 
-  if state == "playing" then
-    media:set({
-      drawing = true,
-      icon = { string = icons.media.playing },
-      label = { string = artist .. " - " .. title },
-    })
-  elseif state == "paused" then
-    media:set({
-      drawing = true,
-      icon = { string = icons.media.paused },
-      label = { string = artist .. " - " .. title },
-    })
+sbar.add("item", {
+  position = "popup." .. media_cover.name,
+  icon = { string = icons.media.back },
+  label = { drawing = false },
+  click_script = "nowplaying-cli previous 2>/dev/null",
+})
+sbar.add("item", {
+  position = "popup." .. media_cover.name,
+  icon = { string = icons.media.play_pause },
+  label = { drawing = false },
+  click_script = "nowplaying-cli togglePlayPause 2>/dev/null",
+})
+sbar.add("item", {
+  position = "popup." .. media_cover.name,
+  icon = { string = icons.media.forward },
+  label = { drawing = false },
+  click_script = "nowplaying-cli next 2>/dev/null",
+})
+
+local interrupt = 0
+local function animate_detail(detail)
+  if not detail then
+    interrupt = interrupt - 1
+  end
+  if interrupt > 0 and not detail then return end
+
+  sbar.animate("tanh", 30, function()
+    media_artist:set({ label = { width = detail and "dynamic" or 0 } })
+    media_title:set({ label = { width = detail and "dynamic" or 0 } })
+  end)
+end
+
+media_cover:subscribe("media_change", function(env)
+  local info = env.INFO
+  if type(info) == "string" then
+    -- JSON string parsing fallback
+    local state = info:match('"state":"([^"]*)"')
+    local artist = info:match('"artist":"([^"]*)"') or ""
+    local title = info:match('"title":"([^"]*)"') or ""
+    local drawing = state == "playing"
+
+    media_artist:set({ drawing = drawing, label = artist })
+    media_title:set({ drawing = drawing, label = title })
+    media_cover:set({ drawing = drawing })
+
+    if drawing then
+      animate_detail(true)
+      interrupt = interrupt + 1
+      sbar.delay(5, animate_detail)
+    else
+      media_cover:set({ popup = { drawing = false } })
+    end
   else
-    media:set({ drawing = false })
+    -- Table format (native SbarLua)
+    local drawing = info.state == "playing"
+    media_artist:set({ drawing = drawing, label = info.artist })
+    media_title:set({ drawing = drawing, label = info.title })
+    media_cover:set({ drawing = drawing })
+
+    if drawing then
+      animate_detail(true)
+      interrupt = interrupt + 1
+      sbar.delay(5, animate_detail)
+    else
+      media_cover:set({ popup = { drawing = false } })
+    end
   end
 end)
 
-local prev = sbar.add("item", "media.prev", {
-  position = "popup.media",
-  icon = { string = icons.media.prev, color = colors.pink, padding_left = 8, padding_right = 8 },
-  label = { drawing = false },
-  background = { drawing = false },
-})
-prev:subscribe("mouse.clicked", function()
-  sbar.exec("nowplaying-cli previous 2>/dev/null")
+media_cover:subscribe("mouse.entered", function()
+  interrupt = interrupt + 1
+  animate_detail(true)
 end)
 
-local play_pause = sbar.add("item", "media.playpause", {
-  position = "popup.media",
-  icon = { string = icons.media.play_pause, color = colors.pink, padding_left = 8, padding_right = 8 },
-  label = { drawing = false },
-  background = { drawing = false },
-})
-play_pause:subscribe("mouse.clicked", function()
-  sbar.exec("nowplaying-cli togglePlayPause 2>/dev/null")
+media_cover:subscribe("mouse.exited", function()
+  animate_detail(false)
 end)
 
-local next_btn = sbar.add("item", "media.next", {
-  position = "popup.media",
-  icon = { string = icons.media.next, color = colors.pink, padding_left = 8, padding_right = 8 },
-  label = { drawing = false },
-  background = { drawing = false },
-})
-next_btn:subscribe("mouse.clicked", function()
-  sbar.exec("nowplaying-cli next 2>/dev/null")
+media_cover:subscribe("mouse.clicked", function()
+  media_cover:set({ popup = { drawing = "toggle" } })
+end)
+
+media_title:subscribe("mouse.exited.global", function()
+  media_cover:set({ popup = { drawing = false } })
 end)
