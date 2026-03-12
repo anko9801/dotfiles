@@ -15,7 +15,6 @@ _: {
           deadnix.enable = true;
           statix.enable = true;
           typos.enable = true;
-          actionlint.enable = true;
         };
       };
 
