@@ -1,0 +1,95 @@
+local exact = {
+  ["1Password"] = ":1password:",
+  ["Activity Monitor"] = ":activity_monitor:",
+  ["Acrobat Reader"] = ":adobe_acrobat_reader_dc:",
+  ["Amazon Music"] = ":amazon_music:",
+  ["AnyDesk"] = ":anydesk:",
+  ["App Store"] = ":app_store:",
+  ["AppCleaner"] = ":app_cleaner:",
+  ["Arc"] = ":arc:",
+  ["Blender"] = ":blender:",
+  ["Books"] = ":books:",
+  ["Calculator"] = ":calculator:",
+  ["Calendar"] = ":calendar:",
+  ["ChatGPT"] = ":chatgpt:",
+  ["Claude"] = ":claude:",
+  ["Clock"] = ":clock:",
+  ["Code"] = ":vscode:",
+  ["DataSpell"] = ":dataspell:",
+  ["Discord"] = ":discord:",
+  ["Docker Desktop"] = ":docker:",
+  ["Drafts"] = ":drafts:",
+  ["FaceTime"] = ":facetime:",
+  ["Figma"] = ":figma:",
+  ["Finder"] = ":finder:",
+  ["Font Book"] = ":font_book:",
+  ["Ghostty"] = ":ghostty:",
+  ["GitHub Desktop"] = ":github_desktop:",
+  ["Google Chrome"] = ":chrome:",
+  ["Google Docs"] = ":google_docs:",
+  ["Google Drive"] = ":google_drive:",
+  ["Google Sheets"] = ":google_sheets:",
+  ["Inkscape"] = ":inkscape:",
+  ["iTerm2"] = ":iterm:",
+  ["Karabiner-Elements"] = ":karabiner_elements:",
+  ["Karabiner-EventViewer"] = ":karabiner_eventviewer:",
+  ["Keynote"] = ":keynote:",
+  ["Kindle"] = ":kindle:",
+  ["kitty"] = ":kitty:",
+  ["LINE"] = ":line:",
+  ["Mail"] = ":mail:",
+  ["Messages"] = ":messages:",
+  ["Microsoft Excel"] = ":microsoft_excel:",
+  ["Microsoft OneNote"] = ":microsoft_onenote:",
+  ["Microsoft Outlook"] = ":microsoft_outlook:",
+  ["Microsoft PowerPoint"] = ":microsoft_powerpoint:",
+  ["Microsoft Word"] = ":microsoft_word:",
+  ["Music"] = ":music:",
+  ["Notion"] = ":notion:",
+  ["Obsidian"] = ":obsidian:",
+  ["OneDrive"] = ":onedrive:",
+  ["Maccy"] = ":maccy_clip:",
+  ["OrbStack"] = ":orbstack:",
+  ["Ollama"] = ":ollama:",
+  ["Photos"] = ":photos:",
+  ["Preview"] = ":preview:",
+  ["PyCharm"] = ":pycharm:",
+  ["Raycast"] = ":raycast:",
+  ["Safari"] = ":safari:",
+  ["Sequel Ace"] = ":sequel_ace:",
+  ["Slack"] = ":slack:",
+  ["Spark"] = ":spark:",
+  ["Spotify"] = ":spotify:",
+  ["System Settings"] = ":gear:",
+  ["Terminal"] = ":terminal:",
+  ["Todoist"] = ":todoist:",
+  ["Vivaldi"] = ":vivaldi:",
+  ["Warp"] = ":warp:",
+  ["WezTerm"] = ":wezterm:",
+  ["Zed"] = ":zed:",
+  ["Zen Browser"] = ":zen_browser:",
+  ["zoom.us"] = ":zoom:",
+}
+
+local prefixes = {
+  { "Ableton Live", ":ableton_live:" },
+  { "Affinity Designer", ":affinity_designer:" },
+  { "Affinity Photo", ":affinity_photo:" },
+  { "Affinity Publisher", ":affinity_publisher:" },
+  { "Firefox", ":firefox:" },
+  { "Microsoft Teams", ":microsoft_teams:" },
+}
+
+return setmetatable({}, {
+  __index = function(_, key)
+    if exact[key] then
+      return exact[key]
+    end
+    for _, p in ipairs(prefixes) do
+      if key:sub(1, #p[1]) == p[1] then
+        return p[2]
+      end
+    end
+    return nil
+  end,
+})

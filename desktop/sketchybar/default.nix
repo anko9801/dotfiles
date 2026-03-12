@@ -1,52 +1,84 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 
 let
   c = config.home-manager.users.${config.system.primaryUser}.theme.colors;
   toArgb = hex: "0xff${builtins.substring 1 6 hex}";
 
-  plugin = path: {
-    executable = true;
-    source = path;
-  };
+  lua = pkgs.lua5_4;
+  inherit (pkgs) sbarlua;
+
+  luaFile = path: { source = path; };
 in
 {
-  home-manager.users.${config.system.primaryUser}.home.file = {
-    # Color definitions (needs Nix interpolation for theme colors)
-    ".config/sketchybar/plugins/colors.sh" = {
-      executable = true;
-      text = ''
-        #!/bin/bash
-        export BLACK=${toArgb c.base}
-        export WHITE=${toArgb c.text}
-        export RED=${toArgb c.red}
-        export GREEN=${toArgb c.green}
-        export TEAL=${toArgb c.teal}
-        export SKY=${toArgb c.sky}
-        export SAPPHIRE=${toArgb c.sapphire}
-        export BLUE=${toArgb c.blue}
-        export LAVENDER=${toArgb c.lavender}
-        export YELLOW=${toArgb c.yellow}
-        export PEACH=${toArgb c.peach}
-        export PINK=${toArgb c.pink}
-        export MAUVE=${toArgb c.mauve}
-        export GREY=${toArgb c.overlay0}
-        export SURFACE=${toArgb c.surface0}
-        export TRANSPARENT=0x00000000
-      '';
-    };
+  home-manager.users.${config.system.primaryUser} = {
+    home.packages = [ lua ];
 
-    # Main config and plugins (all raw shell files)
-    ".config/sketchybar/sketchybarrc" = plugin ./sketchybarrc;
-    ".config/sketchybar/plugins/aerospace.sh" = plugin ./plugins/aerospace.sh;
-    ".config/sketchybar/plugins/icon_map.sh" = plugin ./plugins/icon_map.sh;
-    ".config/sketchybar/plugins/front_app.sh" = plugin ./plugins/front_app.sh;
-    ".config/sketchybar/plugins/clock.sh" = plugin ./plugins/clock.sh;
-    ".config/sketchybar/plugins/date.sh" = plugin ./plugins/date.sh;
-    ".config/sketchybar/plugins/media.sh" = plugin ./plugins/media.sh;
-    ".config/sketchybar/plugins/battery.sh" = plugin ./plugins/battery.sh;
-    ".config/sketchybar/plugins/volume.sh" = plugin ./plugins/volume.sh;
-    ".config/sketchybar/plugins/wifi.sh" = plugin ./plugins/wifi.sh;
-    ".config/sketchybar/plugins/cpu.sh" = plugin ./plugins/cpu.sh;
-    ".config/sketchybar/plugins/memory.sh" = plugin ./plugins/memory.sh;
+    home.file = {
+      # Lua bootstrap (executed by sketchybar)
+      ".config/sketchybar/sketchybarrc" = {
+        executable = true;
+        text = ''
+          #!${lua}/bin/lua
+          package.cpath = package.cpath .. ";${sbarlua}/lib/lua/5.4/?.so"
+
+          local config_dir = os.getenv("HOME") .. "/.config/sketchybar"
+          package.path = config_dir .. "/?.lua;"
+            .. config_dir .. "/?/init.lua;"
+            .. package.path
+
+          require("init")
+        '';
+      };
+
+      # Colors (generated from Stylix theme)
+      ".config/sketchybar/colors.lua".text = ''
+        local M = {}
+
+        M.black = ${toArgb c.base}
+        M.white = ${toArgb c.text}
+        M.red = ${toArgb c.red}
+        M.green = ${toArgb c.green}
+        M.teal = ${toArgb c.teal}
+        M.sky = ${toArgb c.sky}
+        M.sapphire = ${toArgb c.sapphire}
+        M.blue = ${toArgb c.blue}
+        M.lavender = ${toArgb c.lavender}
+        M.yellow = ${toArgb c.yellow}
+        M.peach = ${toArgb c.peach}
+        M.pink = ${toArgb c.pink}
+        M.mauve = ${toArgb c.mauve}
+        M.grey = ${toArgb c.overlay0}
+        M.surface = ${toArgb c.surface0}
+        M.transparent = 0x00000000
+
+        function M.with_alpha(color, alpha)
+          return (color & 0x00ffffff) | (alpha << 24)
+        end
+
+        return M
+      '';
+
+      # Lua source files
+      ".config/sketchybar/init.lua" = luaFile ./init.lua;
+      ".config/sketchybar/bar.lua" = luaFile ./bar.lua;
+      ".config/sketchybar/icons.lua" = luaFile ./icons.lua;
+      ".config/sketchybar/settings.lua" = luaFile ./settings.lua;
+      ".config/sketchybar/default.lua" = luaFile ./default.lua;
+
+      # Items
+      ".config/sketchybar/items/init.lua" = luaFile ./items/init.lua;
+      ".config/sketchybar/items/spaces.lua" = luaFile ./items/spaces.lua;
+      ".config/sketchybar/items/front_app.lua" = luaFile ./items/front_app.lua;
+      ".config/sketchybar/items/calendar.lua" = luaFile ./items/calendar.lua;
+      ".config/sketchybar/items/media.lua" = luaFile ./items/media.lua;
+      ".config/sketchybar/items/battery.lua" = luaFile ./items/battery.lua;
+      ".config/sketchybar/items/volume.lua" = luaFile ./items/volume.lua;
+      ".config/sketchybar/items/wifi.lua" = luaFile ./items/wifi.lua;
+      ".config/sketchybar/items/cpu.lua" = luaFile ./items/cpu.lua;
+      ".config/sketchybar/items/memory.lua" = luaFile ./items/memory.lua;
+
+      # Helpers
+      ".config/sketchybar/helpers/app_icons.lua" = luaFile ./helpers/app_icons.lua;
+    };
   };
 }
