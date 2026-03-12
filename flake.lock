@@ -863,14 +863,17 @@
         "treefmt-nix": "treefmt-nix_6"
       },
       "locked": {
-        "lastModified": 1773133732,
-        "narHash": "sha256-XKNk8mvG5pA/gQIe0DBU3EXl05yr050J+QQDwP2n4/o=",
-        "path": "/home/anko/windows-home-manager",
-        "type": "path"
+        "lastModified": 1773152599,
+        "narHash": "sha256-TPCDuB6MBmlR+ySoYVMa+SDTpxGbJkUzaq0O7SAocyo=",
+        "owner": "anko9801",
+        "repo": "nix-windows",
+        "rev": "b6e37425179c5895653b1c862248031ad2eb2ffa",
+        "type": "github"
       },
       "original": {
-        "path": "/home/anko/windows-home-manager",
-        "type": "path"
+        "owner": "anko9801",
+        "repo": "nix-windows",
+        "type": "github"
       }
     },
     "nixgl": {
