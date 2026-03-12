@@ -1,55 +1,98 @@
-local battery = sbar.add("item", "battery", {
+local battery = sbar.add("item", "widgets.battery", {
   position = "right",
-  icon = { color = colors.peach },
-  label = { color = colors.peach },
-  background = { border_color = colors.peach },
-  update_freq = 60,
+  icon = {
+    font = {
+      style = settings.font.style_map["Regular"],
+      size = 19.0,
+    },
+  },
+  label = { font = { family = settings.font.numbers } },
+  background = { drawing = false },
+  update_freq = 180,
+  popup = { align = "center" },
 })
 
-battery:subscribe("mouse.clicked", function()
-  battery:set({ popup = { drawing = "toggle" } })
-end)
-
-local battery_remaining = sbar.add("item", "battery.remaining", {
-  position = "popup.battery",
-  icon = { string = icons.remaining, color = colors.peach },
-  label = { color = colors.peach },
-  background = { drawing = false },
+local remaining_time = sbar.add("item", {
+  position = "popup." .. battery.name,
+  icon = {
+    string = "Time remaining:",
+    width = 100,
+    align = "left",
+  },
+  label = {
+    string = "??:??h",
+    width = 100,
+    align = "right",
+  },
 })
 
 battery:subscribe({ "routine", "power_source_change", "system_woke" }, function()
-  sbar.exec("pmset -g batt", function(result)
-    local percentage = result:match("(%d+)%%")
-    local charging = result:find("AC Power") ~= nil
-    local charge = tonumber(percentage) or 0
-    local remaining = result:match("(%d+:%d+)")
+  sbar.exec("pmset -g batt", function(batt_info)
+    local icon = "!"
+    local label = "?"
 
-    local icon
+    local found, _, charge = batt_info:find("(%d+)%%")
+    if found then
+      charge = tonumber(charge)
+      label = charge .. "%"
+    end
+
+    local color = colors.green
+    local charging = batt_info:find("AC Power")
+
     if charging then
       icon = icons.battery.charging
-    elseif charge > 80 then
-      icon = icons.battery.full
-    elseif charge > 60 then
-      icon = icons.battery.high
-    elseif charge > 40 then
-      icon = icons.battery.medium
-    elseif charge > 20 then
-      icon = icons.battery.low
     else
-      icon = icons.battery.empty
+      if found and charge > 80 then
+        icon = icons.battery.full
+      elseif found and charge > 60 then
+        icon = icons.battery.high
+      elseif found and charge > 40 then
+        icon = icons.battery.medium
+      elseif found and charge > 20 then
+        icon = icons.battery.low
+        color = colors.peach
+      else
+        icon = icons.battery.empty
+        color = colors.red
+      end
+    end
+
+    local lead = ""
+    if found and charge < 10 then
+      lead = "0"
     end
 
     battery:set({
-      icon = { string = icon },
-      label = { string = percentage and (percentage .. "%") or "?" },
+      icon = { string = icon, color = color },
+      label = { string = lead .. label },
     })
-
-    if remaining and remaining ~= "0:00" then
-      battery_remaining:set({ label = remaining .. " remaining" })
-    elseif charging then
-      battery_remaining:set({ label = "Charging" })
-    else
-      battery_remaining:set({ label = "Calculating..." })
-    end
   end)
+end)
+
+battery:subscribe("mouse.clicked", function()
+  local should_draw = battery:query().popup.drawing == "off"
+  if should_draw then
+    battery:set({
+      popup = { drawing = true },
+      background = { drawing = true, color = colors.bar.bg, border_width = 0 },
+    })
+    sbar.exec("pmset -g batt", function(batt_info)
+      local found, _, remaining = batt_info:find(" (%d+:%d+) remaining")
+      local label = found and remaining .. "h" or "No estimate"
+      remaining_time:set({ label = label })
+    end)
+  else
+    battery:set({
+      popup = { drawing = false },
+      background = { drawing = false },
+    })
+  end
+end)
+
+battery:subscribe("mouse.exited.global", function()
+  battery:set({
+    popup = { drawing = false },
+    background = { drawing = false },
+  })
 end)

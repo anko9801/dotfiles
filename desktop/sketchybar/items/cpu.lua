@@ -1,85 +1,63 @@
-sbar.add("item", "wifi.cpu.padding", {
-  position = "right",
-  icon = { drawing = false },
-  label = { drawing = false },
-  background = { drawing = false },
-  padding_left = 0,
-  padding_right = 0,
-  width = 4,
-})
+-- Get core count once for normalization
+local ncpu = 1
+local h = io.popen("sysctl -n hw.ncpu 2>/dev/null")
+if h then
+  ncpu = tonumber(h:read("*a")) or 1
+  h:close()
+end
 
-local cpu = sbar.add("item", "cpu", {
+local cpu = sbar.add("item", "widgets.cpu.label", {
   position = "right",
-  icon = { color = colors.sky },
-  label = { color = colors.sky },
+  icon = { string = icons.cpu, color = colors.sky },
+  label = {
+    string = "??%",
+    color = colors.sky,
+    font = { family = settings.font.numbers },
+  },
   background = { drawing = false },
   update_freq = 3,
 })
 
-cpu:subscribe("mouse.clicked", function()
-  sbar.exec("open -a 'Activity Monitor'")
-end)
-
-local cpu_graph = sbar.add("graph", "cpu_graph", 60, {
+local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 42, {
   position = "right",
-  graph = {
-    color = colors.sky,
-    fill_color = colors.with_alpha(colors.sky, 0x40),
-    line_width = 1.0,
-  },
+  graph = { color = colors.sky },
   background = {
+    height = 22,
+    color = { alpha = 0 },
+    border_color = { alpha = 0 },
     drawing = true,
-    color = 0x00000000,
-    height = 24,
-    border_width = 0,
   },
-  label = { drawing = false },
-  icon = { drawing = false },
-  width = 60,
-})
-
-local cpu_bracket = sbar.add("bracket", "cpu_bracket", { "cpu", "cpu_graph" }, {
-  background = {
-    color = colors.surface,
-    corner_radius = 8,
-    height = 28,
-    border_color = colors.sky,
-    border_width = 2,
-  },
-})
-
-sbar.add("item", "cpu.padding", {
-  position = "right",
   icon = { drawing = false },
   label = { drawing = false },
-  background = { drawing = false },
-  padding_left = 0,
-  padding_right = 0,
-  width = 16,
+  width = 42,
 })
 
 cpu:subscribe("routine", function()
   sbar.exec([[ps -A -o %cpu | awk '{s+=$1} END {printf "%.0f", s}']], function(result)
-    local cpu_val = tonumber(result) or 0
-    local cpu_percent = math.min(cpu_val / 150, 1.0)
+    local raw = tonumber(result) or 0
+    local load = math.floor(raw / ncpu)
+    local graph_val = math.min(load / 100.0, 1.0)
+    cpu_graph:push({ graph_val })
 
-    local color
-    if cpu_val > 80 then
-      color = colors.red
-    elseif cpu_val > 60 then
-      color = colors.peach
-    elseif cpu_val > 30 then
-      color = colors.yellow
-    else
-      color = colors.sky
+    local color = colors.sky
+    if load > 30 then
+      if load < 60 then
+        color = colors.yellow
+      elseif load < 80 then
+        color = colors.peach
+      else
+        color = colors.red
+      end
     end
 
     cpu:set({
-      icon = { string = icons.cpu, color = color },
-      label = { string = cpu_val .. "%", color = color },
+      icon = { color = color },
+      label = { string = load .. "%", color = color },
     })
     cpu_graph:set({ graph = { color = color } })
-    cpu_bracket:set({ background = { border_color = color } })
-    cpu_graph:push({ cpu_percent })
   end)
+end)
+
+cpu:subscribe("mouse.clicked", function()
+  sbar.exec("open -a 'Activity Monitor'")
 end)
