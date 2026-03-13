@@ -26,6 +26,8 @@ return {
     hostname = "󰇅",
     ip = "󰩟",
     router = "󰑩",
+    upload = "↑",
+    download = "↓",
   },
 
   media = {

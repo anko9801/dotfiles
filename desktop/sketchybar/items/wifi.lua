@@ -1,5 +1,19 @@
 local popup_width = 250
 
+local last_in = 0
+local last_out = 0
+local last_time = 0
+
+local function format_speed(bytes_per_sec)
+  if bytes_per_sec >= 1048576 then
+    return string.format("%.1fM", bytes_per_sec / 1048576)
+  elseif bytes_per_sec >= 1024 then
+    return string.format("%.0fK", bytes_per_sec / 1024)
+  else
+    return string.format("%.0fB", bytes_per_sec)
+  end
+end
+
 local wifi = sbar.add("item", "widgets.wifi", {
   position = "right",
   icon = {
@@ -82,16 +96,58 @@ local router = sbar.add("item", {
 })
 
 wifi:subscribe({ "routine", "wifi_change", "system_woke" }, function()
-  sbar.exec("ipconfig getifaddr en0 2>/dev/null", function(result)
-    local addr = result:gsub("%s+", "")
+  sbar.exec("ipconfig getifaddr en0 2>/dev/null", function(addr_result)
+    local addr = addr_result:gsub("%s+", "")
     local connected = addr ~= ""
+    if not connected then
+      last_in = 0
+      last_out = 0
+      last_time = 0
+      wifi:set({
+        icon = {
+          string = icons.wifi.disconnected,
+          color = colors.red,
+        },
+        label = "Off",
+      })
+      return
+    end
+
     wifi:set({
       icon = {
-        string = connected and icons.wifi.connected or icons.wifi.disconnected,
-        color = connected and colors.white or colors.red,
+        string = icons.wifi.connected,
+        color = colors.white,
       },
-      label = connected and addr or "Off",
     })
+
+    sbar.exec("netstat -ib | awk '/^en0 /{print $7, $10; exit}'", function(result)
+      local cur_in, cur_out = result:match("(%d+)%s+(%d+)")
+      if not cur_in then
+        return
+      end
+      cur_in = tonumber(cur_in)
+      cur_out = tonumber(cur_out)
+
+      local now = os.clock()
+      if last_time > 0 then
+        local elapsed = now - last_time
+        if elapsed > 0 then
+          local down_speed = (cur_in - last_in) / elapsed
+          local up_speed = (cur_out - last_out) / elapsed
+          wifi:set({
+            label = icons.wifi.upload
+              .. format_speed(up_speed)
+              .. " "
+              .. icons.wifi.download
+              .. format_speed(down_speed),
+          })
+        end
+      end
+
+      last_in = cur_in
+      last_out = cur_out
+      last_time = now
+    end)
   end)
 end)
 
@@ -116,9 +172,10 @@ local function toggle_details()
       ip:set({ label = result })
     end)
     sbar.exec(
-      "ipconfig getsummary en0 2>/dev/null | awk -F ' SSID : '  '/ SSID : / {print $2}'",
+      "networksetup -getairportnetwork en0 2>/dev/null",
       function(result)
-        ssid:set({ label = result })
+        local name = result:match("^Current Wi%-Fi Network:%s*(.+)")
+        ssid:set({ label = name or "Connected" })
       end
     )
     sbar.exec(

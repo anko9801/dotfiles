@@ -42,9 +42,22 @@ local focused_handle = io.popen("aerospace list-workspaces --focused 2>/dev/null
 local focused = focused_handle:read("*a"):gsub("%s+$", "")
 focused_handle:close()
 
+local keyboard_order = {
+  "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+  "Q", "W", "E", "T", "Y", "U", "I", "O", "P",
+  "A", "S", "D", "G", "V", "B", "N", "M",
+  "Z", "X", "C",
+}
+
+local ws_set = {}
+for sid in ws_result:gmatch("%S+") do
+  ws_set[sid] = true
+end
+
 local spaces = {}
 local i = 0
-for sid in ws_result:gmatch("%S+") do
+for _, sid in ipairs(keyboard_order) do
+  if not ws_set[sid] then goto continue end
   local color = settings.space_colors[(i % #settings.space_colors) + 1]
   i = i + 1
 
@@ -92,10 +105,29 @@ for sid in ws_result:gmatch("%S+") do
   spaces[sid] = { item = space, color = color, has_windows = has_windows }
 
   space:subscribe("aerospace_workspace_change", function(env)
-    set_focused(space, env.FOCUSED_WORKSPACE == sid, spaces[sid].has_windows)
+    local icon_line, name_line = get_app_display(sid)
+    local display_icon = sid
+    if name_line ~= "" then
+      display_icon = sid .. " " .. name_line
+    end
+    local has_windows = icon_line ~= "" or name_line ~= ""
+    spaces[sid].has_windows = has_windows
+
+    space:set({
+      icon = {
+        string = display_icon,
+        padding_right = icon_line ~= "" and 4 or 8,
+      },
+      label = {
+        string = icon_line,
+        drawing = icon_line ~= "",
+      },
+    })
+    set_focused(space, env.FOCUSED_WORKSPACE == sid, has_windows)
   end)
 
   space:subscribe("mouse.clicked", function()
     sbar.exec("aerospace workspace " .. sid)
   end)
+  ::continue::
 end

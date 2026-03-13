@@ -4,11 +4,12 @@ local volume = sbar.add("item", "widgets.volume", {
   position = "right",
   icon = {
     string = icons.volume._100,
-    color = colors.grey,
+    color = colors.white,
     font = {
       style = settings.font.style_map["Regular"],
       size = 14.0,
     },
+    padding_right = 4,
   },
   label = {
     string = "??%",
