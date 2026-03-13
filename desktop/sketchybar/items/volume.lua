@@ -13,6 +13,7 @@ local volume = sbar.add("item", "widgets.volume", {
   },
   label = {
     string = "??%",
+    width = 34,
     font = { family = settings.font.numbers },
   },
   background = { drawing = false },

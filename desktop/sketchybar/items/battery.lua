@@ -6,7 +6,7 @@ local battery = sbar.add("item", "widgets.battery", {
       size = 19.0,
     },
   },
-  label = { font = { family = settings.font.numbers } },
+  label = { width = 34, font = { family = settings.font.numbers } },
   background = { drawing = false },
   update_freq = 180,
   popup = { align = "center" },
@@ -28,6 +28,7 @@ local remaining_time = sbar.add("item", {
 
 battery:subscribe({ "routine", "power_source_change", "system_woke" }, function()
   sbar.exec("pmset -g batt", function(batt_info)
+    if not batt_info then return end
     local icon = "!"
     local label = "?"
 
@@ -78,6 +79,7 @@ battery:subscribe("mouse.clicked", function()
       background = { drawing = true, color = colors.bar.bg, border_width = 0 },
     })
     sbar.exec("pmset -g batt", function(batt_info)
+      if not batt_info then return end
       local found, _, remaining = batt_info:find(" (%d+:%d+) remaining")
       local label = found and remaining .. "h" or "No estimate"
       remaining_time:set({ label = label })

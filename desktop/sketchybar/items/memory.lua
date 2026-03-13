@@ -1,8 +1,10 @@
 local memory = sbar.add("item", "widgets.memory.label", {
   position = "right",
+  padding_right = 12,
   icon = { string = icons.memory, color = colors.teal },
   label = {
     string = "??%",
+    width = 34,
     color = colors.teal,
     font = { family = settings.font.numbers },
   },
@@ -28,6 +30,7 @@ memory:subscribe("routine", function()
   sbar.exec(
     [[memory_pressure | awk '/percentage/{print 100-$5}']],
     function(result)
+      if not result then return end
       local percent = tonumber(result) or 0
       local graph_val = math.min(percent / 100.0, 1.0)
       mem_graph:push({ graph_val })

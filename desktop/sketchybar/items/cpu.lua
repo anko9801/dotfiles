@@ -11,6 +11,7 @@ local cpu = sbar.add("item", "widgets.cpu.label", {
   icon = { string = icons.cpu, color = colors.sky },
   label = {
     string = "??%",
+    width = 34,
     color = colors.sky,
     font = { family = settings.font.numbers },
   },
@@ -34,6 +35,7 @@ local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 42, {
 
 cpu:subscribe("routine", function()
   sbar.exec([[ps -A -o %cpu | awk '{s+=$1} END {printf "%.0f", s}']], function(result)
+    if not result then return end
     local raw = tonumber(result) or 0
     local load = math.floor(raw / ncpu)
     local graph_val = math.min(load / 100.0, 1.0)

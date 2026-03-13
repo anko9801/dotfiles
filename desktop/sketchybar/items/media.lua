@@ -80,40 +80,42 @@ local function animate_detail(detail)
 end
 
 media_cover:subscribe("media_change", function(env)
-  local info = env.INFO
-  if type(info) == "string" then
-    -- JSON string parsing fallback
-    local state = info:match('"state":"([^"]*)"')
-    local artist = info:match('"artist":"([^"]*)"') or ""
-    local title = info:match('"title":"([^"]*)"') or ""
-    local drawing = state == "playing"
+  local ok, err = pcall(function()
+    local info = env.INFO
+    if not info then return end
 
-    media_artist:set({ drawing = drawing, label = artist })
-    media_title:set({ drawing = drawing, label = title })
-    media_cover:set({ drawing = drawing })
+    if type(info) == "string" then
+      local state = info:match('"state":"([^"]*)"')
+      local artist = info:match('"artist":"([^"]*)"') or ""
+      local title = info:match('"title":"([^"]*)"') or ""
+      local drawing = state == "playing"
 
-    if drawing then
-      animate_detail(true)
-      interrupt = interrupt + 1
-      sbar.delay(5, animate_detail)
-    else
-      media_cover:set({ popup = { drawing = false } })
+      media_artist:set({ drawing = drawing, label = artist })
+      media_title:set({ drawing = drawing, label = title })
+      media_cover:set({ drawing = drawing })
+
+      if drawing then
+        animate_detail(true)
+        interrupt = interrupt + 1
+        sbar.delay(5, animate_detail)
+      else
+        media_cover:set({ popup = { drawing = false } })
+      end
+    elseif type(info) == "table" then
+      local drawing = info.state == "playing"
+      media_artist:set({ drawing = drawing, label = info.artist or "" })
+      media_title:set({ drawing = drawing, label = info.title or "" })
+      media_cover:set({ drawing = drawing })
+
+      if drawing then
+        animate_detail(true)
+        interrupt = interrupt + 1
+        sbar.delay(5, animate_detail)
+      else
+        media_cover:set({ popup = { drawing = false } })
+      end
     end
-  else
-    -- Table format (native SbarLua)
-    local drawing = info.state == "playing"
-    media_artist:set({ drawing = drawing, label = info.artist })
-    media_title:set({ drawing = drawing, label = info.title })
-    media_cover:set({ drawing = drawing })
-
-    if drawing then
-      animate_detail(true)
-      interrupt = interrupt + 1
-      sbar.delay(5, animate_detail)
-    else
-      media_cover:set({ popup = { drawing = false } })
-    end
-  end
+  end)
 end)
 
 media_cover:subscribe("mouse.entered", function()

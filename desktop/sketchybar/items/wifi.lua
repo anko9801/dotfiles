@@ -5,13 +5,15 @@ local last_out = 0
 local last_time = 0
 
 local function format_speed(bytes_per_sec)
+  local s
   if bytes_per_sec >= 1048576 then
-    return string.format("%.1fM", bytes_per_sec / 1048576)
+    s = string.format("%.1fM", bytes_per_sec / 1048576)
   elseif bytes_per_sec >= 1024 then
-    return string.format("%.0fK", bytes_per_sec / 1024)
+    s = string.format("%.0fK", bytes_per_sec / 1024)
   else
-    return string.format("%.0fB", bytes_per_sec)
+    s = string.format("%.0fB", bytes_per_sec)
   end
+  return string.format("%4s", s)
 end
 
 local wifi = sbar.add("item", "widgets.wifi", {
@@ -22,6 +24,7 @@ local wifi = sbar.add("item", "widgets.wifi", {
   },
   label = {
     string = "...",
+    width = 90,
     font = { family = settings.font.numbers },
   },
   background = { drawing = false },
@@ -97,6 +100,7 @@ local router = sbar.add("item", {
 
 wifi:subscribe({ "routine", "wifi_change", "system_woke" }, function()
   sbar.exec("ipconfig getifaddr en0 2>/dev/null", function(addr_result)
+    if not addr_result then return end
     local addr = addr_result:gsub("%s+", "")
     local connected = addr ~= ""
     if not connected then
@@ -121,6 +125,7 @@ wifi:subscribe({ "routine", "wifi_change", "system_woke" }, function()
     })
 
     sbar.exec("netstat -ib | awk '/^en0 /{print $7, $10; exit}'", function(result)
+      if not result then return end
       local cur_in, cur_out = result:match("(%d+)%s+(%d+)")
       if not cur_in then
         return
@@ -128,7 +133,7 @@ wifi:subscribe({ "routine", "wifi_change", "system_woke" }, function()
       cur_in = tonumber(cur_in)
       cur_out = tonumber(cur_out)
 
-      local now = os.clock()
+      local now = os.time()
       if last_time > 0 then
         local elapsed = now - last_time
         if elapsed > 0 then
@@ -166,14 +171,15 @@ local function toggle_details()
       background = { drawing = true, color = colors.bar.bg, border_width = 0 },
     })
     sbar.exec("networksetup -getcomputername 2>/dev/null", function(result)
-      hostname:set({ label = result })
+      if result then hostname:set({ label = result }) end
     end)
     sbar.exec("ipconfig getifaddr en0 2>/dev/null", function(result)
-      ip:set({ label = result })
+      if result then ip:set({ label = result }) end
     end)
     sbar.exec(
       "networksetup -getairportnetwork en0 2>/dev/null",
       function(result)
+        if not result then return end
         local name = result:match("^Current Wi%-Fi Network:%s*(.+)")
         ssid:set({ label = name or "Connected" })
       end
@@ -181,7 +187,7 @@ local function toggle_details()
     sbar.exec(
       "networksetup -getinfo Wi-Fi 2>/dev/null | awk -F 'Router: ' '/^Router: / {print $2}'",
       function(result)
-        router:set({ label = result })
+        if result then router:set({ label = result }) end
       end
     )
   else

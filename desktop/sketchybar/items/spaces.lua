@@ -6,7 +6,8 @@ local function get_app_display(sid)
   local handle = io.popen(
     "aerospace list-windows --workspace '" .. sid .. "' --format '%{app-name}' 2>/dev/null | sort -u"
   )
-  local result = handle:read("*a")
+  if not handle then return "", "" end
+  local result = handle:read("*a") or ""
   handle:close()
 
   local icon_line = ""
@@ -31,16 +32,17 @@ local function set_focused(space, is_focused, has_windows)
   })
 end
 
--- Wait for AeroSpace
-os.execute("while ! aerospace list-workspaces --all &>/dev/null; do sleep 0.5; done")
+-- Non-blocking: check if aerospace is available, skip space creation if not
+local handle = io.popen("aerospace list-workspaces --all 2>/dev/null")
+local ws_result = handle and handle:read("*a") or ""
+if handle then handle:close() end
 
-local handle = io.popen("aerospace list-workspaces --all")
-local ws_result = handle:read("*a")
-handle:close()
+if ws_result == "" then return end
 
 local focused_handle = io.popen("aerospace list-workspaces --focused 2>/dev/null")
-local focused = focused_handle:read("*a"):gsub("%s+$", "")
-focused_handle:close()
+local focused = focused_handle and focused_handle:read("*a") or ""
+if focused_handle then focused_handle:close() end
+focused = focused:gsub("%s+$", "")
 
 local keyboard_order = {
   "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
