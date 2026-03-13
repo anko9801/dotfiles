@@ -3,14 +3,14 @@ return {
   group_paddings = 5,
 
   font = {
-    text = "JetBrainsMono Nerd Font",
-    numbers = "JetBrainsMono Nerd Font",
+    text = ".AppleSystemUIFont",
+    numbers = ".AppleSystemUIFont",
     style_map = {
       ["Regular"] = "Regular",
-      ["Semibold"] = "SemiBold",
+      ["Semibold"] = "Semibold",
       ["Bold"] = "Bold",
-      ["Heavy"] = "ExtraBold",
-      ["Black"] = "ExtraBold",
+      ["Heavy"] = "Heavy",
+      ["Black"] = "Black",
     },
   },
   space_colors = {

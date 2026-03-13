@@ -3,7 +3,7 @@ local cal = sbar.add("item", {
     color = colors.white,
     padding_left = 8,
     font = {
-      family = "SF Pro",
+      family = ".AppleSystemUIFont",
       style = "Semibold",
       size = 13.0,
     },
@@ -11,9 +11,7 @@ local cal = sbar.add("item", {
   label = {
     color = colors.white,
     padding_right = 8,
-    width = 49,
-    align = "right",
-    font = { family = "SF Pro", style = "Semibold", size = 13.0 },
+    font = { family = ".AppleSystemUIFont", style = "Semibold", size = 13.0 },
   },
   position = "right",
   update_freq = 30,
@@ -27,6 +25,6 @@ cal:subscribe({ "forced", "routine", "system_woke" }, function()
   local date_str = os.date("%m月%d日"):gsub("0(%d)", "%1")
   cal:set({
     icon = date_str .. " (" .. wday .. ")",
-    label = os.date("%H:%M"),
+    label = os.date("%H:%M"):gsub("^0", ""),
   })
 end)
