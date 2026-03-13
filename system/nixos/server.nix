@@ -5,6 +5,7 @@
 }:
 
 {
+  imports = [ ./ssh.nix ];
   # Default fileSystems (override with disko or hardware-configuration.nix)
   fileSystems."/" = lib.mkDefault {
     device = "/dev/disk/by-label/nixos";
@@ -51,24 +52,11 @@
   networking = {
     hostName = lib.mkDefault "nixos-server";
     networkmanager.enable = true;
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [ 22 ];
-    };
+    firewall.enable = true;
   };
 
   services = {
-    # SSH
-    openssh = {
-      enable = true;
-      settings = {
-        PermitRootLogin = lib.mkDefault "no";
-        PasswordAuthentication = lib.mkDefault false;
-      };
-    };
-    # Firmware updates
     fwupd.enable = true;
-    # Limit journal size
     journald.extraConfig = "SystemMaxUse=1G";
   };
 

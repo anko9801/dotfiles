@@ -25,6 +25,9 @@
     reattach = true;
   };
 
+  # Enable SSH server (Remote Login)
+  services.openssh.enable = true;
+
   # macOS system preferences
   system = {
     keyboard = {

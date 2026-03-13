@@ -120,7 +120,10 @@ rec {
       manager = "nixos";
       modules = moduleSets.workstation ++ [ ./terminal/zellij ];
       inputModules = [ "stylix" ];
-      systemModules = [ ./system/nixos/wsl.nix ];
+      systemModules = [
+        ./system/nixos/wsl.nix
+        ./system/nixos/ssh.nix
+      ];
     };
     nixos-desktop = {
       system = "x86_64-linux";
@@ -129,6 +132,7 @@ rec {
       inputModules = [ "stylix" ];
       systemModules = [
         ./system/nixos/desktop.nix
+        ./system/nixos/ssh.nix
         (import ./desktop/kanata.nix).nixosModule
       ];
     };
