@@ -25,6 +25,11 @@
     reattach = true;
   };
 
+  # Install Rosetta 2 for x86 app support
+  system.activationScripts.postActivation.text = ''
+    softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
+  '';
+
   # Enable SSH server (Remote Login)
   services.openssh.enable = true;
 
