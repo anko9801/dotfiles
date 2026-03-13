@@ -1,6 +1,5 @@
 {
   pkgs,
-  unfreePkgs,
   inputs,
   lib,
   config,
@@ -49,7 +48,19 @@ in
 
   programs.claude-code = {
     enable = true;
-    package = lib.mkIf (!pkgs.stdenv.isDarwin) unfreePkgs.claude-code;
+    package = pkgs.claude-code-bin;
+
+    # CLAUDE.md (memory)
+    memory.source = ./CLAUDE.md;
+
+    # Rules directory (always loaded)
+    rulesDir = ./rules;
+
+    # Agents directory
+    agentsDir = ./agents;
+
+    # Commands directory
+    commandsDir = ./commands;
 
     mcpServers = {
       github = {
@@ -73,18 +84,6 @@ in
         ];
       };
     };
-
-    # CLAUDE.md (memory)
-    memory.source = ./CLAUDE.md;
-
-    # Rules directory (always loaded)
-    rulesDir = ./rules;
-
-    # Agents directory
-    agentsDir = ./agents;
-
-    # Commands directory
-    commandsDir = ./commands;
 
     # Settings
     settings = {
