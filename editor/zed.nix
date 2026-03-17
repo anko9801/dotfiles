@@ -33,6 +33,7 @@ let
       git_gutter = "tracked_files";
     };
 
+    session.trust_all_worktrees = true;
     terminal.copy_on_select = true;
 
     languages = {
