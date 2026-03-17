@@ -25,9 +25,11 @@
     reattach = true;
   };
 
-  # Install Rosetta 2 for x86 app support
+  # Install Rosetta 2 for x86 app support (skip if already installed)
   system.activationScripts.postActivation.text = ''
-    softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
+    if ! /usr/bin/pgrep -q oahd 2>/dev/null; then
+      softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
+    fi
   '';
 
   # Enable SSH server (Remote Login)

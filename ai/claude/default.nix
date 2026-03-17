@@ -13,7 +13,7 @@ let
 in
 {
   home.packages = [
-    inputs.llm-agents.packages.${pkgs.system}.ccusage
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.ccusage
   ];
 
   programs.agent-skills = {

@@ -16,6 +16,7 @@ _:
     taps = [
       "charmbracelet/tap" # For crush
       "FelixKratz/formulae" # For SketchyBar, JankyBorders
+      "nikitabobko/tap" # For AeroSpace
     ];
 
     # CLI tools (most are in Home Manager, these are Homebrew-only)
@@ -31,7 +32,7 @@ _:
     # GUI Applications (casks)
     casks = [
       # Window management
-      "nikitabobko/tap/aerospace"
+      "aerospace"
 
       # Development
       "figma"
