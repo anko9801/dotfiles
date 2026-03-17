@@ -44,6 +44,32 @@ let
 
   keymaps = [
     {
+      context = "Editor && vim_mode == normal";
+      bindings = {
+        j = [
+          "workspace::SendKeystrokes"
+          "g j"
+        ];
+        k = [
+          "workspace::SendKeystrokes"
+          "g k"
+        ];
+      };
+    }
+    {
+      context = "Editor && vim_mode == visual";
+      bindings = {
+        j = [
+          "workspace::SendKeystrokes"
+          "g j"
+        ];
+        k = [
+          "workspace::SendKeystrokes"
+          "g k"
+        ];
+      };
+    }
+    {
       context = "Editor && vim_mode == insert";
       bindings = {
         "j k" = "vim::NormalBefore";
