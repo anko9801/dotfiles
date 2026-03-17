@@ -4,7 +4,7 @@ local volume = sbar.add("item", "widgets.volume", {
   position = "right",
   icon = {
     string = icons.volume._100,
-    color = colors.white,
+    color = colors.pure_white,
     font = {
       style = settings.font.style_map["Regular"],
       size = 14.0,
@@ -13,7 +13,7 @@ local volume = sbar.add("item", "widgets.volume", {
   },
   label = {
     string = "??%",
-    width = 34,
+    width = 39,
     font = { family = settings.font.numbers },
   },
   background = { drawing = false },
@@ -51,14 +51,9 @@ volume:subscribe("volume_change", function(env)
     icon = icons.volume._10
   end
 
-  local lead = ""
-  if vol < 10 then
-    lead = "0"
-  end
-
   volume:set({
     icon = { string = icon },
-    label = { string = lead .. vol .. "%" },
+    label = { string = vol .. "%" },
   })
   volume_slider:set({ slider = { percentage = vol } })
 end)
@@ -93,7 +88,7 @@ local function volume_toggle_details(env)
         for device in string.gmatch(available, "[^\r\n]+") do
           local color = colors.grey
           if current_audio_device == device then
-            color = colors.white
+            color = colors.pure_white
           end
           sbar.add("item", "volume.device." .. counter, {
             position = "popup." .. volume.name,
@@ -105,7 +100,7 @@ local function volume_toggle_details(env)
               .. '" && sketchybar --set /volume.device\\.*/ label.color='
               .. colors.grey
               .. " --set $NAME label.color="
-              .. colors.white,
+              .. colors.pure_white,
           })
           counter = counter + 1
         end

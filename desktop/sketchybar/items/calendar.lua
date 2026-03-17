@@ -1,7 +1,7 @@
 local cal = sbar.add("item", {
   icon = {
-    color = colors.white,
-    padding_left = 8,
+    color = colors.pure_white,
+    padding_left = 0,
     font = {
       family = ".AppleSystemUIFont",
       style = "Semibold",
@@ -9,7 +9,7 @@ local cal = sbar.add("item", {
     },
   },
   label = {
-    color = colors.white,
+    color = colors.pure_white,
     padding_right = 8,
     font = { family = ".AppleSystemUIFont", style = "Semibold", size = 13.0 },
   },

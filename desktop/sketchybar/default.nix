@@ -50,6 +50,7 @@ in
         M.mauve = ${toArgb c.mauve}
         M.grey = ${toArgb c.overlay0}
         M.surface = ${toArgb c.surface0}
+        M.pure_white = 0xffffffff
         M.transparent = 0x00000000
 
         M.bar = {

@@ -20,7 +20,7 @@ local wifi = sbar.add("item", "widgets.wifi", {
   position = "right",
   icon = {
     string = icons.wifi.connected,
-    color = colors.white,
+    color = colors.pure_white,
   },
   label = {
     string = "...",
@@ -120,7 +120,7 @@ wifi:subscribe({ "routine", "wifi_change", "system_woke" }, function()
     wifi:set({
       icon = {
         string = icons.wifi.connected,
-        color = colors.white,
+        color = colors.pure_white,
       },
     })
 
