@@ -20,6 +20,10 @@ _:
     ];
 
     # CLI tools (most are in Home Manager, these are Homebrew-only)
+    masApps = {
+      LINE = 539883307;
+    };
+
     brews = [
       "charmbracelet/tap/crush" # AI coding agent (avoids Nix Go build)
       "kanata" # Cross-platform key remapper
