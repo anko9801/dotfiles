@@ -47,7 +47,6 @@ _:
         "npm:ccmanager" = "latest";
         "npm:zenn-cli" = "latest";
         "npm:@anthropic-ai/claude-code" = "latest";
-        "cargo:keifu" = "latest"; # Lightweight git history viewer
       };
     };
   };
