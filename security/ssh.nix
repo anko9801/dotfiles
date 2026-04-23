@@ -47,6 +47,12 @@ in
         hostname = "gitlab.com";
         user = "git";
       };
+      tsubame = {
+        hostname = "login.t4.gsic.titech.ac.jp";
+        user = "uk07267";
+        identityFile = "~/.ssh/id_ed25519";
+        identitiesOnly = true;
+      };
     }
     // (lib.mapAttrs (_: host: {
       inherit (host) hostname;
