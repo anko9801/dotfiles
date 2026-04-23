@@ -207,6 +207,7 @@ in
         PAGER = cfg.pager.command;
         LESS = cfg.pager.lessOptions;
         LANG = cfg.locale.lang;
+        LOCALE_ARCHIVE = lib.mkIf (p.os == "linux") "${pkgs.glibcLocales}/lib/locale/locale-archive";
       }
       // lib.optionalAttrs (cfg.locale.lc_time != null) {
         LC_TIME = cfg.locale.lc_time;

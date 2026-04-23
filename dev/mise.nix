@@ -8,7 +8,8 @@ _:
 
   programs.mise = {
     enable = true;
-    enableZshIntegration = true;
+    enableBashIntegration = false;
+    enableZshIntegration = false;
     globalConfig = {
       settings = {
         experimental = true;
@@ -45,6 +46,7 @@ _:
         "npm:czg" = "latest";
         "npm:ccmanager" = "latest";
         "npm:zenn-cli" = "latest";
+        "npm:@anthropic-ai/claude-code" = "latest";
         "cargo:keifu" = "latest"; # Lightweight git history viewer
       };
     };

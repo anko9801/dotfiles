@@ -335,7 +335,7 @@ web_client {
 // The name of the default layout to load on startup
 // Default: "default"
 // 
-default_layout "default"
+default_layout "compact"
  
 // The folder in which Zellij will look for layouts
 // (Requires restart)
@@ -542,7 +542,7 @@ show_startup_tips false
 // Whether to show release notes on first version run
 // Default: true
 // 
-// show_release_notes false
+show_release_notes false
  
 // Whether to enable mouse hover effects and pane grouping functionality
 // default is true

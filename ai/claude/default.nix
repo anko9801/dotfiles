@@ -48,7 +48,7 @@ in
 
   programs.claude-code = {
     enable = true;
-    package = pkgs.claude-code-bin;
+    package = null;
 
     # CLAUDE.md (memory)
     memory.source = ./CLAUDE.md;
@@ -62,31 +62,30 @@ in
     # Commands directory
     commandsDir = ./commands;
 
-    mcpServers = {
-      github = {
-        type = "stdio";
-        command = "npx";
-        args = [
-          "-y"
-          "@anthropic-ai/claude-code-github-mcp"
-        ];
-        env = {
-          GITHUB_PERSONAL_ACCESS_TOKEN = "$(gh auth token)";
-        };
-      };
-      filesystem = {
-        type = "stdio";
-        command = "npx";
-        args = [
-          "-y"
-          "@anthropic-ai/claude-code-filesystem-mcp"
-          config.home.homeDirectory
-        ];
-      };
-    };
-
     # Settings
     settings = {
+      mcpServers = {
+        github = {
+          type = "stdio";
+          command = "npx";
+          args = [
+            "-y"
+            "@anthropic-ai/claude-code-github-mcp"
+          ];
+          env = {
+            GITHUB_PERSONAL_ACCESS_TOKEN = "$(gh auth token)";
+          };
+        };
+        filesystem = {
+          type = "stdio";
+          command = "npx";
+          args = [
+            "-y"
+            "@anthropic-ai/claude-code-filesystem-mcp"
+            config.home.homeDirectory
+          ];
+        };
+      };
       terminalStatusLine = "disabled";
       permissions = {
         tools = {
