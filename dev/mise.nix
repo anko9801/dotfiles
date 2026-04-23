@@ -17,7 +17,6 @@ _:
         jobs = 4;
         task_output = "prefix";
         color_theme = "catppuccin";
-        cargo_binstall = true;
         trusted_config_paths = [ "~/workspace" ];
         npm = {
           package_manager = "bun";
@@ -39,7 +38,6 @@ _:
         go = "latest";
         deno = "latest";
         bun = "latest";
-        lua = "latest";
         java = "latest";
         pnpm = "latest";
         "npm:@antfu/ni" = "latest";

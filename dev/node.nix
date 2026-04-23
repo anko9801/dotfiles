@@ -3,7 +3,7 @@
 {
   home = {
     packages = with pkgs; [
-      nodePackages.typescript-language-server
+      typescript-language-server
       oxlint
     ];
     sessionVariables.NODE_OPTIONS = "--max-old-space-size=4096";

@@ -33,9 +33,6 @@ in
       ++ lib.optionals (p.os == "linux") [
         trashy # rm alternative (move to trash)
       ]
-      ++ lib.optionals (p.environment == "wsl") [
-        wslu # WSL utilities (wslview, etc.)
-      ]
       ++ lib.optionals (p.os == "darwin") [
         # GNU coreutils (macOS ships BSD versions)
         coreutils
