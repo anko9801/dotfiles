@@ -14,6 +14,7 @@ _:
       settings = {
         experimental = true;
         warn_on_new_version = false;
+        auto_install = true;
         legacy_version_file = true;
         jobs = 4;
         task_output = "prefix";
