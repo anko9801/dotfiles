@@ -32,6 +32,7 @@ in
       ]
       ++ lib.optionals (p.os == "linux") [
         trashy # rm alternative (move to trash)
+        tailscale # VPN mesh network
       ]
       ++ lib.optionals (p.os == "darwin") [
         # GNU coreutils (macOS ships BSD versions)
