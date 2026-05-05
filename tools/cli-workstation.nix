@@ -14,7 +14,6 @@ in
       dust # du alternative (visual)
       duf # df alternative (visual)
       ouch # universal archive tool
-      bottom # btm: top/htop alternative
       procs # ps alternative
 
       # Data processing
@@ -30,7 +29,6 @@ in
       # Container tools
       dive # Docker image layer explorer
       lazydocker # Docker TUI
-      k9s # Kubernetes TUI
 
       # Load testing
       oha # HTTP load generator
@@ -58,16 +56,20 @@ in
       xclip
     ];
 
-  programs.tealdeer = {
-    enable = true;
-    settings = {
-      display = {
-        compact = false;
-        use_pager = true;
-      };
-      updates = {
-        auto_update = true;
-        auto_update_interval_hours = 720;
+  programs = {
+    bottom.enable = true;
+    k9s.enable = true;
+    tealdeer = {
+      enable = true;
+      settings = {
+        display = {
+          compact = false;
+          use_pager = true;
+        };
+        updates = {
+          auto_update = true;
+          auto_update_interval_hours = 720;
+        };
       };
     };
   };
