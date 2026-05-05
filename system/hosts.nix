@@ -63,6 +63,12 @@ let
       config.allowUnfree = true;
     };
 
+  dotfilesPath =
+    let
+      pwd = builtins.getEnv "PWD";
+    in
+    if pwd != "" then pwd else "/home/${username}/dotfiles";
+
   mkSpecialArgs =
     system: hostName:
     let
@@ -76,6 +82,7 @@ let
         remoteServers
         hostConfig
         versions
+        dotfilesPath
         ;
       unfreePkgs = mkUnfreePkgs system;
     };
