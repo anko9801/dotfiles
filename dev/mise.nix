@@ -13,13 +13,11 @@ _:
     globalConfig = {
       settings = {
         experimental = true;
-        warn_on_new_version = false;
         auto_install = true;
         legacy_version_file = true;
         jobs = 4;
         task_output = "prefix";
         color_theme = "catppuccin";
-        trusted_config_paths = [ "~/workspace" ];
         npm = {
           package_manager = "bun";
         };
