@@ -298,6 +298,8 @@ in
       };
     };
 
+    nixpkgs.config.allowUnfree = true;
+
     # Platform integration
     targets.genericLinux.enable = p.os == "linux";
     targets.genericLinux.nixGL = lib.mkIf (p.os == "linux" && nixglPkgs != null) {

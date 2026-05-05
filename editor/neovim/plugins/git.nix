@@ -116,10 +116,9 @@ _:
     };
 
     # git-conflict: Visualize and resolve merge conflicts
+    # Disabled: marked unfree in nixpkgs as of 2026-04
     git-conflict = {
-      enable = true;
-      lazyLoad.settings.event = [ "BufReadPost" ];
-      settings.default_mappings = true;
+      enable = false;
     };
   };
 }
