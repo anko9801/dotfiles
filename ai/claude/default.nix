@@ -9,7 +9,7 @@
 let
   antfu-skills = inputs.antfu-skills or null;
   anthropic-skills = inputs.anthropic-skills or null;
-  sessionDir = "\${XDG_RUNTIME_DIR:-/tmp}/claude-session";
+  sessionDir = "/tmp/claude-session";
 in
 {
   home.packages = [
@@ -196,9 +196,10 @@ in
                       echo "Blocked: potentially destructive command" >&2
                       exit 2 ;;
                   esac
-                  # Track session start time
-                  mkdir -p "${sessionDir}"
-                  [ ! -f "${sessionDir}/start" ] && date +%s > "${sessionDir}/start"
+                  mkdir -p "${sessionDir}" 2>/dev/null &&
+                    [ ! -f "${sessionDir}/start" ] &&
+                    date +%s > "${sessionDir}/start" 2>/dev/null
+                  exit 0
                 '';
               }
             ];
