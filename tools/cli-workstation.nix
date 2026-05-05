@@ -36,6 +36,7 @@ in
       # Dev tools
       sqlite # embedded database
       watchexec # file watcher
+      android-tools # adb, fastboot
 
       # Media
       ffmpeg

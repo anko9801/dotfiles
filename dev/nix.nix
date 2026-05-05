@@ -2,6 +2,7 @@
 
 {
   home.packages = with pkgs; [
+    nix # Nix CLI (must be on PATH; the nix HM module only configures it)
     nh # Better nix rebuild/switch UX (diff preview, progress)
     nix-output-monitor # nom: real-time build output monitoring
     nix-tree # Visualize nix store dependencies
