@@ -17,6 +17,14 @@
     statix # Linter
   ];
 
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+      "pipe-operators"
+    ];
+  };
+
   nix.registry.nixpkgs.flake = inputs.nixpkgs;
 
   xdg.configFile."devenv/config.yaml".text = ''
