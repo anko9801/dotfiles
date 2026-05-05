@@ -244,6 +244,7 @@ in
       // lib.optionalAttrs (p.environment == "wsl") {
         DISPLAY = ":0";
         WSL_INTEROP = "/run/WSL/1_interop";
+        XDG_RUNTIME_DIR = "/tmp/runtime-\${USER}";
       };
 
       packages =
@@ -278,8 +279,12 @@ in
         ".docker/cli-plugins/docker-compose".source = "${pkgs.docker-compose}/bin/docker-compose";
       };
 
-      # WSL: xdg-open browser setup
+      # WSL: runtime dir + xdg-open browser setup
       activation = lib.mkIf (p.environment == "wsl") {
+        ensureXdgRuntimeDir = lib.hm.dag.entryBefore [ "writeBoundary" ] ''
+          $DRY_RUN_CMD mkdir -p "/tmp/runtime-$USER"
+          $DRY_RUN_CMD chmod 700 "/tmp/runtime-$USER"
+        '';
         setupXdgOpen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
           if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
             $DRY_RUN_CMD mkdir -p $HOME/.local/share/applications
