@@ -266,6 +266,7 @@ in
         ];
 
       sessionPath = [
+        "$HOME/.local/share/mise/shims"
         "$HOME/.local/bin"
       ]
       ++ lib.optionals (p.os == "darwin") [

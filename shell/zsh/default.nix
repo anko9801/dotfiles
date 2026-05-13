@@ -40,11 +40,6 @@ in
     autocd = true;
 
     initContent = lib.mkMerge [
-      # mise shims for immediate tool availability
-      (lib.mkBefore ''
-        export PATH="$HOME/.local/share/mise/shims:$PATH"
-      '')
-
       # Shell options (deferred)
       ''
         _init_shell_options() {
