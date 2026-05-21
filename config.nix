@@ -32,6 +32,7 @@ rec {
     # Dev
     ./dev/build-tools.nix
     ./dev/go.nix
+    ./dev/julia.nix
     ./dev/mise.nix
     ./dev/node.nix
     ./dev/python.nix
