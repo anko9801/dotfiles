@@ -44,7 +44,6 @@ _:
         "npm:czg" = "latest";
         "npm:ccmanager" = "latest";
         "npm:zenn-cli" = "latest";
-        "npm:@anthropic-ai/claude-code" = "latest";
       };
     };
   };
