@@ -52,6 +52,10 @@ in
         user = "uk07267";
         identityFile = "~/.ssh/id_ed25519";
         identitiesOnly = true;
+        controlMaster = "auto";
+        controlPath = "~/.ssh/controlmasters/%r@%h:%p";
+        controlPersist = "8h";
+        serverAliveInterval = 60;
       };
     }
     // (lib.mapAttrs (_: host: {
