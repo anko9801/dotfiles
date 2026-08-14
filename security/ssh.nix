@@ -22,9 +22,13 @@ in
     SSH_AUTH_SOCK = builtins.replaceStrings [ "~" ] [ "$HOME" ] ssh.agentSocket;
   };
 
+  # Ephemeral / machine-specific hosts live in an unmanaged local file
+  home.file.".ssh/controlmasters/.keep".text = "";
+
   programs.ssh = {
     enable = true;
     enableDefaultConfig = lib.mkDefault false;
+    includes = [ "config.local" ];
 
     # macOS/Linux native: IdentityAgent pointing to agent socket
     extraConfig =
