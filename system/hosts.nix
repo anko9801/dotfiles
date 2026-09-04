@@ -137,13 +137,15 @@ let
         useUserPackages = true;
         extraSpecialArgs = mkSpecialArgs system hostName;
         users.${username} =
-          { lib, ... }:
+          { lib, pkgs, ... }:
           {
             imports = coreModules ++ flakeModules ++ extraFlakeModules ++ hostModules;
             home = {
               username = lib.mkForce username;
               homeDirectory = lib.mkForce "${homeDir}/${username}";
             };
+            # dev/nix.nix sets nix.settings, which requires nix.package to build nix.conf
+            nix.package = pkgs.nix;
             stylix.overlays.enable = false;
           };
       };
