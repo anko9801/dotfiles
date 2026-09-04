@@ -92,7 +92,7 @@ rec {
     linux-wsl = {
       system = "x86_64-linux";
       manager = "home-manager";
-      modules = moduleSets.workstation ++ [ ./terminal/zellij ];
+      modules = moduleSets.workstation;
     };
     linux-desktop = {
       system = "x86_64-linux";
@@ -127,7 +127,7 @@ rec {
     nixos-wsl = {
       system = "x86_64-linux";
       manager = "nixos";
-      modules = moduleSets.workstation ++ [ ./terminal/zellij ];
+      modules = moduleSets.workstation;
       inputModules = [ "stylix" ];
       systemModules = [
         ./system/nixos/wsl.nix

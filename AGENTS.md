@@ -18,7 +18,7 @@ ai/                    Claude, Aider
 dev/                   Nix tooling, Rust, Go, Python, Node, mise
 editor/                Neovim (nixvim), VS Code
 shell/                 Zsh, Fish, Bash, Starship
-terminal/              Ghostty, Zellij, tmux, Windows Terminal
+terminal/              Ghostty, WezTerm, tmux, Windows Terminal
 tools/                 Git, Yazi, Bat, CLI utils
 desktop/               IME, GUI integration
 security/              1Password, GPG, SSH, gitleaks

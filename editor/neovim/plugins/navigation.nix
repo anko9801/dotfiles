@@ -125,7 +125,7 @@ _:
       ];
     };
 
-    # smart-splits: Seamless navigation between Neovim and tmux/zellij
+    # smart-splits: Seamless navigation between Neovim and tmux
     smart-splits = {
       enable = true;
       lazyLoad.settings.event = [ "BufEnter" ];

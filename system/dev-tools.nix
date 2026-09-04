@@ -88,7 +88,7 @@ _: {
             "nvim"
             # Tools
             "ghostty"
-            "zellij"
+            "herdr"
             "sketchybar"
             "kanata"
             "atuin"

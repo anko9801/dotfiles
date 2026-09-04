@@ -2,7 +2,7 @@
 #
 # Uses zsh-defer to load heavy tools after the prompt is displayed.
 # Initialization order:
-#   1. EARLY (cannot defer): zellij auto-attach, zsh-defer itself, starship
+#   1. EARLY (cannot defer): zsh-defer itself, starship
 #   2. DEFERRED: GPG_TTY, compinit, fzf, direnv, zoxide, atuin
 #   3. DEFERRED PLUGINS: fzf-tab, autosuggestions, fast-syntax-highlighting, zsh-abbr
 {
@@ -21,15 +21,10 @@
     completionInit = "";
 
     initContent = lib.mkBefore ''
-      # Auto-start zellij (CANNOT DEFER: must attach before shell is ready)
-      if [[ -z "$ZELLIJ" && -z "$INSIDE_EMACS" && -z "$VSCODE_TERMINAL" && -z "$CI" && -t 0 ]] && command -v zellij &>/dev/null; then
-        zellij attach -c
-      fi
-
       # zsh-defer: deferred execution for faster startup (CANNOT DEFER: other defers depend on it)
       source ${pkgs.zsh-defer}/share/zsh-defer/zsh-defer.plugin.zsh
 
-      # Starship (CANNOT DEFER: breaks prompt display in zellij, causes visual glitches)
+      # Starship (CANNOT DEFER: breaks prompt display inside a multiplexer, causes visual glitches)
       [[ $TERM != "dumb" ]] && eval "$(${pkgs.starship}/bin/starship init zsh)"
 
       # Deferred initializer (single function to minimize zsh-defer overhead)

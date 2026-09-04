@@ -39,7 +39,7 @@ Evaluate in priority order (earlier criteria outweigh later ones):
 | Git worktree | git-wt, lazyworktree | CLI + TUI, fast switching |
 | Versions | mise | Unified config, fast startup |
 | Files | yazi | Fast, Vim-like, focused |
-| Terminal | zellij | Visible keybindings |
+| Multiplexer | herdr | Agent state in the sidebar; self-managed binary |
 | Secrets | 1Password | E2EE, biometric, peace of mind |
 | Theme | Stylix + Catppuccin | Unified colors across tools |
 | Dotfiles | home-manager | Packages + config unified |

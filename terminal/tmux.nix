@@ -1,4 +1,4 @@
-# Tmux for session management on servers (prefix: Ctrl-q, same as zellij)
+# Tmux for session management on servers (prefix: Ctrl-q)
 _:
 
 {
@@ -24,7 +24,7 @@ _:
       # Resize panes to largest attached client
       setw -g aggressive-resize on
 
-      # Vim-like pane navigation (same as zellij)
+      # Vim-like pane navigation
       bind h select-pane -L
       bind j select-pane -D
       bind k select-pane -U
