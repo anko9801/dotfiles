@@ -143,6 +143,9 @@ in
   darwinModule =
     { username, ... }:
     {
+      # Daemon reads this path, so deploy it for the same user
+      home-manager.users.${username}.xdg.configFile."kanata/kanata.kbd".text = defcfgBlock + darwinConfig;
+
       launchd.daemons.kanata = {
         serviceConfig = {
           Label = "com.kanata.daemon";
