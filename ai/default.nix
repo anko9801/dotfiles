@@ -18,9 +18,6 @@ in
 
   home.packages =
     (with pkgs; [
-      # Coding assistants
-      aider-chat # AI pair programming
-
       # Local LLM
       ollama # Run LLMs locally
 
