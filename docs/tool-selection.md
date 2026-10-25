@@ -37,12 +37,15 @@ Evaluate in priority order (earlier criteria outweigh later ones):
 | Git merge | zdiff3 | Shows common ancestor |
 | Git TUI | lazygit | Worktree, customCommands, intuitive |
 | Git worktree | git-wt, lazyworktree | CLI + TUI, fast switching |
-| Versions | mise | Unified config, fast startup |
+| Versions | mise | Interactive activation once; shims for scripts/IDEs; explicit installs on macOS |
 | Files | yazi | Fast, Vim-like, focused |
 | Multiplexer | herdr | Agent state in the sidebar; self-managed binary |
 | Secrets | 1Password | E2EE, biometric, peace of mind |
 | Theme | Stylix + Catppuccin | Unified colors across tools |
-| Dotfiles | home-manager | Packages + config unified |
+| macOS windows | AeroSpace | Keyboard navigation; one workspace list shared with the bar; native edge tiling disabled |
+| macOS status | SketchyBar + SbarLua | Native metrics/network reads, grouped event refreshes, and slower polling on battery |
+| macOS keyboard | Kanata + native Caps Lock mapping | Check virtual-driver readiness before startup; avoid repeated failures while approval is pending |
+| Dotfiles | home-manager | Reproducible CLI/config; macOS GUI tools stay in Homebrew. See [macOS performance](macos-performance.md). |
 
 ## Rejected
 

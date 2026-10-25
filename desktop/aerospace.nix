@@ -6,6 +6,12 @@ let
   # Hex color to 0xAARRGGBB format for borders/sketchybar (strip # prefix, add 0xff)
   toArgb = hex: "0xff${builtins.substring 1 6 hex}";
 
+  workspaceKeys = builtins.fromJSON (builtins.readFile ./workspaces.json);
+  workspaceBindings = lib.concatMapStringsSep "\n" (workspace: ''
+    alt-${lib.toLower workspace} = 'workspace ${workspace}'
+    alt-shift-${lib.toLower workspace} = ['move-node-to-workspace ${workspace}', 'exec-and-forget sketchybar --trigger aerospace_windows_change']
+  '') workspaceKeys;
+
   # Apps that should float by default
   floatingApps = [
     "com.apple.systempreferences"
@@ -68,6 +74,7 @@ let
     if.app-id = '${app.appId}'
     run = 'move-node-to-workspace ${app.workspace}'
   '') autoAssignApps;
+
 in
 {
   home-manager.users.${config.system.primaryUser}.home.file = {
@@ -119,76 +126,18 @@ in
       alt-shift-k = 'move up'
       alt-shift-l = 'move right'
 
-      # Workspace focus (alt + key)
-      alt-1 = 'workspace 1'
-      alt-2 = 'workspace 2'
-      alt-3 = 'workspace 3'
-      alt-4 = 'workspace 4'
-      alt-5 = 'workspace 5'
-      alt-6 = 'workspace 6'
-      alt-7 = 'workspace 7'
-      alt-8 = 'workspace 8'
-      alt-9 = 'workspace 9'
-      alt-0 = 'workspace 0'
-      alt-q = 'workspace Q'
-      alt-w = 'workspace W'
-      alt-e = 'workspace E'
-      alt-t = 'workspace T'
-      alt-y = 'workspace Y'
-      alt-u = 'workspace U'
-      alt-i = 'workspace I'
-      alt-o = 'workspace O'
-      alt-p = 'workspace P'
-      alt-a = 'workspace A'
-      alt-s = 'workspace S'
-      alt-d = 'workspace D'
-      alt-g = 'workspace G'
-      alt-v = 'workspace V'
-      alt-b = 'workspace B'
-      alt-n = 'workspace N'
-      alt-m = 'workspace M'
-      alt-z = 'workspace Z'
-      alt-x = 'workspace X'
-      alt-c = 'workspace C'
-
-      # Move window to workspace (alt + shift + key)
-      alt-shift-1 = 'move-node-to-workspace 1'
-      alt-shift-2 = 'move-node-to-workspace 2'
-      alt-shift-3 = 'move-node-to-workspace 3'
-      alt-shift-4 = 'move-node-to-workspace 4'
-      alt-shift-5 = 'move-node-to-workspace 5'
-      alt-shift-6 = 'move-node-to-workspace 6'
-      alt-shift-7 = 'move-node-to-workspace 7'
-      alt-shift-8 = 'move-node-to-workspace 8'
-      alt-shift-9 = 'move-node-to-workspace 9'
-      alt-shift-0 = 'move-node-to-workspace 0'
-      alt-shift-q = 'move-node-to-workspace Q'
-      alt-shift-w = 'move-node-to-workspace W'
-      alt-shift-e = 'move-node-to-workspace E'
-      alt-shift-t = 'move-node-to-workspace T'
-      alt-shift-y = 'move-node-to-workspace Y'
-      alt-shift-u = 'move-node-to-workspace U'
-      alt-shift-i = 'move-node-to-workspace I'
-      alt-shift-o = 'move-node-to-workspace O'
-      alt-shift-p = 'move-node-to-workspace P'
-      alt-shift-a = 'move-node-to-workspace A'
-      alt-shift-s = 'move-node-to-workspace S'
-      alt-shift-d = 'move-node-to-workspace D'
-      alt-shift-g = 'move-node-to-workspace G'
-      alt-shift-v = 'move-node-to-workspace V'
-      alt-shift-b = 'move-node-to-workspace B'
-      alt-shift-n = 'move-node-to-workspace N'
-      alt-shift-m = 'move-node-to-workspace M'
-      alt-shift-z = 'move-node-to-workspace Z'
-      alt-shift-x = 'move-node-to-workspace X'
-      alt-shift-c = 'move-node-to-workspace C'
+      # Workspace focus and movement share their order with SketchyBar.
+      ${workspaceBindings}
 
       # Workspace navigation
       alt-leftSquareBracket = 'workspace prev'
       alt-rightSquareBracket = 'workspace next'
+      alt-tab = 'workspace-back-and-forth'
 
       # Layout controls
       alt-f = 'fullscreen'
+      alt-slash = 'layout tiles horizontal vertical'
+      alt-comma = 'layout accordion horizontal vertical'
 
       # Resize mode
       alt-r = 'mode resize'
@@ -208,6 +157,7 @@ in
       # Service mode keybindings
       [mode.service.binding]
       r = ['flatten-workspace-tree', 'mode main']
+      c = ['reload-config', 'exec-and-forget sketchybar --reload', 'mode main']
       f = ['layout floating tiling', 'mode main']
       b = ['balance-sizes', 'mode main']
       backspace = ['close-all-windows-but-current', 'mode main']
@@ -229,7 +179,7 @@ in
         options=(
           style=round
           width=6.0
-          hidpi=on
+          hidpi=off
           active_color=${toArgb c.blue}
           inactive_color=0x00000000
         )
@@ -238,5 +188,33 @@ in
       '';
     };
 
+    ".local/bin/secure-input-status" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+
+        secure_input_pid=$(
+          /usr/sbin/ioreg -l -w 0 -c IOHIDSystem \
+            | /usr/bin/grep -Eo 'kCGSSessionSecureInputPID"=[0-9]+' \
+            | /usr/bin/head -n 1 \
+            | /usr/bin/sed 's/.*=//'
+        )
+
+        if [[ -z "$secure_input_pid" ]]; then
+          echo "Secure Input is disabled."
+          exit 0
+        fi
+
+        process_name=$(/bin/ps -p "$secure_input_pid" -o comm= 2>/dev/null || true)
+        if [[ -n "$process_name" ]]; then
+          echo "Secure Input is enabled; macOS reports PID $secure_input_pid ($process_name)."
+          echo "The reported process may only have been frontmost when the lock screen leaked Secure Input."
+          echo "Close any focused password field; if it remains stuck, log out or restart macOS."
+        else
+          echo "Secure Input is still registered to exited PID $secure_input_pid."
+          echo "This is consistent with a leaked macOS Secure Input state; log out or restart macOS."
+        fi
+      '';
+    };
   };
 }

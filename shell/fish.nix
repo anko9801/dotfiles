@@ -16,8 +16,6 @@
         fish_vi_key_bindings
 
         # Tool integrations (starship, fzf, zoxide handled by programs.*)
-        mise activate fish | source
-        uv generate-shell-completion fish | source
         git wt --init fish | source
 
         # PATH additions (paths in home.sessionPath are inherited automatically)
@@ -96,4 +94,10 @@
     direnv.enableFishIntegration = true;
     atuin.enableFishIntegration = true;
   };
+
+  xdg.configFile."fish/completions/uv.fish".text = ''
+    if command -sq uv
+      uv generate-shell-completion fish | source
+    end
+  '';
 }

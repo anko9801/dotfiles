@@ -1,4 +1,11 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
+
+let
+  inherit (config.system) primaryUser;
+  screenshotDirectory = "${
+    config.home-manager.users.${primaryUser}.home.homeDirectory
+  }/Pictures/Screenshots";
+in
 
 {
   imports = [
@@ -8,6 +15,14 @@
     ../../desktop/raycast
     (import ../../desktop/kanata.nix).darwinModule
   ];
+
+  home-manager.users.${primaryUser} =
+    { lib, ... }:
+    {
+      home.activation.ensureScreenshotDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        run mkdir -p ${lib.escapeShellArg screenshotDirectory}
+      '';
+    };
 
   # Register fonts with macOS Font Book (home-manager fonts aren't visible to GUI apps)
   fonts.packages = with pkgs; [
@@ -27,6 +42,7 @@
 
   # Install Rosetta 2 for x86 app support (skip if already installed)
   system.activationScripts.postActivation.text = ''
+    /bin/bash ${./nix-limits.sh}
     if ! /usr/bin/pgrep -q oahd 2>/dev/null; then
       softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
     fi
@@ -46,7 +62,8 @@
       dock = {
         autohide = true;
         autohide-delay = 0.0;
-        autohide-time-modifier = 0.5;
+        autohide-time-modifier = 0.15;
+        expose-animation-duration = 0.1;
         orientation = "bottom";
         show-recents = false;
         tilesize = 48;
@@ -77,6 +94,7 @@
       };
 
       NSGlobalDomain = {
+        NSAutomaticWindowAnimationsEnabled = false;
         _HIHideMenuBar = true;
         ApplePressAndHoldEnabled = false;
         InitialKeyRepeat = 15;
@@ -115,17 +133,25 @@
       loginwindow.GuestEnabled = false;
 
       screencapture = {
-        location = "~/Pictures/Screenshots";
+        location = screenshotDirectory;
         type = "png";
         disable-shadow = true;
       };
 
       spaces.spans-displays = false;
 
+      universalaccess.reduceMotion = true;
+
+      WindowManager = {
+        GloballyEnabled = false;
+        EnableStandardClickToShowDesktop = false;
+        EnableTilingByEdgeDrag = false;
+        EnableTopTilingByEdgeDrag = false;
+        EnableTilingOptionAccelerator = false;
+        EnableTiledWindowMargins = false;
+      };
+
       CustomUserPreferences = {
-        "com.apple.WindowManager" = {
-          EnableTiledWindowMargins = false;
-        };
         "com.apple.finder" = {
           NewWindowTarget = "PfHm";
           FXDefaultSearchScope = "SCcf";
@@ -157,9 +183,6 @@
           ShowCategory = 0;
           SortColumn = "CPUUsage";
           SortDirection = 0;
-        };
-        "com.apple.Accessibility" = {
-          ReduceMotionEnabled = 1;
         };
         "com.apple.sound.uiaudio" = {
           enabled = false;

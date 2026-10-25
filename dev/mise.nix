@@ -1,4 +1,4 @@
-_:
+{ config, lib, ... }:
 
 {
   xdg.configFile."pnpm/rc".text = ''
@@ -10,10 +10,11 @@ _:
     enable = true;
     enableBashIntegration = false;
     enableZshIntegration = false;
+    enableFishIntegration = true;
     globalConfig = {
       settings = {
         experimental = true;
-        auto_install = true;
+        auto_install = config.platform.os != "darwin";
         legacy_version_file = true;
         jobs = 4;
         task_output = "prefix";
@@ -27,6 +28,9 @@ _:
         task = {
           monorepo_depth = 2;
         };
+      }
+      // lib.optionalAttrs (config.platform.os == "darwin") {
+        not_found_auto_install = false;
       };
       env = { };
       tools = {

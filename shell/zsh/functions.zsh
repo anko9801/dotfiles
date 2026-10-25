@@ -53,14 +53,20 @@ nvim-startuptime() {
 
 # === Package Management ===
 
-# Update all package managers at once
+_maintenance_ready() {
+    if [[ "$(uname)" == "Darwin" && "$(/usr/sbin/sysctl -n kern.memorystatus_vm_pressure_level 2>/dev/null)" != 1 ]]; then
+        print -u2 "Memory pressure is elevated; postpone package updates."
+        return 75
+    fi
+}
+
 plugupdate() {
+    _maintenance_ready || return
     echo "==> Updating Nix flake..."
-    (cd ~/dotfiles && nix flake update)
+    (cd @DOTFILES_PATH@ && nix flake update) || return
+    _maintenance_ready || return
     echo "==> Updating mise..."
-    mise upgrade
-    echo "==> Updating Neovim plugins..."
-    nvim --headless '+Lazy sync' +qa
+    mise upgrade --jobs 2 || return
     echo "==> Done!"
 }
 

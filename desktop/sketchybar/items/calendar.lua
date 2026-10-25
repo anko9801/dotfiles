@@ -1,4 +1,4 @@
-local cal = sbar.add("item", {
+local cal = sbar.add("item", "widgets.calendar", {
   icon = {
     color = colors.pure_white,
     padding_left = 0,
@@ -14,17 +14,21 @@ local cal = sbar.add("item", {
     font = { family = ".AppleSystemUIFont", style = "Semibold", size = 13.0 },
   },
   position = "right",
-  update_freq = 30,
+  update_freq = 1,
   background = { drawing = false },
   click_script = "open -a 'Calendar'",
 })
 
-cal:subscribe({ "forced", "routine", "system_woke" }, function()
+local last_text
+local function render()
+  local current = os.date("*t", os.time())
   local weekdays = { "日", "月", "火", "水", "木", "金", "土" }
-  local wday = weekdays[tonumber(os.date("%w")) + 1]
-  local date_str = os.date("%m月%d日"):gsub("0(%d)", "%1")
-  cal:set({
-    icon = date_str .. " (" .. wday .. ")",
-    label = os.date("%H:%M"):gsub("^0", ""),
-  })
-end)
+  local date = string.format("%d月%d日 (%s)", current.month, current.day, weekdays[current.wday])
+  local time = string.format("%d:%02d", current.hour, current.min)
+  local text = date .. time
+  if text == last_text then return end
+  last_text = text
+  cal:set({ icon = date, label = time })
+end
+
+cal:subscribe({ "forced", "routine", "system_woke" }, render)

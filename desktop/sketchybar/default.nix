@@ -1,26 +1,66 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   c = config.home-manager.users.${config.system.primaryUser}.theme.colors;
   toArgb = hex: "0xff${builtins.substring 1 6 hex}";
   toArgbAlpha = alpha: hex: "0x${alpha}${builtins.substring 1 6 hex}";
 
-  lua = pkgs.lua5_4;
+  inherit (pkgs.lua55Packages) lua;
   inherit (pkgs) sbarlua;
 
   luaFile = path: { source = path; };
+  workspaceKeys = builtins.fromJSON (builtins.readFile ../workspaces.json);
+  metrics = pkgs.runCommandCC "desktop-metrics" { } ''
+    mkdir -p "$out/bin"
+    cp ${./helpers/json.h} json.h
+    $CC -std=c11 -O2 -Wall -Wextra ${./helpers/metrics.c} -o "$out/bin/desktop-metrics"
+    $CC -std=c11 -O2 -Wall -Wextra -I. ${./helpers/network.c} \
+      -framework SystemConfiguration -framework CoreFoundation -o "$out/bin/desktop-network"
+    $CC -std=c11 -O2 -Wall -Wextra ${./helpers/audio.c} \
+      -framework CoreAudio -framework AudioToolbox -o "$out/bin/desktop-audio"
+  '';
 in
 {
   home-manager.users.${config.system.primaryUser} = {
     home.packages = [ lua ];
 
+    launchd.agents.sketchybar-network = {
+      enable = true;
+      config = {
+        Label = "org.dotfiles.sketchybar-network";
+        ProgramArguments = [
+          "${metrics}/bin/desktop-network"
+          "--watch"
+          "/opt/homebrew/bin/sketchybar"
+        ];
+        RunAtLoad = true;
+        KeepAlive = true;
+        ThrottleInterval = 30;
+      };
+    };
+
     home.file = {
+      ".local/bin/desktop-metrics".source = "${metrics}/bin/desktop-metrics";
+      ".local/bin/desktop-network".source = "${metrics}/bin/desktop-network";
+      ".local/bin/desktop-audio".source = "${metrics}/bin/desktop-audio";
+      ".local/bin/desktop-probe" = {
+        executable = true;
+        text = ''
+          #!/bin/sh
+          exec ${pkgs.coreutils}/bin/timeout --signal=TERM --kill-after=1 4 /bin/sh -c "$1"
+        '';
+      };
       # Lua bootstrap (executed by sketchybar)
       ".config/sketchybar/sketchybarrc" = {
         executable = true;
         text = ''
           #!${lua}/bin/lua
-          package.cpath = package.cpath .. ";${sbarlua}/lib/lua/5.4/?.so"
+          package.cpath = package.cpath .. ";${sbarlua}/lib/lua/${lua.luaversion}/?.so"
 
           local config_dir = os.getenv("HOME") .. "/.config/sketchybar"
           package.path = config_dir .. "/?.lua;"
@@ -30,6 +70,9 @@ in
           require("init")
         '';
       };
+
+      ".config/sketchybar/workspaces.lua".text =
+        "return { " + lib.concatMapStringsSep ", " builtins.toJSON workspaceKeys + " }\n";
 
       # Colors (generated from Stylix theme)
       ".config/sketchybar/colors.lua".text = ''
@@ -90,9 +133,14 @@ in
       ".config/sketchybar/items/wifi.lua" = luaFile ./items/wifi.lua;
       ".config/sketchybar/items/cpu.lua" = luaFile ./items/cpu.lua;
       ".config/sketchybar/items/memory.lua" = luaFile ./items/memory.lua;
+      ".config/sketchybar/items/metrics.lua" = luaFile ./items/metrics.lua;
 
       # Helpers
       ".config/sketchybar/helpers/app_icons.lua" = luaFile ./helpers/app_icons.lua;
+      ".config/sketchybar/helpers/shell.lua" = luaFile ./helpers/shell.lua;
+      ".config/sketchybar/helpers/probe.lua" = luaFile ./helpers/probe.lua;
+      ".config/sketchybar/helpers/power.lua" = luaFile ./helpers/power.lua;
+      ".config/sketchybar/helpers/network.sh" = luaFile ./helpers/network.sh;
     };
   };
 }

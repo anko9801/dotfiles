@@ -96,8 +96,9 @@ let
     imeOn = "henkan";
   };
 
-  # Darwin/Windows config (Lang1/Lang2 = kana/eisu on macOS)
-  darwinConfig = mkConfig {
+  darwinConfig = builtins.readFile ./kanata-macos.kbd;
+
+  windowsConfig = mkConfig {
     imeOff = "eisu";
     imeOn = "kana";
   };
@@ -110,7 +111,13 @@ in
     { config, ... }:
     let
       inherit (config.platform) os;
-      cfg = if os == "darwin" || os == "windows" then darwinConfig else linuxConfig;
+      cfg =
+        if os == "darwin" then
+          darwinConfig
+        else if os == "windows" then
+          windowsConfig
+        else
+          linuxConfig;
     in
     {
       xdg.configFile."kanata/kanata.kbd".text = defcfgBlock + cfg;
@@ -146,16 +153,33 @@ in
       # Daemon reads this path, so deploy it for the same user
       home-manager.users.${username}.xdg.configFile."kanata/kanata.kbd".text = defcfgBlock + darwinConfig;
 
+      environment.etc."kanata/start".source = ./kanata-start.sh;
+
+      launchd.daemons.kanata-virtual-hid.serviceConfig = {
+        Label = "org.pqrs.service.daemon.Karabiner-VirtualHIDDevice-Daemon";
+        ProgramArguments = [
+          "/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon"
+        ];
+        RunAtLoad = true;
+        KeepAlive = true;
+        ThrottleInterval = 60;
+        ProcessType = "Interactive";
+      };
+
       launchd.daemons.kanata = {
         serviceConfig = {
           Label = "com.kanata.daemon";
           ProgramArguments = [
+            "/bin/sh"
+            "/etc/kanata/start"
             "/opt/homebrew/bin/kanata"
-            "-c"
             "/Users/${username}/.config/kanata/kanata.kbd"
           ];
           RunAtLoad = true;
-          KeepAlive = true;
+          KeepAlive.SuccessfulExit = false;
+          ThrottleInterval = 60;
+          StartInterval = 300;
+          ProcessType = "Interactive";
           StandardOutPath = "/tmp/kanata.out.log";
           StandardErrorPath = "/tmp/kanata.err.log";
         };
@@ -166,10 +190,10 @@ in
   windowsModule = _: {
     programs.kanata = {
       enable = true;
-      extraConfig = darwinConfig;
+      extraConfig = windowsConfig;
     };
   };
 
   # Raw configs (for custom usage)
-  inherit linuxConfig darwinConfig;
+  inherit linuxConfig darwinConfig windowsConfig;
 }

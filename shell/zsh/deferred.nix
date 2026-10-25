@@ -27,15 +27,12 @@
       # Starship (CANNOT DEFER: breaks prompt display inside a multiplexer, causes visual glitches)
       [[ $TERM != "dumb" ]] && eval "$(${pkgs.starship}/bin/starship init zsh)"
 
+      ${builtins.readFile ./completion-init.zsh}
+
       # Deferred initializer (single function to minimize zsh-defer overhead)
       _init_deferred() {
         export GPG_TTY=$(tty)
-        autoload -Uz compinit
-        if [[ -n ''${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-          compinit
-        else
-          compinit -C
-        fi
+        _init_completion
         source <(${pkgs.fzf}/bin/fzf --zsh)
         eval "$(${pkgs.direnv}/bin/direnv hook zsh)"
         eval "$(${pkgs.zoxide}/bin/zoxide init zsh --cmd cd)"

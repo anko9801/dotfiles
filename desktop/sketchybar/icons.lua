@@ -1,9 +1,11 @@
 return {
   cpu = "󰻠",
   memory = "󰍛",
+  network = "󰛳",
   clipboard = "󰅍",
 
   battery = {
+    plug = "󰚥",
     charging = "󰂄",
     full = "󰁹",
     high = "󰂀",

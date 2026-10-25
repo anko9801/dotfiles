@@ -1,0 +1,16 @@
+;; Application shortcuts and ordinary letters pass through unchanged.
+(defsrc caps lmet rmet)
+
+(defvar
+  tap-timeout 200
+  hold-timeout 200
+)
+
+(defalias
+  ;; A second key activates the modifier immediately.
+  cap (tap-hold-press $tap-timeout $hold-timeout esc lctl)
+  lm  (tap-hold-press $tap-timeout $hold-timeout eisu lmet)
+  rm  (tap-hold-press $tap-timeout $hold-timeout kana rmet)
+)
+
+(deflayer default @cap @lm @rm)

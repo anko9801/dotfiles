@@ -7,9 +7,9 @@ _:
 
     # Automatically remove unlisted packages
     onActivation = {
-      autoUpdate = true;
+      autoUpdate = false;
       cleanup = "uninstall";
-      upgrade = true;
+      upgrade = false;
     };
 
     # Taps

@@ -1,135 +1,197 @@
 local app_icons = require("helpers.app_icons")
+local probe = require("helpers.probe")
 
 sbar.add("event", "aerospace_workspace_change")
+sbar.add("event", "aerospace_windows_change")
 
-local function get_app_display(sid)
-  local handle = io.popen(
-    "aerospace list-windows --workspace '" .. sid .. "' --format '%{app-name}' 2>/dev/null | sort -u"
-  )
-  if not handle then return "", "" end
-  local result = handle:read("*a") or ""
-  handle:close()
-
-  local icon_line = ""
-  local name_line = ""
-  for app in result:gmatch("[^\n]+") do
-    local icon = app_icons[app]
-    if icon then
-      icon_line = icon_line .. icon .. " "
-    else
-      name_line = name_line .. app .. " "
-    end
-  end
-  return icon_line:gsub("%s+$", ""), name_line:gsub("%s+$", "")
-end
-
-local function set_focused(space, is_focused, has_windows)
-  space:set({
-    drawing = has_windows,
-    icon = { highlight = is_focused },
-    label = { highlight = is_focused },
-    background = { color = is_focused and colors.bar.bg or colors.transparent },
-  })
-end
-
--- Non-blocking: check if aerospace is available, skip space creation if not
-local handle = io.popen("aerospace list-workspaces --all 2>/dev/null")
-local ws_result = handle and handle:read("*a") or ""
-if handle then handle:close() end
-
-if ws_result == "" then return end
-
-local focused_handle = io.popen("aerospace list-workspaces --focused 2>/dev/null")
-local focused = focused_handle and focused_handle:read("*a") or ""
-if focused_handle then focused_handle:close() end
-focused = focused:gsub("%s+$", "")
-
-local keyboard_order = {
-  "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-  "Q", "W", "E", "T", "Y", "U", "I", "O", "P",
-  "A", "S", "D", "G", "V", "B", "N", "M",
-  "Z", "X", "C",
-}
-
-local ws_set = {}
-for sid in ws_result:gmatch("%S+") do
-  ws_set[sid] = true
-end
+local keyboard_order = require("workspaces")
 
 local spaces = {}
-local i = 0
-for _, sid in ipairs(keyboard_order) do
-  if not ws_set[sid] then goto continue end
-  local color = settings.space_colors[(i % #settings.space_colors) + 1]
-  i = i + 1
-
-  local icon_line, name_line = get_app_display(sid)
-  local display_icon = sid
-  if name_line ~= "" then
-    display_icon = sid .. " " .. name_line
-  end
-
-  local has_windows = icon_line ~= "" or name_line ~= ""
-  local is_focused = sid == focused
-
+local focused = ""
+local windows_current = false
+for i, sid in ipairs(keyboard_order) do
+  local color = settings.space_colors[((i - 1) % #settings.space_colors) + 1]
   local space = sbar.add("item", "space." .. sid, {
     position = "left",
-    updates = true,
-    drawing = has_windows,
+    drawing = false,
     icon = {
       font = { family = settings.font.numbers },
-      string = display_icon,
+      string = sid,
       padding_left = 8,
-      padding_right = icon_line ~= "" and 4 or 8,
+      padding_right = 8,
       color = color,
       highlight_color = color,
-      highlight = is_focused,
     },
     label = {
-      string = icon_line,
-      drawing = icon_line ~= "",
+      string = "",
+      drawing = false,
       padding_right = 8,
       color = color,
       highlight_color = color,
       font = "sketchybar-app-font:Regular:14.0",
       y_offset = -1,
-      highlight = is_focused,
     },
     padding_right = 2,
     padding_left = 2,
     background = {
-      color = is_focused and colors.bar.bg or colors.transparent,
+      color = colors.transparent,
       border_width = 0,
       height = 26,
     },
   })
-
-  spaces[sid] = { item = space, color = color, has_windows = has_windows }
-
-  space:subscribe("aerospace_workspace_change", function(env)
-    local icon_line, name_line = get_app_display(sid)
-    local display_icon = sid
-    if name_line ~= "" then
-      display_icon = sid .. " " .. name_line
-    end
-    local has_windows = icon_line ~= "" or name_line ~= ""
-    spaces[sid].has_windows = has_windows
-
-    space:set({
-      icon = {
-        string = display_icon,
-        padding_right = icon_line ~= "" and 4 or 8,
-      },
-      label = {
-        string = icon_line,
-        drawing = icon_line ~= "",
-      },
-    })
-    set_focused(space, env.FOCUSED_WORKSPACE == sid, has_windows)
-  end)
-
+  spaces[sid] = { item = space, has_windows = false }
   space:subscribe("mouse.clicked", function()
     sbar.exec("aerospace workspace " .. sid)
   end)
-  ::continue::
 end
+
+local extra = sbar.add("item", "space.other", { position = "left", drawing = false, label = { drawing = false } })
+local status = sbar.add("item", "space.status", { position = "left", drawing = true, icon = { string = "WS —", color = colors.grey }, label = { drawing = false } })
+extra:subscribe("mouse.clicked", function()
+  if focused ~= "" then sbar.exec("aerospace workspace " .. require("helpers.shell").quote(focused)) end
+end)
+
+local extra_focus, status_drawing
+local function render_focus()
+  for sid, space in pairs(spaces) do
+    local selected = sid == focused
+    local drawing = space.has_windows or selected
+    if space.selected ~= selected or space.drawing ~= drawing then
+      space.item:set({
+        drawing = drawing,
+        icon = { highlight = selected },
+        label = { highlight = selected },
+        background = { color = selected and colors.bar.bg or colors.transparent },
+      })
+      space.selected, space.drawing = selected, drawing
+    end
+  end
+  if extra_focus ~= focused then
+    extra:set({ drawing = focused ~= "" and spaces[focused] == nil, icon = { string = focused } })
+    extra_focus = focused
+  end
+  if status_drawing ~= (focused == "") then
+    status_drawing = focused == ""
+    status:set({ drawing = status_drawing })
+  end
+end
+
+local function render_windows(windows)
+  local apps = {}
+  for _, window in ipairs(windows) do
+    local sid, app = window.workspace, window["app-name"]
+    if spaces[sid] and type(app) == "string" and app ~= "" then
+      apps[sid] = apps[sid] or {}
+      apps[sid][app] = true
+    end
+  end
+  for sid, space in pairs(spaces) do
+    local names, icons, labels = {}, {}, {}
+    for app in pairs(apps[sid] or {}) do names[#names + 1] = app end
+    table.sort(names)
+    local signature = table.concat(names, "\0")
+    if signature ~= space.signature then
+      for _, app in ipairs(names) do
+        local target = app_icons[app] and icons or labels
+        target[#target + 1] = app_icons[app] or app
+      end
+      space.has_windows = #names > 0
+      space.item:set({
+        icon = {
+          string = sid .. (#labels > 0 and " " .. table.concat(labels, " ") or ""),
+          padding_right = #icons > 0 and 4 or 8,
+        },
+        label = { string = table.concat(icons, " "), drawing = #icons > 0 },
+      })
+      space.signature = signature
+    end
+  end
+  render_focus()
+end
+
+local window_request = probe.new({
+  command = "aerospace list-windows --all --format '%{workspace}%{app-name}' --json",
+  max_age = 25,
+  unavailable = function()
+    windows_current = false
+    for sid, space in pairs(spaces) do
+      space.has_windows, space.signature = false, nil
+      space.item:set({ icon = { string = sid .. (sid == focused and " —" or "") }, label = { string = "", drawing = false } })
+    end
+    render_focus()
+  end,
+  apply = function(result)
+    if type(result) ~= "table" then return false end
+    local count = 0
+    for key, row in pairs(result) do
+      if type(key) ~= "number" or key % 1 ~= 0 or key < 1 or type(row) ~= "table"
+        or type(row.workspace) ~= "string" or row.workspace == ""
+        or type(row["app-name"]) ~= "string" or row["app-name"] == "" then return false end
+      count = count + 1
+    end
+    if count ~= #result then return false end
+    windows_current = true
+    render_windows(result)
+    return true
+  end,
+})
+local focus_request = probe.new({
+  command = "aerospace list-workspaces --focused",
+  max_age = 25,
+  unavailable = function() focused = ""; render_focus() end,
+  apply = function(result)
+    if type(result) ~= "string" then return false end
+    local sid = result:match("^%s*([^%s]+)%s*$")
+    if not sid then return false end
+    focused = sid
+    if not windows_current and spaces[sid] then spaces[sid].item:set({ icon = { string = sid .. " —" } }) end
+    render_focus()
+    return true
+  end,
+})
+local function refresh_windows() window_request.refresh() end
+
+local refresh_generation = 0
+local refresh_scheduled = false
+local function schedule_refresh()
+  if refresh_scheduled then return end
+  refresh_scheduled = true
+  local generation = refresh_generation
+  sbar.delay(0.1, function()
+    if generation ~= refresh_generation then return end
+    refresh_scheduled = false
+    refresh_windows()
+  end)
+end
+
+local function refresh_immediately()
+  refresh_generation = refresh_generation + 1
+  refresh_scheduled = false
+  refresh_windows()
+end
+
+local observer = sbar.add("item", "aerospace.observer", {
+  drawing = false,
+  updates = true,
+  update_freq = 5,
+})
+observer:subscribe("aerospace_workspace_change", function(env)
+  if not focus_request.accept(env.FOCUSED_WORKSPACE) then focus_request.refresh() end
+  schedule_refresh()
+end)
+observer:subscribe("front_app_switched", schedule_refresh)
+observer:subscribe({ "space_windows_change", "aerospace_windows_change" }, function()
+  window_request.invalidate()
+  schedule_refresh()
+end)
+observer:subscribe("routine", function()
+  focus_request.refresh()
+  schedule_refresh()
+end)
+observer:subscribe({ "system_woke", "forced" }, function()
+  focus_request.refresh(true)
+  window_request.invalidate()
+  refresh_immediately()
+end)
+focus_request.refresh()
+refresh_windows()

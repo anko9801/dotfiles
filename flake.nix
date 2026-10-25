@@ -189,7 +189,14 @@
                   fi
                   if [ "$(uname)" = "Darwin" ]; then
                     [ -z "$TARGET" ] && TARGET="${defaults.darwin}"
-                    sudo -H --preserve-env=USER nix run nix-darwin -- switch --flake ".#$TARGET" --impure
+                    if [ "$(/usr/sbin/sysctl -n kern.memorystatus_vm_pressure_level)" != 1 ]; then
+                      echo "Memory pressure is elevated; refusing to evaluate/build the system." >&2
+                      exit 75
+                    fi
+                    sudo -H --preserve-env=USER /nix/var/nix/profiles/default/bin/nix \
+                      --max-jobs 1 --cores 2 --option max-substitution-jobs 4 \
+                      run --inputs-from . nix-darwin -- switch --flake ".#$TARGET" --impure \
+                      --max-jobs 1 --cores 2
                   elif [ -f /etc/NIXOS ]; then
                     [ -z "$TARGET" ] && TARGET="${defaults.nixos}"
                     sudo nixos-rebuild switch --flake ".#$TARGET"

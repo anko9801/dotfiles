@@ -2,6 +2,7 @@
 {
   lib,
   config,
+  dotfilesPath ? "${config.home.homeDirectory}/dotfiles",
   ...
 }:
 
@@ -12,9 +13,11 @@ let
   scripts = {
     abbr = builtins.readFile ./abbr.zsh;
     completion = builtins.readFile ./completion.zsh;
-    functions = builtins.replaceStrings [ "@FZF_FLAGS@" ] [ fzfFlags ] (
-      builtins.readFile ./functions.zsh
-    );
+    functions =
+      builtins.replaceStrings
+        [ "@FZF_FLAGS@" "@DOTFILES_PATH@" ]
+        [ fzfFlags (lib.escapeShellArg dotfilesPath) ]
+        (builtins.readFile ./functions.zsh);
     obsidian = builtins.readFile ./obsidian.zsh;
   };
 in

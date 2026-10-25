@@ -190,6 +190,8 @@ jobs:
         with:
           name: anko9801
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Test desktop configuration
+        run: nix develop .#ci --command bash scripts/check-desktop.sh
       - name: Build nix-darwin configuration
         run: python3 .github/scripts/nix-build-trace.py record -- nix build .#darwinConfigurations.mac-arm.system --impure
         env:

@@ -1,22 +1,32 @@
-{ pkgs, inputs, ... }:
-
 {
-  home.packages = with pkgs; [
-    nix # Nix CLI (must be on PATH; the nix HM module only configures it)
-    nh # Better nix rebuild/switch UX (diff preview, progress)
-    nix-output-monitor # nom: real-time build output monitoring
-    nix-tree # Visualize nix store dependencies
-    nix-du # Disk usage analyzer for nix store
-    manix # Nix documentation search
-    nix-diff # Compare nix derivations
-    nvd # Nix version diff (compare closures)
-    nix-inspect # TUI for browsing nix configs
-    nixpkgs-review # Test nixpkgs PRs locally
-    devenv # Development environments
-    nixd # Nix LSP
-    nixfmt # Formatter
-    statix # Linter
-  ];
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
+
+let
+  fleetSettings = (import ../config.nix).nixSettings.settings;
+in
+{
+  home.packages =
+    lib.optional (config.platform.os != "darwin") pkgs.nix
+    ++ (with pkgs; [
+      nh # Better nix rebuild/switch UX (diff preview, progress)
+      nix-output-monitor # nom: real-time build output monitoring
+      nix-tree # Visualize nix store dependencies
+      nix-du # Disk usage analyzer for nix store
+      manix # Nix documentation search
+      nix-diff # Compare nix derivations
+      nvd # Nix version diff (compare closures)
+      nix-inspect # TUI for browsing nix configs
+      nixpkgs-review # Test nixpkgs PRs locally
+      devenv # Development environments
+      nixd # Nix LSP
+      nixfmt # Formatter
+      statix # Linter
+    ]);
 
   nix.settings = {
     experimental-features = [
@@ -24,6 +34,13 @@
       "flakes"
       "pipe-operators"
     ];
+  }
+  // lib.optionalAttrs (config.platform.os == "darwin") {
+    # Determinate owns the daemon; Home Manager still configures its clients.
+    max-jobs = 1;
+    cores = 2;
+    max-substitution-jobs = 4;
+    inherit (fleetSettings) substituters trusted-public-keys;
   };
 
   nix.registry.nixpkgs.flake = inputs.nixpkgs;

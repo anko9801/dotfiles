@@ -90,6 +90,17 @@ _: {
             "ghostty"
             "herdr"
             "sketchybar"
+            "SbarLua"
+            "deadnix"
+            "ipcserver"
+            "plugupdate"
+            "purgeable"
+            "universalaccess"
+            "systemextensionsctl"
+            "pqrs"
+            "lwouis"
+            "screencapture"
+            "pmset"
             "kanata"
             "atuin"
             "zoxide"
@@ -175,6 +186,9 @@ _: {
         packages = with pkgs; [
           statix
           deadnix
+          lua55Packages.lua
+          python3
+          zsh
         ];
       };
     };
