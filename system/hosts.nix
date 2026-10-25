@@ -145,7 +145,7 @@ let
               homeDirectory = lib.mkForce "${homeDir}/${username}";
             };
             # dev/nix.nix sets nix.settings, which requires nix.package to build nix.conf
-            nix.package = pkgs.nix;
+            nix.package = lib.mkDefault pkgs.nix;
             stylix.overlays.enable = false;
           };
       };
@@ -263,7 +263,7 @@ let
               inherit username;
               homeDirectory = "/home/${username}";
             };
-            nix.package = pkgs.nix;
+            nix.package = lib.mkDefault pkgs.nix;
           }
         ];
     };
