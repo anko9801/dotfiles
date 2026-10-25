@@ -3,6 +3,12 @@ on:
   push:
     branches: [master]
   pull_request:
+env:
+  GC_INITIAL_HEAP_SIZE: "67108864"
+  NIX_CONFIG: |
+    max-jobs = 1
+    cores = 2
+    max-substitution-jobs = 4
 jobs:
   nix-lint:
     runs-on: ubuntu-latest

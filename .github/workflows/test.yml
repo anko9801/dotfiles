@@ -20,6 +20,12 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+env:
+  GC_INITIAL_HEAP_SIZE: "67108864"
+  NIX_CONFIG: |
+    max-jobs = 1
+    cores = 2
+    max-substitution-jobs = 4
 jobs:
   build-home:
     runs-on: ubuntu-latest
@@ -172,7 +178,7 @@ jobs:
         if: always()
   build-macos:
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v14
