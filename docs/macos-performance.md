@@ -386,3 +386,8 @@ upstream 384 MiB default; garbage collection can take longer. This is an initial
 heap size, not a hard allocation cap. Existing explicit environment overrides
 are preserved. Warning-level system pressure still prevents the command from
 starting. CI is the full-system validation path while this Mac is busy.
+
+The [local build and activation follow-up](macos-local-switch.md) records the
+measured native build times, explicit warning-pressure mode, Homebrew API
+compatibility and protected-preference handling. It supersedes the earlier
+statement that no local system build had been completed.

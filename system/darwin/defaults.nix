@@ -140,8 +140,6 @@ in
 
       spaces.spans-displays = false;
 
-      universalaccess.reduceMotion = true;
-
       WindowManager = {
         GloballyEnabled = false;
         EnableStandardClickToShowDesktop = false;

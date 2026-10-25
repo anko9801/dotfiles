@@ -55,6 +55,53 @@ class GuardTests(unittest.TestCase):
             self.assertNotIn("--no-build", args[0])
             self.assertEqual(kwargs["env"]["GC_INITIAL_HEAP_SIZE"], "67108864")
 
+    def test_warning_mode_is_explicit_and_caps_resources(self):
+        process = Mock(pid=1234)
+        process.poll.return_value = 0
+        process.wait.return_value = 0
+        with patch.object(guard.sys, "argv", ["nix-safe.py", "build", "--allow-warning", "--out-link", "/tmp/result"]), \
+             patch.object(guard.sys, "platform", "darwin"), \
+             patch.object(guard, "pressure", return_value=2), \
+             patch.object(guard.Path, "exists", return_value=True), \
+             patch.object(guard.subprocess, "check_output", return_value="Determinate Nix"), \
+             patch.object(guard.subprocess, "Popen", return_value=process) as popen:
+            self.assertEqual(guard.main(), 0)
+            args, kwargs = popen.call_args
+            self.assertIn("--out-link", args[0])
+            self.assertIn("cores = 1", kwargs["env"]["NIX_CONFIG"])
+            self.assertEqual(kwargs["env"]["GC_MAXIMUM_HEAP_SIZE"], "1073741824")
+
+    def test_warning_mode_still_blocks_critical_pressure(self):
+        with patch.object(guard.sys, "argv", ["nix-safe.py", "build", "--allow-warning"]), \
+             patch.object(guard.sys, "platform", "darwin"), \
+             patch.object(guard, "pressure", return_value=4), \
+             patch.object(guard.subprocess, "Popen") as popen:
+            self.assertEqual(guard.main(), 75)
+            popen.assert_not_called()
+
+    def test_explicit_heap_limit_overrides_warning_default(self):
+        process = Mock(pid=1234)
+        process.poll.return_value = 0
+        process.wait.return_value = 0
+        with patch.object(guard.sys, "argv", ["nix-safe.py", "plan", "--allow-warning", "--gc-heap-mib", "2048"]), \
+             patch.object(guard.sys, "platform", "darwin"), \
+             patch.object(guard, "pressure", return_value=1), \
+             patch.object(guard.Path, "exists", return_value=True), \
+             patch.object(guard.subprocess, "check_output", return_value="Determinate Nix"), \
+             patch.object(guard.subprocess, "Popen", return_value=process) as popen:
+            self.assertEqual(guard.main(), 0)
+            self.assertEqual(popen.call_args.kwargs["env"]["GC_MAXIMUM_HEAP_SIZE"], "2147483648")
+
+    def test_version_timeout_does_not_start_evaluation(self):
+        with patch.object(guard.sys, "argv", ["nix-safe.py", "plan"]), \
+             patch.object(guard.sys, "platform", "darwin"), \
+             patch.object(guard, "pressure", return_value=1), \
+             patch.object(guard.Path, "exists", return_value=True), \
+             patch.object(guard.subprocess, "check_output", side_effect=guard.subprocess.TimeoutExpired("nix", 30)), \
+             patch.object(guard.subprocess, "Popen") as popen:
+            self.assertEqual(guard.main(), 75)
+            popen.assert_not_called()
+
     def test_exit_during_cancellation_is_harmless(self):
         process = Mock(pid=1234)
         process.poll.return_value = None

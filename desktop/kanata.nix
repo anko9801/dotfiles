@@ -148,12 +148,16 @@ in
 
   # Darwin system module
   darwinModule =
-    { username, ... }:
+    { username, pkgs, ... }:
     {
       # Daemon reads this path, so deploy it for the same user
       home-manager.users.${username}.xdg.configFile."kanata/kanata.kbd".text = defcfgBlock + darwinConfig;
 
-      environment.etc."kanata/start".source = ./kanata-start.sh;
+      environment.etc."kanata/start".source = pkgs.writeTextFile {
+        name = "kanata-start";
+        executable = true;
+        text = builtins.readFile ./kanata-start.sh;
+      };
 
       launchd.daemons.kanata-virtual-hid.serviceConfig = {
         Label = "org.pqrs.service.daemon.Karabiner-VirtualHIDDevice-Daemon";

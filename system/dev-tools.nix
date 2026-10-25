@@ -101,6 +101,7 @@ _: {
             "lwouis"
             "screencapture"
             "pmset"
+            "readlink"
             "kanata"
             "atuin"
             "zoxide"

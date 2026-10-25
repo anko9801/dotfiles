@@ -5,10 +5,10 @@ _:
   homebrew = {
     enable = true;
 
-    # Automatically remove unlisted packages
+    # Preserve manually installed applications during activation
     onActivation = {
       autoUpdate = false;
-      cleanup = "uninstall";
+      cleanup = "none";
       upgrade = false;
     };
 
