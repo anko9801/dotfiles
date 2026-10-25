@@ -19,5 +19,9 @@
     };
   };
 
-  networking.hostName = "nixos-wsl";
+  networking = {
+    hostName = "nixos-wsl";
+    # WSL generates resolv.conf; NixOS must not manage the same file.
+    resolvconf.enable = false;
+  };
 }
