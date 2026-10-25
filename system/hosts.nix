@@ -263,7 +263,7 @@ let
               inherit username;
               homeDirectory = "/home/${username}";
             };
-            nix.package = lib.mkDefault pkgs.nix;
+            nix.package = pkgs.nix;
           }
         ];
     };
