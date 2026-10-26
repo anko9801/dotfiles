@@ -16,7 +16,6 @@ local cal = sbar.add("item", "widgets.calendar", {
   position = "right",
   update_freq = 1,
   background = { drawing = false },
-  click_script = "open -a 'Calendar'",
 })
 
 local last_text
@@ -32,3 +31,4 @@ local function render()
 end
 
 cal:subscribe({ "forced", "routine", "system_woke" }, render)
+require("helpers.menu").bind({ cal }, "calendar", function() return { "カレンダー" } end)

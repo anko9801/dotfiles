@@ -17,6 +17,10 @@ MAPE = "MAPE"
 # Neovim plugin
 noice = "noice"
 
+[default.extend-identifiers]
+# Field name in mach_timebase_info_data_t from the macOS SDK.
+numer = "numer"
+
 [files]
 extend-exclude = [
   "*.lock",

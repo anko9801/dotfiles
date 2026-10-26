@@ -41,9 +41,10 @@ static int watch_network(char *bar) {
   SCDynamicStoreRef store = SCDynamicStoreCreate(NULL, CFSTR("desktop-network-watch"), network_changed, &context);
   if (!store) return 1;
   const void *values[] = {CFSTR("State:/Network/Global/IPv4"), CFSTR("State:/Network/Global/IPv6"),
+    CFSTR("State:/Network/Global/DNS"),
     CFSTR("State:/Network/Interface/.*/(IPv4|IPv6|Link)")};
-  CFArrayRef keys = CFArrayCreate(NULL, values, 2, &kCFTypeArrayCallBacks);
-  CFArrayRef patterns = CFArrayCreate(NULL, values + 2, 1, &kCFTypeArrayCallBacks);
+  CFArrayRef keys = CFArrayCreate(NULL, values, 3, &kCFTypeArrayCallBacks);
+  CFArrayRef patterns = CFArrayCreate(NULL, values + 3, 1, &kCFTypeArrayCallBacks);
   int subscribed = SCDynamicStoreSetNotificationKeys(store, keys, patterns);
   CFRelease(keys); CFRelease(patterns);
   if (!subscribed) { CFRelease(store); return 1; }
@@ -71,6 +72,7 @@ int main(int argc, char **argv) {
 
   char interface[IFNAMSIZ] = "";
   char gateway[128] = "Unknown";
+  const char *family = NULL;
   CFStringRef protocols[] = {kSCEntNetIPv4, kSCEntNetIPv6};
   for (size_t i = 0; i < sizeof(protocols) / sizeof(protocols[0]); ++i) {
     CFStringRef key = SCDynamicStoreKeyCreateNetworkGlobalEntity(
@@ -82,7 +84,8 @@ int main(int argc, char **argv) {
     int found = copy_string(state, kSCDynamicStorePropNetPrimaryInterface,
                             interface, sizeof(interface));
     if (found) {
-      if (!copy_string(state, kSCPropNetIPv4Router, gateway, sizeof(gateway))) {
+      family = i == 0 ? "IPv4" : "IPv6";
+      if (!copy_string(state, i == 0 ? kSCPropNetIPv4Router : kSCPropNetIPv6Router, gateway, sizeof(gateway))) {
         strcpy(gateway, "Unknown");
       }
     } else {
@@ -97,27 +100,44 @@ int main(int argc, char **argv) {
     if (!CFStringGetCString(computer_name, hostname, sizeof(hostname), kCFStringEncodingUTF8)) hostname[0] = '\0';
     CFRelease(computer_name);
   }
+  char dns[512] = "";
+  CFDictionaryRef dns_state = SCDynamicStoreCopyValue(store, CFSTR("State:/Network/Global/DNS"));
+  if (dns_state && CFGetTypeID(dns_state) == CFDictionaryGetTypeID()) {
+    CFArrayRef servers = CFDictionaryGetValue(dns_state, kSCPropNetDNSServerAddresses);
+    if (servers && CFGetTypeID(servers) == CFArrayGetTypeID()) {
+      for (CFIndex i = 0; i < CFArrayGetCount(servers) && i < 4; ++i) {
+        CFTypeRef value = CFArrayGetValueAtIndex(servers, i);
+        char server[128];
+        if (CFGetTypeID(value) == CFStringGetTypeID() && CFStringGetCString(value, server, sizeof(server), kCFStringEncodingUTF8)) {
+          if (dns[0]) strlcat(dns, ",", sizeof(dns));
+          strlcat(dns, server, sizeof(dns));
+        }
+      }
+    }
+  }
+  if (dns_state) CFRelease(dns_state);
   CFRelease(store);
   if (!interface[0]) { puts("{\"status\":\"no-route\"}"); return 0; }
 
-  char address[INET6_ADDRSTRLEN] = "Unknown";
+  char address4[INET_ADDRSTRLEN] = "", address6[INET6_ADDRSTRLEN] = "";
   struct ifaddrs *addresses;
   if (getifaddrs(&addresses) != 0) return 1;
   for (struct ifaddrs *entry = addresses; entry; entry = entry->ifa_next) {
     if (!entry->ifa_addr || strcmp(entry->ifa_name, interface) != 0) continue;
     if (entry->ifa_addr->sa_family == AF_INET) {
       struct sockaddr_in *ipv4 = (struct sockaddr_in *)entry->ifa_addr;
-      if (inet_ntop(AF_INET, &ipv4->sin_addr, address, sizeof(address))) break;
+      if (!address4[0]) inet_ntop(AF_INET, &ipv4->sin_addr, address4, sizeof(address4));
     } else if (entry->ifa_addr->sa_family == AF_INET6) {
       struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)entry->ifa_addr;
       if (!IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr) &&
           !IN6_IS_ADDR_UNSPECIFIED(&ipv6->sin6_addr) &&
           !IN6_IS_ADDR_LOOPBACK(&ipv6->sin6_addr)) {
-        inet_ntop(AF_INET6, &ipv6->sin6_addr, address, sizeof(address));
+        if (!address6[0]) inet_ntop(AF_INET6, &ipv6->sin6_addr, address6, sizeof(address6));
       }
     }
   }
   freeifaddrs(addresses);
+  const char *address = address4[0] ? address4 : address6;
 
   unsigned int index = if_nametoindex(interface);
   if (!index) return 1;
@@ -128,12 +148,16 @@ int main(int argc, char **argv) {
   struct timespec sampled;
   if (clock_gettime(CLOCK_MONOTONIC, &sampled) != 0) return 1;
   printf("{\"status\":\"interface\",\"interface\":"); json_text(interface);
-  printf(",\"address\":"); json_text(strcmp(address, "Unknown") ? address : NULL);
+  printf(",\"address\":"); json_text(address[0] ? address : NULL);
+  printf(",\"ipv4\":"); json_text(address4[0] ? address4 : NULL);
+  printf(",\"ipv6\":"); json_text(address6[0] ? address6 : NULL);
+  printf(",\"primary_family\":"); json_text(family);
+  printf(",\"dns\":"); json_text(dns[0] ? dns : NULL);
   printf(",\"gateway\":"); json_text(strcmp(gateway, "Unknown") ? gateway : NULL);
   printf(",\"hostname\":"); json_text(hostname[0] ? hostname : NULL);
   if (have_counters) {
-    printf(",\"rx_bytes\":%" PRIu64 ",\"tx_bytes\":%" PRIu64, data.ifmd_data.ifi_ibytes, data.ifmd_data.ifi_obytes);
-  } else printf(",\"rx_bytes\":null,\"tx_bytes\":null");
+    printf(",\"rx_bytes\":%" PRIu64 ",\"tx_bytes\":%" PRIu64 ",\"mtu\":%u", data.ifmd_data.ifi_ibytes, data.ifmd_data.ifi_obytes, data.ifmd_data.ifi_mtu);
+  } else printf(",\"rx_bytes\":null,\"tx_bytes\":null,\"mtu\":null");
   printf(",\"monotonic\":%.6f}\n", (double)sampled.tv_sec + (double)sampled.tv_nsec / 1e9);
   return 0;
 }

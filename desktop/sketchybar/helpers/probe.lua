@@ -7,7 +7,8 @@ function M.number(value, minimum, maximum)
 end
 
 function M.new(options)
-  local running, pending = false, false
+  local running, pending = nil, false
+  local sequence, missing = 0, 0
   local epoch, freshness = 0, 0
   local function unavailable(reason)
     freshness = freshness + 1
@@ -34,17 +35,42 @@ function M.new(options)
       invalidate()
     end
     if running then pending = true; return end
-    running = true
+    sequence = sequence + 1
+    local identity = sequence
+    running = identity
     local started = options.before and options.before()
     local current = epoch
-    sbar.exec('"$HOME/.local/bin/desktop-probe" ' .. shell.quote(options.command), function(result, code)
-      running = false
+    local function complete(result, code)
+      if running ~= identity then return end
+      running, missing = nil, 0
       if current == epoch then
         if code == 0 then accept(result, started) else unavailable("取得不可") end
       end
       if pending then pending = false; refresh() end
-    end)
+    end
+    local launched = sbar.exec('"$HOME/.local/bin/desktop-probe" ' .. shell.quote(options.command), complete)
+    local function lost()
+      if running ~= identity then return end
+      local wanted = pending
+      running, pending = nil, false
+      if current ~= epoch then
+        if wanted then refresh() end
+        return
+      end
+      epoch, missing = epoch + 1, missing + 1
+      unavailable("応答期限切れ")
+      local generation = epoch
+      sbar.delay(math.min(2 ^ (missing - 1), 30), function()
+        if epoch == generation and sequence == identity and not running then refresh() end
+      end)
+    end
+    if launched == false then lost()
+    else
+      -- The native worker has a 10s lifetime; wrapped commands get 4s plus 1s grace.
+      sbar.delay(16, lost)
+    end
   end
+
   return {
     refresh = refresh,
     invalidate = invalidate,

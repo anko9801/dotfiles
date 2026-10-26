@@ -1,41 +1,20 @@
-local shell = require("helpers.shell")
 local probe = require("helpers.probe")
 local baseline
+local details = { "ネットワーク", "計測中" }
+local sampled
+local diagnostic = require("helpers.diagnostics")
 local wifi = sbar.add("item", "widgets.wifi", {
   position = "right",
   icon = { string = icons.network, color = colors.grey },
-  label = { string = "—", width = 145, font = { family = settings.font.numbers, size = 11 } },
+  label = { string = "—", width = 128, font = { family = settings.font.numbers, size = 10 } },
   background = { drawing = false },
   update_freq = 10,
-  popup = { align = "center", height = 30 },
 })
-local fields = {}
-local function field(key, title)
-  local item = sbar.add("item", "widgets.wifi." .. key, {
-    position = "popup." .. wifi.name,
-    icon = { string = title, width = 115, align = "left" },
-    label = { string = "—", width = 260, align = "right" },
-  })
-  fields[key] = { item = item }
-  item:subscribe("mouse.clicked", function()
-    local value = fields[key].value
-    if value then sbar.exec("printf '%s' " .. shell.quote(value) .. " | pbcopy") end
-  end)
-end
-field("interface", "インターフェース")
-field("hostname", "ホスト名")
-field("address", "IPアドレス")
-field("gateway", "ルーター")
-field("sample", "取得状況")
-local function set_field(key, value)
-  fields[key].value = value
-  fields[key].item:set({ label = value or "—" })
-end
 local function reset(reason)
+  sampled = nil
+  details = { "ネットワーク", reason or "現在の値を取得できません" }
   baseline = nil
   wifi:set({ label = "—", icon = { string = icons.network, color = colors.grey } })
-  for key in pairs(fields) do set_field(key, nil) end
-  set_field("sample", reason)
 end
 local function speed(rate)
   if rate > 0 and rate < 0.1 then return "<0.1B/s" end
@@ -61,16 +40,18 @@ request = probe.new({
     end
     if result.status ~= "interface" or type(result.interface) ~= "string" or result.interface == ""
       or not probe.number(result.monotonic, 0) then return false end
-    for _, key in ipairs({ "address", "gateway", "hostname" }) do
+    for _, key in ipairs({ "address", "gateway", "hostname", "ipv4", "ipv6", "dns", "primary_family" }) do
       if result[key] ~= nil and (type(result[key]) ~= "string" or result[key] == "") then return false end
     end
     if result.rx_bytes ~= nil and not probe.number(result.rx_bytes, 0, 2^53) then return false end
     if result.tx_bytes ~= nil and not probe.number(result.tx_bytes, 0, 2^53) then return false end
+    if result.mtu ~= nil and (not probe.number(result.mtu, 1, 2^31) or result.mtu % 1 ~= 0) then return false end
     if (result.rx_bytes and result.rx_bytes % 1 ~= 0) or (result.tx_bytes and result.tx_bytes % 1 ~= 0) then return false end
     local elapsed = baseline and result.monotonic - baseline.monotonic or 0
     local compatible = baseline and baseline.interface == result.interface and baseline.address == result.address
       and baseline.gateway == result.gateway and baseline.rx_bytes and baseline.tx_bytes
     local label = "計測中"
+    local rx_rate, tx_rate
     if result.rx_bytes == nil or result.tx_bytes == nil then
       label = "—"
       baseline = nil
@@ -78,12 +59,27 @@ request = probe.new({
       and result.rx_bytes >= baseline.rx_bytes and result.tx_bytes >= baseline.tx_bytes then
       label = "↑" .. speed((result.tx_bytes - baseline.tx_bytes) / elapsed)
         .. " ↓" .. speed((result.rx_bytes - baseline.rx_bytes) / elapsed)
+      rx_rate = (result.rx_bytes - baseline.rx_bytes) / elapsed
+      tx_rate = (result.tx_bytes - baseline.tx_bytes) / elapsed
     end
-    for _, key in ipairs({ "interface", "address", "gateway", "hostname" }) do set_field(key, result[key]) end
-    local description = label == "—" and "速度カウンター取得不可" or label == "計測中" and "速度の計測区間を準備中"
-      or string.format("直近%.1f秒の平均", elapsed)
-    set_field("sample", description .. " · " .. os.date("%H:%M:%S") .. "取得")
     wifi:set({ label = label, icon = { string = icons.network, color = result.address and colors.pure_white or colors.grey } })
+    sampled = result.monotonic
+    local field = diagnostic.field
+    local ipv4, ipv6 = result.ipv4, result.ipv6
+    if result.address and result.address:find(":", 1, true) then ipv6 = ipv6 or result.address
+    else ipv4 = ipv4 or result.address end
+    details = { "ネットワーク", result.interface .. " · SC primary: " .. (result.primary_family or "—"),
+      field("Rx / Tx", diagnostic.rate(rx_rate) .. " / " .. diagnostic.rate(tx_rate)),
+      "IPv4: " .. (ipv4 or "—"), "IPv6: " .. (ipv6 or "—"), "Router (SC): " .. (result.gateway or "—"), field("MTU", result.mtu),
+      field("Rx total / Tx total", diagnostic.gib(result.rx_bytes) .. " / " .. diagnostic.gib(result.tx_bytes)) }
+    local dns_count = 0
+    details[#details + 1] = "Global DNS (SC)"
+    for server in (result.dns or ""):gmatch("[^,]+") do
+      dns_count = dns_count + 1
+      details[#details + 1] = "  " .. server
+    end
+    if dns_count == 0 then details[#details + 1] = "  —" end
+    if compatible and elapsed > 0 and elapsed <= 65 then details[#details + 1] = field("Interval", string.format("%.1f s", elapsed)) end
     if label == "計測中" then sbar.delay(1, function() request.refresh() end) end
     baseline = result.rx_bytes and result.tx_bytes and result or nil
     return true
@@ -91,8 +87,4 @@ request = probe.new({
 })
 wifi:subscribe({ "forced", "routine" }, function() request.refresh() end)
 wifi:subscribe({ "wifi_change", "network_change", "system_woke" }, function() request.refresh(true) end)
-wifi:subscribe("mouse.clicked", function()
-  wifi:set({ popup = { drawing = wifi:query().popup.drawing == "off" } })
-  request.refresh()
-end)
-wifi:subscribe("mouse.exited.global", function() wifi:set({ popup = { drawing = false } }) end)
+require("helpers.menu").bind({ wifi }, "network", function() return details, sampled end)

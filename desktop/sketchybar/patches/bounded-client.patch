@@ -1,0 +1,243 @@
+--- a/src/sketchybar.c
++++ b/src/sketchybar.c
+@@ -42,6 +42,7 @@
+ struct callbacks g_callbacks;
+ static char* g_cmd = NULL;
+ static uint32_t g_cmd_len = 0;
++static uint32_t g_transaction_depth = 0;
+ static char g_bootstrap_name[64];
+ mach_port_t g_port = 0;
+ uint32_t g_uid_counter;
+@@ -84,6 +85,7 @@
+                                      message_length + 1,
+                                      true               );
+   if (!response) {
++    if (g_port) mach_port_deallocate(mach_task_self(), g_port);
+     g_port = mach_get_bs_port(g_bs_lookup);
+     response = mach_send_message(g_port,
+                                  message_format,
+@@ -103,7 +105,7 @@
+ }
+ 
+ static int transaction_create(lua_State* state) {
+-  if (!g_cmd) {
++  if (g_transaction_depth++ == 0) {
+     g_cmd = malloc(1);
+     g_cmd_len = 0;
+     *g_cmd = '\0';
+@@ -113,8 +115,9 @@
+ 
+ static int transaction_commit(lua_State* state) {
+   char* response = NULL;
++  if (g_transaction_depth == 0 || --g_transaction_depth != 0) return 0;
+   if (g_cmd) {
+-    response = sketchybar(NULL);
++    if (g_cmd_len > 0) response = sketchybar(NULL);
+     free(g_cmd);
+     if (response) {
+       if (strlen(response) > 0) printf("[i] sketchybar: %s\n", response);
+@@ -155,6 +158,7 @@
+ 
+   if (error && lua_gettop(state)) {
+     printf("[!] Lua: %s\n", lua_tostring(state, -1));
++    lua_pop(state, 1);
+   }
+   transaction_commit(state);
+   return 0;
+@@ -190,6 +194,7 @@
+   const char* name = get_name_from_state(state);
+ 
+   parse_kv_table(state, NULL, stack);
++  if (stack->num_values == 0) { stack_destroy(stack); return 0; }
+ 
+   stack_push(stack, name);
+   stack_push(stack, SET);
+@@ -238,6 +243,7 @@
+     memcpy(&exit_code, message + 1 + sizeof(int), sizeof(int));
+     char* response = message + 1 + 2*sizeof(int);
+     lua_rawgeti(g_state, LUA_REGISTRYINDEX, callback_ref);
++    luaL_unref(g_state, LUA_REGISTRYINDEX, callback_ref);
+     if (!json_to_lua_table(g_state, response)) {
+       lua_pushstring(g_state, response);
+     }
+@@ -248,6 +254,7 @@
+ 
+     if (error && lua_gettop(g_state)) {
+       printf("[!] Lua: %s\n", lua_tostring(g_state, -1));
++      lua_pop(g_state, 1);
+     }
+     transaction_commit(g_state);
+     return;
+@@ -282,6 +289,7 @@
+ 
+       if (error && lua_gettop(g_state)) {
+         printf("[!] Lua: %s\n", lua_tostring(g_state, -1));
++      lua_pop(g_state, 1);
+       }
+       transaction_commit(g_state);
+       break;
+@@ -389,13 +397,13 @@
+   stack_init(stack);
+   stack_push(stack, query);
+   stack_push(stack, QUERY);
+-  bool transaction_interrupted = g_cmd != NULL;
+-  transaction_commit(state);
++  uint32_t interrupted_depth = g_transaction_depth;
++  if (interrupted_depth) { g_transaction_depth = 1; transaction_commit(state); }
+   char* response = sketchybar(stack);
+   stack_destroy(stack);
+-  if (transaction_interrupted) transaction_create(state);
++  if (interrupted_depth) { transaction_create(state); g_transaction_depth = interrupted_depth; }
+   if (response) {
+-    json_to_lua_table(state, response);
++    if (!json_to_lua_table(state, response)) lua_pushnil(state);
+     free(response);
+     return 1;
+   }
+@@ -728,9 +736,15 @@
+   const char* command = lua_tostring(state, 1);
+ 
+   int pid = fork();
++  if (pid < 0) {
++    if (callback_ref) luaL_unref(state, LUA_REGISTRYINDEX, callback_ref);
++    lua_pushboolean(state, 0);
++    return 1;
++  }
+   if (pid != 0) return 0;
+ 
+-  alarm(60);
++  signal(SIGCHLD, SIG_DFL);
++  alarm(10);
+   if (!callback_ref) {
+     char *exec[] = { "/usr/bin/env", "sh", "-c", (char*)command, NULL };
+     exit(execvp(exec[0], exec));
+@@ -739,15 +753,16 @@
+     char* result = malloc(1024);
+     size_t read_bytes = 0;
+     size_t total_bytes = 0;
+-    while ((read_bytes = fread(result + total_bytes, 1, 1024, file)) > 0) {
++    while (file && (read_bytes = fread(result + total_bytes, 1, 1024, file)) > 0) {
+       total_bytes += read_bytes;
+       result = realloc(result, total_bytes + 1024);
+     }
+-    int close_ret = pclose(file);
+-    int exit_code = WEXITSTATUS(close_ret);
+-
+-    size_t message_size = total_bytes + 2*sizeof(int) + sizeof(char);
+-    char message[message_size];
++    int close_ret = file ? pclose(file) : -1;
++    int exit_code = close_ret == -1 ? 127 : WIFEXITED(close_ret)
++      ? WEXITSTATUS(close_ret) : WIFSIGNALED(close_ret) ? 128 + WTERMSIG(close_ret) : 127;
++
++    size_t message_size = total_bytes + 2*sizeof(int) + 2*sizeof(char);
++    char* message = calloc(message_size, 1);
+     message[0] = '\x07';
+     memcpy(message + 1, &callback_ref, sizeof(int));
+     memcpy(message + 1 + sizeof(int), &exit_code, sizeof(int));
+@@ -758,8 +773,9 @@
+                       message_size,
+                       false                              );
+ 
++    free(message);
+     free(result);
+-    exit(close_ret);
++    exit(exit_code);
+   }
+ }
+ 
+@@ -767,11 +783,13 @@
+   int callback_ref = (int)(intptr_t)context;
+ 
+   lua_rawgeti(g_state, LUA_REGISTRYINDEX, callback_ref);
++  luaL_unref(g_state, LUA_REGISTRYINDEX, callback_ref);
+   transaction_create(g_state);
+   int error = lua_pcall(g_state, 0, 0, 0);
+ 
+   if (error && lua_gettop(g_state)) {
+     printf("[!] Lua: %s\n", lua_tostring(g_state, -1));
++      lua_pop(g_state, 1);
+   }
+ 
+   transaction_commit(g_state);
+--- a/src/mach.h
++++ b/src/mach.h
+@@ -1,3 +1,7 @@
++#pragma once
++#ifndef SBAR_MACH_TIMEOUT_MS
++#define SBAR_MACH_TIMEOUT_MS 1000
++#endif
+ #include <mach/mach.h>
+ #include <mach/message.h>
+ #include <bootstrap.h>
+@@ -79,11 +83,9 @@
+   }
+ 
+   mach_port_t port;
+-  if (bootstrap_look_up(bs_port,
+-                        name,
+-                        &port   ) != KERN_SUCCESS) {
+-    return 0;
+-  }
++  kern_return_t result = bootstrap_look_up(bs_port, name, &port);
++  mach_port_deallocate(task, bs_port);
++  if (result != KERN_SUCCESS) return 0;
+ 
+   return port;
+ }
+@@ -97,7 +99,7 @@
+                           0,
+                           sizeof(struct mach_buffer),
+                           port,
+-                          1000,
++                          SBAR_MACH_TIMEOUT_MS,
+                           MACH_PORT_NULL                  );
+   else 
+     msg_return = mach_msg(&buffer->message.header,
+@@ -118,7 +120,7 @@
+     return NULL;
+   }
+ 
+-  mach_port_t response_port;
++  mach_port_t response_port = MACH_PORT_NULL;
+   mach_port_name_t task = 0;
+   if (response) {
+     task = mach_task_self();
+@@ -130,6 +132,7 @@
+     if (mach_port_insert_right(task, response_port,
+                                      response_port,
+                                      MACH_MSG_TYPE_MAKE_SEND)!= KERN_SUCCESS) {
++      mach_port_destruct(task, response_port, 0, 0);
+       return NULL;
+     }
+   }
+@@ -154,14 +157,17 @@
+   msg.descriptor.type = MACH_MSG_OOL_DESCRIPTOR;
+ 
+   mach_msg_return_t ret = mach_msg(&msg.header,
+-                                   MACH_SEND_MSG,
++                                   MACH_SEND_MSG | MACH_SEND_TIMEOUT,
+                                    sizeof(struct mach_message),
+                                    0,
+                                    MACH_PORT_NULL,
+-                                   MACH_MSG_TIMEOUT_NONE,
++                                   SBAR_MACH_TIMEOUT_MS,
+                                    MACH_PORT_NULL              );
+   
+-  if (ret != KERN_SUCCESS) return NULL;
++  if (ret != KERN_SUCCESS) {
++    if (response) mach_port_destruct(task, response_port, -1, 0);
++    return NULL;
++  }
+ 
+   char* rsp = NULL;
+   if (response) {
+@@ -178,8 +184,7 @@
+     }
+ 
+     mach_msg_destroy(&buffer.message.header);
+-    mach_port_mod_refs(task, response_port, MACH_PORT_RIGHT_RECEIVE, -1);
+-    mach_port_deallocate(task, response_port);
++    mach_port_destruct(task, response_port, -1, 0);
+   }
+ 
+   return rsp;

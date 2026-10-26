@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key><string>pub.anko.sketchybar-menu</string>
+  <key>CFBundleName</key><string>SketchyBar Menu</string>
+  <key>CFBundleExecutable</key><string>desktop-menu</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>LSUIElement</key><true/>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSCalendarsFullAccessUsageDescription</key><string>日時の下に予定を表示し、追加ボタンで入力した予定を保存します。既存の予定を自動変更することはありません。</string>
+</dict>
+</plist>
