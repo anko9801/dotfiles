@@ -33,6 +33,7 @@ in
   };
   ".config/sketchybar/helpers/processstamp.so".source = "${processStamp}/lib/processstamp.so";
   ".config/sketchybar/helpers/native-menu".source = "${menu}/bin/desktop-menu";
+  ".config/sketchybar/helpers/menu-client".source = "${menu}/bin/menu-client";
   # Lua bootstrap (executed by sketchybar)
   ".config/sketchybar/sketchybarrc" = {
     executable = true;

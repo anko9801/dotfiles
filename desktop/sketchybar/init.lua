@@ -2,6 +2,7 @@ sbar = require("sketchybar")
 colors = require("colors")
 icons = require("icons")
 settings = require("settings")
+require("helpers.menu").start()
 
 sbar.begin_config()
 require("bar")

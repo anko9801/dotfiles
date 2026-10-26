@@ -14,3 +14,4 @@ zsh -f tests/zsh-completion.zsh
 for test in tests/sketchybar-*.lua; do
   [[ $test == *-harness.lua ]] || lua "$test"
 done
+bash scripts/check-native-menu.sh

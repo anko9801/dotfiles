@@ -18,11 +18,18 @@ static int now(lua_State *state) {
   return 1;
 }
 
+static int pid(lua_State *state) {
+  lua_pushinteger(state, getpid());
+  return 1;
+}
+
 int luaopen_processstamp(lua_State *state) {
   lua_newtable(state);
   lua_pushcfunction(state, birth);
   lua_setfield(state, -2, "birth");
   lua_pushcfunction(state, now);
   lua_setfield(state, -2, "now");
+  lua_pushcfunction(state, pid);
+  lua_setfield(state, -2, "pid");
   return 1;
 }

@@ -2,9 +2,6 @@
 #import <objc/runtime.h>
 #import <CoreAudio/CoreAudio.h>
 #import <AudioToolbox/AudioHardwareService.h>
-#include <sys/file.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <math.h>
 
 @interface MenuActions : NSObject
@@ -82,77 +79,47 @@ static void addVolume(NSMenu *menu, MenuActions *actions) {
 static NSMenuItem *row(NSString *text, BOOL heading) {
   NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:text action:NULL keyEquivalent:@""];
   item.enabled = NO;
-  item.attributedTitle = [[NSAttributedString alloc] initWithString:text attributes:@{
-    NSFontAttributeName: heading ? [NSFont boldSystemFontOfSize:13] : [NSFont menuFontOfSize:0],
-    NSForegroundColorAttributeName: heading ? NSColor.labelColor : NSColor.secondaryLabelColor
-  }];
+  NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 280, heading ? 32 : 26)];
+  NSTextField *label = [NSTextField labelWithString:text];
+  label.font = heading ? [NSFont boldSystemFontOfSize:14] : [NSFont menuFontOfSize:0];
+  label.textColor = NSColor.labelColor;
+  label.frame = NSMakeRect(18, 4, 244, heading ? 24 : 20);
+  label.lineBreakMode = NSLineBreakByTruncatingTail;
+  label.toolTip = text;
+  [view addSubview:label];
+  item.view = view;
   return item;
 }
 
-int main(int argc, const char *argv[]) {
-  @autoreleasepool {
-    // Interactive menu tracking must outlive the native client's worker alarm.
-    alarm(0);
-    if ((argc > 1 && argc < 3) || argc > 32) return 64;
-    NSString *kind = argc == 1 ? @"cpu" : [NSString stringWithUTF8String:argv[1]];
-    if (![@[@"cpu", @"memory", @"volume", @"network", @"battery", @"calendar"] containsObject:kind]) return 64;
-    NSMutableArray<NSString *> *lines = [NSMutableArray array];
-    if (argc == 1) [lines addObjectsFromArray:@[@"SketchyBar", @"バーの項目をクリックすると詳細を表示します"]];
-    for (int i = 2; i < argc; i++) {
-      NSString *line = [NSString stringWithUTF8String:argv[i]];
-      if (!line || line.length > 512) return 64;
-      [lines addObject:line];
-    }
-    NSString *lockPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"anko-desktop-menu.lock"];
-    int lock = open(lockPath.fileSystemRepresentation, O_CREAT | O_RDWR | O_CLOEXEC | O_NOFOLLOW, 0600);
-    if (lock < 0 || flock(lock, LOCK_EX | LOCK_NB) != 0) return 0;
-
-    [NSApplication sharedApplication];
-    [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
-    NSStatusItem *anchor = [NSStatusBar.systemStatusBar statusItemWithLength:1];
-    NSMenu *menu = [[NSMenu alloc] initWithTitle:lines.firstObject];
-    menu.autoenablesItems = NO;
-    menu.minimumWidth = 260;
-    [menu addItem:row(lines.firstObject, YES)];
-    [menu addItem:NSMenuItem.separatorItem];
-    for (NSString *line in [lines subarrayWithRange:NSMakeRange(1, lines.count - 1)]) {
-      [menu addItem:row(line, NO)];
-    }
-    MenuActions *actions = [MenuActions new];
-    actions.kind = kind;
-    if ([kind isEqualToString:@"calendar"]) {
-      NSDatePicker *calendar = [[NSDatePicker alloc] initWithFrame:NSMakeRect(0, 0, 280, 170)];
-      calendar.datePickerStyle = NSDatePickerStyleClockAndCalendar;
-      calendar.datePickerElements = NSDatePickerElementFlagYearMonthDay;
-      calendar.dateValue = NSDate.date;
-      NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"カレンダー" action:NULL keyEquivalent:@""];
-      item.view = calendar;
-      [menu addItem:item];
-    } else {
-      if ([kind isEqualToString:@"volume"]) addVolume(menu, actions);
-      NSMenuItem *details = [[NSMenuItem alloc] initWithTitle:@"詳細を開く…" action:@selector(details:) keyEquivalent:@""];
-      details.target = actions;
-      [menu addItem:NSMenuItem.separatorItem];
-      [menu addItem:details];
-      // Keep the action target alive while AppKit tracks this synchronous menu.
-      objc_setAssociatedObject(menu, @selector(details:), actions, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    NSPoint point = NSEvent.mouseLocation;
-    NSScreen *screen = NSScreen.mainScreen;
-    for (NSScreen *candidate in NSScreen.screens) {
-      if (NSPointInRect(point, candidate.frame)) { screen = candidate; break; }
-    }
-    point.y = NSMaxY(screen.frame) - 36;
-    point.x = MIN(MAX(point.x - menu.minimumWidth / 2, NSMinX(screen.frame) + 6),
-                  NSMaxX(screen.frame) - menu.minimumWidth - 6);
-    dispatch_async(dispatch_get_main_queue(), ^{
-      NSPoint local = [anchor.button convertPoint:[anchor.button.window convertPointFromScreen:point] fromView:nil];
-      [menu popUpMenuPositioningItem:nil atLocation:local inView:anchor.button];
-      [NSStatusBar.systemStatusBar removeStatusItem:anchor];
-      close(lock);
-      [NSApp terminate:nil];
-    });
-    [NSApp run];
+NSMenu *menu_create(NSArray<NSString *> *request) {
+  NSString *kind = request[0];
+  NSArray<NSString *> *lines = [request subarrayWithRange:NSMakeRange(1, request.count - 1)];
+  NSMenu *menu = [[NSMenu alloc] initWithTitle:lines.firstObject];
+  menu.autoenablesItems = NO;
+  menu.minimumWidth = 260;
+  [menu addItem:row(lines.firstObject, YES)];
+  [menu addItem:NSMenuItem.separatorItem];
+  for (NSString *line in [lines subarrayWithRange:NSMakeRange(1, lines.count - 1)]) {
+    [menu addItem:row(line, NO)];
   }
-  return 0;
+  MenuActions *actions = [MenuActions new];
+  actions.kind = kind;
+  if ([kind isEqualToString:@"calendar"]) {
+    NSDatePicker *calendar = [[NSDatePicker alloc] initWithFrame:NSMakeRect(0, 0, 280, 170)];
+    calendar.datePickerStyle = NSDatePickerStyleClockAndCalendar;
+    calendar.datePickerElements = NSDatePickerElementFlagYearMonthDay;
+    calendar.dateValue = NSDate.date;
+    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"カレンダー" action:NULL keyEquivalent:@""];
+    item.view = calendar;
+    [menu addItem:item];
+  } else {
+    if ([kind isEqualToString:@"volume"]) addVolume(menu, actions);
+    NSMenuItem *details = [[NSMenuItem alloc] initWithTitle:@"詳細を開く…" action:@selector(details:) keyEquivalent:@""];
+    details.target = actions;
+    [menu addItem:NSMenuItem.separatorItem];
+    [menu addItem:details];
+    // Keep the action target alive while AppKit tracks this synchronous menu.
+    objc_setAssociatedObject(menu, @selector(details:), actions, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  }
+  return menu;
 }

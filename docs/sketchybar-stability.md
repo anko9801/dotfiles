@@ -59,12 +59,26 @@ property. It verifies the default device before a user-initiated write. The date
 opens a native month calendar. The operating system supplies menu appearance,
 keyboard navigation and dismissal; no theme-colored popup window is drawn.
 
-The menu helper launches only on click and exits after dismissal. Its application
-is an accessory, with no Dock icon or independent work window. A per-user lock
-prevents simultaneous helpers. A temporary invisible status anchor is removed on
-close. Activity Monitor and settings are optional explicit detail actions, rather
-than the primary click behavior. Media keeps its direct play/pause action.
-Unreadable volume remains unknown rather than being labeled as an external device.
+The menu host initializes with the bar and reuses AppKit rather than launching a
+new application on each click. A small Core Foundation client sends bounded local
+requests to a channel unique to the bar process and its birth time. Only missing
+endpoints are retried; ambiguous timeouts never duplicate a menu. The host watches
+the owning bar process and exits when it does, including across bar reloads.
+
+The accessory has no Dock icon or independent work window and does not poll while
+idle. Its temporary invisible status anchor is removed on close. Informational
+rows use standard text labels with the primary system color, avoiding disabled
+action tint and secondary gray for the actual values. Activity Monitor and
+settings remain explicit secondary actions. Media keeps its direct play/pause
+action. Unreadable volume remains unknown rather than being labeled as external.
+
+`bash scripts/check-native-menu.sh` checks the actual AppKit label colors,
+same-process request reuse, invalid requests, idle CPU and owner-bound teardown
+without showing menus. Its timing is transport plus native menu construction,
+not physical click-to-screen latency. The host retains the latest handler-to-
+`menuWillOpen` timing in memory, readable with `menu-client --metrics <channel>`.
+The menu path performs no diagnostic disk writes. Compositor and display delay
+are outside that measurement.
 
 
 Calendar events, remote research integration and new permissions are outside this

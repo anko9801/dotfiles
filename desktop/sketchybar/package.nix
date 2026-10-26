@@ -24,7 +24,7 @@ in
 pkgs.runCommand "sketchybar-config" { } ''
   (
     cd ${../..}
-    for fixture in probe widgets spaces refresh calendar; do
+    for fixture in probe widgets spaces refresh calendar menus; do
       ${pkgs.lua55Packages.lua}/bin/lua "tests/sketchybar-$fixture.lua"
     done
   )
