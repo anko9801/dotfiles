@@ -15,7 +15,7 @@ let
 
   inherit (pkgs.lua55Packages) lua;
   sbarlua = import ./sbarlua.nix { inherit pkgs; };
-  inherit (import ./native.nix { inherit pkgs; }) metrics processStamp;
+  inherit (import ./native.nix { inherit pkgs; }) menu metrics processStamp;
 
   luaFile = path: { source = path; };
   workspaceKeys = builtins.fromJSON (builtins.readFile ../workspaces.json);
@@ -32,6 +32,7 @@ in
     '';
   };
   ".config/sketchybar/helpers/processstamp.so".source = "${processStamp}/lib/processstamp.so";
+  ".config/sketchybar/helpers/native-menu".source = "${menu}/bin/desktop-menu";
   # Lua bootstrap (executed by sketchybar)
   ".config/sketchybar/sketchybarrc" = {
     executable = true;
@@ -121,6 +122,7 @@ in
   # Helpers
   ".config/sketchybar/helpers/app_icons.lua" = luaFile ./helpers/app_icons.lua;
   ".config/sketchybar/helpers/shell.lua" = luaFile ./helpers/shell.lua;
+  ".config/sketchybar/helpers/menu.lua" = luaFile ./helpers/menu.lua;
   ".config/sketchybar/helpers/probe.lua" = luaFile ./helpers/probe.lua;
   ".config/sketchybar/helpers/power.lua" = luaFile ./helpers/power.lua;
   ".config/sketchybar/helpers/network.sh" = luaFile ./helpers/network.sh;

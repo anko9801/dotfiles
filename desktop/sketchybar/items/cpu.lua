@@ -1,3 +1,4 @@
+local details = { "CPU", "計測中" }
 local cpu = sbar.add("item", "widgets.cpu.label", {
   position = "right",
   icon = { string = icons.cpu, color = colors.sky },
@@ -28,6 +29,7 @@ local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 42, {
 
 local function update(percent, seconds)
   local load = math.floor(math.max(0, math.min(percent, 100)) + 0.5)
+  details = { "CPU", "使用率  " .. load .. "%", string.format("計測区間  %.1f秒", seconds) }
   local graph_val = math.min(load / 100.0, 1.0)
   cpu_graph:push({ graph_val })
 
@@ -41,12 +43,11 @@ local function update(percent, seconds)
 end
 
 local function unavailable(reason)
+  details = { "CPU", reason or "現在の値を取得できません" }
   cpu:set({ label = { string = "—", color = colors.grey }, icon = { color = colors.grey } })
   cpu_graph:set({ drawing = false })
 end
 
-local function open_monitor() sbar.exec("open -a 'Activity Monitor'") end
-cpu:subscribe("mouse.clicked", open_monitor)
-cpu_graph:subscribe("mouse.clicked", open_monitor)
+require("helpers.menu").bind({ cpu, cpu_graph }, "cpu", function() return details end)
 
 return { update = update, unavailable = unavailable }

@@ -1,5 +1,6 @@
 local power = require("helpers.power")
 local probe = require("helpers.probe")
+local details = { "バッテリー", "計測中" }
 local battery = sbar.add("item", "widgets.battery", {
   position = "right",
   icon = { font = { style = settings.font.style_map.Regular, size = 19.0 } },
@@ -11,6 +12,7 @@ local request = probe.new({
   command = "LC_ALL=C /usr/bin/pmset -g batt",
   max_age = 65,
   unavailable = function(reason)
+    details = { "バッテリー", "現在の値を取得できません" }
     battery:set({ drawing = true, icon = { string = "?", color = colors.grey }, label = "—" })
   end,
   apply = function(info)
@@ -24,6 +26,8 @@ local request = probe.new({
     local states = { charging = "充電中", charged = "満充電", discharging = "バッテリー駆動",
       ["not charging"] = "充電停止", ["AC attached"] = "電源接続", ["finishing charge"] = "充電中" }
     if not states[state] then return false end
+    details = { "バッテリー", "残量  " .. charge .. "%", states[state],
+      source == "AC Power" and "電源アダプタに接続中" or "バッテリーで使用中" }
     power.update(source == "AC Power")
     local icon, color = icons.battery.full, colors.green
     if state == "charging" or state == "finishing charge" then icon = icons.battery.charging
@@ -39,6 +43,4 @@ local request = probe.new({
 
 battery:subscribe({ "forced", "routine" }, function() request.refresh() end)
 battery:subscribe({ "power_source_change", "system_woke" }, function() request.refresh(true) end)
-battery:subscribe("mouse.clicked", function()
-  sbar.exec("open /System/Library/PreferencePanes/Battery.prefPane")
-end)
+require("helpers.menu").bind({ battery }, "battery", function() return details end)

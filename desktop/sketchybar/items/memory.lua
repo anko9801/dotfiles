@@ -1,3 +1,4 @@
+local details = { "メモリ", "計測中" }
 local memory = sbar.add("item", "widgets.memory.label", {
   position = "right",
   padding_right = 12,
@@ -28,6 +29,9 @@ local mem_graph = sbar.add("graph", "widgets.memory.graph", 42, {
 
 local function update(percent, pressure, swap_gib)
   percent = math.floor(math.max(0, math.min(percent, 100)) + 0.5)
+  local pressures = { [0] = "不明", [1] = "正常", [2] = "注意", [4] = "高い" }
+  details = { "メモリ", "推定使用率  " .. percent .. "%", "メモリプレッシャー  " .. pressures[pressure],
+    swap_gib >= 0 and string.format("スワップ使用量  %.2f GiB", swap_gib) or "スワップ使用量  不明" }
   local graph_val = math.min(percent / 100.0, 1.0)
   mem_graph:push({ graph_val })
 
@@ -44,12 +48,11 @@ local function update(percent, pressure, swap_gib)
 end
 
 local function unavailable(reason)
+  details = { "メモリ", reason or "現在の値を取得できません" }
   memory:set({ label = { string = "—", color = colors.grey }, icon = { color = colors.grey } })
   mem_graph:set({ drawing = false })
 end
 
-local function open_monitor() sbar.exec("open -a 'Activity Monitor'") end
-memory:subscribe("mouse.clicked", open_monitor)
-mem_graph:subscribe("mouse.clicked", open_monitor)
+require("helpers.menu").bind({ memory, mem_graph }, "memory", function() return details end)
 
 return { update = update, unavailable = unavailable }

@@ -52,10 +52,19 @@ visible. The selected workspace gains a border/background; existing workspace
 bindings and application grouping remain unchanged. Network throughput also stays
 on the main bar.
 
-Custom popups are removed. CPU/memory clicks open Activity Monitor; audio, network
-and battery clicks open their native macOS settings panes. Media uses a stable
-button with a direct play/pause action, not a custom control window. Unreadable
-volume remains unknown rather than being labeled as an external device.
+SketchyBar's custom popup windows are replaced by native AppKit menus. CPU, memory,
+network and battery clicks show the bar's latest validated details below the bar.
+Volume includes a standard slider when CoreAudio exposes a writable volume
+property. It verifies the default device before a user-initiated write. The date
+opens a native month calendar. The operating system supplies menu appearance,
+keyboard navigation and dismissal; no theme-colored popup window is drawn.
+
+The menu helper launches only on click and exits after dismissal. Its application
+is an accessory, with no Dock icon or independent work window. A per-user lock
+prevents simultaneous helpers. A temporary invisible status anchor is removed on
+close. Activity Monitor and settings are optional explicit detail actions, rather
+than the primary click behavior. Media keeps its direct play/pause action.
+Unreadable volume remains unknown rather than being labeled as an external device.
 
 
 Calendar events, remote research integration and new permissions are outside this

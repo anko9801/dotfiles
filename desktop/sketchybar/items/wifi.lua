@@ -1,5 +1,6 @@
 local probe = require("helpers.probe")
 local baseline
+local details = { "ネットワーク", "計測中" }
 local wifi = sbar.add("item", "widgets.wifi", {
   position = "right",
   icon = { string = icons.network, color = colors.grey },
@@ -8,6 +9,7 @@ local wifi = sbar.add("item", "widgets.wifi", {
   update_freq = 10,
 })
 local function reset(reason)
+  details = { "ネットワーク", reason or "現在の値を取得できません" }
   baseline = nil
   wifi:set({ label = "—", icon = { string = icons.network, color = colors.grey } })
 end
@@ -54,6 +56,8 @@ request = probe.new({
         .. " ↓" .. speed((result.rx_bytes - baseline.rx_bytes) / elapsed)
     end
     wifi:set({ label = label, icon = { string = icons.network, color = result.address and colors.pure_white or colors.grey } })
+    details = { "ネットワーク", "通信速度  " .. label, "接続先  " .. result.interface,
+      "IPアドレス  " .. (result.address or "不明"), "ゲートウェイ  " .. (result.gateway or "不明") }
     if label == "計測中" then sbar.delay(1, function() request.refresh() end) end
     baseline = result.rx_bytes and result.tx_bytes and result or nil
     return true
@@ -61,6 +65,4 @@ request = probe.new({
 })
 wifi:subscribe({ "forced", "routine" }, function() request.refresh() end)
 wifi:subscribe({ "wifi_change", "network_change", "system_woke" }, function() request.refresh(true) end)
-wifi:subscribe("mouse.clicked", function()
-  sbar.exec("open /System/Library/PreferencePanes/Network.prefPane")
-end)
+require("helpers.menu").bind({ wifi }, "network", function() return details end)

@@ -1,6 +1,18 @@
 { pkgs }:
 let
   inherit (pkgs.lua55Packages) lua;
+  menu = pkgs.runCommandCC "desktop-menu" { } ''
+    app="$out/Applications/SketchyBar Menu.app"
+    mkdir -p "$out/bin" "$app/Contents/MacOS"
+    cp ${./helpers/menu-info.plist} "$app/Contents/Info.plist"
+    $CC -fobjc-arc -O2 -Wall -Wextra ${./helpers/menu.m} \
+      -framework AppKit -framework CoreAudio -framework AudioToolbox -o "$app/Contents/MacOS/desktop-menu"
+    cat > "$out/bin/desktop-menu" <<EOF
+    #!/bin/sh
+    exec /usr/bin/open -n -a "$app" --args "\$@"
+    EOF
+    chmod +x "$out/bin/desktop-menu"
+  '';
   metrics = pkgs.runCommandCC "desktop-metrics" { } ''
     mkdir -p "$out/bin"
     cp ${./helpers/json.h} json.h
@@ -17,5 +29,5 @@ let
   '';
 in
 {
-  inherit metrics processStamp;
+  inherit menu metrics processStamp;
 }
