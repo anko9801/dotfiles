@@ -27,11 +27,6 @@ int main(int argc, const char *argv[]) {
     assert(wide.minimumWidth >= 200 && wide.minimumWidth <= 480);
     NSMenu *compact = menu_create(@[@"cpu", @"CPU", @"Busy\t5%"]);
     assert(compact.minimumWidth < 260 && "Short menus must not reserve a wide empty panel");
-    NSMenu *calendar = menu_create(@[@"calendar", @"Calendar"]);
-    NSView *container = calendar.itemArray.lastObject.view;
-    NSView *date = container.subviews.firstObject;
-    assert(date.frame.size.width > 0 && date.frame.size.height > 0);
-    assert(NSMinX(date.frame) >= 12 && NSMaxX(date.frame) <= container.frame.size.width - 12);
     puts("Native menu: informational text uses primary system label color");
   }
 }

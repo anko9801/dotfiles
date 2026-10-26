@@ -56,7 +56,7 @@ SketchyBar's custom popup windows are replaced by native AppKit menus. CPU, memo
 network and battery clicks show the bar's latest validated details below the bar.
 Volume includes a standard slider when CoreAudio exposes a writable volume
 property. It verifies the default device before a user-initiated write. The date
-opens a native month calendar. The operating system supplies menu appearance,
+opens a compact native calendar popover. The operating system supplies diagnostic menu appearance,
 keyboard navigation and dismissal; no theme-colored popup window is drawn.
 
 The menu host initializes with the bar and reuses AppKit rather than launching a
@@ -85,7 +85,7 @@ are outside that measurement.
 Numeric readouts use two columns with monospaced, left-aligned values and an
 eight-point column gap. Names, status, address/DNS lists and explanatory text are
 plain lines. Width follows content rather than a fixed wide panel (normally
-200–480 points, with intrinsic minimums for sliders and the calendar). The bar's
+200–480 points, with a 240-point minimum for sliders). The bar's
 graphs and application layout stay unchanged. No collection or network probe
 runs on click. `Sample age: ... at open` is the monotonic
 age of the cached reading when the menu opens; menu values are snapshots, while
@@ -117,9 +117,49 @@ cadences are unchanged; no process-list scan, Internet reachability check or new
 privacy permission is introduced.
 
 
-Calendar events, remote research integration and new permissions are outside this
-change. Research calculations, their priorities, Dock preferences and AeroSpace's
-zero top gap are preserved.
+## Calendar
+
+The prepared AppKit host also owns a transient `NSPopover` for the date item.
+Its 260-point content width is fixed, including for long event titles and
+locations. The anchor uses the click's screen and horizontal position, 34 points
+below that screen's top edge, so the calendar opens below the 32-point bar.
+AppKit supplies popover chrome, screen-edge clamping and outside-click dismissal.
+The view provides Monday-first month navigation, ISO weeks, event dots, a
+scrollable seven-day agenda, calendar selection and a new-event form. Left/right
+move months, Space returns to today, and Escape dismisses the popover.
+
+EventKit queries run on a serial background queue for the displayed month plus
+the agenda's trailing days. Results are immutable snapshots, and a request serial
+rejects obsolete completions. Opening or changing the month clears the previous
+results before loading. Store-change notifications refresh the current range;
+there is no polling timer. Event contents stay in memory, with no event logging
+or network probe. Calendar selection stays in per-user preferences. Initial
+selection can reuse Itsycal's locally selected calendars, avoiding duplicate
+holiday feeds. An empty selection remains empty rather than fetching all.
+
+Calendar access is separate from the diagnostic collectors. `SketchyBar Menu`
+declares `NSCalendarsFullAccessUsageDescription` and requests permission only when
+the user presses the explicit connection button. macOS Calendar Full Access
+permits reading and writing; an Itsycal grant does not grant this separate app
+access. Before permission is granted, month navigation remains usable and no
+calendar records are fetched. Only an explicit save in the new-event form writes
+an event. The form uses the system's default writable calendar where available,
+validates title and times, and preserves input after validation errors. It never
+automatically modifies or deletes existing events. OS authorization is not
+deployed by Nix; changed local application identities may require reapproval.
+
+`itsycal.nix` installs the official Homebrew [Itsycal](https://www.mowglii.com/itsycal/)
+cask as the secondary detailed calendar, with compact text, Monday-first weeks,
+seven agenda days, locations and week numbers. Its public date URL opens the
+selected date from the popover's details action. Its independent icon position
+does not determine the primary calendar's position. Homebrew owns updates; no
+extra global shortcut or duplicate login item is enabled. The standalone bar
+bundle does not install this cask or apply its OS preferences; full Darwin
+activation manages both. Calendar identifiers and event contents stay out of
+Nix and version control.
+
+Research calculations, their priorities, Dock preferences and AeroSpace's zero
+top gap are preserved.
 
 ## Build and reversible local application
 

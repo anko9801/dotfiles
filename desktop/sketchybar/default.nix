@@ -10,6 +10,8 @@ let
   inherit (import ./native.nix { inherit pkgs; }) metrics;
 in
 {
+  imports = [ ./itsycal.nix ];
+
   home-manager.users.${config.system.primaryUser} = {
     home.packages = [ lua ];
 

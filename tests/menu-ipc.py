@@ -32,7 +32,7 @@ try:
         "calendar": ["Calendar"],
     }
     kind_timings = {}
-    for kind in ["cpu", "memory", "volume", "network", "battery", "calendar"]:
+    for kind in fixtures:
         start = time.perf_counter()
         subprocess.run([client_path, "--bench", channel, "0", kind, *fixtures[kind]], check=True)
         kind_timings[kind] = round((time.perf_counter() - start) * 1000, 3)

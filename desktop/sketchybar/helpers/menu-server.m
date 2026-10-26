@@ -2,6 +2,7 @@
 #include <mach/mach_time.h>
 #include <signal.h>
 #include <unistd.h>
+#import "calendar.h"
 
 NSMenu *menu_create(NSArray<NSString *> *request);
 static BOOL tracking;
@@ -37,11 +38,17 @@ static CFDataRef receive(CFMessagePortRef port, SInt32 mode, CFDataRef bytes, vo
   if (![@[@"cpu", @"memory", @"volume", @"network", @"battery", @"calendar"] containsObject:request[0]]) return reply(@"invalid");
   uint64_t started = strtoull([input[0] UTF8String], NULL, 10);
   if (!started || started > mach_absolute_time()) return reply(@"invalid");
-  if (tracking) return reply(@"busy");
+  if (tracking || NSApp.modalWindow) return reply(@"busy");
+  if ([request[0] isEqualToString:@"calendar"]) {
+    if (mode == 2) { calendar_prepare(); return reply(@"ok"); }
+    dispatch_async(dispatch_get_main_queue(), ^{ calendar_show(); });
+    return reply(@"ok");
+  }
   // Benchmark the real menu construction without displaying a window or menu.
   if (mode == 2) { NSMenu *menu = menu_create(request); (void)menu.size; return reply(@"ok"); }
   tracking = YES;
   dispatch_async(dispatch_get_main_queue(), ^{
+    calendar_close();
     NSMenu *menu = menu_create(request);
     __attribute__((objc_precise_lifetime)) MenuTiming *timing = [MenuTiming new];
     timing.started = started;
@@ -73,8 +80,9 @@ int main(int argc, const char *argv[]) {
     if (owner <= 1 || kill(owner, 0) != 0 || ![name hasPrefix:@"pub.anko.sketchybar-menu."] || name.length > 180) return 64;
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
-    // Font, CoreAudio and calendar initialization belong before the first click.
-    for (NSArray *request in @[@[@"cpu", @"CPU", @"使用率\t—"], @[@"volume", @"サウンド"], @[@"calendar", @"カレンダー"]]) {
+    calendar_prepare();
+    // Font and CoreAudio initialization belong before the first click.
+    for (NSArray *request in @[@[@"cpu", @"CPU", @"使用率\t—"], @[@"volume", @"サウンド"]]) {
       NSMenu *primer = menu_create(request);
       (void)primer.size;
     }

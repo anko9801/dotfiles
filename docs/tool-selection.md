@@ -44,6 +44,7 @@ Evaluate in priority order (earlier criteria outweigh later ones):
 | Theme | Stylix + Catppuccin | Unified colors across tools |
 | macOS windows | AeroSpace | Keyboard navigation; explicit shared workspace list; cached bar membership during focus changes; see [measurements](aerospace-performance.md) |
 | macOS status | SketchyBar + SbarLua | Bounded native IPC, visible app locations and graphs, native AppKit detail menus; [stability](sketchybar-stability.md) |
+| macOS calendar | AppKit + EventKit, Itsycal | A fixed-width popover anchored below the date with month navigation and synced agenda; Itsycal is a secondary detailed view; [integration](sketchybar-stability.md#calendar) |
 | macOS keyboard | Kanata + native Caps Lock mapping | Check virtual-driver readiness before startup; avoid repeated failures while approval is pending |
 | Dotfiles | home-manager | Reproducible CLI/config; macOS GUI tools stay in Homebrew. See [macOS performance](macos-performance.md). |
 

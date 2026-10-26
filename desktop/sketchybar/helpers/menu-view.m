@@ -131,15 +131,6 @@ NSMenu *menu_create(NSArray<NSString *> *request) {
   column = MIN(160, ceil(column) + 2);
   CGFloat minimum = [kind isEqualToString:@"volume"] ? 240 : 200;
   CGFloat width = MIN(480, MAX(minimum, MAX(plainWidth + 24, column + valueWidth + 32)));
-  NSDatePicker *calendar = nil;
-  if ([kind isEqualToString:@"calendar"]) {
-    calendar = [[NSDatePicker alloc] initWithFrame:NSZeroRect];
-    calendar.datePickerStyle = NSDatePickerStyleClockAndCalendar;
-    calendar.datePickerElements = NSDatePickerElementFlagYearMonthDay;
-    calendar.dateValue = NSDate.date;
-    [calendar sizeToFit];
-    width = MAX(width, calendar.frame.size.width + 24);
-  }
   menu.minimumWidth = width;
   [menu addItem:row(lines.firstObject, YES, width, column)];
   [menu addItem:NSMenuItem.separatorItem];
@@ -148,22 +139,12 @@ NSMenu *menu_create(NSArray<NSString *> *request) {
   }
   MenuActions *actions = [MenuActions new];
   actions.kind = kind;
-  if (calendar) {
-    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"カレンダー" action:NULL keyEquivalent:@""];
-    NSSize size = calendar.frame.size;
-    NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, width, size.height + 8)];
-    calendar.frame = NSMakeRect((width - size.width) / 2, 4, size.width, size.height);
-    [view addSubview:calendar];
-    item.view = view;
-    [menu addItem:item];
-  } else {
-    if ([kind isEqualToString:@"volume"]) addVolume(menu, actions);
-    NSMenuItem *details = [[NSMenuItem alloc] initWithTitle:@"詳細を開く…" action:@selector(details:) keyEquivalent:@""];
-    details.target = actions;
-    [menu addItem:NSMenuItem.separatorItem];
-    [menu addItem:details];
-    // Keep the action target alive while AppKit tracks this synchronous menu.
-    objc_setAssociatedObject(menu, @selector(details:), actions, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-  }
+  if ([kind isEqualToString:@"volume"]) addVolume(menu, actions);
+  NSMenuItem *details = [[NSMenuItem alloc] initWithTitle:@"詳細を開く…" action:@selector(details:) keyEquivalent:@""];
+  details.target = actions;
+  [menu addItem:NSMenuItem.separatorItem];
+  [menu addItem:details];
+  // Keep the action target alive while AppKit tracks this synchronous menu.
+  objc_setAssociatedObject(menu, @selector(details:), actions, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   return menu;
 }

@@ -9,5 +9,6 @@
   <key>CFBundleVersion</key><string>1</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
+  <key>NSCalendarsFullAccessUsageDescription</key><string>日時の下に予定を表示し、追加ボタンで入力した予定を保存します。既存の予定を自動変更することはありません。</string>
 </dict>
 </plist>

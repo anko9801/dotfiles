@@ -31,4 +31,4 @@ local function render()
 end
 
 cal:subscribe({ "forced", "routine", "system_woke" }, render)
-require("helpers.menu").bind({ cal }, "calendar", function() return { os.date("%Y年%m月%d日") } end)
+require("helpers.menu").bind({ cal }, "calendar", function() return { "カレンダー" } end)

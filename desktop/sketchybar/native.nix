@@ -5,8 +5,10 @@ let
     app="$out/Applications/SketchyBar Menu.app"
     mkdir -p "$out/bin" "$app/Contents/MacOS"
     cp ${./helpers/menu-info.plist} "$app/Contents/Info.plist"
+    cp ${./helpers/calendar.h} calendar.h
     $CC -fobjc-arc -O2 -Wall -Wextra ${./helpers/menu-server.m} ${./helpers/menu-view.m} \
-      -framework AppKit -framework CoreAudio -framework AudioToolbox -o "$app/Contents/MacOS/desktop-menu"
+      ${./helpers/calendar-events.m} ${./helpers/calendar-view.m} ${./helpers/calendar-popover.m} ${./helpers/calendar-editor.m} -I. \
+      -framework AppKit -framework CoreAudio -framework AudioToolbox -framework EventKit -o "$app/Contents/MacOS/desktop-menu"
     $CC -O2 -Wall -Wextra ${./helpers/menu-client.c} -framework CoreFoundation -o "$out/bin/menu-client"
     cat > "$out/bin/desktop-menu" <<EOF
     #!/bin/sh

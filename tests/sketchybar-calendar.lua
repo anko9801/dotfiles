@@ -21,4 +21,8 @@ clock.day, clock.wday, clock.hour, clock.min = 26, 2, 0, 0
 H.emit(cal.name, "system_woke")
 assert(cal.props.icon.string == "10月26日 (月)" and cal.props.label.string == "0:00")
 assert(#H.pending == 0 and #H.timers == 0 and cal.props.update_freq == 1)
+H.emit(cal.name, "mouse.clicked")
+assert(H.complete("native-menu", ""), "Prepare the native host")
+assert(H.complete("menu-client", ""):find("'calendar'", 1, true))
+assert(#H.pending == 0, "Calendar clicks must use the prepared native host")
 print("SketchyBar calendar: coherent snapshot, clock changes, midnight, cached rendering passed")
