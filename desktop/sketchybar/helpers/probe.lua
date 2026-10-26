@@ -35,6 +35,7 @@ function M.new(options)
     end
     if running then pending = true; return end
     running = true
+    if options.before then options.before() end
     local current = epoch
     sbar.exec('"$HOME/.local/bin/desktop-probe" ' .. shell.quote(options.command), function(result, code)
       running = false

@@ -2,13 +2,16 @@
 
 Keep workspace navigation inside AeroSpace. SketchyBar receives workspace-change
 events immediately, without synchronously enumerating windows on its event thread.
-The `org.dotfiles.aerospace-events` user agent maintains a protocol-version-1
-subscription to AeroSpace 0.21 or later. The workspace callback is empty, so
-AeroSpace does not launch a shell during workspace transitions. The subscriber
-coalesces buffered events and runs SketchyBar notifications in its own process.
-It reconnects through launchd after connection loss; the initial event restores
-the current workspace. Frame sizes, socket ownership, protocol and workspace
-values are checked. Notification subprocesses have a two-second timeout.
+AeroSpace's workspace callback starts a one-shot Lua notifier directly. SbarLua's
+public `trigger` API sends the committed workspace through native Mach IPC; no
+shell or SketchyBar CLI is started. The callback does not wait for child exit.
+
+Callbacks include their kernel process-creation timestamp. The bar discards
+notifications older than its own process, a newer accepted callback, or the
+latest reconciliation request. This prevents a callback delayed by scheduling
+from restoring old focus, including across reloads. Polling remains the fallback
+when a notification is lost. The process timestamp and reconciliation cutoff both use the kernel
+absolute-time clock.
 
 Focus changes do not change workspace membership. A known application in the
 focused workspace therefore does not need another all-window query. The check is
@@ -19,8 +22,7 @@ Unknown applications, explicit window-move events, wake/reload, failed samples,
 and periodic reconciliation still query AeroSpace. A routine or invalidation
 cannot be suppressed by a coalesced known-application event. Failed queries clear
 cached membership and display unknown state. Polling remains five seconds on AC
-and ten seconds on battery; freshness expiry remains unchanged. A reported lost
-event connection clears focus and membership; periodic queries remain as a fallback.
+and ten seconds on battery; freshness expiry remains unchanged. A failed reconciliation clears focus and membership; periodic queries remain as a fallback.
 
 The configuration uses `config-version = 2` and explicitly preserves the workspace
 list in `desktop/workspaces.json`. Borders uses non-Retina drawing and native
@@ -96,3 +98,22 @@ The [upstream release notes](https://github.com/nikitabobko/AeroSpace/releases/t
 and [workspace callback implementation](https://github.com/nikitabobko/AeroSpace/blob/v0.21.3-Beta/Sources/AppBundle/focus.swift)
 were inspected. `exec-on-workspace-change` does not wait for the launched process
 to exit; replacing its shell alone would not remove an application-response wait.
+
+## SketchyBar reflection follow-up
+
+The persistent subscription was replaced after visible bar delays remained.
+Upstream `broadcastEvent` schedules subscriber delivery as a main-actor task;
+the workspace callback is launched directly at the committed model change. This
+makes the callback the earlier available notification path during a busy refresh.
+The native notifier also removes the subscriber's per-event SketchyBar process.
+
+Concurrent native queries of `space.<id>` reproduced variable reflection times
+with the direct callback: 59.70, 264.95, 340.85 and 451.30 ms in one four-target
+run. These are request-to-observed-item-state times, including AeroSpace command
+processing and query scheduling, not physical key-to-visible-frame latency. The
+prototype also had a missed observation in an earlier run. Do not claim that
+all desktop latency is eliminated or infer a controlled speedup from these runs.
+
+Regression coverage includes reversed and duplicate callback delivery,
+pre-reload callbacks, malformed timestamps, reconciliation ordering, and late
+query responses. Research processes and Dock settings remain unchanged.

@@ -3,8 +3,16 @@ local order = assert(io.open("desktop/workspaces.json")):read("*a")
 package.loaded.workspaces = {}
 for key in order:gmatch('"([^"]+)"') do table.insert(package.loaded.workspaces, key) end
 package.loaded["helpers.app_icons"] = { Arc = "browser" }
+local clock_now = 100
+package.loaded.processstamp = { birth = function() return 100 end, now = function() return clock_now end }
 dofile("desktop/sketchybar/items/spaces.lua")
+local event_start = 100
 local function emit(event, env)
+  if event == "aerospace_workspace_change" and env.EVENT_START == nil then
+    event_start = event_start + 1
+    env.EVENT_START = tostring(event_start)
+    clock_now = event_start
+  end
   H.emit("aerospace.observer", event, env)
 end
 H.complete("--focused", "1\n")
@@ -80,12 +88,22 @@ emit("routine")
 H.run_timer(0.1)
 H.complete("--focused", "1\n")
 H.complete("list-windows", windows)
-emit("aerospace_connection_change", { CONNECTED = "0" })
-assert(H.items["space.status"].props.drawing, "Lost event connection must clear the focused workspace")
-assert(not H.items["space.1"].props.label.drawing, "Lost event connection must clear cached application icons")
 emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "2" })
-assert(H.items["space.2"].props.icon.highlight, "Reconnection accepts the initial workspace immediately")
+emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5", EVENT_START = "100" })
+assert(H.items["space.2"].props.icon.highlight, "A pre-reload notification cannot overwrite current focus")
+emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5", EVENT_START = tostring(event_start - 1) })
+assert(H.items["space.2"].props.icon.highlight, "A delayed callback cannot overwrite newer focus")
+emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5", EVENT_START = tostring(event_start) })
+assert(H.items["space.2"].props.icon.highlight, "Duplicate events must be ignored")
+for _, stamp in ipairs({ "bad", "inf", "nan", "-1", "0", "100.5", "" }) do
+  emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5", EVENT_START = stamp })
+  assert(H.items["space.2"].props.icon.highlight, "Invalid timestamps cannot change focus")
+end
+clock_now = event_start + 2
+emit("routine")
+emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5", EVENT_START = tostring(event_start + 1) })
+H.complete("--focused", "2\n")
+assert(H.items["space.2"].props.icon.highlight, "Notifications predating reconciliation cannot supersede its result")
 H.run_timer(0.1)
 H.complete("list-windows", windows)
-assert(H.items["space.1"].props.label.string == "browser", "Reconnection restores verified membership")
-print("SketchyBar spaces: query suppression, batching, focus races, unknown state and recovery passed")
+print("SketchyBar spaces: query suppression, batching, ordered notifications, focus races and recovery passed")
