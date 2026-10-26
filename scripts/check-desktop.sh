@@ -7,6 +7,7 @@ while IFS= read -r -d '' file; do
 done < <(git ls-files -z '*.nix')
 
 python3 tests/nix-safe.py
+python3 tests/apply-sketchybar.py
 python3 tests/kanata-start.py
 zsh -f tests/completion-previews.zsh
 zsh -f tests/zsh-completion.zsh

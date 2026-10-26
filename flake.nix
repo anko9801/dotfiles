@@ -155,26 +155,30 @@
           };
         in
         {
-          packages = lib.optionalAttrs pkgs.stdenv.isLinux {
-            windows = inputs.nix-windows.lib.mkNixWindows {
-              inherit pkgs;
-              modules = inputs.nix-windows.nixWindowsModules.default ++ [
-                ./tools/git/windows.nix
-                (import ./desktop/kanata.nix).windowsModule
-                (import ./terminal/windows-terminal.nix).windowsModule
-                ./desktop/komorebi.nix
-                ./desktop/whkd.nix
-                ./system/windows/winget.nix
-                ./system/windows/wsl.nix
-                ./system/windows/defaults.nix
-                {
-                  system.stateVersion = 1;
-                  windows.username = "anko";
-                  windows.fonts = [ pkgs.moralerspace ];
-                }
-              ];
+          packages =
+            lib.optionalAttrs pkgs.stdenv.isDarwin {
+              sketchybar-config = import ./desktop/sketchybar/package.nix { inherit pkgs; };
+            }
+            // lib.optionalAttrs pkgs.stdenv.isLinux {
+              windows = inputs.nix-windows.lib.mkNixWindows {
+                inherit pkgs;
+                modules = inputs.nix-windows.nixWindowsModules.default ++ [
+                  ./tools/git/windows.nix
+                  (import ./desktop/kanata.nix).windowsModule
+                  (import ./terminal/windows-terminal.nix).windowsModule
+                  ./desktop/komorebi.nix
+                  ./desktop/whkd.nix
+                  ./system/windows/winget.nix
+                  ./system/windows/wsl.nix
+                  ./system/windows/defaults.nix
+                  {
+                    system.stateVersion = 1;
+                    windows.username = "anko";
+                    windows.fonts = [ pkgs.moralerspace ];
+                  }
+                ];
+              };
             };
-          };
 
           apps = {
             switch = {

@@ -40,3 +40,29 @@ assert(displayed == 50, "Authoritative event cancels an earlier query")
 request.invalidate()
 assert(displayed == nil)
 print("SketchyBar probe: coalescing, stale responses, expiry, invalid data and timeout passed")
+H.timers, H.timer_delays = {}, {}
+local recovered, failure
+local lost = probe.new({ command = "missing-callback", max_age = 20,
+  apply = function(value) recovered = value; return true end,
+  unavailable = function(value) failure = value end,
+})
+lost.refresh()
+local retired = H.pending[#H.pending]
+H.run_timer(16)
+assert(failure == "応答期限切れ", "A missing callback must release the running request")
+lost.refresh()
+local replacement = H.pending[#H.pending]
+assert(replacement ~= retired)
+retired.callback("stale", 0)
+replacement.callback("fresh", 0)
+assert(recovered == "fresh", "Late completion must not retire a newer request")
+local requests = #H.pending
+H.run_timer(1)
+assert(#H.pending == requests, "A retired retry must not duplicate successful recovery")
+print("SketchyBar probe: lost callback recovery passed")
+
+H.timers, H.timer_delays = {}, {}
+lost.refresh()
+lost.accept("authoritative")
+H.run_timer(16)
+assert(recovered == "authoritative", "A lost older request must not clear a newer accepted event")

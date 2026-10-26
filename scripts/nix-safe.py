@@ -77,7 +77,7 @@ def main():
     else:
         command = [str(nix), "build", args.target or ".#darwinConfigurations.mac-arm.system",
                    "--impure", "--no-update-lock-file"]
-        command += ["--out-link", str(Path(args.out_link).resolve())] if args.out_link else ["--no-link"]
+        command += ["--out-link", str(Path(args.out_link).absolute())] if args.out_link else ["--no-link"]
     if args.action == "plan":
         command.append("--dry-run")
     limit = args.timeout or (90 if args.action == "plan" else 1200)

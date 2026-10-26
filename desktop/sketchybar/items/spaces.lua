@@ -19,17 +19,17 @@ for i, sid in ipairs(keyboard_order) do
     icon = {
       font = { family = settings.font.numbers },
       string = sid,
-      padding_left = 8,
-      padding_right = 8,
+      padding_left = 4,
+      padding_right = 4,
       color = color,
-      highlight_color = color,
+      highlight_color = colors.white,
     },
     label = {
       string = "",
       drawing = false,
-      padding_right = 8,
+      padding_right = 4,
       color = color,
-      highlight_color = color,
+      highlight_color = colors.white,
       font = "sketchybar-app-font:Regular:14.0",
       y_offset = -1,
     },
@@ -63,7 +63,8 @@ local function render_focus()
         drawing = drawing,
         icon = { highlight = selected },
         label = { highlight = selected },
-        background = { color = selected and colors.bar.bg or colors.transparent },
+        background = { color = selected and colors.bg1 or colors.transparent,
+          border_color = selected and colors.blue or colors.transparent, border_width = selected and 2 or 0 },
       })
       space.selected, space.drawing = selected, drawing
     end
@@ -102,7 +103,7 @@ local function render_windows(windows)
       space.item:set({
         icon = {
           string = sid .. (#labels > 0 and " " .. table.concat(labels, " ") or ""),
-          padding_right = #icons > 0 and 4 or 8,
+          padding_right = #icons > 0 and 2 or 4,
         },
         label = { string = table.concat(icons, " "), drawing = #icons > 0 },
       })

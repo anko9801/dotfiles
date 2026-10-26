@@ -2,6 +2,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 from unittest.mock import Mock, patch
 
 spec = importlib.util.spec_from_file_location("nix_safe", Path(__file__).parents[1] / "scripts/nix-safe.py")
@@ -70,6 +71,25 @@ class GuardTests(unittest.TestCase):
             self.assertIn("--out-link", args[0])
             self.assertIn("cores = 1", kwargs["env"]["NIX_CONFIG"])
             self.assertEqual(kwargs["env"]["GC_MAXIMUM_HEAP_SIZE"], "1073741824")
+
+    def test_out_link_does_not_follow_existing_result_symlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "store-result"
+            target.mkdir()
+            result = Path(directory) / "result"
+            result.symlink_to(target)
+            process = Mock(pid=1234)
+            process.poll.return_value = 0
+            process.wait.return_value = 0
+            with patch.object(guard.sys, "argv", ["nix-safe.py", "build", "--out-link", str(result)]), \
+                 patch.object(guard.sys, "platform", "darwin"), \
+                 patch.object(guard, "pressure", return_value=1), \
+                 patch.object(guard.Path, "exists", return_value=True), \
+                 patch.object(guard.subprocess, "check_output", return_value="Determinate Nix"), \
+                 patch.object(guard.subprocess, "Popen", return_value=process) as popen:
+                self.assertEqual(guard.main(), 0)
+                command = popen.call_args.args[0]
+                self.assertEqual(command[command.index("--out-link") + 1], str(result))
 
     def test_warning_mode_still_blocks_critical_pressure(self):
         with patch.object(guard.sys, "argv", ["nix-safe.py", "build", "--allow-warning"]), \

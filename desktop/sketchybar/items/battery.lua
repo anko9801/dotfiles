@@ -6,20 +6,12 @@ local battery = sbar.add("item", "widgets.battery", {
   label = { string = "—", width = 39, font = { family = settings.font.numbers } },
   background = { drawing = false },
   update_freq = 30,
-  popup = { align = "center" },
 })
-local details = sbar.add("item", "widgets.battery.details", {
-  position = "popup." .. battery.name,
-  icon = { drawing = false },
-  label = { string = "取得待ち" },
-})
-
 local request = probe.new({
   command = "LC_ALL=C /usr/bin/pmset -g batt",
   max_age = 65,
   unavailable = function(reason)
     battery:set({ drawing = true, icon = { string = "?", color = colors.grey }, label = "—" })
-    details:set({ label = reason })
   end,
   apply = function(info)
     if type(info) ~= "string" then return false end
@@ -40,10 +32,7 @@ local request = probe.new({
     elseif charge <= 40 then icon, color = icons.battery.low, colors.peach
     elseif charge <= 60 then icon = icons.battery.medium
     elseif charge <= 80 then icon = icons.battery.high end
-    local remaining = info:match(" (%d+:%d+) remaining")
-    local estimate = state == "discharging" and remaining and " · 残り約" .. remaining or ""
     battery:set({ drawing = true, icon = { string = icon, color = color }, label = charge .. "%" })
-    details:set({ label = states[state] .. estimate .. " · " .. os.date("%H:%M:%S") .. "取得" })
     return true
   end,
 })
@@ -51,7 +40,5 @@ local request = probe.new({
 battery:subscribe({ "forced", "routine" }, function() request.refresh() end)
 battery:subscribe({ "power_source_change", "system_woke" }, function() request.refresh(true) end)
 battery:subscribe("mouse.clicked", function()
-  battery:set({ popup = { drawing = battery:query().popup.drawing == "off" } })
-  request.refresh()
+  sbar.exec("open /System/Library/PreferencePanes/Battery.prefPane")
 end)
-battery:subscribe("mouse.exited.global", function() battery:set({ popup = { drawing = false } }) end)

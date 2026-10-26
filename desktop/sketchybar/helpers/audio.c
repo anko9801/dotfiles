@@ -17,15 +17,20 @@ int main(void) {
       device == kAudioObjectUnknown) return 1;
 
   Float32 volume = 0;
-  int have_volume = read_property(device, kAudioDevicePropertyVolumeScalar,
+  AudioObjectPropertySelector volume_property = kAudioDevicePropertyVolumeScalar;
+  int have_volume = read_property(device, volume_property,
                                   kAudioObjectPropertyScopeOutput, &volume, sizeof(volume));
   if (!have_volume) {
-    have_volume = read_property(device, kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
+    volume_property = kAudioHardwareServiceDeviceProperty_VirtualMainVolume;
+    have_volume = read_property(device, volume_property,
                                 kAudioObjectPropertyScopeOutput, &volume, sizeof(volume));
   }
   UInt32 muted = 0;
   int have_mute = read_property(device, kAudioDevicePropertyMute,
                                 kAudioObjectPropertyScopeOutput, &muted, sizeof(muted));
+  Boolean writable = false;
+  AudioObjectPropertyAddress volume_address = {volume_property, kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain};
+  int have_writable = have_volume && AudioObjectIsPropertySettable(device, &volume_address, &writable) == noErr;
   AudioDeviceID current = kAudioObjectUnknown;
   if (!read_property(kAudioObjectSystemObject, kAudioHardwarePropertyDefaultOutputDevice,
                      kAudioObjectPropertyScopeGlobal, &current, sizeof(current)) ||
@@ -36,6 +41,9 @@ int main(void) {
   else printf("null");
   printf(",\"muted\":");
   if (have_mute) printf("%s", muted ? "true" : "false");
+  else printf("null");
+  printf(",\"writable\":");
+  if (have_writable) printf("%s", writable ? "true" : "false");
   else printf("null");
   puts("}");
   return 0;

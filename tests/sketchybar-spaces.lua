@@ -23,10 +23,11 @@ local windows = {
 }
 H.complete("list-windows", windows)
 assert(H.items["space.1"].props.label.string == "browser")
-assert(H.items["space.2"].props.icon.string == "2 Unknown App")
+assert(H.items["space.2"].props.icon.string == "2 Unknown App", "App locations stay visible on inactive workspaces")
 assert(not H.items["space.3"].props.drawing)
 emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "2" })
 assert(H.items["space.2"].props.icon.highlight, "Focus updates before IPC")
+assert(H.items["space.2"].props.icon.string == "2 Unknown App")
 assert(#H.pending == 0 and H.count_timers(0.1) == 0, "Workspace focus alone must not enumerate windows")
 emit("front_app_switched", { INFO = "Unknown App" })
 H.run_timer(0.1)
