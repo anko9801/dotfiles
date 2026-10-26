@@ -166,6 +166,7 @@ in
         };
         NSGlobalDomain = {
           "com.apple.keyboard.fnState" = true;
+          AppleFnUsageType = 0;
         };
         "com.apple.TextEdit" = {
           RichText = 0;

@@ -4,7 +4,7 @@
 # Single file managing all platforms:
 #   - Home-manager: deploys config to ~/.config/kanata/
 #   - NixOS: services.kanata
-#   - Darwin: launchd.daemons
+#   - Darwin: native keyboard mapping; config available for manual use
 #   - Windows: manual install, config deployed by HM
 #
 # Usage:
@@ -150,7 +150,7 @@ in
   darwinModule =
     { username, pkgs, ... }:
     {
-      # Daemon reads this path, so deploy it for the same user
+      # Keep a manual config, but native Fn delivery takes priority over keyboard grabbing.
       home-manager.users.${username}.xdg.configFile."kanata/kanata.kbd".text = defcfgBlock + darwinConfig;
 
       environment.etc."kanata/start".source = pkgs.writeTextFile {
@@ -170,24 +170,6 @@ in
         ProcessType = "Interactive";
       };
 
-      launchd.daemons.kanata = {
-        serviceConfig = {
-          Label = "com.kanata.daemon";
-          ProgramArguments = [
-            "/bin/sh"
-            "/etc/kanata/start"
-            "/opt/homebrew/bin/kanata"
-            "/Users/${username}/.config/kanata/kanata.kbd"
-          ];
-          RunAtLoad = true;
-          KeepAlive.SuccessfulExit = false;
-          ThrottleInterval = 60;
-          StartInterval = 300;
-          ProcessType = "Interactive";
-          StandardOutPath = "/tmp/kanata.out.log";
-          StandardErrorPath = "/tmp/kanata.err.log";
-        };
-      };
     };
 
   # WHM module (Windows)

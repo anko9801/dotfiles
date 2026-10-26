@@ -287,7 +287,7 @@ Kanata with the granted permissions, the log reported a connected driver and
 matching version. The two earlier keyboard-open permission errors did not
 increase during the final check. Both services remained running.
 
-The macOS mapping is now in `desktop/kanata-macos.kbd`: Caps Lock is Escape on
+The initial macOS mapping was in `desktop/kanata-macos.kbd`: Caps Lock was Escape on
 tap and Control on hold; left/right Command tap selects Eisu/Kana, while a chord
 activates Command immediately. Ordinary letters and application prefixes pass
 through unchanged. The previous macOS mapping intercepted plain Q with a
@@ -302,6 +302,28 @@ checks passed. Startup after a complete macOS reboot was not tested.
 The previous keyboard file and activation artifacts are in
 `/private/tmp/kanata-enabled-backup-20261025`. The user completed authentication
 through macOS; no authentication secret was collected or stored in this repo.
+
+### Native Fn restoration (2026-10-27)
+
+The user requested ordinary Command keys and working physical Fn, with neither
+key switching the input mode. Removing Command tap actions fixed the unwanted
+Eisu/Kana switching. Excluding Fn from the Kanata processing loop did not restore
+Fn+Delete on this Mac; stopping the Kanata daemon did, confirmed by the user.
+This comparison identifies the active keyboard capture path as the trigger,
+without attributing it to a specific driver implementation defect.
+
+macOS now uses its native Caps Lock-to-Control mapping. The Kanata LaunchDaemon
+is no longer declared, so future nix-darwin activation removes the old service
+instead of starting it again. The live service is stopped and persistently
+disabled through launchd. The manual config remains available without Command
+tap actions; enabling it again requires verifying native Fn operation first.
+Caps tap-to-Escape is inactive while Kanata is off. Linux and Windows mappings
+are unchanged, and the existing driver approval is retained.
+
+`AppleFnUsageType = 0` disables the Fn/Globe tap input-mode action. The existing
+function-row preference is preserved. Local application changes only the
+keyboard config, this preference and the Kanata service state; it does not
+activate the full system, restart the Dock or touch research jobs.
 
 ## Event batching and clock follow-up
 
