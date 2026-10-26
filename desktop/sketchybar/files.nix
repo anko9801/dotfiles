@@ -45,6 +45,9 @@ in
         .. config_dir .. "/?/init.lua;"
         .. package.path
 
+      local generation_file = assert(io.open(config_dir .. "/generation-id", "r"))
+      sketchybar_generation = generation_file:read("*l")
+      generation_file:close()
       require("init")
     '';
   };

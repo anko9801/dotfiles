@@ -29,6 +29,7 @@ pkgs.runCommand "sketchybar-config" { } ''
     done
   )
   ${install}
+  grep -F 'sketchybar_generation =' "$out/.config/sketchybar/sketchybarrc" >/dev/null
   mkdir -p "$out/bin"
   ln -s ${notifier} "$out/bin/aerospace-notify"
   ${pkgs.lua55Packages.lua}/bin/luac -p "$out/.config/sketchybar/"*.lua "$out/.config/sketchybar/"{items,helpers}/*.lua
