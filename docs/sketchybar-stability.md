@@ -146,9 +146,9 @@ calendar records are fetched. Only an explicit save in the new-event form writes
 an event. The form uses the system's default writable calendar where available,
 validates title and times, and preserves input after validation errors. It never
 automatically modifies or deletes existing events. OS authorization is not
-deployed by Nix; changed local application identities may require reapproval.
+deployed by Nix; changed local application identities may require approval again.
 
-`itsycal.nix` installs the official Homebrew [Itsycal](https://www.mowglii.com/itsycal/)
+The calendar module installs the official Homebrew [Itsycal](https://www.mowglii.com/itsycal/)
 cask as the secondary detailed calendar, with compact text, Monday-first weeks,
 seven agenda days, locations and week numbers. Its public date URL opens the
 selected date from the popover's details action. Its independent icon position
