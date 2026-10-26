@@ -98,7 +98,7 @@ local command = H.complete("menu-client", "")
 assert(command:find("'cpu'", 1, true) and command:find("50%", 1, true))
 H.emit("widgets.memory.graph", "mouse.clicked")
 command = H.complete("menu-client", "")
-assert(command:find("メモリプレッシャー", 1, true) and command:find("11.50 GiB", 1, true))
+assert(command:find("Memory pressure:", 1, true) and command:find("11.50 GiB", 1, true))
 H.emit("widgets.volume", "mouse.clicked")
 command = H.complete("menu-client", "")
 assert(command:find("現在の値を取得できません", 1, true) and not command:find("38%", 1, true),

@@ -20,15 +20,26 @@ try:
         time.sleep(0.05)
     assert ping.returncode == 0, "Native menu host did not become ready"
     pid = int(ping.stdout)
+    fixtures = {
+        "cpu": ["CPU", "Busy (all CPUs)\t50%", "User / System\t25.0% / 25.0%", "Idle / Nice\t50.0% / 0.0%",
+                "Load 1 / 5 / 15m\t1.20 / 2.40 / 3.60", "Physical / Logical\t10 / 10", "Sample age: 1.0 s at open"],
+        "memory": ["Memory", "Used (estimate)\t12.00 GiB / 16.00 GiB", "Anon / Wired\t8.00 GiB / 2.00 GiB",
+                   "Compressor RAM\t2.00 GiB", "Swap used / total\t3.00 GiB / 4.00 GiB", "Swap in / out\t2.0 / 5.0 pages/s"],
+        "network": ["Network", "en7 · SC primary: IPv4", "IPv4: 192.0.2.1", "IPv6: 2001:db8:1234:5678:9abc:def0:1234:5678",
+                    "Router (SC): 192.0.2.254", "Global DNS (SC)", "  2001:db8::53", "MTU\t1500", "Rx / Tx\t1.00 MiB/s / 2.00 MiB/s"],
+        "volume": ["Sound", "USB Audio", "Nominal rate\t48.0 kHz", "I/O buffer\t128 frames"],
+        "battery": ["Battery", "Charge\t75%", "Remaining (OS est.)\t3:00"],
+        "calendar": ["Calendar"],
+    }
     kind_timings = {}
     for kind in ["cpu", "memory", "volume", "network", "battery", "calendar"]:
         start = time.perf_counter()
-        subprocess.run([client_path, "--bench", channel, "0", kind, "test"], check=True)
+        subprocess.run([client_path, "--bench", channel, "0", kind, *fixtures[kind]], check=True)
         kind_timings[kind] = round((time.perf_counter() - start) * 1000, 3)
     timings = []
     for _ in range(20):
         start = time.perf_counter()
-        subprocess.run([client_path, "--bench", channel, "0", "cpu", "CPU", "使用率 25%"], check=True)
+        subprocess.run([client_path, "--bench", channel, "0", "cpu", *fixtures["cpu"]], check=True)
         timings.append((time.perf_counter() - start) * 1000)
         current = subprocess.check_output([client_path, "--ping", channel], text=True)
         assert int(current) == pid, "A click must reuse the same AppKit host"

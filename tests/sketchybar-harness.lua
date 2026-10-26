@@ -12,7 +12,8 @@ end
 
 package.path = "desktop/sketchybar/?.lua;" .. package.path
 package.preload.processstamp = function()
-  return { pid = function() return 321 end, birth = function() return 987 end, now = function() return 10000 end }
+  return { pid = function() return 321 end, birth = function() return 987 end, now = function() return 10000 end,
+    monotonic = function() return H.time end }
 end
 colors = { bar = { bg = 1 }, popup = {}, with_alpha = function() return 1 end }
 setmetatable(colors, { __index = function(_, key) return key end })

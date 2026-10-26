@@ -25,7 +25,12 @@ function M.bind(items, kind, contents)
       local request = serial
       local arguments = { '"$HOME/.config/sketchybar/helpers/menu-client"', shell.quote(channel),
         tostring(stamp.now()), shell.quote(kind) }
-      for _, line in ipairs(contents()) do arguments[#arguments + 1] = shell.quote(line) end
+      local lines, sampled = contents()
+      for _, line in ipairs(lines) do arguments[#arguments + 1] = shell.quote(line) end
+      if type(sampled) == "number" then
+        local age = stamp.monotonic() - sampled
+        arguments[#arguments + 1] = shell.quote("Sample age: " .. (age >= 0 and string.format("%.1f s at open", age) or "—"))
+      end
       local function send(attempt)
         sbar.exec(table.concat(arguments, " "), function(_, code)
           -- Only a missing endpoint is safe to retry; a timed-out send may have opened the menu.

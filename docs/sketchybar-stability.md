@@ -80,6 +80,42 @@ not physical click-to-screen latency. The host retains the latest handler-to-
 The menu path performs no diagnostic disk writes. Compositor and display delay
 are outside that measurement.
 
+## Diagnostic snapshots
+
+Numeric readouts use two columns with monospaced, left-aligned values and an
+eight-point column gap. Names, status, address/DNS lists and explanatory text are
+plain lines. Width follows content rather than a fixed wide panel (normally
+200–480 points, with intrinsic minimums for sliders and the calendar). The bar's
+graphs and application layout stay unchanged. No collection or network probe
+runs on click. `Sample age: ... at open` is the monotonic
+age of the cached reading when the menu opens; menu values are snapshots, while
+the bar graphs continue updating. Missing reads clear the old values.
+
+- CPU: busy, user/system, idle/nice, raw 1/5/15-minute load averages, physical and
+  logical CPU counts, and the actual sampling interval. Busy is normalized so
+  100% means all logical CPUs; load averages are counts, not percentages.
+- Memory: used/total GiB, anonymous and wired bytes, purgeable pages within the
+  anonymous count, physical compressor RAM, file-backed pages, swap used/total,
+  swap-in/out pages per second and page size. Estimated used memory is
+  `max(anonymous - purgeable, 0) + wired + compressor`, capped at physical RAM.
+  File-backed pages are not an unconditional free-memory estimate. Swap page
+  rates describe logical pages processed, not physical disk-byte throughput.
+- Network: the SystemConfiguration primary interface/family/router, IPv4 and
+  non-link-local IPv6, MTU, per-interface receive/transmit rates and cumulative
+  bytes, and the global DNS addresses. Global DNS does not enumerate all scoped
+  or split-DNS resolvers, and primary-interface counters are not machine-wide
+  traffic totals. The main bar keeps decimal kB/s; detailed rates use KiB/MiB.
+- Audio: sampled output name/ID, mute/volume state, nominal sample rate, I/O buffer
+  frames, buffer duration and whether volume is writable. Buffer duration is
+  `frames / sample rate`, not end-to-end audio latency. The live slider identifies
+  its current output separately and rejects writes if that device changes.
+- Battery: the existing state and percentage plus the OS time estimate when
+  available. An unavailable estimate is not replaced with a guessed duration.
+
+Collectors use Mach, sysctl, SystemConfiguration and CoreAudio locally. Polling
+cadences are unchanged; no process-list scan, Internet reachability check or new
+privacy permission is introduced.
+
 
 Calendar events, remote research integration and new permissions are outside this
 change. Research calculations, their priorities, Dock preferences and AeroSpace's

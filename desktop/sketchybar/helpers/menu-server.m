@@ -74,7 +74,7 @@ int main(int argc, const char *argv[]) {
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
     // Font, CoreAudio and calendar initialization belong before the first click.
-    for (NSArray *request in @[@[@"cpu", @"CPU", @"使用率"], @[@"volume", @"サウンド"], @[@"calendar", @"カレンダー"]]) {
+    for (NSArray *request in @[@[@"cpu", @"CPU", @"使用率\t—"], @[@"volume", @"サウンド"], @[@"calendar", @"カレンダー"]]) {
       NSMenu *primer = menu_create(request);
       (void)primer.size;
     }

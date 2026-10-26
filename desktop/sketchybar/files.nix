@@ -124,6 +124,7 @@ in
   ".config/sketchybar/helpers/app_icons.lua" = luaFile ./helpers/app_icons.lua;
   ".config/sketchybar/helpers/shell.lua" = luaFile ./helpers/shell.lua;
   ".config/sketchybar/helpers/menu.lua" = luaFile ./helpers/menu.lua;
+  ".config/sketchybar/helpers/diagnostics.lua" = luaFile ./helpers/diagnostics.lua;
   ".config/sketchybar/helpers/probe.lua" = luaFile ./helpers/probe.lua;
   ".config/sketchybar/helpers/power.lua" = luaFile ./helpers/power.lua;
   ".config/sketchybar/helpers/network.sh" = luaFile ./helpers/network.sh;
