@@ -102,6 +102,7 @@ _: {
             "screencapture"
             "pmset"
             "readlink"
+            "hidpi"
             "kanata"
             "atuin"
             "zoxide"

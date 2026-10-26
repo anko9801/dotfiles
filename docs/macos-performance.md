@@ -1,5 +1,8 @@
 # macOS performance
 
+See [AeroSpace performance](aerospace-performance.md) for the window-switching
+follow-up and its measurement limits.
+
 Use `/usr/bin/python3 scripts/nix-safe.py plan` from the repository root before
 building. It previews `darwinConfigurations.mac-arm.system` without activation.
 Use `build` instead of `plan` only after reviewing the preview. Both commands

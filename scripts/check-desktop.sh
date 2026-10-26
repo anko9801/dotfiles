@@ -8,6 +8,7 @@ done < <(git ls-files -z '*.nix')
 
 python3 tests/nix-safe.py
 python3 tests/kanata-start.py
+python3 tests/aerospace-events.py
 zsh -f tests/completion-previews.zsh
 zsh -f tests/zsh-completion.zsh
 for test in tests/sketchybar-*.lua; do

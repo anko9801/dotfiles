@@ -3,6 +3,7 @@ local probe = require("helpers.probe")
 
 sbar.add("event", "aerospace_workspace_change")
 sbar.add("event", "aerospace_windows_change")
+sbar.add("event", "aerospace_connection_change")
 
 local keyboard_order = require("workspaces")
 
@@ -39,7 +40,7 @@ for i, sid in ipairs(keyboard_order) do
       height = 26,
     },
   })
-  spaces[sid] = { item = space, has_windows = false }
+  spaces[sid] = { item = space, has_windows = false, apps = {} }
   space:subscribe("mouse.clicked", function()
     sbar.exec("aerospace workspace " .. sid)
   end)
@@ -86,8 +87,9 @@ local function render_windows(windows)
     end
   end
   for sid, space in pairs(spaces) do
+    space.apps = apps[sid] or {}
     local names, icons, labels = {}, {}, {}
-    for app in pairs(apps[sid] or {}) do names[#names + 1] = app end
+    for app in pairs(space.apps) do names[#names + 1] = app end
     table.sort(names)
     local signature = table.concat(names, "\0")
     if signature ~= space.signature then
@@ -115,7 +117,7 @@ local window_request = probe.new({
   unavailable = function()
     windows_current = false
     for sid, space in pairs(spaces) do
-      space.has_windows, space.signature = false, nil
+      space.has_windows, space.signature, space.apps = false, nil, {}
       space.item:set({ icon = { string = sid .. (sid == focused and " —" or "") }, label = { string = "", drawing = false } })
     end
     render_focus()
@@ -153,20 +155,28 @@ local function refresh_windows() window_request.refresh() end
 
 local refresh_generation = 0
 local refresh_scheduled = false
-local function schedule_refresh()
+local refresh_required = false
+local switched_app
+local function schedule_refresh(app)
+  if type(app) == "string" and app ~= "" then switched_app = app
+  else refresh_required = true end
   if refresh_scheduled then return end
   refresh_scheduled = true
   local generation = refresh_generation
   sbar.delay(0.1, function()
     if generation ~= refresh_generation then return end
     refresh_scheduled = false
-    refresh_windows()
+    local known_app = windows_current and spaces[focused] and spaces[focused].apps[switched_app]
+    local required = refresh_required or not known_app
+    refresh_required, switched_app = false, nil
+    if required then refresh_windows() end
   end)
 end
 
 local function refresh_immediately()
   refresh_generation = refresh_generation + 1
   refresh_scheduled = false
+  refresh_required, switched_app = false, nil
   refresh_windows()
 end
 
@@ -177,9 +187,15 @@ local observer = sbar.add("item", "aerospace.observer", {
 })
 observer:subscribe("aerospace_workspace_change", function(env)
   if not focus_request.accept(env.FOCUSED_WORKSPACE) then focus_request.refresh() end
-  schedule_refresh()
+  if not windows_current then schedule_refresh() end
 end)
-observer:subscribe("front_app_switched", schedule_refresh)
+observer:subscribe("aerospace_connection_change", function(env)
+  if env.CONNECTED == "0" then
+    focus_request.invalidate("接続待ち")
+    window_request.invalidate("接続待ち")
+  end
+end)
+observer:subscribe("front_app_switched", function(env) schedule_refresh(env.INFO) end)
 observer:subscribe({ "space_windows_change", "aerospace_windows_change" }, function()
   window_request.invalidate()
   schedule_refresh()
