@@ -63,6 +63,7 @@ in
           package.cpath = package.cpath .. ";${sbarlua}/lib/lua/${lua.luaversion}/?.so"
 
           local config_dir = os.getenv("HOME") .. "/.config/sketchybar"
+          package.cpath = config_dir .. "/helpers/?.so;" .. package.cpath
           package.path = config_dir .. "/?.lua;"
             .. config_dir .. "/?/init.lua;"
             .. package.path

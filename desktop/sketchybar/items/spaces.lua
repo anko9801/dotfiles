@@ -3,12 +3,13 @@ local probe = require("helpers.probe")
 
 sbar.add("event", "aerospace_workspace_change")
 sbar.add("event", "aerospace_windows_change")
-sbar.add("event", "aerospace_connection_change")
 
 local keyboard_order = require("workspaces")
 
 local spaces = {}
 local focused = ""
+local clock = require("processstamp")
+local last_event_start = clock.birth()
 local windows_current = false
 for i, sid in ipairs(keyboard_order) do
   local color = settings.space_colors[((i - 1) % #settings.space_colors) + 1]
@@ -139,12 +140,14 @@ local window_request = probe.new({
 })
 local focus_request = probe.new({
   command = "aerospace list-workspaces --focused",
+  before = clock.now,
   max_age = 25,
   unavailable = function() focused = ""; render_focus() end,
-  apply = function(result)
+  apply = function(result, started)
     if type(result) ~= "string" then return false end
     local sid = result:match("^%s*([^%s]+)%s*$")
     if not sid then return false end
+    if started then last_event_start = math.max(last_event_start, started) end
     focused = sid
     if not windows_current and spaces[sid] then spaces[sid].item:set({ icon = { string = sid .. " —" } }) end
     render_focus()
@@ -186,14 +189,11 @@ local observer = sbar.add("item", "aerospace.observer", {
   update_freq = 5,
 })
 observer:subscribe("aerospace_workspace_change", function(env)
+  local started = tonumber(env.EVENT_START)
+  if not started or started % 1 ~= 0 or started <= last_event_start then return end
+  last_event_start = started
   if not focus_request.accept(env.FOCUSED_WORKSPACE) then focus_request.refresh() end
   if not windows_current then schedule_refresh() end
-end)
-observer:subscribe("aerospace_connection_change", function(env)
-  if env.CONNECTED == "0" then
-    focus_request.invalidate("接続待ち")
-    window_request.invalidate("接続待ち")
-  end
 end)
 observer:subscribe("front_app_switched", function(env) schedule_refresh(env.INFO) end)
 observer:subscribe({ "space_windows_change", "aerospace_windows_change" }, function()

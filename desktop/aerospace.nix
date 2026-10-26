@@ -12,9 +12,19 @@ let
   toArgb = hex: "0xff${builtins.substring 1 6 hex}";
 
   workspaceKeys = builtins.fromJSON (builtins.readFile ./workspaces.json);
-  eventBridge = pkgs.writeScript "aerospace-events" ''
-    #!${pkgs.python3}/bin/python3
-    ${builtins.readFile ./aerospace-events.py}
+  inherit (pkgs.lua55Packages) lua;
+  processStamp = pkgs.runCommandCC "sketchybar-processstamp" { buildInputs = [ lua ]; } ''
+    mkdir -p "$out/lib"
+    $CC -shared -O2 -Wall -Wextra -I${lua}/include \
+      ${./sketchybar/helpers/processstamp.c} -L${lua}/lib -llua -o "$out/lib/processstamp.so"
+  '';
+  workspaceNotifier = pkgs.writeScript "aerospace-notify" ''
+    #!${lua}/bin/lua
+    package.cpath = "${processStamp}/lib/?.so;${pkgs.sbarlua}/lib/lua/${lua.luaversion}/?.so;" .. package.cpath
+    local notify = (function()
+      ${builtins.readFile ./aerospace-notify.lua}
+    end)()
+    notify.run(os.getenv("AEROSPACE_FOCUSED_WORKSPACE"), require("processstamp").birth(), require("sketchybar").trigger)
   '';
   workspaceBindings = lib.concatMapStringsSep "\n" (workspace: ''
     alt-${lib.toLower workspace} = 'workspace ${workspace}'
@@ -87,18 +97,8 @@ let
 in
 {
   home-manager.users.${config.system.primaryUser} = {
-    launchd.agents.aerospace-events = {
-      enable = true;
-      config = {
-        Label = "org.dotfiles.aerospace-events";
-        ProgramArguments = [ "${eventBridge}" ];
-        RunAtLoad = true;
-        KeepAlive = true;
-        ThrottleInterval = 5;
-      };
-    };
-
     home.file = {
+      ".config/sketchybar/helpers/processstamp.so".source = "${processStamp}/lib/processstamp.so";
       ".config/aerospace/aerospace.toml".text = ''
         # AeroSpace - tiling window manager for macOS
         # https://github.com/nikitabobko/AeroSpace
@@ -122,8 +122,8 @@ in
         # Mouse settings
         on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
-        # A persistent socket subscriber notifies SketchyBar outside the UI thread.
-        exec-on-workspace-change = []
+        # Notify at the committed workspace change without starting a shell.
+        exec-on-workspace-change = ["${workspaceNotifier}"]
 
         # Gaps and padding
         [gaps]
