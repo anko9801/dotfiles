@@ -42,7 +42,7 @@ Evaluate in priority order (earlier criteria outweigh later ones):
 | Multiplexer | herdr | Agent state in the sidebar; self-managed binary |
 | Secrets | 1Password | E2EE, biometric, peace of mind |
 | Theme | Stylix + Catppuccin | Unified colors across tools |
-| macOS windows | AeroSpace | Keyboard navigation; one workspace list shared with the bar; native edge tiling disabled |
+| macOS windows | AeroSpace | Keyboard navigation; explicit shared workspace list; cached bar membership during focus changes; see [measurements](aerospace-performance.md) |
 | macOS status | SketchyBar + SbarLua | Native metrics/network reads, grouped event refreshes, and slower polling on battery |
 | macOS keyboard | Kanata + native Caps Lock mapping | Check virtual-driver readiness before startup; avoid repeated failures while approval is pending |
 | Dotfiles | home-manager | Reproducible CLI/config; macOS GUI tools stay in Homebrew. See [macOS performance](macos-performance.md). |
