@@ -8,9 +8,10 @@ shell or SketchyBar CLI is started. The callback does not wait for child exit.
 
 Callbacks include their kernel process-creation timestamp. The bar discards
 notifications older than its own process, a newer accepted callback, or the
-latest reconciliation request. This prevents a callback delayed by scheduling
+latest completed reconciliation request. This prevents a callback delayed by scheduling
 from restoring old focus, including across reloads. Polling remains the fallback
-when a notification is lost. The process timestamp and reconciliation cutoff both use the kernel
+when a notification is lost. Pending reconciliation does not block immediate event delivery. The process
+timestamp and reconciliation cutoff both use the kernel
 absolute-time clock.
 
 Focus changes do not change workspace membership. A known application in the
@@ -107,12 +108,12 @@ the workspace callback is launched directly at the committed model change. This
 makes the callback the earlier available notification path during a busy refresh.
 The native notifier also removes the subscriber's per-event SketchyBar process.
 
-Concurrent native queries of `space.<id>` reproduced variable reflection times
-with the direct callback: 59.70, 264.95, 340.85 and 451.30 ms in one four-target
-run. These are request-to-observed-item-state times, including AeroSpace command
-processing and query scheduling, not physical key-to-visible-frame latency. The
-prototype also had a missed observation in an earlier run. Do not claim that
-all desktop latency is eliminated or infer a controlled speedup from these runs.
+Concurrent native item queries reproduced variable request-to-observed-state
+times, including occasional multi-second waits. Earlier first samples also
+included observer startup; they are not valid measures of callback latency.
+The user confirmed that normal Alt-key switches now update the bar immediately.
+This is qualitative confirmation, not physical key-to-visible-frame measurement
+or proof that all desktop stalls are eliminated.
 
 Regression coverage includes reversed and duplicate callback delivery,
 pre-reload callbacks, malformed timestamps, reconciliation ordering, and late

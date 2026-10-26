@@ -13,8 +13,8 @@ function M.new(options)
     freshness = freshness + 1
     options.unavailable(reason)
   end
-  local function accept(result)
-    local ok, valid = pcall(options.apply, result)
+  local function accept(result, started)
+    local ok, valid = pcall(options.apply, result, started)
     if not ok or valid ~= true then unavailable("取得不可"); return false end
     freshness = freshness + 1
     local stamp = freshness
@@ -35,12 +35,12 @@ function M.new(options)
     end
     if running then pending = true; return end
     running = true
-    if options.before then options.before() end
+    local started = options.before and options.before()
     local current = epoch
     sbar.exec('"$HOME/.local/bin/desktop-probe" ' .. shell.quote(options.command), function(result, code)
       running = false
       if current == epoch then
-        if code == 0 then accept(result) else unavailable("取得不可") end
+        if code == 0 then accept(result, started) else unavailable("取得不可") end
       end
       if pending then pending = false; refresh() end
     end)

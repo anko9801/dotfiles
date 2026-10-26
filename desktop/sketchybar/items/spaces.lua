@@ -140,13 +140,14 @@ local window_request = probe.new({
 })
 local focus_request = probe.new({
   command = "aerospace list-workspaces --focused",
-  before = function() last_event_start = math.max(last_event_start, clock.now()) end,
+  before = clock.now,
   max_age = 25,
   unavailable = function() focused = ""; render_focus() end,
-  apply = function(result)
+  apply = function(result, started)
     if type(result) ~= "string" then return false end
     local sid = result:match("^%s*([^%s]+)%s*$")
     if not sid then return false end
+    if started then last_event_start = math.max(last_event_start, started) end
     focused = sid
     if not windows_current and spaces[sid] then spaces[sid].item:set({ icon = { string = sid .. " —" } }) end
     render_focus()

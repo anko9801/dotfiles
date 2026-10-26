@@ -101,9 +101,18 @@ for _, stamp in ipairs({ "bad", "inf", "nan", "-1", "0", "100.5", "" }) do
 end
 clock_now = event_start + 2
 emit("routine")
-emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5", EVENT_START = tostring(event_start + 1) })
 H.complete("--focused", "2\n")
-assert(H.items["space.2"].props.icon.highlight, "Notifications predating reconciliation cannot supersede its result")
+emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5", EVENT_START = tostring(event_start + 1) })
+assert(H.items["space.2"].props.icon.highlight, "Notifications predating completed reconciliation cannot supersede its result")
+H.run_timer(0.1)
+H.complete("list-windows", windows)
+event_start = clock_now
+clock_now = event_start + 2
+emit("routine")
+emit("aerospace_workspace_change", { FOCUSED_WORKSPACE = "5" })
+assert(H.items["space.5"].props.icon.highlight, "Pending reconciliation must not delay the newest delivered event")
+H.complete("--focused", "2\n")
+assert(H.items["space.5"].props.icon.highlight, "A query response cannot undo an accepted event")
 H.run_timer(0.1)
 H.complete("list-windows", windows)
 print("SketchyBar spaces: query suppression, batching, ordered notifications, focus races and recovery passed")
